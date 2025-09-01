@@ -137,4 +137,83 @@ defmodule MockPveApi.Handlers.Cluster do
         |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
     end
   end
+
+  @doc """
+  GET /api2/json/cluster/backup-info/providers
+  Lists available backup providers (PVE 8.2+).
+  """
+  def list_backup_providers(conn) do
+    providers = [
+      %{
+        id: "backup-store-1",
+        type: "pbs",
+        server: "pbs.example.com",
+        username: "backup@pbs",
+        datastore: "datastore1",
+        enabled: true
+      },
+      %{
+        id: "nfs-backup",
+        type: "nfs",
+        server: "nfs.example.com",
+        path: "/backup",
+        enabled: true
+      }
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: providers}))
+  end
+
+  @doc """
+  GET /api2/json/cluster/ha/affinity
+  Lists HA resource affinity rules (PVE 9.0+).
+  """
+  def list_ha_affinity_rules(conn) do
+    rules = [
+      %{
+        sid: "rule-1",
+        comment: "Database servers on separate hosts",
+        state: "enabled",
+        type: "anti-affinity",
+        group: "db-group"
+      },
+      %{
+        sid: "rule-2", 
+        comment: "Web servers prefer node1",
+        state: "enabled",
+        type: "affinity",
+        node: "pve-node1"
+      }
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: rules}))
+  end
+
+  @doc """
+  POST /api2/json/cluster/ha/affinity
+  Creates a new HA resource affinity rule (PVE 9.0+).
+  """
+  def create_ha_affinity_rule(conn) do
+    params = conn.body_params
+    sid = Map.get(params, "sid", "auto-#{:rand.uniform(9999)}")
+    rule_type = Map.get(params, "type", "affinity")
+    comment = Map.get(params, "comment", "")
+
+    new_rule = %{
+      sid: sid,
+      comment: comment,
+      state: "enabled",
+      type: rule_type,
+      node: Map.get(params, "node"),
+      group: Map.get(params, "group")
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: new_rule}))
+  end
 end

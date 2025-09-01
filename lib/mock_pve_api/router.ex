@@ -16,7 +16,8 @@ defmodule MockPveApi.Router do
     Cluster,
     Pools,
     Storage,
-    Metrics
+    Metrics,
+    Sdn
   }
 
   alias MockPveApi.{State, Capabilities, Coverage}
@@ -155,6 +156,14 @@ defmodule MockPveApi.Router do
     Nodes.list_vms(conn)
   end
 
+  get "/api2/json/nodes/:node/qemu/:vmid" do
+    Nodes.get_vm(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid" do
+    Nodes.update_vm(conn)
+  end
+
   get "/api2/json/nodes/:node/qemu/:vmid/config" do
     Nodes.get_vm_config(conn)
   end
@@ -182,6 +191,14 @@ defmodule MockPveApi.Router do
   # Container endpoints
   get "/api2/json/nodes/:node/lxc" do
     Nodes.list_containers(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid" do
+    Nodes.get_container(conn)
+  end
+
+  put "/api2/json/nodes/:node/lxc/:vmid" do
+    Nodes.update_container(conn)
   end
 
   get "/api2/json/nodes/:node/lxc/:vmid/config" do
@@ -246,6 +263,14 @@ defmodule MockPveApi.Router do
     Nodes.get_task_log(conn)
   end
 
+  get "/api2/json/nodes/:node/time" do
+    Nodes.get_node_time(conn)
+  end
+
+  put "/api2/json/nodes/:node/time" do
+    Nodes.set_node_time(conn)
+  end
+
   # Metrics and statistics endpoints
   get "/api2/json/nodes/:node/rrd" do
     Metrics.get_node_rrd(conn)
@@ -284,6 +309,10 @@ defmodule MockPveApi.Router do
     Storage.get_storage_content(conn)
   end
 
+  post "/api2/json/nodes/:node/storage/:storage/content" do
+    Storage.create_storage_content(conn)
+  end
+
   # Cluster endpoints  
   get "/api2/json/cluster/status" do
     Cluster.get_cluster_status(conn)
@@ -317,6 +346,20 @@ defmodule MockPveApi.Router do
     Cluster.remove_cluster_node(conn)
   end
 
+  # Backup providers (PVE 8.2+)
+  get "/api2/json/cluster/backup-info/providers" do
+    Cluster.list_backup_providers(conn)
+  end
+
+  # HA affinity rules (PVE 9.0+)
+  get "/api2/json/cluster/ha/affinity" do
+    Cluster.list_ha_affinity_rules(conn)
+  end
+
+  post "/api2/json/cluster/ha/affinity" do
+    Cluster.create_ha_affinity_rule(conn)
+  end
+
   # Pool endpoints
   get "/api2/json/pools" do
     Pools.list_pools(conn)
@@ -345,10 +388,24 @@ defmodule MockPveApi.Router do
     |> send_resp(200, Jason.encode!(%{data: []}))
   end
 
+  get "/api2/json/cluster/sdn/zones/:zone" do
+    Sdn.get_sdn_zone(conn)
+  end
+
+  put "/api2/json/cluster/sdn/zones/:zone" do
+    Sdn.update_sdn_zone(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/zones/:zone" do
+    Sdn.delete_sdn_zone(conn)
+  end
+
   get "/api2/json/cluster/sdn/vnets" do
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: []}))
+    Sdn.list_vnets(conn)
+  end
+
+  post "/api2/json/cluster/sdn/vnets" do
+    Sdn.create_vnet(conn)
   end
 
   get "/api2/json/cluster/sdn/subnets" do

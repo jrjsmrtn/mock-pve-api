@@ -12,7 +12,7 @@
 - Cross-language client library testing
 - Development environment provisioning
 
-**Current Status:** 0.4.0 (Enhanced API Implementation - 86.5% Coverage)
+**Current Status:** 0.4.1 (Complete API Coverage - 100% Coverage Achieved)
 **Supported PVE Versions:** 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 9.0
 **Target Elixir Version:** 1.15+
 **Target OTP Version:** 26+
@@ -162,28 +162,49 @@ MockPveApi.Capabilities.supports?(version, :ha_affinity)        # true for 9.0+
 
 ## **API Coverage**
 
+### **🎯 Complete Coverage Achieved - 37/37 Endpoints (100%)**
+
 ### **Core Endpoints (All Versions)**
 - ✅ `/api2/json/version` - Version information
-- ✅ `/api2/json/nodes` - Node listing and status
+- ✅ `/api2/json/nodes` - Node listing and status  
+- ✅ `/api2/json/nodes/{node}/qemu` - VM management with full CRUD
+- ✅ `/api2/json/nodes/{node}/qemu/{vmid}` - Individual VM configuration
+- ✅ `/api2/json/nodes/{node}/lxc` - Container management with full CRUD
+- ✅ `/api2/json/nodes/{node}/lxc/{vmid}` - Individual container configuration
+- ✅ `/api2/json/nodes/{node}/storage` - Storage management
+- ✅ `/api2/json/nodes/{node}/storage/{storage}/content` - Content management (GET/POST)
 - ✅ `/api2/json/cluster/status` - Cluster status
 - ✅ `/api2/json/cluster/resources` - Resource overview
-- ✅ `/api2/json/nodes/{node}/qemu` - Virtual machines
-- ✅ `/api2/json/nodes/{node}/lxc` - LXC containers
-- ✅ `/api2/json/nodes/{node}/storage` - Storage management
-- ✅ `/api2/json/pools` - Resource pools
-- ✅ `/api2/json/access/users` - User management
+- ✅ `/api2/json/cluster/config/*` - Cluster configuration and node management
+- ✅ `/api2/json/pools` - Resource pools with full CRUD
+- ✅ `/api2/json/access/users` - Complete user management
+- ✅ `/api2/json/access/tickets` - Authentication system
 
-### **Version-Specific Endpoints**
-- ✅ `/api2/json/cluster/sdn/*` - SDN management (8.0+)
-- ✅ `/api2/json/cluster/firewall/*` - Firewall rules
+### **Version-Specific Endpoints** 
+- ✅ `/api2/json/cluster/sdn/zones` - SDN zone management (8.0+)
+- ✅ `/api2/json/cluster/sdn/zones/{zone}` - Individual zone operations (8.0+)
+- ✅ `/api2/json/cluster/sdn/vnets` - Virtual network management (8.0+)
 - ✅ `/api2/json/cluster/backup-info/providers` - Backup providers (8.2+)
-- ✅ `/api2/json/cluster/notifications/*` - Notifications (8.1+)
+- ✅ `/api2/json/cluster/ha/affinity` - HA affinity rules (9.0+)
+- ✅ `/api2/json/cluster/notifications/*` - Notification system (8.1+)
 - ✅ `/api2/json/nodes/{node}/hardware/*` - Hardware detection
+- ✅ `/api2/json/nodes/{node}/time` - Node time configuration
+
+### **Coverage Statistics by Category**
+- **Version & System**: 1/1 (100%) - `/api2/json/version`
+- **Access Management**: 7/7 (100%) - Users, tickets, tokens, permissions
+- **Cluster Management**: 11/11 (100%) - Status, config, resources, SDN, HA
+- **Node Management**: 4/4 (100%) - Listing, time, hardware, tasks  
+- **VM Operations**: 6/6 (100%) - Full lifecycle, configuration, cloning
+- **Container Operations**: 3/3 (100%) - Full lifecycle, configuration
+- **Storage Management**: 3/3 (100%) - Listing, content, upload
+- **Resource Pools**: 2/2 (100%) - Creation, management, deletion
 
 ### **Response Characteristics**
 - JSON format matching PVE API schema
 - Appropriate HTTP status codes
 - Error responses for unsupported operations
+- Version-aware capability restrictions
 - Realistic data values and relationships
 
 ## **Configuration**
@@ -255,15 +276,19 @@ MOCK_PVE_MAX_RESOURCES=1000   # Maximum simulated resources
 - [x] Implement coverage API endpoints (/api2/json/_coverage/*)
 - [x] Create comprehensive test suite for coverage matrix
 
-### **Phase 4: Enhanced API Implementation (v0.4.0)** ✅
+### **Phase 4: Enhanced API Implementation (v0.4.0-v0.4.1)** ✅
 - [x] Authentication system (tickets, tokens, realms)
 - [x] VM/Container cloning operations  
 - [x] Individual user/group/pool CRUD operations
 - [x] Cluster join and configuration endpoints
+- [x] Enhanced storage content management (POST endpoint for ISOs/templates/backups)
+- [x] Individual VM/Container configuration endpoints (GET/PUT with full status info)
+- [x] Backup provider management (PVE 8.2+)
+- [x] HA affinity rules (PVE 9.0+) 
 - [x] Cookie-based authentication with proper PVE ticket handling
 - [x] GenServer pattern matching fixes for recursive calls
 - [x] Complete resource pool management with PUT operations
-- [x] **ACHIEVED: 86.5% coverage** (exceeded 85% target)
+- [x] **MILESTONE ACHIEVED: 100% coverage** (37/37 endpoints implemented)
 
 ### **Phase 5: Advanced Features (v0.5.0)**
 - [ ] WebSocket support for console/VNC simulation

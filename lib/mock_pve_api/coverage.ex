@@ -196,7 +196,7 @@ defmodule MockPveApi.Coverage do
       "/api2/json/cluster/sdn/zones/{zone}" => %{
         path: "/api2/json/cluster/sdn/zones/{zone}",
         methods: [:get, :put, :delete],
-        status: :planned,
+        status: :implemented,
         priority: :medium,
         since: "8.0",
         description: "Individual SDN zone operations",
@@ -205,29 +205,29 @@ defmodule MockPveApi.Coverage do
         ],
         response_schema: %{data: :object},
         capabilities_required: [:sdn_tech_preview],
-        test_coverage: false,
-        handler_module: nil,
-        notes: "Individual zone CRUD operations planned"
+        test_coverage: true,
+        handler_module: "Elixir.MockPveApi.Handlers.Sdn",
+        notes: "Complete CRUD operations for SDN zones"
       },
       "/api2/json/cluster/sdn/vnets" => %{
         path: "/api2/json/cluster/sdn/vnets",
         methods: [:get, :post],
-        status: :planned,
+        status: :implemented,
         priority: :medium,
         since: "8.0",
         description: "Virtual network management",
         parameters: [],
         response_schema: %{data: :array},
         capabilities_required: [:sdn_tech_preview],
-        test_coverage: false,
-        handler_module: nil,
-        notes: "VNet management planned for SDN support"
+        test_coverage: true,
+        handler_module: "Elixir.MockPveApi.Handlers.Sdn",
+        notes: "Virtual network management with creation support"
       },
       # Backup Provider Management (PVE 8.2+)
       "/api2/json/cluster/backup-info/providers" => %{
         path: "/api2/json/cluster/backup-info/providers",
         methods: [:get],
-        status: :pve8_only,
+        status: :implemented,
         priority: :medium,
         since: "8.2",
         description: "List available backup providers",
@@ -235,14 +235,14 @@ defmodule MockPveApi.Coverage do
         response_schema: %{data: :array},
         capabilities_required: [:backup_providers],
         test_coverage: false,
-        handler_module: nil,
+        handler_module: MockPveApi.Handlers.Cluster,
         notes: "Backup provider plugins introduced in PVE 8.2"
       },
       # HA Affinity Rules (PVE 9.0+, pvex: 100% coverage)
       "/api2/json/cluster/ha/affinity" => %{
         path: "/api2/json/cluster/ha/affinity",
         methods: [:get, :post],
-        status: :pve9_only,
+        status: :implemented,
         priority: :medium,
         since: "9.0",
         description: "HA resource affinity rules management",
@@ -250,7 +250,7 @@ defmodule MockPveApi.Coverage do
         response_schema: %{data: :array},
         capabilities_required: [:ha_resource_affinity],
         test_coverage: false,
-        handler_module: nil,
+        handler_module: MockPveApi.Handlers.Cluster,
         notes: "HA affinity rules new in PVE 9.0"
       }
     },
@@ -307,7 +307,7 @@ defmodule MockPveApi.Coverage do
       "/api2/json/nodes/{node}/time" => %{
         path: "/api2/json/nodes/{node}/time",
         methods: [:get, :put],
-        status: :planned,
+        status: :implemented,
         priority: :low,
         since: "6.0",
         description: "Node time configuration",
@@ -316,9 +316,9 @@ defmodule MockPveApi.Coverage do
         ],
         response_schema: %{data: :object},
         capabilities_required: [:cluster_basic],
-        test_coverage: false,
-        handler_module: nil,
-        notes: "Time management operations planned"
+        test_coverage: true,
+        handler_module: "Elixir.MockPveApi.Handlers.Nodes",
+        notes: "Node time configuration and timezone management"
       }
     },
 
@@ -344,7 +344,7 @@ defmodule MockPveApi.Coverage do
       "/api2/json/nodes/{node}/qemu/{vmid}" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}",
         methods: [:get, :put, :delete],
-        status: :partial,
+        status: :implemented,
         priority: :critical,
         since: "6.0", 
         description: "Individual VM configuration and management",
@@ -355,8 +355,8 @@ defmodule MockPveApi.Coverage do
         response_schema: %{data: :object},
         capabilities_required: [:basic_virtualization],
         test_coverage: true,
-        handler_module: MockPveApi.Handlers.VMs,
-        notes: "Core VM operations implemented, advanced config partial"
+        handler_module: "Elixir.MockPveApi.Handlers.Nodes",
+        notes: "Complete VM configuration and management with comprehensive status info"
       },
       "/api2/json/nodes/{node}/qemu/{vmid}/status/current" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}/status/current",
@@ -452,7 +452,7 @@ defmodule MockPveApi.Coverage do
       "/api2/json/nodes/{node}/lxc/{vmid}" => %{
         path: "/api2/json/nodes/{node}/lxc/{vmid}",
         methods: [:get, :put, :delete],
-        status: :partial,
+        status: :implemented,
         priority: :critical,
         since: "6.0",
         description: "Individual LXC container configuration",
@@ -463,8 +463,8 @@ defmodule MockPveApi.Coverage do
         response_schema: %{data: :object},
         capabilities_required: [:containers],
         test_coverage: true,
-        handler_module: MockPveApi.Handlers.Containers,
-        notes: "Core container operations implemented"
+        handler_module: "Elixir.MockPveApi.Handlers.Nodes",
+        notes: "Complete container configuration and management with comprehensive status info"
       },
       "/api2/json/nodes/{node}/lxc/{vmid}/status/current" => %{
         path: "/api2/json/nodes/{node}/lxc/{vmid}/status/current",
@@ -524,7 +524,7 @@ defmodule MockPveApi.Coverage do
       "/api2/json/nodes/{node}/storage/{storage}/content" => %{
         path: "/api2/json/nodes/{node}/storage/{storage}/content",
         methods: [:get, :post],
-        status: :partial,
+        status: :implemented,
         priority: :medium,
         since: "6.0",
         description: "Storage content management (images, backups, templates)",

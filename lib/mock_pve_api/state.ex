@@ -200,7 +200,7 @@ defmodule MockPveApi.State do
   end
 
   def update_vm(node, vmid, config) do
-    GenServer.cast(@name, {:update_vm, node, vmid, config})
+    GenServer.call(@name, {:update_vm, node, vmid, config})
   end
 
   def delete_vm(node, vmid) do
@@ -221,7 +221,7 @@ defmodule MockPveApi.State do
   end
 
   def update_container(node, vmid, config) do
-    GenServer.cast(@name, {:update_container, node, vmid, config})
+    GenServer.call(@name, {:update_container, node, vmid, config})
   end
 
   def delete_container(node, vmid) do
@@ -235,6 +235,10 @@ defmodule MockPveApi.State do
 
   def get_storage_content(node, storage) do
     GenServer.call(@name, {:get_storage_content, node, storage})
+  end
+
+  def add_storage_content(node, storage, content) do
+    GenServer.call(@name, {:add_storage_content, node, storage, content})
   end
 
   # Pool operations
@@ -567,6 +571,18 @@ defmodule MockPveApi.State do
       {:reply, content, state}
     else
       {:reply, [], state}
+    end
+  end
+
+  def handle_call({:add_storage_content, node, storage_id, content}, _from, state) do
+    storage = Map.get(state.storage, storage_id)
+
+    if storage do
+      # In a real implementation, we'd maintain a storage content registry
+      # For now, we'll just return success with the created content
+      {:reply, {:ok, content}, state}
+    else
+      {:reply, {:error, "Storage '#{storage_id}' not found"}, state}
     end
   end
 
@@ -1127,19 +1143,19 @@ defmodule MockPveApi.State do
     end
   end
 
-  def handle_cast({:update_vm, node, vmid, config}, state) do
+  def handle_call({:update_vm, node, vmid, config}, _from, state) do
     case Map.get(state.vms, vmid) do
       nil ->
-        {:noreply, state}
+        {:reply, {:error, "VM #{vmid} not found"}, state}
 
       vm when vm.node == node ->
         updated_vm = Map.merge(vm, config)
         new_vms = Map.put(state.vms, vmid, updated_vm)
         new_state = %{state | vms: new_vms}
-        {:noreply, new_state}
+        {:reply, {:ok, updated_vm}, new_state}
 
       _ ->
-        {:noreply, state}
+        {:reply, {:error, "VM #{vmid} not found on node #{node}"}, state}
     end
   end
 
@@ -1158,19 +1174,19 @@ defmodule MockPveApi.State do
     end
   end
 
-  def handle_cast({:update_container, node, vmid, config}, state) do
+  def handle_call({:update_container, node, vmid, config}, _from, state) do
     case Map.get(state.containers, vmid) do
       nil ->
-        {:noreply, state}
+        {:reply, {:error, "Container #{vmid} not found"}, state}
 
       container when container.node == node ->
         updated_container = Map.merge(container, config)
         new_containers = Map.put(state.containers, vmid, updated_container)
         new_state = %{state | containers: new_containers}
-        {:noreply, new_state}
+        {:reply, {:ok, updated_container}, new_state}
 
       _ ->
-        {:noreply, state}
+        {:reply, {:error, "Container #{vmid} not found on node #{node}"}, state}
     end
   end
 

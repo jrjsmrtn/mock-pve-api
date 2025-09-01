@@ -245,6 +245,66 @@ defmodule MockPveApi.Handlers.Nodes do
   end
 
   @doc """
+  GET /api2/json/nodes/:node/qemu/:vmid
+  Gets comprehensive VM information including config and status.
+  """
+  def get_vm(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+
+    case State.get_vm(node_name, vmid) do
+      nil ->
+        send_not_found(conn, "VM", vmid)
+
+      vm ->
+        # Comprehensive VM info including config and status
+        vm_info = Map.merge(vm, %{
+          status: "running",
+          uptime: 86400,
+          pid: 1234,
+          cpu: 0.15,
+          cpus: vm.cores || 2,
+          maxcpu: vm.cores || 2,
+          mem: 2147483648,
+          maxmem: vm.memory || 4294967296,
+          disk: 0,
+          maxdisk: 21474836480,
+          netin: 1024000,
+          netout: 512000,
+          diskread: 10485760,
+          diskwrite: 5242880,
+          digest: "vm_digest_#{vmid}"
+        })
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: vm_info}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/qemu/:vmid
+  Updates VM configuration and settings.
+  """
+  def update_vm(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+    params = conn.body_params
+
+    case State.update_vm(node_name, vmid, params) do
+      {:ok, updated_vm} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: updated_vm}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
   GET /api2/json/nodes/:node/qemu/:vmid/config
   Gets VM configuration.
   """
@@ -432,6 +492,65 @@ defmodule MockPveApi.Handlers.Nodes do
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: containers}))
+    end
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/lxc/:vmid
+  Gets comprehensive container information including config and status.
+  """
+  def get_container(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+
+    case State.get_container(node_name, vmid) do
+      nil ->
+        send_not_found(conn, "Container", vmid)
+
+      container ->
+        # Comprehensive container info including config and status
+        container_info = Map.merge(container, %{
+          status: "running",
+          uptime: 86400,
+          cpu: 0.08,
+          cpus: container.cores || 2,
+          maxcpu: container.cores || 2,
+          mem: 1073741824,
+          maxmem: container.memory || 2147483648,
+          disk: 0,
+          maxdisk: 10737418240,
+          netin: 512000,
+          netout: 256000,
+          diskread: 5242880,
+          diskwrite: 2621440,
+          digest: "container_digest_#{vmid}"
+        })
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: container_info}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/lxc/:vmid
+  Updates container configuration and settings.
+  """
+  def update_container(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+    params = conn.body_params
+
+    case State.update_container(node_name, vmid, params) do
+      {:ok, updated_container} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: updated_container}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
     end
   end
 
@@ -878,6 +997,48 @@ defmodule MockPveApi.Handlers.Nodes do
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: logs}))
     end
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/time
+  Gets node time configuration.
+  """
+  def get_node_time(conn) do
+    node_name = conn.path_params["node"]
+
+    # Simulate current node time configuration
+    time_config = %{
+      timezone: "Europe/Vienna",
+      time: :os.system_time(:second),
+      localtime: :os.system_time(:second)
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: time_config}))
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/time
+  Sets node time configuration.
+  """
+  def set_node_time(conn) do
+    node_name = conn.path_params["node"]
+    params = conn.body_params
+
+    # In a real implementation, this would actually set the system time
+    # For mocking, we just return success
+    timezone = Map.get(params, "timezone", "Europe/Vienna")
+    
+    updated_config = %{
+      timezone: timezone,
+      time: :os.system_time(:second),
+      localtime: :os.system_time(:second)
+    }
+
+    conn
+    |> put_resp_content_type("application/json") 
+    |> send_resp(200, Jason.encode!(%{data: updated_config}))
   end
 
   # Helper functions
