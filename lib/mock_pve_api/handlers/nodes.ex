@@ -373,7 +373,7 @@ defmodule MockPveApi.Handlers.Nodes do
         }
 
         case State.create_vm(node_name, vmid, config) do
-          {:ok, vm} ->
+          {:ok, _vm} ->
             # Create a task for VM creation
             {:ok, upid} = State.create_task(node_name, "qmcreate", %{vmid: vmid})
 
@@ -936,7 +936,7 @@ defmodule MockPveApi.Handlers.Nodes do
   Gets task status with progress information.
   """
   def get_task_status(conn) do
-    node_name = conn.path_params["node"]
+    _node_name = conn.path_params["node"]
     upid = conn.path_params["upid"]
 
     case State.get_task(upid) do
@@ -982,7 +982,7 @@ defmodule MockPveApi.Handlers.Nodes do
   Gets task log output.
   """
   def get_task_log(conn) do
-    node_name = conn.path_params["node"]
+    _node_name = conn.path_params["node"]
     upid = conn.path_params["upid"]
 
     case State.get_task(upid) do
@@ -1004,7 +1004,7 @@ defmodule MockPveApi.Handlers.Nodes do
   Gets node time configuration.
   """
   def get_node_time(conn) do
-    node_name = conn.path_params["node"]
+    _node_name = conn.path_params["node"]
 
     # Simulate current node time configuration
     time_config = %{
@@ -1023,7 +1023,7 @@ defmodule MockPveApi.Handlers.Nodes do
   Sets node time configuration.
   """
   def set_node_time(conn) do
-    node_name = conn.path_params["node"]
+    _node_name = conn.path_params["node"]
     params = conn.body_params
 
     # In a real implementation, this would actually set the system time

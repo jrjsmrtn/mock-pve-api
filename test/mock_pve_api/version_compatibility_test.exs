@@ -334,14 +334,14 @@ defmodule MockPveApi.VersionCompatibilityTest do
   end
 
   defp http_get(url) do
-    case HTTPoison.get(url, [], recv_timeout: 10_000) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+    case Finch.build(:get, url) |> Finch.request(MockPveHttp, receive_timeout: 10_000) do
+      {:ok, %Finch.Response{status: 200, body: body}} ->
         case Jason.decode(body) do
           {:ok, json} -> {:ok, json}
           {:error, reason} -> {:error, {:json_decode_error, reason}}
         end
 
-      {:ok, %HTTPoison.Response{status_code: status, body: body}} when status >= 400 ->
+      {:ok, %Finch.Response{status: status, body: body}} when status >= 400 ->
         case Jason.decode(body) do
           {:ok, json} -> {:error, {status, json}}
           {:error, _} -> {:error, {status, body}}

@@ -20,7 +20,8 @@ defmodule MockPveApi.Router do
     Sdn
   }
 
-  alias MockPveApi.{State, Capabilities, Coverage}
+  alias MockPveApi.{State, Coverage}
+  # alias MockPveApi.Capabilities  # Currently unused
 
   plug(Plug.Logger)
   plug(:match)

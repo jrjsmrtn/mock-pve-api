@@ -201,10 +201,6 @@ defmodule MockPveApi.TestHelper do
       :ok ->
         Logger.debug("Mock PVE API Server state reset successfully")
         :ok
-
-      {:error, reason} ->
-        Logger.warning("Failed to reset Mock PVE API Server state: #{inspect(reason)}")
-        {:error, reason}
     end
   rescue
     error ->
@@ -319,16 +315,9 @@ defmodule MockPveApi.TestHelper do
 
     Application.put_env(:mock_pve_api, :pve_version, version)
 
-    # Restart the capabilities system to pick up the new version
-    case MockPveApi.Capabilities.reload() do
-      :ok ->
-        Logger.info("Mock PVE API Server configured for PVE #{version}")
-        :ok
-
-      {:error, reason} ->
-        Logger.error("Failed to configure PVE version: #{inspect(reason)}")
-        {:error, reason}
-    end
+    # Capabilities are stateless, no reload needed
+    Logger.info("Mock PVE API Server configured for PVE #{version}")
+    :ok
   rescue
     error ->
       Logger.error("Error configuring PVE version: #{inspect(error)}")

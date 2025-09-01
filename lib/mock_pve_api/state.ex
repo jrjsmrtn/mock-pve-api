@@ -471,6 +471,22 @@ defmodule MockPveApi.State do
     end
   end
 
+  def handle_call({:update_vm, node, vmid, config}, _from, state) do
+    case Map.get(state.vms, vmid) do
+      nil ->
+        {:reply, {:error, "VM #{vmid} not found"}, state}
+
+      vm when vm.node == node ->
+        updated_vm = Map.merge(vm, config)
+        new_vms = Map.put(state.vms, vmid, updated_vm)
+        new_state = %{state | vms: new_vms}
+        {:reply, {:ok, updated_vm}, new_state}
+
+      _ ->
+        {:reply, {:error, "VM #{vmid} not found on node #{node}"}, state}
+    end
+  end
+
   def handle_call({:get_containers, node}, _from, state) do
     containers =
       case node do
@@ -525,12 +541,28 @@ defmodule MockPveApi.State do
     end
   end
 
+  def handle_call({:update_container, node, vmid, config}, _from, state) do
+    case Map.get(state.containers, vmid) do
+      nil ->
+        {:reply, {:error, "Container #{vmid} not found"}, state}
+
+      container when container.node == node ->
+        updated_container = Map.merge(container, config)
+        new_containers = Map.put(state.containers, vmid, updated_container)
+        new_state = %{state | containers: new_containers}
+        {:reply, {:ok, updated_container}, new_state}
+
+      _ ->
+        {:reply, {:error, "Container #{vmid} not found on node #{node}"}, state}
+    end
+  end
+
   def handle_call(:get_storage, _from, state) do
     storage = Map.values(state.storage)
     {:reply, storage, state}
   end
 
-  def handle_call({:get_storage_content, node, storage_id}, _from, state) do
+  def handle_call({:get_storage_content, _node, storage_id}, _from, state) do
     storage = Map.get(state.storage, storage_id)
 
     if storage do
@@ -574,7 +606,7 @@ defmodule MockPveApi.State do
     end
   end
 
-  def handle_call({:add_storage_content, node, storage_id, content}, _from, state) do
+  def handle_call({:add_storage_content, _node, storage_id, content}, _from, state) do
     storage = Map.get(state.storage, storage_id)
 
     if storage do
@@ -727,7 +759,7 @@ defmodule MockPveApi.State do
     {:reply, backups, state}
   end
 
-  def handle_call({:restore_backup, node, vmid, backup_file, params}, _from, state) do
+  def handle_call({:restore_backup, node, vmid, backup_file, _params}, _from, state) do
     # Check if backup exists
     case Enum.find(state.backups, fn {_key, backup} -> 
       backup.filename == backup_file and backup.node == node 
@@ -735,7 +767,7 @@ defmodule MockPveApi.State do
       nil ->
         {:reply, {:error, "Backup file not found"}, state}
       
-      {_key, backup} ->
+      {_key, _backup} ->
         # Create task for restore operation
         {:ok, upid} = handle_call({:create_task, node, "qmrestore", %{vmid: vmid, archive: backup_file}}, nil, state)
         new_state = elem(upid, 2)
@@ -743,7 +775,7 @@ defmodule MockPveApi.State do
     end
   end
 
-  def handle_call({:migrate_vm, node, vmid, target_node, params}, _from, state) do
+  def handle_call({:migrate_vm, node, vmid, target_node, _params}, _from, state) do
     case Map.get(state.vms, vmid) do
       nil ->
         {:reply, {:error, "VM #{vmid} not found"}, state}
@@ -764,7 +796,7 @@ defmodule MockPveApi.State do
     end
   end
 
-  def handle_call({:migrate_container, node, vmid, target_node, params}, _from, state) do
+  def handle_call({:migrate_container, node, vmid, target_node, _params}, _from, state) do
     case Map.get(state.containers, vmid) do
       nil ->
         {:reply, {:error, "Container #{vmid} not found"}, state}
@@ -785,13 +817,13 @@ defmodule MockPveApi.State do
     end
   end
 
-  def handle_call({:create_ticket, username, password, params}, _from, state) do
+  def handle_call({:create_ticket, username, _password, _params}, _from, state) do
     # Mock authentication - in real PVE this would validate against PAM/LDAP/etc
     case Map.get(state.users, username) do
       nil ->
         {:reply, {:error, "Authentication failed"}, state}
       
-      user ->
+      _user ->
         ticket = :crypto.strong_rand_bytes(32) |> Base.encode64()
         csrf_token = :crypto.strong_rand_bytes(16) |> Base.encode64()
         
@@ -1143,22 +1175,6 @@ defmodule MockPveApi.State do
     end
   end
 
-  def handle_call({:update_vm, node, vmid, config}, _from, state) do
-    case Map.get(state.vms, vmid) do
-      nil ->
-        {:reply, {:error, "VM #{vmid} not found"}, state}
-
-      vm when vm.node == node ->
-        updated_vm = Map.merge(vm, config)
-        new_vms = Map.put(state.vms, vmid, updated_vm)
-        new_state = %{state | vms: new_vms}
-        {:reply, {:ok, updated_vm}, new_state}
-
-      _ ->
-        {:reply, {:error, "VM #{vmid} not found on node #{node}"}, state}
-    end
-  end
-
   def handle_cast({:delete_vm, node, vmid}, state) do
     case Map.get(state.vms, vmid) do
       nil ->
@@ -1171,22 +1187,6 @@ defmodule MockPveApi.State do
 
       _ ->
         {:noreply, state}
-    end
-  end
-
-  def handle_call({:update_container, node, vmid, config}, _from, state) do
-    case Map.get(state.containers, vmid) do
-      nil ->
-        {:reply, {:error, "Container #{vmid} not found"}, state}
-
-      container when container.node == node ->
-        updated_container = Map.merge(container, config)
-        new_containers = Map.put(state.containers, vmid, updated_container)
-        new_state = %{state | containers: new_containers}
-        {:reply, {:ok, updated_container}, new_state}
-
-      _ ->
-        {:reply, {:error, "Container #{vmid} not found on node #{node}"}, state}
     end
   end
 

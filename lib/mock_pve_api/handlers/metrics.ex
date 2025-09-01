@@ -110,7 +110,7 @@ defmodule MockPveApi.Handlers.Metrics do
   Gets cluster-wide metrics for a specific server.
   """
   def get_cluster_metrics(conn) do
-    server_id = conn.path_params["id"]
+    _server_id = conn.path_params["id"]
     
     # Generate cluster-wide metrics
     metrics = %{
@@ -283,7 +283,7 @@ defmodule MockPveApi.Handlers.Metrics do
   defp generate_time_series_data(timeframe) do
     point_count = get_point_count(timeframe)
     
-    for i <- 1..point_count do
+    for _i <- 1..point_count do
       %{
         cpu: Float.round(:rand.uniform() * 0.8, 3),
         memory: :rand.uniform(8_000_000_000),
@@ -298,7 +298,7 @@ defmodule MockPveApi.Handlers.Metrics do
   defp generate_vm_time_series(vm, timeframe) do
     point_count = get_point_count(timeframe)
     
-    for i <- 1..point_count do
+    for _i <- 1..point_count do
       %{
         cpu: Float.round(:rand.uniform() * 0.6, 3),
         memory: round(:rand.uniform() * vm.memory * 1024 * 1024),
@@ -313,7 +313,7 @@ defmodule MockPveApi.Handlers.Metrics do
   defp generate_container_time_series(container, timeframe) do
     point_count = get_point_count(timeframe)
     
-    for i <- 1..point_count do
+    for _i <- 1..point_count do
       %{
         cpu: Float.round(:rand.uniform() * 0.4, 3),
         memory: round(:rand.uniform() * container.memory * 1024 * 1024),

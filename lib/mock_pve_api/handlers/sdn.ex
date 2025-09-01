@@ -6,7 +6,7 @@ defmodule MockPveApi.Handlers.Sdn do
 
   import Plug.Conn
   require Logger
-  alias MockPveApi.State
+  # alias MockPveApi.State  # Currently unused
 
   @doc """
   GET /api2/json/cluster/sdn/zones/{zone}
@@ -60,7 +60,7 @@ defmodule MockPveApi.Handlers.Sdn do
   Deletes an SDN zone.
   """
   def delete_sdn_zone(conn) do
-    zone_id = conn.path_params["zone"]
+    _zone_id = conn.path_params["zone"]
 
     # Mock deletion - return success
     conn

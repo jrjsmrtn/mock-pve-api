@@ -113,7 +113,7 @@ defmodule MockPveApi.Handlers.Access do
     user_tokens = 
       tokens
       |> Enum.filter(fn {tokenid, _token} -> String.starts_with?(tokenid, "#{userid}!") end)
-      |> Enum.map(fn {tokenid, token} ->
+      |> Enum.map(fn {_tokenid, token} ->
         Map.take(token, [:tokenid, :privsep, :comment, :expire, :created_at])
       end)
 
