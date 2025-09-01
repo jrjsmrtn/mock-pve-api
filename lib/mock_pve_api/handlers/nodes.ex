@@ -600,7 +600,286 @@ defmodule MockPveApi.Handlers.Nodes do
     end
   end
 
+  # Backup and migration endpoints
+
+  @doc """
+  POST /api2/json/nodes/:node/qemu/:vmid/migrate
+  Migrates a VM to another node.
+  """
+  def migrate_vm(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+    params = conn.body_params
+    target_node = Map.get(params, "target")
+
+    if target_node do
+      case State.migrate_vm(node_name, vmid, target_node, params) do
+        {:ok, upid} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: upid}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(400, Jason.encode!(%{errors: %{message: "Missing target node"}}))
+    end
+  end
+
+  @doc """
+  POST /api2/json/nodes/:node/lxc/:vmid/migrate
+  Migrates a container to another node.
+  """
+  def migrate_container(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+    params = conn.body_params
+    target_node = Map.get(params, "target")
+
+    if target_node do
+      case State.migrate_container(node_name, vmid, target_node, params) do
+        {:ok, upid} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: upid}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(400, Jason.encode!(%{errors: %{message: "Missing target node"}}))
+    end
+  end
+
+  @doc """
+  POST /api2/json/nodes/:node/qemu/:vmid/snapshot
+  Creates a VM snapshot.
+  """
+  def create_vm_snapshot(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+    params = conn.body_params
+    snapname = Map.get(params, "snapname", "snapshot-#{:os.system_time(:second)}")
+
+    case State.get_vm(node_name, vmid) do
+      nil ->
+        send_not_found(conn, "VM", vmid)
+
+      _vm ->
+        {:ok, upid} = State.create_task(node_name, "qmsnapshot", %{vmid: vmid, snapname: snapname})
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: upid}))
+    end
+  end
+
+  @doc """
+  POST /api2/json/nodes/:node/vzdump
+  Creates backup of VMs/containers.
+  """
+  def create_backup(conn) do
+    node_name = conn.path_params["node"]
+    params = conn.body_params
+    vmid_param = Map.get(params, "vmid")
+
+    cond do
+      vmid_param ->
+        vmid = String.to_integer(vmid_param)
+        case State.create_backup(node_name, vmid, params) do
+          {:ok, upid} ->
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(200, Jason.encode!(%{data: upid}))
+
+          {:error, message} ->
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+        end
+
+      true ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(400, Jason.encode!(%{errors: %{message: "Missing vmid parameter"}}))
+    end
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/storage/:storage/backup
+  Lists backup files in storage.
+  """
+  def list_backup_files(conn) do
+    node_name = conn.path_params["node"]
+    storage = conn.path_params["storage"]
+
+    backups = State.list_backups(node_name, storage)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: backups}))
+  end
+
+  @doc """
+  POST /api2/json/nodes/:node/qemu/:vmid/clone
+  Clones a VM.
+  """
+  def clone_vm(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+    params = conn.body_params
+    newid = get_int_param(params, "newid") || State.get_next_vmid()
+
+    case State.get_vm(node_name, vmid) do
+      nil ->
+        send_not_found(conn, "VM", vmid)
+
+      vm ->
+        # Create cloned VM config
+        clone_config = %{
+          name: Map.get(params, "name", "#{vm.name}-clone"),
+          memory: vm.memory,
+          cores: vm.cores,
+          sockets: vm.sockets,
+          ostype: vm.ostype
+        }
+
+        case State.create_vm(node_name, newid, clone_config) do
+          {:ok, _new_vm} ->
+            {:ok, upid} = State.create_task(node_name, "qmclone", %{vmid: vmid, newid: newid})
+
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(200, Jason.encode!(%{data: upid}))
+
+          {:error, message} ->
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+        end
+    end
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/tasks/:upid/status
+  Gets task status with progress information.
+  """
+  def get_task_status(conn) do
+    node_name = conn.path_params["node"]
+    upid = conn.path_params["upid"]
+
+    case State.get_task(upid) do
+      nil ->
+        send_not_found(conn, "Task", upid)
+
+      task ->
+        # Add realistic progress simulation
+        now = :os.system_time(:second)
+        elapsed = now - task.starttime
+        
+        # Simulate task progress
+        progress = min(100, div(elapsed * 100, 60))  # Complete in ~60 seconds
+        
+        status = 
+          if progress >= 100 do
+            Map.merge(task, %{
+              status: "OK",
+              exitstatus: "OK",
+              endtime: now,
+              progress: 100
+            })
+          else
+            Map.merge(task, %{
+              status: "running",
+              progress: progress
+            })
+          end
+
+        # Update task in state if it's completed
+        if progress >= 100 and task.status != "OK" do
+          State.update_task(upid, %{status: "OK", exitstatus: "OK", endtime: now})
+        end
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: status}))
+    end
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/tasks/:upid/log
+  Gets task log output.
+  """
+  def get_task_log(conn) do
+    node_name = conn.path_params["node"]
+    upid = conn.path_params["upid"]
+
+    case State.get_task(upid) do
+      nil ->
+        send_not_found(conn, "Task", upid)
+
+      task ->
+        # Generate sample log entries based on task type
+        logs = generate_task_logs(task)
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: logs}))
+    end
+  end
+
   # Helper functions
+
+  defp generate_task_logs(task) do
+    base_logs = [
+      %{n: 1, t: "#{task.starttime}: starting task UPID:#{task.upid}"},
+      %{n: 2, t: "#{task.starttime + 1}: task type: #{task.type}"}
+    ]
+
+    case task.type do
+      "qmstart" ->
+        base_logs ++ [
+          %{n: 3, t: "#{task.starttime + 2}: starting VM #{task.vmid}"},
+          %{n: 4, t: "#{task.starttime + 5}: VM #{task.vmid} started successfully"}
+        ]
+
+      "qmstop" ->
+        base_logs ++ [
+          %{n: 3, t: "#{task.starttime + 2}: stopping VM #{task.vmid}"},
+          %{n: 4, t: "#{task.starttime + 5}: VM #{task.vmid} stopped successfully"}
+        ]
+
+      "qmigrate" ->
+        target = Map.get(task, :target, "unknown")
+        base_logs ++ [
+          %{n: 3, t: "#{task.starttime + 2}: starting migration of VM #{task.vmid} to #{target}"},
+          %{n: 4, t: "#{task.starttime + 10}: copying VM state..."},
+          %{n: 5, t: "#{task.starttime + 20}: migration completed successfully"}
+        ]
+
+      "vzdump" ->
+        base_logs ++ [
+          %{n: 3, t: "#{task.starttime + 2}: starting backup of VM #{task.vmid}"},
+          %{n: 4, t: "#{task.starttime + 10}: creating snapshot..."},
+          %{n: 5, t: "#{task.starttime + 20}: backing up VM config..."},
+          %{n: 6, t: "#{task.starttime + 30}: backup completed successfully"}
+        ]
+
+      _ ->
+        base_logs ++ [
+          %{n: 3, t: "#{task.starttime + 5}: task completed successfully"}
+        ]
+    end
+  end
 
   defp send_not_found(conn, resource_type, identifier) do
     conn

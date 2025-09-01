@@ -358,8 +358,8 @@ defmodule MockPveApi.TestHelper do
   def server_status(host \\ @default_host, port \\ @default_port, timeout \\ 5_000) do
     url = "http://#{host}:#{port}/api2/json/version"
 
-    case HTTPoison.get(url, [], recv_timeout: timeout) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+    case Finch.build(:get, url) |> Finch.request(MockPveApi.Finch, receive_timeout: timeout) do
+      {:ok, %Finch.Response{status: 200, body: body}} ->
         case Jason.decode(body) do
           {:ok, %{"data" => data}} ->
             {:ok, data}
@@ -371,7 +371,7 @@ defmodule MockPveApi.TestHelper do
             {:error, {:json_decode_error, reason}}
         end
 
-      {:ok, %HTTPoison.Response{status_code: status}} ->
+      {:ok, %Finch.Response{status: status}} ->
         {:error, {:http_error, status}}
 
       {:error, reason} ->

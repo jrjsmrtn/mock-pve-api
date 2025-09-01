@@ -9,7 +9,7 @@
 # Requirements:
 #   - pvex client library
 #   - mock-pve-api server (running or as dependency)
-#   - httpoison for HTTP requests
+#   - finch for HTTP requests
 #   - jason for JSON handling
 #
 # Usage:
@@ -23,9 +23,8 @@
 
 # Mix.install dependencies for standalone script execution
 Mix.install([
-  {:httpoison, "~> 2.0"},
-  {:jason, "~> 1.4"},
-  {:finch, "~> 0.16"}
+  {:finch, "~> 0.18"},
+  {:jason, "~> 1.4"}
 ])
 
 # Simulated pvex client for demonstration
@@ -57,11 +56,12 @@ defmodule SimulatedPvex do
     def get(client, path) do
       url = "#{client.scheme}://#{client.host}:#{client.port}/api2/json#{path}"
 
-      case HTTPoison.get(url, [{"Authorization", "PVEAPIToken=" <> client.api_token}]) do
-        {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+      headers = [{"authorization", "PVEAPIToken=" <> client.api_token}]
+      case Finch.build(:get, url, headers) |> Finch.request(PvexIntegration.Finch) do
+        {:ok, %Finch.Response{status: 200, body: body}} ->
           Jason.decode(body)
 
-        {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+        {:ok, %Finch.Response{status: status, body: body}} ->
           case Jason.decode(body) do
             {:ok, %{"errors" => errors}} -> {:error, {status, errors}}
             _ -> {:error, {status, body}}
@@ -169,6 +169,9 @@ defmodule MockPveIntegrationExample do
   def main do
     IO.puts("🚀 Mock PVE API Server - pvex Integration Example")
     IO.puts("=" <> String.duplicate("=", 53))
+
+    # Start Finch for HTTP client
+    {:ok, _} = Finch.start_link(name: PvexIntegration.Finch)
 
     case setup_mock_server() do
       {:ok, config} ->

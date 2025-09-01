@@ -17,6 +17,8 @@ defmodule MockPveApi do
     host = Application.get_env(:mock_pve_api, :host, @default_host)
 
     children = [
+      # HTTP client for test helper
+      {Finch, name: MockPveApi.Finch},
       # State management for resources
       MockPveApi.State,
       # HTTP server

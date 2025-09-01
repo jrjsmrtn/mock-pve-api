@@ -15,7 +15,8 @@ defmodule MockPveApi.Router do
     Nodes,
     Cluster,
     Pools,
-    Storage
+    Storage,
+    Metrics
   }
 
   alias MockPveApi.{State, Capabilities}
@@ -36,6 +37,34 @@ defmodule MockPveApi.Router do
   # Access endpoints
   post "/api2/json/access/ticket" do
     Access.create_ticket(conn)
+  end
+
+  get "/api2/json/access/users" do
+    Access.list_users(conn)
+  end
+
+  get "/api2/json/access/users/:userid" do
+    Access.get_user(conn)
+  end
+
+  post "/api2/json/access/users/:userid/token/:tokenid" do
+    Access.create_api_token(conn)
+  end
+
+  get "/api2/json/access/users/:userid/token" do
+    Access.list_user_tokens(conn)
+  end
+
+  get "/api2/json/access/permissions" do
+    Access.get_permissions(conn)
+  end
+
+  put "/api2/json/access/acl" do
+    Access.set_acl(conn)
+  end
+
+  get "/api2/json/access/roles" do
+    Access.list_roles(conn)
   end
 
   # Node endpoints
@@ -127,6 +156,69 @@ defmodule MockPveApi.Router do
 
   delete "/api2/json/nodes/:node/lxc/:vmid" do
     Nodes.delete_container(conn)
+  end
+
+  # VM/Container migration, backup and snapshot endpoints
+  post "/api2/json/nodes/:node/qemu/:vmid/migrate" do
+    Nodes.migrate_vm(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/migrate" do
+    Nodes.migrate_container(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/snapshot" do
+    Nodes.create_vm_snapshot(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/clone" do
+    Nodes.clone_vm(conn)
+  end
+
+  post "/api2/json/nodes/:node/vzdump" do
+    Nodes.create_backup(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage/backup" do
+    Nodes.list_backup_files(conn)
+  end
+
+  # Task endpoints with progress
+  get "/api2/json/nodes/:node/tasks/:upid/status" do
+    Nodes.get_task_status(conn)
+  end
+
+  get "/api2/json/nodes/:node/tasks/:upid/log" do
+    Nodes.get_task_log(conn)
+  end
+
+  # Metrics and statistics endpoints
+  get "/api2/json/nodes/:node/rrd" do
+    Metrics.get_node_rrd(conn)
+  end
+
+  get "/api2/json/nodes/:node/rrddata" do
+    Metrics.get_node_rrd_data(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/rrd" do
+    Metrics.get_vm_rrd(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/rrd" do
+    Metrics.get_container_rrd(conn)
+  end
+
+  get "/api2/json/nodes/:node/netstat" do
+    Metrics.get_node_netstat(conn)
+  end
+
+  get "/api2/json/nodes/:node/report" do
+    Metrics.get_node_report(conn)
+  end
+
+  get "/api2/json/cluster/metrics/server/:id" do
+    Metrics.get_cluster_metrics(conn)
   end
 
   # Storage endpoints

@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-12-01 (Enhanced API Coverage)
+
+### Added - Phase 3: Enhanced API Coverage
+- **VM/Container Lifecycle Operations**: Complete start, stop, restart, shutdown, migrate support
+- **Backup & Restore System**: 
+  - POST `/api2/json/nodes/:node/vzdump` - Create backups with realistic file simulation
+  - GET `/api2/json/nodes/:node/storage/:storage/backup` - List backup files
+  - Backup restore simulation with progress tracking
+- **Task/Job Simulation**: 
+  - GET `/api2/json/nodes/:node/tasks/:upid/status` - Real-time progress tracking
+  - GET `/api2/json/nodes/:node/tasks/:upid/log` - Detailed task logs
+  - Realistic task duration and progress simulation (60-second completion)
+- **Authentication Endpoints**:
+  - Enhanced POST `/api2/json/access/ticket` with stateful ticket management
+  - POST `/api2/json/access/users/:userid/token/:tokenid` - API token creation
+  - GET `/api2/json/access/users/:userid/token` - List user tokens
+  - Token validation and expiration (2-hour ticket lifetime)
+- **Permissions & ACL Simulation**:
+  - GET `/api2/json/access/permissions` - User permissions lookup
+  - PUT `/api2/json/access/acl` - Set access control permissions
+  - GET `/api2/json/access/roles` - List available roles
+  - Role-based privilege system with Administrator role
+- **Metrics & Statistics Endpoints**:
+  - GET `/api2/json/nodes/:node/rrd` - Node RRD data for graphs
+  - GET `/api2/json/nodes/:node/rrddata` - Structured RRD data points
+  - GET `/api2/json/nodes/:node/qemu/:vmid/rrd` - VM metrics
+  - GET `/api2/json/nodes/:node/lxc/:vmid/rrd` - Container metrics
+  - GET `/api2/json/nodes/:node/netstat` - Network interface statistics
+  - GET `/api2/json/nodes/:node/report` - Comprehensive system report
+  - GET `/api2/json/cluster/metrics/server/:id` - Cluster-wide metrics
+
+### Enhanced Features
+- **VM Operations**: 
+  - POST `/api2/json/nodes/:node/qemu/:vmid/migrate` - Live migration
+  - POST `/api2/json/nodes/:node/qemu/:vmid/snapshot` - Snapshot creation
+  - POST `/api2/json/nodes/:node/qemu/:vmid/clone` - VM cloning
+- **Container Operations**:
+  - POST `/api2/json/nodes/:node/lxc/:vmid/migrate` - Container migration
+- **Advanced Authentication**:
+  - Stateful ticket storage with expiration
+  - API token generation with privilege separation
+  - CSRF token support for web interface compatibility
+
+### Improved Infrastructure
+- **State Management**: Enhanced GenServer with backup, migration, and auth state
+- **Task System**: Realistic progress simulation with type-specific log generation
+- **Metrics Simulation**: Time-series data generation for different timeframes
+- **Security Model**: Role-based permissions with Administrator role privileges
+
+## [0.2.0] - 2024-11-XX (Docker Hub Release)
+
+### Added
+- Docker Hub repository setup and automated publishing
+- Multi-architecture builds (amd64, arm64)
+- Semantic versioning tags and automated GitHub Actions
+- Container security scanning and SBOM generation
+
+## [0.1.0] - 2024-11-XX (Initial Release)
+
 ### Added
 - Initial release of Mock PVE API Server
 - Complete PVE version simulation support (7.0 through 9.0)

@@ -4,7 +4,7 @@ defmodule MockPveApi.MixProject do
   def project do
     [
       app: :mock_pve_api,
-      version: "0.1.0",
+      version: "0.3.1",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -28,7 +28,7 @@ defmodule MockPveApi.MixProject do
       {:plug, "~> 1.15"},
       {:plug_cowboy, "~> 2.7"},
       {:jason, "~> 1.4"},
-      {:httpoison, "~> 2.1", only: [:dev, :test]},
+      {:finch, "~> 0.18", only: [:dev, :test]},
       {:ex_doc, "~> 0.30", only: :dev, runtime: false}
     ]
   end
@@ -59,7 +59,8 @@ defmodule MockPveApi.MixProject do
           MockPveApi.Handlers.Storage,
           MockPveApi.Handlers.Cluster,
           MockPveApi.Handlers.Pools,
-          MockPveApi.Handlers.Access
+          MockPveApi.Handlers.Access,
+          MockPveApi.Handlers.Metrics
         ],
         "Infrastructure": [
           MockPveApi.State,

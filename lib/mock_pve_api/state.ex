@@ -92,7 +92,23 @@ defmodule MockPveApi.State do
       },
       next_vmid: 100,
       tasks: %{},
-      next_upid: 1
+      next_upid: 1,
+      backups: %{},
+      tickets: %{},
+      api_tokens: %{},
+      permissions: %{
+        "/" => %{
+          "root@pam" => ["Administrator"]
+        }
+      },
+      roles: %{
+        "Administrator" => [
+          "VM.Allocate", "VM.Audit", "VM.Backup", "VM.Clone", "VM.Config.CDROM",
+          "VM.Config.CPU", "VM.Config.Cloudinit", "VM.Config.Disk", "VM.Config.HWType",
+          "VM.Config.Memory", "VM.Config.Network", "VM.Config.Options", "VM.Migrate",
+          "VM.Monitor", "VM.PowerMgmt", "VM.Snapshot", "VM.Snapshot.Rollback"
+        ]
+      }
     }
   end
 
@@ -194,6 +210,58 @@ defmodule MockPveApi.State do
 
   def get_tasks(node) do
     GenServer.call(@name, {:get_tasks, node})
+  end
+
+  def get_task(upid) do
+    GenServer.call(@name, {:get_task, upid})
+  end
+
+  def update_task(upid, updates) do
+    GenServer.cast(@name, {:update_task, upid, updates})
+  end
+
+  # Backup operations
+  def create_backup(node, vmid, params \\ %{}) do
+    GenServer.call(@name, {:create_backup, node, vmid, params})
+  end
+
+  def list_backups(node, storage) do
+    GenServer.call(@name, {:list_backups, node, storage})
+  end
+
+  def restore_backup(node, vmid, backup_file, params \\ %{}) do
+    GenServer.call(@name, {:restore_backup, node, vmid, backup_file, params})
+  end
+
+  # Migrate operations
+  def migrate_vm(node, vmid, target_node, params \\ %{}) do
+    GenServer.call(@name, {:migrate_vm, node, vmid, target_node, params})
+  end
+
+  def migrate_container(node, vmid, target_node, params \\ %{}) do
+    GenServer.call(@name, {:migrate_container, node, vmid, target_node, params})
+  end
+
+  # Authentication operations
+  def create_ticket(username, password, params \\ %{}) do
+    GenServer.call(@name, {:create_ticket, username, password, params})
+  end
+
+  def validate_ticket(ticket) do
+    GenServer.call(@name, {:validate_ticket, ticket})
+  end
+
+  def create_api_token(username, tokenid, params \\ %{}) do
+    GenServer.call(@name, {:create_api_token, username, tokenid, params})
+  end
+
+  # Permission operations
+  def get_permissions(userid) do
+    GenServer.call(@name, {:get_permissions, userid})
+  end
+
+  def set_permissions(path, userid, roleid) do
+    GenServer.call(@name, {:set_permissions, path, userid, roleid})
   end
 
   def get_next_vmid do
@@ -476,6 +544,202 @@ defmodule MockPveApi.State do
     {:reply, supported, state}
   end
 
+  def handle_call({:get_task, upid}, _from, state) do
+    task = Map.get(state.tasks, upid)
+    {:reply, task, state}
+  end
+
+  def handle_call({:create_backup, node, vmid, params}, _from, state) do
+    backup_file = "vzdump-#{if vmid < 1000, do: "qemu", else: "lxc"}-#{vmid}-#{Date.utc_today()}-12_00_00.vma.zst"
+    storage = Map.get(params, :storage, "local")
+    
+    backup = %{
+      node: node,
+      vmid: vmid,
+      filename: backup_file,
+      storage: storage,
+      size: :rand.uniform(5_000_000_000) + 1_000_000_000,
+      ctime: :os.system_time(:second),
+      format: "vma.zst"
+    }
+
+    # Create backup entry
+    backup_key = "#{storage}:backup/#{backup_file}"
+    new_backups = Map.put(state.backups, backup_key, backup)
+    
+    # Create task for backup operation
+    {:ok, upid} = handle_call({:create_task, node, "vzdump", %{vmid: vmid}}, nil, %{state | backups: new_backups})
+    new_state = elem(upid, 2)
+
+    {:reply, {:ok, elem(upid, 1)}, new_state}
+  end
+
+  def handle_call({:list_backups, node, storage}, _from, state) do
+    backups = 
+      state.backups
+      |> Enum.filter(fn {_key, backup} -> backup.node == node and backup.storage == storage end)
+      |> Enum.map(&elem(&1, 1))
+    
+    {:reply, backups, state}
+  end
+
+  def handle_call({:restore_backup, node, vmid, backup_file, params}, _from, state) do
+    # Check if backup exists
+    case Enum.find(state.backups, fn {_key, backup} -> 
+      backup.filename == backup_file and backup.node == node 
+    end) do
+      nil ->
+        {:reply, {:error, "Backup file not found"}, state}
+      
+      {_key, backup} ->
+        # Create task for restore operation
+        {:ok, upid} = handle_call({:create_task, node, "qmrestore", %{vmid: vmid, archive: backup_file}}, nil, state)
+        new_state = elem(upid, 2)
+        {:reply, {:ok, elem(upid, 1)}, new_state}
+    end
+  end
+
+  def handle_call({:migrate_vm, node, vmid, target_node, params}, _from, state) do
+    case Map.get(state.vms, vmid) do
+      nil ->
+        {:reply, {:error, "VM #{vmid} not found"}, state}
+      
+      vm when vm.node != node ->
+        {:reply, {:error, "VM #{vmid} not on node #{node}"}, state}
+      
+      vm ->
+        # Update VM to new node
+        updated_vm = %{vm | node: target_node}
+        new_vms = Map.put(state.vms, vmid, updated_vm)
+        
+        # Create migration task
+        {:ok, upid} = handle_call({:create_task, node, "qmigrate", %{vmid: vmid, target: target_node}}, nil, %{state | vms: new_vms})
+        new_state = elem(upid, 2)
+        
+        {:reply, {:ok, elem(upid, 1)}, new_state}
+    end
+  end
+
+  def handle_call({:migrate_container, node, vmid, target_node, params}, _from, state) do
+    case Map.get(state.containers, vmid) do
+      nil ->
+        {:reply, {:error, "Container #{vmid} not found"}, state}
+      
+      container when container.node != node ->
+        {:reply, {:error, "Container #{vmid} not on node #{node}"}, state}
+      
+      container ->
+        # Update container to new node
+        updated_container = %{container | node: target_node}
+        new_containers = Map.put(state.containers, vmid, updated_container)
+        
+        # Create migration task
+        {:ok, upid} = handle_call({:create_task, node, "pctmigrate", %{vmid: vmid, target: target_node}}, nil, %{state | containers: new_containers})
+        new_state = elem(upid, 2)
+        
+        {:reply, {:ok, elem(upid, 1)}, new_state}
+    end
+  end
+
+  def handle_call({:create_ticket, username, password, params}, _from, state) do
+    # Mock authentication - in real PVE this would validate against PAM/LDAP/etc
+    case Map.get(state.users, username) do
+      nil ->
+        {:reply, {:error, "Authentication failed"}, state}
+      
+      user ->
+        ticket = :crypto.strong_rand_bytes(32) |> Base.encode64()
+        csrf_token = :crypto.strong_rand_bytes(16) |> Base.encode64()
+        
+        ticket_data = %{
+          username: username,
+          ticket: ticket,
+          csrf_token: csrf_token,
+          created_at: :os.system_time(:second),
+          expires_at: :os.system_time(:second) + 7200  # 2 hours
+        }
+        
+        new_tickets = Map.put(state.tickets, ticket, ticket_data)
+        
+        response = %{
+          username: username,
+          ticket: ticket,
+          CSRFPreventionToken: csrf_token
+        }
+        
+        {:reply, {:ok, response}, %{state | tickets: new_tickets}}
+    end
+  end
+
+  def handle_call({:validate_ticket, ticket}, _from, state) do
+    case Map.get(state.tickets, ticket) do
+      nil ->
+        {:reply, {:error, "Invalid ticket"}, state}
+      
+      ticket_data ->
+        if ticket_data.expires_at > :os.system_time(:second) do
+          {:reply, {:ok, ticket_data}, state}
+        else
+          # Ticket expired, remove it
+          new_tickets = Map.delete(state.tickets, ticket)
+          {:reply, {:error, "Ticket expired"}, %{state | tickets: new_tickets}}
+        end
+    end
+  end
+
+  def handle_call({:create_api_token, username, tokenid, params}, _from, state) do
+    case Map.get(state.users, username) do
+      nil ->
+        {:reply, {:error, "User not found"}, state}
+      
+      _user ->
+        token_value = :crypto.strong_rand_bytes(32) |> Base.encode64()
+        full_tokenid = "#{username}!#{tokenid}"
+        
+        token_data = %{
+          tokenid: full_tokenid,
+          token: token_value,
+          privsep: Map.get(params, :privsep, 1),
+          comment: Map.get(params, :comment, ""),
+          expire: Map.get(params, :expire, 0),
+          created_at: :os.system_time(:second)
+        }
+        
+        new_tokens = Map.put(state.api_tokens, full_tokenid, token_data)
+        
+        response = %{
+          tokenid: full_tokenid,
+          value: "#{full_tokenid}=#{token_value}"
+        }
+        
+        {:reply, {:ok, response}, %{state | api_tokens: new_tokens}}
+    end
+  end
+
+  def handle_call({:get_permissions, userid}, _from, state) do
+    permissions = 
+      state.permissions
+      |> Enum.filter(fn {_path, users} -> Map.has_key?(users, userid) end)
+      |> Enum.map(fn {path, users} -> 
+        roles = Map.get(users, userid, [])
+        privileges = Enum.flat_map(roles, fn role -> Map.get(state.roles, role, []) end)
+        %{path: path, roles: roles, privileges: privileges}
+      end)
+    
+    {:reply, permissions, state}
+  end
+
+  def handle_call({:set_permissions, path, userid, roleid}, _from, state) do
+    current_path_perms = Map.get(state.permissions, path, %{})
+    current_user_roles = Map.get(current_path_perms, userid, [])
+    updated_roles = [roleid | current_user_roles] |> Enum.uniq()
+    
+    new_path_perms = Map.put(current_path_perms, userid, updated_roles)
+    new_permissions = Map.put(state.permissions, path, new_path_perms)
+    
+    {:reply, :ok, %{state | permissions: new_permissions}}
+  end
+
   @impl true
   def handle_cast(:reset, _state) do
     Logger.info("Mock PVE Server state reset")
@@ -561,5 +825,17 @@ defmodule MockPveApi.State do
     new_pools = Map.delete(state.pools, poolid)
     new_state = %{state | pools: new_pools}
     {:noreply, new_state}
+  end
+
+  def handle_cast({:update_task, upid, updates}, state) do
+    case Map.get(state.tasks, upid) do
+      nil ->
+        {:noreply, state}
+      
+      task ->
+        updated_task = Map.merge(task, updates)
+        new_tasks = Map.put(state.tasks, upid, updated_task)
+        {:noreply, %{state | tasks: new_tasks}}
+    end
   end
 end

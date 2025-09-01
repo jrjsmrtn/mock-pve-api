@@ -25,11 +25,11 @@ defmodule MockPVEClient do
   def get(endpoint, params \\ []) do
     url = build_url(endpoint, params)
     
-    case HTTPoison.get(url, [], timeout: 10_000) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+    case Finch.build(:get, url) |> Finch.request(MockPVEClient.Finch, receive_timeout: 10_000) do
+      {:ok, %Finch.Response{status: 200, body: body}} ->
         {:ok, Jason.decode!(body)}
       
-      {:ok, %HTTPoison.Response{status_code: status, body: body}} ->
+      {:ok, %Finch.Response{status: status, body: body}} ->
         {:error, {status, body}}
       
       {:error, reason} ->
@@ -40,13 +40,13 @@ defmodule MockPVEClient do
   def post(endpoint, data \\ %{}) do
     url = build_url(endpoint)
     body = Jason.encode!(data)
-    headers = [{"Content-Type", "application/json"}]
+    headers = [{"content-type", "application/json"}]
     
-    case HTTPoison.post(url, body, headers, timeout: 10_000) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
+    case Finch.build(:post, url, headers, body) |> Finch.request(MockPVEClient.Finch, receive_timeout: 10_000) do
+      {:ok, %Finch.Response{status: 200, body: response_body}} ->
         {:ok, Jason.decode!(response_body)}
       
-      {:ok, %HTTPoison.Response{status_code: status, body: response_body}} ->
+      {:ok, %Finch.Response{status: status, body: response_body}} ->
         {:error, {status, response_body}}
       
       {:error, reason} ->
@@ -90,7 +90,7 @@ defmodule TestRunner do
     rescue
       error ->
         case error do
-          %HTTPoison.Error{reason: :econnrefused} ->
+          %Finch.Error{reason: :econnrefused} ->
             IO.puts("❌ Error: Could not connect to Mock PVE API Server")
             IO.puts("\nMake sure the server is running:")
             IO.puts("  podman run -d -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest")
@@ -288,7 +288,7 @@ defmodule TestRunner do
 end
 
 # Check if required dependencies are available
-dependencies = [:httpoison, :jason]
+dependencies = [:finch, :jason]
 
 missing_deps = Enum.filter(dependencies, fn dep ->
   try do
@@ -304,6 +304,9 @@ if length(missing_deps) > 0 do
   IO.puts("Please install them with: mix deps.get")
   System.halt(1)
 else
+  # Start Finch before running tests
+  {:ok, _} = Finch.start_link(name: MockPVEClient.Finch)
+  
   # All dependencies available, run tests
   TestRunner.run()
 end

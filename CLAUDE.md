@@ -12,7 +12,7 @@
 - Cross-language client library testing
 - Development environment provisioning
 
-**Current Status:** 0.1.0 (Initial Release - Extracted from pvex)
+**Current Status:** 0.3.1 (HTTP Client Migration & Phase 3 Complete)
 **Supported PVE Versions:** 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 9.0
 **Target Elixir Version:** 1.15+
 **Target OTP Version:** 26+
@@ -229,13 +229,20 @@ MOCK_PVE_MAX_RESOURCES=1000   # Maximum simulated resources
 - [ ] Container security scanning
 - [ ] SBOM generation
 
-### **Phase 3: Enhanced API Coverage (v0.3.0)**
-- [ ] VM/Container lifecycle operations (start, stop, migrate)
-- [ ] Backup and restore endpoints
-- [ ] Task/job simulation with progress
-- [ ] Authentication endpoints (tickets, tokens)
-- [ ] Permissions and ACL simulation
-- [ ] Metrics and statistics endpoints
+### **Phase 3: Enhanced API Coverage (v0.3.0)** ✅
+- [x] VM/Container lifecycle operations (start, stop, migrate)
+- [x] Backup and restore endpoints
+- [x] Task/job simulation with progress
+- [x] Authentication endpoints (tickets, tokens)
+- [x] Permissions and ACL simulation
+- [x] Metrics and statistics endpoints
+
+### **Phase 3.1: HTTP Client Migration (v0.3.1)** ✅
+- [x] Migrate from HTTPoison to Finch HTTP client
+- [x] Update test helper to use Finch
+- [x] Update all Elixir examples to use Finch
+- [x] Add Finch to application supervision tree
+- [x] Maintain API compatibility during migration
 
 ### **Phase 4: Advanced Features (v0.4.0)**
 - [ ] WebSocket support for console/VNC simulation
