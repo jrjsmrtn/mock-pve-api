@@ -82,6 +82,27 @@ defmodule MockPveApi.Handlers.Pools do
   end
 
   @doc """
+  PUT /api2/json/pools/:poolid
+  Updates a resource pool configuration.
+  """
+  def update_pool(conn) do
+    poolid = conn.path_params["poolid"]
+    params = conn.body_params
+    
+    case State.update_pool(poolid, params) do
+      {:ok, pool} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: pool}))
+        
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
   DELETE /api2/json/pools/:poolid
   Deletes a resource pool.
   """

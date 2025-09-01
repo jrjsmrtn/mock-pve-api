@@ -119,7 +119,7 @@ defmodule MockPveApi.Coverage do
       "/api2/json/cluster/config/join" => %{
         path: "/api2/json/cluster/config/join",
         methods: [:post],
-        status: :planned,
+        status: :implemented,
         priority: :medium,
         since: "6.0",
         description: "Join node to existing cluster",
@@ -131,8 +131,52 @@ defmodule MockPveApi.Coverage do
         response_schema: %{data: :string},
         capabilities_required: [:cluster_basic],
         test_coverage: false,
-        handler_module: nil,
-        notes: "Cluster management operations planned for Phase 4"
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: "Cluster management operations implemented"
+      },
+      "/api2/json/cluster/config" => %{
+        path: "/api2/json/cluster/config",
+        methods: [:get, :put],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Cluster configuration management",
+        parameters: [],
+        response_schema: %{data: :object},
+        capabilities_required: [:cluster_basic],
+        test_coverage: false,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: "Cluster configuration implemented"
+      },
+      "/api2/json/cluster/config/nodes" => %{
+        path: "/api2/json/cluster/config/nodes",
+        methods: [:get],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "List cluster nodes configuration",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:cluster_basic],
+        test_coverage: false,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: "Cluster nodes listing implemented"
+      },
+      "/api2/json/cluster/config/nodes/{node}" => %{
+        path: "/api2/json/cluster/config/nodes/{node}",
+        methods: [:delete],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Remove node from cluster",
+        parameters: [
+          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil}
+        ],
+        response_schema: %{data: :string},
+        capabilities_required: [:cluster_basic],
+        test_coverage: false,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: "Node removal from cluster implemented"
       },
       # SDN Management (PVE 8.0+, pvex: 97% coverage)
       "/api2/json/cluster/sdn/zones" => %{
@@ -352,7 +396,7 @@ defmodule MockPveApi.Coverage do
       "/api2/json/nodes/{node}/qemu/{vmid}/clone" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}/clone",
         methods: [:post],
-        status: :planned,
+        status: :implemented,
         priority: :high,
         since: "6.0",
         description: "Clone virtual machine",
@@ -364,8 +408,26 @@ defmodule MockPveApi.Coverage do
         response_schema: %{data: :string},
         capabilities_required: [:basic_virtualization],
         test_coverage: false,
-        handler_module: nil,
-        notes: "VM cloning operations planned for Phase 4"
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: "VM cloning operations implemented"
+      },
+      "/api2/json/nodes/{node}/lxc/{vmid}/clone" => %{
+        path: "/api2/json/nodes/{node}/lxc/{vmid}/clone",
+        methods: [:post],
+        status: :implemented,
+        priority: :high,
+        since: "6.0",
+        description: "Clone LXC container",
+        parameters: [
+          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
+          %{name: "vmid", type: :integer, required: true, description: "Source Container ID", values: nil, default: nil},
+          %{name: "newid", type: :integer, required: true, description: "New Container ID", values: nil, default: nil}
+        ],
+        response_schema: %{data: :string},
+        capabilities_required: [:containers],
+        test_coverage: false,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: "Container cloning operations implemented"
       }
     },
 
@@ -497,7 +559,7 @@ defmodule MockPveApi.Coverage do
       "/api2/json/access/users/{userid}" => %{
         path: "/api2/json/access/users/{userid}",
         methods: [:get, :put, :delete],
-        status: :planned,
+        status: :implemented,
         priority: :medium,
         since: "6.0",
         description: "Individual user account operations",
@@ -507,13 +569,13 @@ defmodule MockPveApi.Coverage do
         response_schema: %{data: :object},
         capabilities_required: [:user_management_basic],
         test_coverage: false,
-        handler_module: nil,
-        notes: "Individual user CRUD operations planned"
+        handler_module: MockPveApi.Handlers.Access,
+        notes: "Individual user CRUD operations implemented"
       },
       "/api2/json/access/ticket" => %{
         path: "/api2/json/access/ticket",
         methods: [:post],
-        status: :planned,
+        status: :implemented,
         priority: :high,
         since: "6.0",
         description: "Authentication ticket creation",
@@ -525,13 +587,13 @@ defmodule MockPveApi.Coverage do
         response_schema: %{data: %{ticket: :string, CSRFPreventionToken: :string}},
         capabilities_required: [:user_management_basic],
         test_coverage: false,
-        handler_module: nil,
-        notes: "Authentication system planned for Phase 4"
+        handler_module: MockPveApi.Handlers.Access,
+        notes: "Authentication system implemented"
       },
       "/api2/json/access/groups" => %{
         path: "/api2/json/access/groups",
         methods: [:get, :post],
-        status: :planned,
+        status: :implemented,
         priority: :medium,
         since: "6.0",
         description: "User group management",
@@ -539,8 +601,55 @@ defmodule MockPveApi.Coverage do
         response_schema: %{data: :array},
         capabilities_required: [:user_management_basic],
         test_coverage: false,
-        handler_module: nil,
-        notes: "Group management planned"
+        handler_module: MockPveApi.Handlers.Access,
+        notes: "Group management implemented"
+      },
+      "/api2/json/access/groups/{groupid}" => %{
+        path: "/api2/json/access/groups/{groupid}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Individual group operations",
+        parameters: [
+          %{name: "groupid", type: :string, required: true, description: "Group ID", values: nil, default: nil}
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:user_management_basic],
+        test_coverage: false,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: "Individual group CRUD operations implemented"
+      },
+      "/api2/json/access/domains" => %{
+        path: "/api2/json/access/domains",
+        methods: [:get],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Authentication realms/domains listing",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:user_management_basic],
+        test_coverage: false,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: "Domains/realms listing implemented"
+      },
+      "/api2/json/access/users/{userid}/token/{tokenid}" => %{
+        path: "/api2/json/access/users/{userid}/token/{tokenid}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Individual API token operations",
+        parameters: [
+          %{name: "userid", type: :string, required: true, description: "User ID", values: nil, default: nil},
+          %{name: "tokenid", type: :string, required: true, description: "Token ID", values: nil, default: nil}
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:user_management_basic],
+        test_coverage: false,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: "API token CRUD operations implemented"
       }
     },
 
@@ -563,7 +672,7 @@ defmodule MockPveApi.Coverage do
       "/api2/json/pools/{poolid}" => %{
         path: "/api2/json/pools/{poolid}",
         methods: [:get, :put, :delete],
-        status: :planned,
+        status: :implemented,
         priority: :medium,
         since: "6.0",
         description: "Individual pool operations",
@@ -572,9 +681,9 @@ defmodule MockPveApi.Coverage do
         ],
         response_schema: %{data: :object},
         capabilities_required: [:cluster_basic],
-        test_coverage: false,
-        handler_module: nil,
-        notes: "Individual pool CRUD operations planned"
+        test_coverage: true,
+        handler_module: "Elixir.MockPveApi.Handlers.Pools",
+        notes: "Complete CRUD operations for resource pools"
       }
     }
   }

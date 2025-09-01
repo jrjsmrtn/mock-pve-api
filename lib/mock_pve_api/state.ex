@@ -90,6 +90,53 @@ defmodule MockPveApi.State do
           groups: []
         }
       },
+      groups: %{
+        "admin" => %{
+          groupid: "admin",
+          comment: "System administrators"
+        }
+      },
+      domains: %{
+        "pam" => %{
+          realm: "pam",
+          type: "pam",
+          comment: "PAM standard authentication",
+          default: 1
+        },
+        "pve" => %{
+          realm: "pve",
+          type: "pve",
+          comment: "Proxmox VE authentication server"
+        }
+      },
+      cluster_config: %{
+        cluster_name: "pve-cluster",
+        nodes: %{
+          "pve-node1" => %{
+            name: "pve-node1",
+            nodeid: 1,
+            votes: 1,
+            ring0_addr: "192.168.1.10",
+            quorum_votes: 1,
+            online: true
+          },
+          "pve-node2" => %{
+            name: "pve-node2", 
+            nodeid: 2,
+            votes: 1,
+            ring0_addr: "192.168.1.11", 
+            quorum_votes: 1,
+            online: true
+          }
+        },
+        expected_votes: 2,
+        quorum: %{
+          expected_votes: 2,
+          total_votes: 2,
+          quorate: 1
+        },
+        cluster_log: []
+      },
       next_vmid: 100,
       tasks: %{},
       next_upid: 1,
@@ -199,6 +246,10 @@ defmodule MockPveApi.State do
     GenServer.call(@name, {:create_pool, poolid, config})
   end
 
+  def update_pool(poolid, params) do
+    GenServer.call(@name, {:update_pool, poolid, params})
+  end
+
   def delete_pool(poolid) do
     GenServer.cast(@name, {:delete_pool, poolid})
   end
@@ -262,6 +313,66 @@ defmodule MockPveApi.State do
 
   def set_permissions(path, userid, roleid) do
     GenServer.call(@name, {:set_permissions, path, userid, roleid})
+  end
+
+  # User management operations
+  def create_user(userid, params) do
+    GenServer.call(@name, {:create_user, userid, params})
+  end
+
+  def update_user(userid, params) do
+    GenServer.call(@name, {:update_user, userid, params})
+  end
+
+  def delete_user(userid) do
+    GenServer.call(@name, {:delete_user, userid})
+  end
+
+  # Group management operations
+  def create_group(groupid, params) do
+    GenServer.call(@name, {:create_group, groupid, params})
+  end
+
+  def update_group(groupid, params) do
+    GenServer.call(@name, {:update_group, groupid, params})
+  end
+
+  def delete_group(groupid) do
+    GenServer.call(@name, {:delete_group, groupid})
+  end
+
+  # API Token management operations
+  def delete_api_token(tokenid) do
+    GenServer.call(@name, {:delete_api_token, tokenid})
+  end
+
+  def update_api_token(tokenid, params) do
+    GenServer.call(@name, {:update_api_token, tokenid, params})
+  end
+
+  # Cluster management operations
+  def get_cluster_status do
+    GenServer.call(@name, :get_cluster_status)
+  end
+
+  def join_cluster(hostname, nodeid, votes) do
+    GenServer.call(@name, {:join_cluster, hostname, nodeid, votes})
+  end
+
+  def get_cluster_config do
+    GenServer.call(@name, :get_cluster_config)
+  end
+
+  def update_cluster_config(params) do
+    GenServer.call(@name, {:update_cluster_config, params})
+  end
+
+  def get_cluster_nodes_config do
+    GenServer.call(@name, :get_cluster_nodes_config)
+  end
+
+  def remove_cluster_node(node_name) do
+    GenServer.call(@name, {:remove_cluster_node, node_name})
   end
 
   def get_next_vmid do
@@ -482,6 +593,23 @@ defmodule MockPveApi.State do
       new_state = %{state | pools: new_pools}
 
       {:reply, {:ok, pool}, new_state}
+    end
+  end
+
+  def handle_call({:update_pool, poolid, params}, _from, state) do
+    case Map.get(state.pools, poolid) do
+      nil ->
+        {:reply, {:error, "Pool '#{poolid}' not found"}, state}
+      
+      existing_pool ->
+        updated_pool = Map.merge(existing_pool, %{
+          comment: Map.get(params, "comment", existing_pool.comment)
+        })
+        
+        new_pools = Map.put(state.pools, poolid, updated_pool)
+        new_state = %{state | pools: new_pools}
+        
+        {:reply, {:ok, updated_pool}, new_state}
     end
   end
 
@@ -738,6 +866,246 @@ defmodule MockPveApi.State do
     new_permissions = Map.put(state.permissions, path, new_path_perms)
     
     {:reply, :ok, %{state | permissions: new_permissions}}
+  end
+
+  # User management callbacks
+  def handle_call({:create_user, userid, params}, _from, state) do
+    if Map.has_key?(state.users, userid) do
+      {:reply, {:error, "User #{userid} already exists"}, state}
+    else
+      user = 
+        Map.merge(%{
+          userid: userid,
+          comment: "",
+          enable: 1,
+          expire: 0,
+          groups: []
+        }, params)
+
+      new_users = Map.put(state.users, userid, user)
+      new_state = %{state | users: new_users}
+
+      {:reply, {:ok, user}, new_state}
+    end
+  end
+
+  def handle_call({:update_user, userid, params}, _from, state) do
+    case Map.get(state.users, userid) do
+      nil ->
+        {:reply, {:error, "User #{userid} not found"}, state}
+      
+      user ->
+        updated_user = Map.merge(user, params)
+        new_users = Map.put(state.users, userid, updated_user)
+        new_state = %{state | users: new_users}
+        {:reply, {:ok, updated_user}, new_state}
+    end
+  end
+
+  def handle_call({:delete_user, userid}, _from, state) do
+    case Map.get(state.users, userid) do
+      nil ->
+        {:reply, {:error, "User #{userid} not found"}, state}
+      
+      _user ->
+        # Also clean up any API tokens for this user
+        tokens_to_remove = 
+          state.api_tokens
+          |> Enum.filter(fn {tokenid, _token} -> String.starts_with?(tokenid, "#{userid}!") end)
+          |> Enum.map(&elem(&1, 0))
+        
+        new_tokens = Enum.reduce(tokens_to_remove, state.api_tokens, &Map.delete(&2, &1))
+        new_users = Map.delete(state.users, userid)
+        
+        new_state = %{state | users: new_users, api_tokens: new_tokens}
+        {:reply, :ok, new_state}
+    end
+  end
+
+  # Group management callbacks
+  def handle_call({:create_group, groupid, params}, _from, state) do
+    if Map.has_key?(state.groups, groupid) do
+      {:reply, {:error, "Group #{groupid} already exists"}, state}
+    else
+      group = 
+        Map.merge(%{
+          groupid: groupid,
+          comment: ""
+        }, params)
+
+      new_groups = Map.put(state.groups, groupid, group)
+      new_state = %{state | groups: new_groups}
+
+      {:reply, {:ok, group}, new_state}
+    end
+  end
+
+  def handle_call({:update_group, groupid, params}, _from, state) do
+    case Map.get(state.groups, groupid) do
+      nil ->
+        {:reply, {:error, "Group #{groupid} not found"}, state}
+      
+      group ->
+        updated_group = Map.merge(group, params)
+        new_groups = Map.put(state.groups, groupid, updated_group)
+        new_state = %{state | groups: new_groups}
+        {:reply, {:ok, updated_group}, new_state}
+    end
+  end
+
+  def handle_call({:delete_group, groupid}, _from, state) do
+    case Map.get(state.groups, groupid) do
+      nil ->
+        {:reply, {:error, "Group #{groupid} not found"}, state}
+      
+      _group ->
+        new_groups = Map.delete(state.groups, groupid)
+        new_state = %{state | groups: new_groups}
+        {:reply, :ok, new_state}
+    end
+  end
+
+  # API Token management callbacks
+  def handle_call({:delete_api_token, tokenid}, _from, state) do
+    case Map.get(state.api_tokens, tokenid) do
+      nil ->
+        {:reply, {:error, "Token #{tokenid} not found"}, state}
+      
+      _token ->
+        new_tokens = Map.delete(state.api_tokens, tokenid)
+        new_state = %{state | api_tokens: new_tokens}
+        {:reply, :ok, new_state}
+    end
+  end
+
+  def handle_call({:update_api_token, tokenid, params}, _from, state) do
+    case Map.get(state.api_tokens, tokenid) do
+      nil ->
+        {:reply, {:error, "Token #{tokenid} not found"}, state}
+      
+      token ->
+        # Only allow updating certain fields, not the actual token value
+        allowed_updates = Map.take(params, [:comment, :expire, :privsep])
+        updated_token = Map.merge(token, allowed_updates)
+        new_tokens = Map.put(state.api_tokens, tokenid, updated_token)
+        new_state = %{state | api_tokens: new_tokens}
+        {:reply, {:ok, updated_token}, new_state}
+    end
+  end
+
+  # Cluster management callbacks
+  def handle_call(:get_cluster_status, _from, state) do
+    cluster_nodes = 
+      state.nodes
+      |> Enum.map(fn {node_name, node_data} ->
+        cluster_node = get_in(state, [:cluster_config, :nodes, node_name]) || %{}
+        Map.merge(node_data, %{
+          type: "node",
+          level: "",
+          nodeid: Map.get(cluster_node, :nodeid, 1),
+          local: node_name == "pve-node1"
+        })
+      end)
+
+    {:reply, cluster_nodes, state}
+  end
+
+  def handle_call({:join_cluster, hostname, nodeid, votes}, _from, state) do
+    # Generate a new node name based on the hostname
+    new_node_name = hostname
+    new_nodeid = nodeid || (map_size(state.cluster_config.nodes) + 1)
+    
+    # Create new node configuration
+    new_node = %{
+      name: new_node_name,
+      nodeid: new_nodeid,
+      votes: votes,
+      ring0_addr: "192.168.1.#{20 + new_nodeid}",
+      quorum_votes: votes,
+      online: true
+    }
+    
+    # Update cluster configuration
+    updated_cluster_config = 
+      state.cluster_config
+      |> put_in([:nodes, new_node_name], new_node)
+      |> update_in([:expected_votes], &(&1 + votes))
+      |> put_in([:quorum, :expected_votes], state.cluster_config.expected_votes + votes)
+      |> put_in([:quorum, :total_votes], state.cluster_config.quorum.total_votes + votes)
+    
+    # Add node to main nodes state
+    default_node = %{
+      node: new_node_name,
+      status: "online",
+      cpu: 0.05,
+      maxcpu: 4,
+      mem: 2_147_483_648,  # 2GB
+      maxmem: 8_589_934_592,  # 8GB
+      disk: 30_000_000_000,  # 30GB
+      maxdisk: 100_000_000_000,  # 100GB
+      uptime: 3600,
+      version: state.pve_version,
+      kernel: "6.2.16-15-pve"
+    }
+    
+    updated_nodes = Map.put(state.nodes, new_node_name, default_node)
+    
+    # Create join task
+    task_result = handle_call({:create_task, new_node_name, "clusterjoin", %{hostname: hostname}}, nil, %{state | cluster_config: updated_cluster_config, nodes: updated_nodes})
+    {:reply, {:ok, upid}, final_state} = task_result
+    
+    {:reply, {:ok, upid}, final_state}
+  end
+
+  def handle_call(:get_cluster_config, _from, state) do
+    {:reply, state.cluster_config, state}
+  end
+
+  def handle_call({:update_cluster_config, params}, _from, state) do
+    updated_config = 
+      Enum.reduce(params, state.cluster_config, fn {key, value}, acc ->
+        case key do
+          "cluster_name" -> Map.put(acc, :cluster_name, value)
+          _ -> acc
+        end
+      end)
+    
+    new_state = %{state | cluster_config: updated_config}
+    {:reply, {:ok, updated_config}, new_state}
+  end
+
+  def handle_call(:get_cluster_nodes_config, _from, state) do
+    nodes_list = 
+      state.cluster_config.nodes
+      |> Enum.map(fn {_name, node_config} -> node_config end)
+    
+    {:reply, nodes_list, state}
+  end
+
+  def handle_call({:remove_cluster_node, node_name}, _from, state) do
+    case get_in(state, [:cluster_config, :nodes, node_name]) do
+      nil ->
+        {:reply, {:error, "Node #{node_name} not found in cluster"}, state}
+      
+      node_config ->
+        votes = Map.get(node_config, :votes, 1)
+        
+        # Update cluster configuration
+        updated_cluster_config = 
+          state.cluster_config
+          |> put_in([:nodes], Map.delete(state.cluster_config.nodes, node_name))
+          |> update_in([:expected_votes], &(&1 - votes))
+          |> put_in([:quorum, :expected_votes], state.cluster_config.expected_votes - votes)
+          |> put_in([:quorum, :total_votes], state.cluster_config.quorum.total_votes - votes)
+        
+        # Remove from main nodes state
+        updated_nodes = Map.delete(state.nodes, node_name)
+        
+        # Create removal task
+        task_result = handle_call({:create_task, node_name, "clusterremove", %{node: node_name}}, nil, %{state | cluster_config: updated_cluster_config, nodes: updated_nodes})
+        {:reply, {:ok, upid}, final_state} = task_result
+        {:reply, {:ok, upid}, final_state}
+    end
   end
 
   @impl true

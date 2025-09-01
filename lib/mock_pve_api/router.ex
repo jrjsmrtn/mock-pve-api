@@ -45,16 +45,64 @@ defmodule MockPveApi.Router do
     Access.list_users(conn)
   end
 
+  post "/api2/json/access/users" do
+    Access.create_user(conn)
+  end
+
   get "/api2/json/access/users/:userid" do
     Access.get_user(conn)
+  end
+
+  put "/api2/json/access/users/:userid" do
+    Access.update_user(conn)
+  end
+
+  delete "/api2/json/access/users/:userid" do
+    Access.delete_user(conn)
+  end
+
+  get "/api2/json/access/users/:userid/token" do
+    Access.list_user_tokens(conn)
   end
 
   post "/api2/json/access/users/:userid/token/:tokenid" do
     Access.create_api_token(conn)
   end
 
-  get "/api2/json/access/users/:userid/token" do
-    Access.list_user_tokens(conn)
+  get "/api2/json/access/users/:userid/token/:tokenid" do
+    Access.get_api_token(conn)
+  end
+
+  put "/api2/json/access/users/:userid/token/:tokenid" do
+    Access.update_api_token(conn)
+  end
+
+  delete "/api2/json/access/users/:userid/token/:tokenid" do
+    Access.delete_api_token(conn)
+  end
+
+  get "/api2/json/access/groups" do
+    Access.list_groups(conn)
+  end
+
+  post "/api2/json/access/groups" do
+    Access.create_group(conn)
+  end
+
+  get "/api2/json/access/groups/:groupid" do
+    Access.get_group(conn)
+  end
+
+  put "/api2/json/access/groups/:groupid" do
+    Access.update_group(conn)
+  end
+
+  delete "/api2/json/access/groups/:groupid" do
+    Access.delete_group(conn)
+  end
+
+  get "/api2/json/access/domains" do
+    Access.list_domains(conn)
   end
 
   get "/api2/json/access/permissions" do
@@ -177,6 +225,10 @@ defmodule MockPveApi.Router do
     Nodes.clone_vm(conn)
   end
 
+  post "/api2/json/nodes/:node/lxc/:vmid/clone" do
+    Nodes.clone_container(conn)
+  end
+
   post "/api2/json/nodes/:node/vzdump" do
     Nodes.create_backup(conn)
   end
@@ -233,12 +285,36 @@ defmodule MockPveApi.Router do
   end
 
   # Cluster endpoints  
+  get "/api2/json/cluster/status" do
+    Cluster.get_cluster_status(conn)
+  end
+
   get "/api2/json/cluster/resources" do
     Cluster.get_resources(conn)
   end
 
   get "/api2/json/cluster/nextid" do
     Cluster.get_next_vmid(conn)
+  end
+
+  get "/api2/json/cluster/config" do
+    Cluster.get_cluster_config(conn)
+  end
+
+  put "/api2/json/cluster/config" do
+    Cluster.update_cluster_config(conn)
+  end
+
+  post "/api2/json/cluster/config/join" do
+    Cluster.join_cluster(conn)
+  end
+
+  get "/api2/json/cluster/config/nodes" do
+    Cluster.get_cluster_nodes_config(conn)
+  end
+
+  delete "/api2/json/cluster/config/nodes/:node" do
+    Cluster.remove_cluster_node(conn)
   end
 
   # Pool endpoints
@@ -252,6 +328,10 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/pools" do
     Pools.create_pool(conn)
+  end
+
+  put "/api2/json/pools/:poolid" do
+    Pools.update_pool(conn)
   end
 
   delete "/api2/json/pools/:poolid" do
@@ -414,6 +494,11 @@ defmodule MockPveApi.Router do
     conn
   end
 
+  defp authenticate(%Plug.Conn{request_path: "/api2/json/access/ticket"} = conn, _opts) do
+    # Ticket creation endpoint doesn't require authentication
+    conn
+  end
+
   defp authenticate(conn, _opts) do
     case get_auth_header(conn) do
       {:ok, _auth_type, _token} ->
@@ -437,13 +522,36 @@ defmodule MockPveApi.Router do
   end
 
   defp get_auth_header(conn) do
+    # Check Authorization header first
     case get_req_header(conn, "authorization") do
       ["Bearer " <> token] -> {:ok, :token, token}
       ["PVEAuthCookie=" <> ticket] -> {:ok, :ticket, ticket}
       ["PVEAPIToken=" <> token] -> {:ok, :api_token, token}
-      [] -> {:error, :missing}
+      [] ->
+        # Check cookies if no Authorization header
+        case get_req_header(conn, "cookie") do
+          [cookie_header] ->
+            # Parse cookies to find PVEAuthCookie
+            case parse_cookies(cookie_header) do
+              %{"PVEAuthCookie" => ticket} -> {:ok, :ticket, ticket}
+              _ -> {:error, :missing}
+            end
+          [] -> {:error, :missing}
+        end
       _ -> {:error, :missing}
     end
+  end
+
+  defp parse_cookies(cookie_header) do
+    cookie_header
+    |> String.split(";")
+    |> Enum.map(&String.trim/1)
+    |> Enum.reduce(%{}, fn cookie, acc ->
+      case String.split(cookie, "=", parts: 2) do
+        [key, value] -> Map.put(acc, String.trim(key), String.trim(value))
+        _ -> acc
+      end
+    end)
   end
 
   # Coverage status checking plug

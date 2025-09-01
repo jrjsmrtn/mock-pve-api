@@ -295,7 +295,8 @@ defmodule MockPveApi.Handlers.Nodes do
     vmid =
       case Map.get(params, "vmid") do
         nil -> State.get_next_vmid()
-        id -> String.to_integer(id)
+        id when is_integer(id) -> id
+        id when is_binary(id) -> String.to_integer(id)
       end
 
     case State.get_node(node_name) do
@@ -485,7 +486,8 @@ defmodule MockPveApi.Handlers.Nodes do
     vmid =
       case Map.get(params, "vmid") do
         nil -> State.get_next_vmid()
-        id -> String.to_integer(id)
+        id when is_integer(id) -> id
+        id when is_binary(id) -> String.to_integer(id)
       end
 
     case State.get_node(node_name) do
@@ -770,6 +772,47 @@ defmodule MockPveApi.Handlers.Nodes do
   end
 
   @doc """
+  POST /api2/json/nodes/:node/lxc/:vmid/clone
+  Clones an LXC container.
+  """
+  def clone_container(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+    params = conn.body_params
+    newid = get_int_param(params, "newid") || State.get_next_vmid()
+
+    case State.get_container(node_name, vmid) do
+      nil ->
+        send_not_found(conn, "Container", vmid)
+
+      container ->
+        # Create cloned container config
+        clone_config = %{
+          hostname: Map.get(params, "hostname", "#{container.hostname}-clone"),
+          memory: container.memory,
+          swap: container.swap,
+          cores: container.cores,
+          ostemplate: container.ostemplate,
+          rootfs: Map.get(params, "rootfs", container.rootfs)
+        }
+
+        case State.create_container(node_name, newid, clone_config) do
+          {:ok, _new_container} ->
+            {:ok, upid} = State.create_task(node_name, "pctclone", %{vmid: vmid, newid: newid})
+
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(200, Jason.encode!(%{data: upid}))
+
+          {:error, message} ->
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+        end
+    end
+  end
+
+  @doc """
   GET /api2/json/nodes/:node/tasks/:upid/status
   Gets task status with progress information.
   """
@@ -864,6 +907,24 @@ defmodule MockPveApi.Handlers.Nodes do
           %{n: 3, t: "#{task.starttime + 2}: starting migration of VM #{task.vmid} to #{target}"},
           %{n: 4, t: "#{task.starttime + 10}: copying VM state..."},
           %{n: 5, t: "#{task.starttime + 20}: migration completed successfully"}
+        ]
+
+      "qmclone" ->
+        newid = Map.get(task, :newid, "unknown")
+        base_logs ++ [
+          %{n: 3, t: "#{task.starttime + 2}: starting clone of VM #{task.vmid} to #{newid}"},
+          %{n: 4, t: "#{task.starttime + 5}: creating VM configuration..."},
+          %{n: 5, t: "#{task.starttime + 10}: copying disk images..."},
+          %{n: 6, t: "#{task.starttime + 25}: clone completed successfully"}
+        ]
+
+      "pctclone" ->
+        newid = Map.get(task, :newid, "unknown")
+        base_logs ++ [
+          %{n: 3, t: "#{task.starttime + 2}: starting clone of Container #{task.vmid} to #{newid}"},
+          %{n: 4, t: "#{task.starttime + 5}: creating container configuration..."},
+          %{n: 5, t: "#{task.starttime + 10}: copying container data..."},
+          %{n: 6, t: "#{task.starttime + 20}: clone completed successfully"}
         ]
 
       "vzdump" ->
