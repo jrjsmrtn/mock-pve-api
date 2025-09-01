@@ -12,7 +12,7 @@
 - Cross-language client library testing
 - Development environment provisioning
 
-**Current Status:** 0.4.3 (Comprehensive Validation - All 37 Endpoints Systematically Tested and Verified)
+**Current Status:** 0.4.4 (Diátaxis Documentation Reorganization - Complete User-Centric Documentation Structure)
 **Supported PVE Versions:** 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 9.0
 **Target Elixir Version:** 1.15+
 **Target OTP Version:** 26+
@@ -273,6 +273,30 @@ MOCK_PVE_INIT_STATE=default   # Initial state preset
 MOCK_PVE_MAX_RESOURCES=1000   # Maximum simulated resources
 ```
 
+### **Runtime Configuration Implementation**
+
+The project uses **runtime configuration** (`config/runtime.exs`) to ensure environment variables are properly handled in containerized deployments:
+
+**Key Features:**
+- **Runtime Variable Reading**: Environment variables read at container startup, not compile time
+- **Dynamic Version Selection**: `MOCK_PVE_VERSION` properly applied to running containers
+- **Container Compatibility**: Works with Podman, Docker, and orchestration platforms
+- **CI/CD Ready**: No configuration baked into container images
+
+**Technical Implementation:**
+```elixir
+# config/runtime.exs - Runtime configuration
+config :mock_pve_api,
+  pve_version: System.get_env("MOCK_PVE_VERSION", "8.3"),
+  port: System.get_env("MOCK_PVE_PORT", "8006") |> String.to_integer(),
+  # ... other runtime configurations
+```
+
+**Container Deployment Benefits:**
+- ✅ **Multi-Version Testing**: Deploy different PVE versions simultaneously  
+- ✅ **Environment Isolation**: Each container maintains independent configuration
+- ✅ **Zero Rebuild**: Change configuration without rebuilding images
+
 ## **Development Roadmap**
 
 ### **Phase 1: Foundation (v0.1.0)** ✅
@@ -349,7 +373,30 @@ MOCK_PVE_MAX_RESOURCES=1000   # Maximum simulated resources
 
 **🎯 READY FOR DISTRIBUTION**: With comprehensive validation complete, the mock server is production-ready for community release via Docker Hub.
 
-### **Phase 5: Advanced Features (v0.6.0)**
+### **Phase 4.4: Diátaxis Documentation Reorganization (v0.4.4)** ✅
+- [x] Complete documentation structure reorganization following Diátaxis framework
+- [x] **Tutorials**: Learning-oriented guides for new users (getting-started, your-first-test, understanding-versions)
+- [x] **How-To Guides**: Problem-solving guides for specific tasks (client-integration, multi-version-testing, container-deployment, CI/CD setup)
+- [x] **Reference**: Information-oriented documentation (API endpoints, environment variables, client examples)
+- [x] **Explanation**: Understanding-oriented content (architecture decisions, version compatibility, state management)
+- [x] Updated all internal documentation links and cross-references
+- [x] Cleaned up obsolete directories and broken links
+- [x] Enhanced examples organization and README structure
+- [x] **DOCUMENTATION MILESTONE: User-centric documentation structure** - Professional, discoverable documentation
+
+**🎯 READY FOR COMMUNITY**: With comprehensive documentation following industry standards, the project is ready for broader community adoption.
+
+### **Phase 5: Docker Hub Release (v0.5.0)** 🎯 **NEXT PRIORITY**
+- [ ] Docker Hub repository setup and automation
+- [ ] Automated multi-arch builds (amd64, arm64)
+- [ ] Semantic versioning tags synchronized with git releases
+- [ ] GitHub Actions for automated publishing
+- [ ] Container security scanning and vulnerability assessment
+- [ ] SBOM generation for supply chain security
+- [ ] Release v0.4.4 as stable production image
+- [ ] Update container registry documentation
+
+### **Phase 6: Advanced Features (v0.6.0)**
 - [ ] WebSocket support for console/VNC simulation
 - [ ] Event streaming simulation
 - [ ] Configurable response fixtures

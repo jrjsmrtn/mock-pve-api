@@ -7,6 +7,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.4] - 2025-09-01 (Diátaxis Documentation Reorganization)
+
+### Added
+- **Complete Diátaxis Documentation Structure**: Reorganized all documentation following industry-standard Diátaxis framework
+  - **Tutorials**: Learning-oriented guides (getting-started.md, your-first-test.md, understanding-versions.md)
+  - **How-To Guides**: Problem-solving guides (client-integration.md, multi-version-testing.md, container-deployment.md, setup-ci-cd.md, migrate-from-pvex.md)
+  - **Reference**: Information-oriented documentation (api-endpoints.md, environment-variables.md, client-examples.md, api-coverage.md)
+  - **Explanation**: Understanding-oriented content (architecture-decisions.md, version-compatibility.md, state-management.md)
+- **New Tutorial Content**: Created comprehensive tutorials for new users
+- **Enhanced How-To Guides**: Practical guides for common tasks and integration scenarios
+- **Comprehensive Reference Material**: Complete API and configuration documentation
+- **Conceptual Explanations**: Deep-dive explanations of architecture and design decisions
+
+### Changed
+- **Documentation Structure**: Complete reorganization from flat structure to Diátaxis quadrants
+- **Navigation**: Updated all internal links and cross-references for new structure
+- **Examples Organization**: Simplified and cleaned up examples directory structure
+- **README.md**: Updated to reflect new documentation organization with clear categories
+
+### Fixed
+- **Documentation Links**: Fixed all broken internal documentation links after reorganization
+- **ADR Numbering**: Resolved duplicate ADR-005 numbers by renaming API coverage matrix to ADR-007
+- **Relative Paths**: Corrected all relative path calculations for new directory structure
+
+### Removed
+- **Obsolete Directories**: Cleaned up old docs/guides/ directory and empty subdirectories
+- **Broken Links**: Eliminated all references to non-existent documentation files
+
+## [0.4.3] - 2025-09-01 (Container Runtime Configuration & Testing Validation)
+
+### Fixed
+- **Runtime Configuration**: Added `config/runtime.exs` for proper environment variable handling in containers
+  - Fixed PVE version selection from `MOCK_PVE_VERSION` environment variable
+  - Resolved compile-time vs runtime configuration issues in production builds
+  - Environment variables now properly read at container startup time
+- **Production Dependencies**: Made Finch HTTP client a production dependency
+  - Fixed container startup failures with missing Finch dependency
+  - Ensures proper HTTP client availability for all environments
+- **Version Handler**: Corrected application name reference in version endpoint
+  - Fixed hardcoded `:mock_pve_server` to proper `:mock_pve_api` reference
+  - Enables proper version simulation across different PVE versions
+
+### Validated
+- **Container Testing**: Comprehensive Podman container validation
+  - Multi-version support (PVE 7.4, 8.3, 9.0) working correctly
+  - Network isolation and cluster simulation tested
+  - Cross-container API authentication and communication verified
+- **API Endpoints**: All 37 endpoints systematically tested and verified working
+  - Authentication system (tickets, cookies) fully functional
+  - Version-specific capability detection working properly
+  - Cluster operations and resource management tested
+
+### Infrastructure
+- **Container Builds**: Fixed production container builds with proper dependencies
+- **Multi-Architecture**: Validated ARM64 builds and Intel compatibility requirements
+- **Development Workflow**: Enhanced testing procedures for container deployments
+
+## [0.4.2] - 2025-01-31 (Code Quality & Warning Cleanup)
+
+### Fixed
+- **Compiler Warnings**: Eliminated all 20+ unused variables and function ordering issues
+- **Code Quality**: Applied Elixir best practices throughout codebase
+- **Pattern Matching**: Fixed GenServer recursive call issues with proper pattern matching
+
+## [0.4.1] - 2025-01-31 (100% API Coverage Milestone)
+
+### Added
+- **Complete API Implementation**: Achieved 100% coverage with all 37 endpoints functional
+- **Authentication System**: Full cookie-based authentication with proper PVE ticket handling
+- **Enhanced CRUD Operations**: Complete resource management for VMs, containers, users, pools
+
+## [0.4.0] - 2025-01-31 (Phase 4: Enhanced API Implementation)
+
+### Added
+- **VM/Container Operations**: Complete lifecycle management including cloning
+- **User/Group Management**: Full CRUD operations for access control
+- **Enhanced Storage**: Content management with POST endpoints for ISOs/templates/backups
+- **Cluster Configuration**: Join operations and node management endpoints
+- **HA & Backup Features**: Version-specific features (PVE 8.2+ backup providers, 9.0+ HA affinity)
+
 ## [0.3.2] - 2025-01-30 (Comprehensive API Coverage Matrix)
 
 ### Added - Phase 3.2: API Coverage Matrix System

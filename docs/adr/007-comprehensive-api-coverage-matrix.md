@@ -1,4 +1,4 @@
-# ADR-005: Comprehensive PVE API Coverage Matrix
+# ADR-007: Comprehensive PVE API Coverage Matrix
 
 **Date:** 2025-01-30  
 **Status:** Proposed  

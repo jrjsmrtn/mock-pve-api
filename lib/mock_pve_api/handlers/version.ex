@@ -13,7 +13,7 @@ defmodule MockPveApi.Handlers.Version do
   Returns PVE version information based on configured version.
   """
   def get_version(conn) do
-    pve_version = Application.get_env(:mock_pve_server, :pve_version, "8.0")
+    pve_version = Application.get_env(:mock_pve_api, :pve_version, "8.0")
     version_data = Capabilities.get_version_info(pve_version)
 
     conn

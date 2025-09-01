@@ -4,7 +4,7 @@ defmodule MockPveApi.MixProject do
   def project do
     [
       app: :mock_pve_api,
-      version: "0.4.3",
+      version: "0.4.4",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -28,7 +28,7 @@ defmodule MockPveApi.MixProject do
       {:plug, "~> 1.15"},
       {:plug_cowboy, "~> 2.7"},
       {:jason, "~> 1.4"},
-      {:finch, "~> 0.18", only: [:dev, :test]},
+      {:finch, "~> 0.18"},
       {:ex_doc, "~> 0.30", only: :dev, runtime: false}
     ]
   end

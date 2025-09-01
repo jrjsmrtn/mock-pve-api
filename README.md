@@ -31,50 +31,68 @@ Born from the [**pvex**](https://github.com/jrjsmrtn/pvex) project during Sprint
 
 ## Quick Start
 
-### Podman (Recommended)
+> **📦 Container Images**: Pre-built container images will be available on Docker Hub in the next release. For now, please build from source.
+
+### Build and Run with Containers (Current Method)
 
 ```bash
-# Latest PVE 8.3 simulation
-podman run -d -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+# Clone the repository
+git clone https://github.com/jrjsmrtn/mock-pve-api.git
+cd mock-pve-api
 
-# Specific PVE versions
-podman run -d -p 8006:8006 -e MOCK_PVE_VERSION=7.4 docker.io/jrjsmrtn/mock-pve-api:pve7
-podman run -d -p 8006:8006 -e MOCK_PVE_VERSION=8.0 docker.io/jrjsmrtn/mock-pve-api:pve8  
-podman run -d -p 8006:8006 -e MOCK_PVE_VERSION=9.0 docker.io/jrjsmrtn/mock-pve-api:pve9
+# Build container image with Podman (recommended)
+podman build -f docker/Dockerfile -t mock-pve-api:latest .
+
+# Run with different PVE versions
+podman run -d -p 8006:8006 -e MOCK_PVE_VERSION=8.3 mock-pve-api:latest
+podman run -d -p 8007:8006 -e MOCK_PVE_VERSION=7.4 mock-pve-api:latest  
+podman run -d -p 8008:8006 -e MOCK_PVE_VERSION=9.0 mock-pve-api:latest
 
 # Rootless container (more secure)
-podman run -d --userns=keep-id -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -d --userns=keep-id -p 8006:8006 -e MOCK_PVE_VERSION=8.3 mock-pve-api:latest
 ```
 
-*💡 Also works with Docker - just replace `podman` with `docker` and remove the `docker.io/` prefix*
+**Using the Makefile (Recommended):**
+```bash
+# Build production container
+make container-build
 
-### Podman Compose
+# Run container on port 8006
+make container-run
+
+# Build and run development container with volume mounts
+make container-build-dev
+make container-run-dev
+```
+
+*💡 Also works with Docker - just replace `podman` with `docker` in the commands above*
+
+### Podman Compose (Build from Source)
 
 ```yaml
 version: '3.8'
 services:
   mock-pve:
-    image: docker.io/jrjsmrtn/mock-pve-api:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     ports:
       - "8006:8006"
     environment:
       - MOCK_PVE_VERSION=8.3
       - MOCK_PVE_ENABLE_SDN=true
+      - MOCK_PVE_LOG_LEVEL=info
     # Podman-specific: Enable systemd integration
     systemd: true
 ```
 
-### From Source
+### Run Directly from Source
 
 ```bash
 git clone https://github.com/jrjsmrtn/mock-pve-api.git
 cd mock-pve-api
 mix deps.get
 mix run --no-halt
-
-# Or build and run with containers
-make container-build
-make container-run
 ```
 
 ## Usage Examples
@@ -82,13 +100,21 @@ make container-run
 ### Testing Your PVE Client
 
 ```bash
-# Start mock server
-podman run -d --name mock-pve -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+# Build and start mock server (using local image)
+podman build -f docker/Dockerfile -t mock-pve-api:latest .
+podman run -d --name mock-pve -p 8006:8006 -e MOCK_PVE_VERSION=8.3 mock-pve-api:latest
 
 # Test with curl
-curl -k http://localhost:8006/api2/json/version
-curl -k http://localhost:8006/api2/json/nodes
-curl -k https://localhost:8006/api2/json/cluster/status
+curl http://localhost:8006/api2/json/version    # No SSL/TLS in mock server
+curl http://localhost:8006/api2/json/nodes      # Requires authentication
+curl http://localhost:8006/api2/json/cluster/status
+
+# Get authentication ticket and test authenticated endpoints
+curl -X POST http://localhost:8006/api2/json/access/ticket \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=root@pam&password=secret"
+
+# Use the returned ticket for authenticated requests
 ```
 
 ### Python Client Testing
@@ -138,15 +164,24 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      mock-pve:
-        image: jrjsmrtn/mock-pve-api:latest
-        ports:
-          - 8006:8006
-        options: --health-cmd "curl -f http://localhost:8006/api2/json/version" --health-interval 10s
-
+    
     steps:
       - uses: actions/checkout@v4
+      
+      # Checkout mock-pve-api and build container
+      - name: Setup mock PVE server
+        run: |
+          git clone https://github.com/jrjsmrtn/mock-pve-api.git
+          cd mock-pve-api
+          docker build -f docker/Dockerfile -t mock-pve-api:ci .
+          docker run -d --name mock-pve -p 8006:8006 \
+            -e MOCK_PVE_VERSION=8.3 \
+            -e MOCK_PVE_LOG_LEVEL=info \
+            mock-pve-api:ci
+          
+          # Wait for server to be ready
+          timeout 30 bash -c 'until curl -f http://localhost:8006/api2/json/version; do sleep 1; done'
+      
       - name: Run tests against mock PVE
         run: |
           # Your test commands here
@@ -154,6 +189,10 @@ jobs:
         env:
           PVE_HOST: localhost
           PVE_PORT: 8006
+          MOCK_PVE_VERSION: 8.3
+          
+      - name: Cleanup
+        run: docker stop mock-pve && docker rm mock-pve
 ```
 
 ## Configuration
@@ -171,6 +210,32 @@ Configure the mock server using environment variables:
 | `MOCK_PVE_DELAY` | `0` | Response delay in milliseconds |
 | `MOCK_PVE_ERROR_RATE` | `0` | Simulate error percentage (0-100) |
 | `MOCK_PVE_LOG_LEVEL` | `info` | Logging level |
+
+### Runtime Configuration
+
+The mock server uses **runtime configuration** (`config/runtime.exs`) to properly handle environment variables in containerized environments. This ensures that:
+
+- Environment variables are read at **container startup time**, not build time
+- PVE version simulation works correctly with `MOCK_PVE_VERSION`
+- Container deployments can be dynamically configured without rebuilding
+
+**Key Benefits:**
+- ✅ **Dynamic Version Selection**: Change PVE versions by setting environment variables
+- ✅ **Container Compatibility**: Works with Podman, Docker, and orchestration platforms
+- ✅ **CI/CD Ready**: No configuration baked into images, purely environment-driven
+
+**Example Multi-Version Deployment:**
+```bash
+# Deploy multiple PVE versions simultaneously
+podman run -d -p 8007:8006 -e MOCK_PVE_VERSION=7.4 mock-pve-api:latest
+podman run -d -p 8008:8006 -e MOCK_PVE_VERSION=8.3 mock-pve-api:latest  
+podman run -d -p 8009:8006 -e MOCK_PVE_VERSION=9.0 mock-pve-api:latest
+
+# Test version differences
+curl http://localhost:8007/api2/json/version  # Returns PVE 7.4
+curl http://localhost:8008/api2/json/version  # Returns PVE 8.3
+curl http://localhost:8009/api2/json/version  # Returns PVE 9.0
+```
 
 ## Supported PVE Versions
 
@@ -231,17 +296,39 @@ mix test
 
 ### Building Container Images
 
+The project provides multi-stage containerized builds optimized for both Podman and Docker:
+
 ```bash
-# Production image (use Makefile for best experience)
+# Production image (recommended - uses Makefile)
 make container-build
 
-# Or manually with Podman
-podman build -f containers/Containerfile -t mock-pve-api .
+# Manual production build
+podman build -f docker/Dockerfile -t mock-pve-api:latest .
 
-# Development image
-podman build -f containers/Containerfile.dev -t mock-pve-api:dev .
+# Development image with live reloading
+make container-build-dev
+podman build -f docker/Dockerfile.dev -t mock-pve-api:dev .
 
-# Also works with Docker (replace 'podman' with 'docker')
+# Multi-architecture builds (for distribution)
+podman build --platform=linux/amd64,linux/arm64 -f docker/Dockerfile -t mock-pve-api:multi-arch .
+```
+
+**Container Architecture:**
+- **Base Image**: Alpine Linux (minimal footprint ~33MB)
+- **Elixir Runtime**: OTP 26+ with optimized release builds
+- **User Security**: Non-root `mockpve` user (UID 1000)
+- **Configuration**: Runtime environment variable support via `config/runtime.exs`
+- **Dependencies**: All production dependencies included (Finch HTTP client, Plug web server)
+
+**Dockerfile Details:**
+- **Multi-stage build**: Separate builder and runtime stages
+- **Dependency caching**: Optimized layer caching for faster rebuilds
+- **Security**: No privileged operations, minimal attack surface
+- **Health checks**: Built-in endpoint validation (Docker format)
+
+```bash
+# Verify build details
+podman inspect mock-pve-api:latest | jq '.[0].Config'
 ```
 
 ### Contributing
@@ -289,17 +376,33 @@ Test against multiple PVE versions simultaneously:
 podman-compose up mock-pve-7 mock-pve-8 mock-pve-9
 ```
 
-## Documentation
+## 📚 Documentation
 
-### 📚 Guides & References
-- **[Getting Started](docs/guides/getting-started.md)** - Quick setup and first steps
-- **[API Reference](docs/guides/api-reference.md)** - Complete endpoint documentation
-- **[CI/CD Integration](docs/guides/ci-cd-integration.md)** - GitHub Actions, GitLab CI, Jenkins examples
-- **[Migrating from pvex](docs/guides/migrating-from-pvex.md)** - Transition from embedded to standalone
+#### Tutorials
+- **[Getting Started](docs/tutorials/getting-started.md)** - Quick setup and first steps
+- **[Your First Test](docs/tutorials/your-first-test.md)** - Basic API testing walkthrough
+- **[Understanding Versions](docs/tutorials/understanding-versions.md)** - PVE version compatibility
+
+#### How-To Guides
+- **[Client Integration](docs/how-to/client-integration.md)** - Integrate with existing PVE clients
+- **[Multi-Version Testing](docs/how-to/multi-version-testing.md)** - Test across PVE versions
+- **[Container Deployment](docs/how-to/container-deployment.md)** - Podman and Docker deployment
+- **[CI/CD Setup](docs/how-to/setup-ci-cd.md)** - GitHub Actions, GitLab CI examples
+- **[Migrate from pvex](docs/how-to/migrate-from-pvex.md)** - Transition from embedded mock
+
+#### Reference
+- **[API Endpoints](docs/reference/api-endpoints.md)** - Complete endpoint documentation
+- **[Environment Variables](docs/reference/environment-variables.md)** - Configuration reference
+- **[Client Examples](docs/reference/client-examples.md)** - Multi-language examples
+
+#### Explanation
+- **[Architecture Decisions](docs/explanation/architecture-decisions.md)** - Design rationale and ADRs
+- **[Version Compatibility](docs/explanation/version-compatibility.md)** - How version simulation works
+- **[State Management](docs/explanation/state-management.md)** - Internal state architecture
 
 ### 🏗️ Architecture & Design
 - **[Architecture Overview](architecture/README.md)** - C4 model and system design
-- **[ADR-001: Elixir Implementation](docs/adr/001-elixir-implementation-choice.md)** - Why Elixir/OTP
+- **[ADR-001: Elixir Implementation](docs/adr/001-elixir-otp-implementation.md)** - Why Elixir/OTP
 - **[ADR-013: Historical Context](docs/adr/013-historical-context-from-pvex.md)** - Origin story from pvex
 
 ### 🧪 Examples

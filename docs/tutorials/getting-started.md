@@ -81,7 +81,7 @@ podman run -d -p 8006:8006 \
 | `MOCK_PVE_DELAY` | `0` | Response delay (ms) |
 | `MOCK_PVE_ERROR_RATE` | `0` | Error injection rate (%) |
 
-See [Configuration Guide](configuration.md) for complete options.
+See [Environment Variables Reference](../reference/environment-variables.md) for complete options.
 
 ## Version Compatibility
 
@@ -403,17 +403,16 @@ docker logs <container_id>
 
 ## Next Steps
 
-- **[API Reference](api-reference.md)**: Complete list of supported endpoints
-- **[Configuration Guide](configuration.md)**: Detailed configuration options
-- **[CI/CD Integration](ci-cd-integration.md)**: Advanced CI/CD patterns
-- **[Version Compatibility](version-compatibility.md)**: PVE version differences
-- **[Examples](../examples/)**: Language-specific client examples
-- **[Troubleshooting](troubleshooting.md)**: Common issues and solutions
+- **[API Endpoints Reference](../reference/api-endpoints.md)**: Complete list of supported endpoints
+- **[Environment Variables Reference](../reference/environment-variables.md)**: Detailed configuration options
+- **[CI/CD Setup Guide](../how-to/setup-ci-cd.md)**: Advanced CI/CD patterns
+- **[Version Compatibility Explanation](../explanation/version-compatibility.md)**: PVE version differences
+- **[Client Examples](../../examples/)**: Language-specific client examples
 
 ## Getting Help
 
 - **GitHub Issues**: https://github.com/jrjsmrtn/mock-pve-api/issues
 - **Discussions**: https://github.com/jrjsmrtn/mock-pve-api/discussions  
-- **Documentation**: All guides in the `docs/guides/` directory
+- **Documentation**: Comprehensive guides in the `docs/` directory following Diátaxis framework
 
 Happy testing with Mock PVE API! 🚀

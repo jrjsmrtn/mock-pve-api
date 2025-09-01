@@ -1,4 +1,4 @@
-# Mock PVE API - API Reference
+# API Endpoints Reference
 
 Complete reference for all supported endpoints in the Mock PVE API Server.
 
