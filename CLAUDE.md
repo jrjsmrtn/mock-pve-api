@@ -12,7 +12,7 @@
 - Cross-language client library testing
 - Development environment provisioning
 
-**Current Status:** 0.3.1 (HTTP Client Migration & Phase 3 Complete)
+**Current Status:** 0.3.2 (Comprehensive API Coverage Matrix)
 **Supported PVE Versions:** 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 9.0
 **Target Elixir Version:** 1.15+
 **Target OTP Version:** 26+
@@ -244,15 +244,39 @@ MOCK_PVE_MAX_RESOURCES=1000   # Maximum simulated resources
 - [x] Add Finch to application supervision tree
 - [x] Maintain API compatibility during migration
 
-### **Phase 4: Advanced Features (v0.4.0)**
+### **Phase 3.2: API Coverage Matrix (v0.3.2)** ✅
+- [x] Research pvex project API coverage (305+ endpoints, 97.8% coverage)
+- [x] Design comprehensive coverage matrix data structure
+- [x] Implement MockPveApi.Coverage module with 28+ endpoints
+- [x] Add coverage-aware router with intelligent error responses
+- [x] Create ADR-005 for coverage matrix architecture
+- [x] Generate comprehensive API coverage documentation
+- [x] Add coverage validation and statistics functions
+- [x] Implement coverage API endpoints (/api2/json/_coverage/*)
+- [x] Create comprehensive test suite for coverage matrix
+
+### **Phase 4: Enhanced API Implementation (v0.4.0)**
+- [ ] Authentication system (tickets, tokens, realms)
+- [ ] VM/Container cloning operations  
+- [ ] Individual user/group/pool CRUD operations
+- [ ] Cluster join and configuration endpoints
+- [ ] Enhanced storage content management
+- [ ] Task/job progress simulation improvements
+- [ ] Individual SDN zone/vnet operations (PVE 8.0+)
+- [ ] Backup provider management (PVE 8.2+)
+- [ ] Target: 85% coverage of critical/high priority endpoints
+
+### **Phase 5: Advanced Features (v0.5.0)**
 - [ ] WebSocket support for console/VNC simulation
 - [ ] Event streaming simulation
 - [ ] Configurable response fixtures
 - [ ] State persistence options (SQLite)
 - [ ] State import/export for test scenarios
 - [ ] Performance metrics collection
+- [ ] HA affinity rules (PVE 9.0+)
+- [ ] Target: 95% coverage including version-specific features
 
-### **Phase 5: Testing Framework (v0.5.0)**
+### **Phase 6: Testing Framework (v0.6.0)**
 - [ ] Test helper library for common scenarios
 - [ ] Chaos engineering features (random failures)
 - [ ] Network condition simulation (latency, timeouts)
@@ -260,7 +284,7 @@ MOCK_PVE_MAX_RESOURCES=1000   # Maximum simulated resources
 - [ ] Compatibility test suite
 - [ ] Integration with popular testing frameworks
 
-### **Phase 6: Community & Ecosystem (v1.0.0)**
+### **Phase 7: Community & Ecosystem (v1.0.0)**
 - [ ] Hex.pm package publication
 - [ ] Plugin system for custom endpoints
 - [ ] OpenAPI specification generation

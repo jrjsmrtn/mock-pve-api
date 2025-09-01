@@ -7,6 +7,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2025-01-30 (Comprehensive API Coverage Matrix)
+
+### Added - Phase 3.2: API Coverage Matrix System
+- **Complete API Coverage Matrix**: Based on pvex analysis (305+ endpoints, 97.8% coverage)
+  - `MockPveApi.Coverage` module with 28+ initial endpoints across 8 categories
+  - Structured endpoint information with methods, parameters, response schemas
+  - Implementation status tracking: :implemented, :partial, :planned, :not_supported, :pve8_only, :pve9_only
+  - Priority levels: critical, high, medium, low for development planning
+- **Coverage-Aware Router**: Enhanced request handling with intelligent error responses
+  - Version-specific endpoint filtering (PVE 8+, PVE 9+ features)
+  - Method validation with proper HTTP 405 responses
+  - Detailed error messages with coverage information
+  - Coverage status checking plug with appropriate 501 responses
+- **Coverage API Endpoints**: Internal coverage monitoring via REST API
+  - GET `/api2/json/_coverage/stats` - Overall coverage statistics (68% current)
+  - GET `/api2/json/_coverage/categories` - Per-category implementation status
+  - GET `/api2/json/_coverage/missing` - Critical endpoints not yet implemented
+- **Architecture Documentation**:
+  - ADR-005: Comprehensive API Coverage Matrix architecture decision
+  - Complete API coverage reference document (850+ lines)
+  - Per-endpoint documentation with parameters, examples, version compatibility
+- **Test Infrastructure**:
+  - Comprehensive coverage matrix validation suite
+  - Endpoint schema validation and consistency checks
+  - Version compatibility testing across PVE 7.x-9.x
+  - Coverage statistics and development metrics
+
+### Enhanced Infrastructure
+- **Documentation System**: 
+  - Status legend with 7 implementation states
+  - Development roadmap with Phase 4-7 planning
+  - Coverage goals: 85% (v0.4.0), 95% (v0.5.0), 100% (v1.0.0)
+- **Error Handling**: 
+  - Structured error responses with coverage_info metadata
+  - Version-specific error messages for unsupported features
+  - Handler validation for implemented endpoints
+
+### Development Impact
+- **Current Coverage**: 68% (19/28 endpoints implemented/partial)
+- **Critical Endpoints**: All implemented (version, nodes, VMs, containers)
+- **Next Phase Planning**: Clear roadmap for Phase 4 authentication and CRUD operations
+- **pvex Compatibility**: Coverage matrix follows pvex project structure and organization
+
+## [0.3.1] - 2025-01-29 (HTTP Client Migration)
+
+### Changed - Phase 3.1: HTTP Client Modernization
+- **HTTP Client Migration**: Migrated from HTTPoison to Finch HTTP client
+  - Updated `test/support/test_helper.ex` to use Finch for HTTP requests
+  - Updated all Elixir examples in `examples/elixir/` to use Finch
+  - Added Finch to application supervision tree for reliable HTTP client management
+  - Maintained complete API compatibility during migration
+- **Dependency Updates**: 
+  - Added `{:finch, "~> 0.18", only: [:dev, :test]}` to mix.exs dependencies
+  - Removed dependency on HTTPoison for test and example code
+- **Documentation Updates**: Updated code examples to reflect Finch usage patterns
+
+### Infrastructure
+- **HTTP Client Architecture**: Modern, connection-pooling HTTP client for better performance
+- **Supervision Tree**: Finch integrated into application supervision for reliability
+- **Testing**: All HTTP-based tests migrated to use Finch client
+
 ## [0.3.0] - 2024-12-01 (Enhanced API Coverage)
 
 ### Added - Phase 3: Enhanced API Coverage

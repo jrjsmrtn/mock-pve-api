@@ -4,7 +4,7 @@ defmodule MockPveApi.MixProject do
   def project do
     [
       app: :mock_pve_api,
-      version: "0.3.1",
+      version: "0.3.2",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -65,6 +65,7 @@ defmodule MockPveApi.MixProject do
         "Infrastructure": [
           MockPveApi.State,
           MockPveApi.Capabilities,
+          MockPveApi.Coverage,
           MockPveApi.Fixtures
         ]
       ]
