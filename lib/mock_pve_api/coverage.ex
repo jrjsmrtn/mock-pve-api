@@ -693,11 +693,15 @@ defmodule MockPveApi.Coverage do
 
   ## Examples
 
-      iex> MockPveApi.Coverage.get_endpoint_info("/api2/json/version")
-      %{path: "/api2/json/version", methods: [:get], status: :implemented, ...}
+      iex> info = MockPveApi.Coverage.get_endpoint_info("/api2/json/version")
+      iex> info.path
+      "/api2/json/version"
+      iex> info.status
+      :implemented
       
-      iex> MockPveApi.Coverage.get_endpoint_info("/api2/json/nodes/pve1/qemu/100")
-      %{path: "/api2/json/nodes/{node}/qemu/{vmid}", methods: [:get, :put, :delete], ...}
+      iex> info = MockPveApi.Coverage.get_endpoint_info("/api2/json/nodes/pve1/qemu/100")
+      iex> info.path
+      "/api2/json/nodes/{node}/qemu/{vmid}"
   """
   @spec get_endpoint_info(String.t()) :: endpoint_info() | nil
   def get_endpoint_info(endpoint_path) do
