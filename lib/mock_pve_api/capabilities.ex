@@ -259,6 +259,14 @@ defmodule MockPveApi.Capabilities do
   end
 
   @doc """
+  Alias for has_capability?/2 for backward compatibility with tests.
+  """
+  @spec version_supports?(version(), capability()) :: boolean()
+  def version_supports?(version, capability) do
+    has_capability?(version, capability)
+  end
+
+  @doc """
   Gets all capabilities available for a given PVE version.
 
   ## Examples
@@ -268,7 +276,75 @@ defmodule MockPveApi.Capabilities do
   """
   @spec get_capabilities(version()) :: [capability()]
   def get_capabilities(version) do
-    @capabilities[version] || @capabilities["8.0"]
+    case @capabilities[version] do
+      nil ->
+        # Try to find capabilities for base version (e.g., "7.4.1" -> "7.4")
+        base_version = extract_base_version(version)
+        case @capabilities[base_version] do
+          nil ->
+            # If base version not found, find closest lower version
+            find_closest_version_capabilities(version)
+          capabilities ->
+            capabilities
+        end
+      capabilities ->
+        capabilities
+    end
+  end
+
+  # Helper function to extract base version from patch versions and pre-releases
+  defp extract_base_version(version) do
+    # Handle pre-release versions like "8.0-rc1", "8.1-beta2"
+    clean_version = version |> String.split("-") |> hd()
+    
+    case String.split(clean_version, ".") do
+      [major, minor | _] -> "#{major}.#{minor}"
+      _ -> clean_version
+    end
+  end
+
+  # Find capabilities for the closest lower or equal version
+  defp find_closest_version_capabilities(version) do
+    case parse_version(version) do
+      {:ok, target_version} ->
+        @capabilities
+        |> Enum.filter(fn {v, _caps} ->
+          case parse_version(v) do
+            {:ok, parsed_v} -> version_lte(parsed_v, target_version)
+            _ -> false
+          end
+        end)
+        |> Enum.max_by(fn {v, _caps} ->
+          case parse_version(v) do
+            {:ok, parsed_v} -> parsed_v
+            _ -> {0, 0}
+          end
+        end, fn -> {"7.0", @capabilities["7.0"]} end)
+        |> elem(1)
+      _ ->
+        @capabilities["7.0"]  # Default to oldest version for invalid versions
+    end
+  end
+
+  # Parse version string to tuple for comparison
+  defp parse_version(version) do
+    try do
+      # Clean pre-release suffixes like "8.0-rc1" -> "8.0"
+      clean_version = version |> String.split("-") |> hd()
+      
+      case String.split(clean_version, ".") |> Enum.map(&String.to_integer/1) do
+        [major, minor] -> {:ok, {major, minor}}
+        [major, minor | _] -> {:ok, {major, minor}}
+        _ -> :error
+      end
+    rescue
+      _ -> :error
+    end
+  end
+
+  # Check if version1 <= version2
+  defp version_lte({maj1, min1}, {maj2, min2}) do
+    maj1 < maj2 or (maj1 == maj2 and min1 <= min2)
   end
 
   @doc """

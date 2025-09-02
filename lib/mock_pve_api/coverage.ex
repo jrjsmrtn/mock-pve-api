@@ -862,18 +862,23 @@ defmodule MockPveApi.Coverage do
   end
 
   defp matches_pattern?(endpoint_path, pattern) do
-    # Handle parameterized routes like /nodes/{node}/qemu/{vmid}
-    pattern_regex =
-      pattern
-      |> String.replace("{node}", "[^/]+")
-      |> String.replace("{vmid}", "[0-9]+")
-      |> String.replace("{storage}", "[^/]+")
-      |> String.replace("{userid}", "[^/]+")
-      |> String.replace("{poolid}", "[^/]+")
-      |> String.replace("{zone}", "[^/]+")
-      |> String.replace("{command}", "[^/]+")
-    
-    Regex.match?(~r/^#{pattern_regex}$/, endpoint_path)
+    # First try exact match for cases where we're looking up by pattern
+    if endpoint_path == pattern do
+      true
+    else
+      # Handle parameterized routes like /nodes/{node}/qemu/{vmid}
+      pattern_regex =
+        pattern
+        |> String.replace("{node}", "[^/]+")
+        |> String.replace("{vmid}", "[0-9]+")
+        |> String.replace("{storage}", "[^/]+")
+        |> String.replace("{userid}", "[^/]+")
+        |> String.replace("{poolid}", "[^/]+")
+        |> String.replace("{zone}", "[^/]+")
+        |> String.replace("{command}", "[^/]+")
+      
+      Regex.match?(~r/^#{pattern_regex}$/, endpoint_path)
+    end
   end
 
   defp version_gte?(version_a, version_b) do

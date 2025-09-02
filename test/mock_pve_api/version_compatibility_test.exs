@@ -137,21 +137,21 @@ defmodule MockPveApi.VersionCompatibilityTest do
   describe "version comparison logic" do
     test "capabilities system correctly determines version support" do
       # Test various version comparison scenarios
-      assert Capabilities.version_supports?("8.0", :sdn) == true
-      assert Capabilities.version_supports?("7.4", :sdn) == false
-      assert Capabilities.version_supports?("8.1", :notifications) == true
-      assert Capabilities.version_supports?("8.0", :notifications) == false
+      assert Capabilities.version_supports?("8.0", :sdn_tech_preview) == true
+      assert Capabilities.version_supports?("7.4", :sdn_tech_preview) == false
+      assert Capabilities.version_supports?("8.1", :notification_endpoints) == true
+      assert Capabilities.version_supports?("8.0", :notification_endpoints) == false
       assert Capabilities.version_supports?("8.2", :backup_providers) == true
       assert Capabilities.version_supports?("8.1", :backup_providers) == false
     end
 
     test "edge case versions are handled correctly" do
       # Test edge cases
-      assert Capabilities.version_supports?("7.4.1", :sdn) == false
-      assert Capabilities.version_supports?("8.0-rc1", :sdn) == true
-      assert Capabilities.version_supports?("8.1.0", :notifications) == true
-      assert Capabilities.version_supports?("9.0", :sdn) == true
-      assert Capabilities.version_supports?("9.0", :notifications) == true
+      assert Capabilities.version_supports?("7.4.1", :sdn_tech_preview) == false
+      assert Capabilities.version_supports?("8.0-rc1", :sdn_tech_preview) == true
+      assert Capabilities.version_supports?("8.1.0", :notification_endpoints) == true
+      assert Capabilities.version_supports?("9.0", :sdn_stable) == true
+      assert Capabilities.version_supports?("9.0", :notification_endpoints) == true
       assert Capabilities.version_supports?("9.0", :backup_providers) == true
     end
   end

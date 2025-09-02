@@ -105,7 +105,8 @@ podman build -f docker/Dockerfile -t mock-pve-api:latest .
 podman run -d --name mock-pve -p 8006:8006 -e MOCK_PVE_VERSION=8.3 mock-pve-api:latest
 
 # Test with curl
-curl http://localhost:8006/api2/json/version    # No SSL/TLS in mock server
+curl http://localhost:8006/api2/json/version    # HTTP mode (default)
+curl -k https://localhost:8006/api2/json/version  # HTTPS mode (when SSL enabled)
 curl http://localhost:8006/api2/json/nodes      # Requires authentication
 curl http://localhost:8006/api2/json/cluster/status
 
@@ -204,6 +205,10 @@ Configure the mock server using environment variables:
 | `MOCK_PVE_VERSION` | `8.3` | PVE version to simulate (7.0-9.0) |
 | `MOCK_PVE_PORT` | `8006` | Server port |
 | `MOCK_PVE_HOST` | `0.0.0.0` | Bind address |
+| `MOCK_PVE_SSL_ENABLED` | `false` | Enable SSL/TLS |
+| `MOCK_PVE_SSL_KEYFILE` | `certs/server.key` | SSL private key file |
+| `MOCK_PVE_SSL_CERTFILE` | `certs/server.crt` | SSL certificate file |
+| `MOCK_PVE_SSL_CACERTFILE` | | Optional CA certificate file |
 | `MOCK_PVE_ENABLE_SDN` | `true` | Enable SDN endpoints (8.0+) |
 | `MOCK_PVE_ENABLE_FIREWALL` | `true` | Enable firewall endpoints |
 | `MOCK_PVE_ENABLE_BACKUP_PROVIDERS` | `true` | Enable backup provider endpoints (8.2+) |
@@ -236,6 +241,59 @@ curl http://localhost:8007/api2/json/version  # Returns PVE 7.4
 curl http://localhost:8008/api2/json/version  # Returns PVE 8.3
 curl http://localhost:8009/api2/json/version  # Returns PVE 9.0
 ```
+
+### SSL/TLS Configuration
+
+The mock server supports SSL/TLS to better simulate the real Proxmox VE API, which uses HTTPS on port 8006 by default.
+
+#### Generate Self-Signed Certificates
+
+```bash
+# Generate certificates for testing (requires OpenSSL)
+./scripts/generate-certs.sh
+
+# Certificates will be created in certs/ directory:
+# - certs/server.key  (private key)
+# - certs/server.crt  (certificate)
+```
+
+#### Enable SSL/TLS
+
+```bash
+# Local development with SSL
+export MOCK_PVE_SSL_ENABLED=true
+export MOCK_PVE_SSL_KEYFILE=certs/server.key
+export MOCK_PVE_SSL_CERTFILE=certs/server.crt
+mix run --no-halt
+
+# Test HTTPS connection (note -k flag for self-signed certificates)
+curl -k https://localhost:8006/api2/json/version
+```
+
+#### Container Deployment with SSL
+
+```bash
+# Generate certificates first
+./scripts/generate-certs.sh
+
+# Run container with SSL enabled
+podman run -d --name mock-pve-ssl \
+  -p 8006:8006 \
+  -v $(pwd)/certs:/app/certs:ro \
+  -e MOCK_PVE_SSL_ENABLED=true \
+  -e MOCK_PVE_SSL_KEYFILE=certs/server.key \
+  -e MOCK_PVE_SSL_CERTFILE=certs/server.crt \
+  docker.io/jrjsmrtn/mock-pve-api:latest
+
+# Test HTTPS connection
+curl -k https://localhost:8006/api2/json/version
+```
+
+**Important Notes:**
+- SSL/TLS is **disabled by default** for backward compatibility
+- The generated certificates are **self-signed** and suitable only for testing
+- Always use `-k` flag with curl or disable SSL verification in your PVE clients
+- For production use, provide your own certificates using volume mounts
 
 ## Supported PVE Versions
 

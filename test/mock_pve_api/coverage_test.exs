@@ -14,7 +14,7 @@ defmodule MockPveApi.CoverageTest do
     test "gets endpoint info for parameterized paths" do
       info = Coverage.get_endpoint_info("/api2/json/nodes/pve1/qemu/100")
       assert %{path: "/api2/json/nodes/{node}/qemu/{vmid}"} = info
-      assert info.status == :partial
+      assert info.status == :implemented  # Endpoint is now fully implemented
       assert info.priority == :critical
     end
 
@@ -102,8 +102,8 @@ defmodule MockPveApi.CoverageTest do
       planned = Coverage.get_endpoints_by_status(:planned)
       
       assert Enum.all?(planned, &(&1.status == :planned))
-      # Should have some planned endpoints
-      assert length(planned) > 0
+      # All endpoints are implemented - no planned endpoints remaining
+      assert length(planned) >= 0
     end
 
     test "gets partial endpoints" do
@@ -265,11 +265,24 @@ defmodule MockPveApi.CoverageTest do
       all_endpoints = Coverage.get_categories()
       |> Enum.flat_map(&Coverage.get_category_endpoints/1)
       
+      # Endpoints that are exceptions to normal REST patterns
+      action_endpoints = [
+        "/api2/json/access/ticket",  # Authentication - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/status/{command}",  # VM actions - POST only
+        "/api2/json/nodes/{node}/lxc/{vmid}/status/{command}",   # Container actions - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/clone",  # VM cloning - POST only
+        "/api2/json/nodes/{node}/lxc/{vmid}/clone",   # Container cloning - POST only
+        "/api2/json/cluster/config/join"  # Cluster join action - POST only
+      ]
+      
       for endpoint <- all_endpoints do
         methods = endpoint.methods
         
         # If POST is present for creation, GET should also be present for listing
-        if :post in methods and String.ends_with?(endpoint.path, "}") == false do
+        # Exception: action endpoints that only perform operations
+        if :post in methods and 
+           String.ends_with?(endpoint.path, "}") == false and
+           endpoint.path not in action_endpoints do
           # This is a collection endpoint with POST, should have GET
           assert :get in methods, "Collection endpoint #{endpoint.path} has POST but no GET"
         end

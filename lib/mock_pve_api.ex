@@ -15,15 +15,39 @@ defmodule MockPveApi do
   def start(_type, _args) do
     port = Application.get_env(:mock_pve_api, :port, @default_port)
     host = Application.get_env(:mock_pve_api, :host, @default_host)
+    ssl_enabled = Application.get_env(:mock_pve_api, :ssl_enabled, false)
+
+    # Configure server scheme and options
+    {scheme, server_opts} = if ssl_enabled do
+      # Convert relative paths to absolute paths
+      keyfile = Application.get_env(:mock_pve_api, :ssl_keyfile) |> Path.expand()
+      certfile = Application.get_env(:mock_pve_api, :ssl_certfile) |> Path.expand()
+      
+      ssl_opts = [
+        port: port,
+        ip: parse_ip(host),
+        keyfile: keyfile,
+        certfile: certfile
+      ]
+      
+      # Add CA certificate file if specified
+      ssl_opts = case Application.get_env(:mock_pve_api, :ssl_cacertfile) do
+        nil -> ssl_opts
+        cacertfile -> Keyword.put(ssl_opts, :cacertfile, Path.expand(cacertfile))
+      end
+
+      {:https, ssl_opts}
+    else
+      {:http, [port: port, ip: parse_ip(host)]}
+    end
 
     children = [
       # HTTP client for test helper
       {Finch, name: MockPveApi.Finch},
       # State management for resources
       MockPveApi.State,
-      # HTTP server
-      {Plug.Cowboy,
-       scheme: :http, plug: MockPveApi.Router, options: [port: port, ip: parse_ip(host)]}
+      # HTTP/HTTPS server
+      {Plug.Cowboy, scheme: scheme, plug: MockPveApi.Router, options: server_opts}
     ]
 
     opts = [strategy: :one_for_one, name: MockPveApi.Supervisor]
@@ -36,9 +60,23 @@ defmodule MockPveApi do
   def start_test_server(opts \\ []) do
     port = Keyword.get(opts, :port, @default_port)
     pve_version = Keyword.get(opts, :pve_version, "8.0")
+    ssl_enabled = Keyword.get(opts, :ssl_enabled, false)
 
     Application.put_env(:mock_pve_api, :port, port)
     Application.put_env(:mock_pve_api, :pve_version, pve_version)
+    Application.put_env(:mock_pve_api, :ssl_enabled, ssl_enabled)
+
+    # Set SSL options if enabled
+    if ssl_enabled do
+      Application.put_env(:mock_pve_api, :ssl_keyfile, 
+        Keyword.get(opts, :ssl_keyfile, "certs/server.key"))
+      Application.put_env(:mock_pve_api, :ssl_certfile, 
+        Keyword.get(opts, :ssl_certfile, "certs/server.crt"))
+      
+      if cacertfile = Keyword.get(opts, :ssl_cacertfile) do
+        Application.put_env(:mock_pve_api, :ssl_cacertfile, cacertfile)
+      end
+    end
 
     start(:normal, [])
   end

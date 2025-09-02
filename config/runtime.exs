@@ -8,6 +8,12 @@ config :mock_pve_api,
   port: System.get_env("MOCK_PVE_PORT", "8006") |> String.to_integer(),
   host: System.get_env("MOCK_PVE_HOST", "0.0.0.0"),
   
+  # SSL/TLS configuration - read from environment at runtime
+  ssl_enabled: System.get_env("MOCK_PVE_SSL_ENABLED", "false") == "true",
+  ssl_keyfile: System.get_env("MOCK_PVE_SSL_KEYFILE", "certs/server.key"),
+  ssl_certfile: System.get_env("MOCK_PVE_SSL_CERTFILE", "certs/server.crt"),
+  ssl_cacertfile: System.get_env("MOCK_PVE_SSL_CACERTFILE"),
+  
   # PVE version simulation - read from environment at runtime
   pve_version: System.get_env("MOCK_PVE_VERSION", "8.3"),
   
