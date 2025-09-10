@@ -66,7 +66,7 @@ Establish systematic development practices by implementing the Foundation ADR Se
 - ✅ Update CHANGELOG.md ADR references
 - ✅ Update README.md ADR references  
 - ✅ Update docs/explanation/architecture-decisions.md structure
-- ✅ Update architecture/README.md with new ADR sequence
+- ✅ Update docs/architecture/README.md with new ADR sequence
 - ✅ Update CLAUDE.md Key Architectural Decisions section
 - ✅ Create comprehensive docs/adr/README.md with process guidelines
 

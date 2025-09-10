@@ -459,7 +459,7 @@ podman-compose up mock-pve-7 mock-pve-8 mock-pve-9
 - **[State Management](docs/explanation/state-management.md)** - Internal state architecture
 
 ### 🏗️ Architecture & Design
-- **[Architecture Overview](architecture/README.md)** - C4 model and system design
+- **[Architecture Overview](docs/architecture/README.md)** - C4 model and system design
 - **[ADR-0003: Elixir/OTP Implementation Choice](docs/adr/0003-elixir-otp-implementation-choice.md)** - Why Elixir/OTP
 - **[ADR-0010: Historical Context](docs/adr/0010-historical-context-from-pvex.md)** - Origin story from pvex
 

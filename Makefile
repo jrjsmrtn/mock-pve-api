@@ -187,7 +187,7 @@ arch-validate: ## Validate C4 architecture model
 		exit 1; \
 	fi
 	@CONTAINER_CMD=$$(command -v podman || command -v docker); \
-	$$CONTAINER_CMD run --rm -v $(PWD)/architecture:/usr/local/structurizr \
+	$$CONTAINER_CMD run --rm -v $(PWD)/docs/architecture:/usr/local/structurizr \
 		structurizr/cli validate -w workspace.dsl
 	@echo "$(GREEN)Architecture model is valid$(RESET)"
 
@@ -199,7 +199,7 @@ arch-viz: ## Start interactive architecture visualization
 	fi
 	@CONTAINER_CMD=$$(command -v podman || command -v docker); \
 	echo "$(GREEN)Architecture visualization will be available at http://localhost:8080$(RESET)"; \
-	$$CONTAINER_CMD run --rm -p 8080:8080 -v $(PWD)/architecture:/usr/local/structurizr \
+	$$CONTAINER_CMD run --rm -p 8080:8080 -v $(PWD)/docs/architecture:/usr/local/structurizr \
 		structurizr/lite
 
 validate: arch-validate lint typecheck test ## Run all validation checks

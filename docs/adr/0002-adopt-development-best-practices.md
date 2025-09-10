@@ -78,12 +78,12 @@ We will adopt comprehensive development best practices covering testing, version
 **Validation Process**:
 ```bash
 # Validate C4 DSL files using Podman (preferred)
-podman run --rm -v "$(pwd)/architecture:/usr/local/structurizr" \
+podman run --rm -v "$(pwd)/docs/architecture:/usr/local/structurizr" \
   structurizr/cli validate -workspace workspace.dsl
 
 # Generate documentation
 podman run --rm -p 8080:8080 \
-  -v "$(pwd)/architecture:/usr/local/structurizr" structurizr/lite
+  -v "$(pwd)/docs/architecture:/usr/local/structurizr" structurizr/lite
 ```
 
 ### Sprint-Based Development Lifecycle

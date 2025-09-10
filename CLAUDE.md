@@ -73,7 +73,7 @@ make arch-validate                   # Validate C4 architecture model
 make arch-viz                        # Interactive visualization
 
 # Manual architecture commands
-podman run --rm -v $(pwd)/architecture:/usr/local/structurizr \
+podman run --rm -v $(pwd)/docs/architecture:/usr/local/structurizr \
   structurizr/cli validate -w workspace.dsl
 # Testing and validation
 make test                      # Run unit tests
