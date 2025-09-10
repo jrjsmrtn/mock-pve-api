@@ -12,7 +12,7 @@
 - Cross-language client library testing
 - Development environment provisioning
 
-**Current Status:** 0.4.5 (SSL/TLS Support and Test Stabilization - Production-Ready Security and Reliability)
+**Current Status:** 0.4.6 (Foundation ADR Sequence & Supply Chain Security Best Practices)
 **Supported PVE Versions:** 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 9.0
 **Target Elixir Version:** 1.15+
 **Target OTP Version:** 26+
@@ -154,12 +154,19 @@ MockPveApi.Capabilities.supports?(version, :ha_affinity)        # true for 9.0+
 ```
 
 ### **Key Architectural Decisions**
-- **ADR-001**: Elixir/OTP for reliable concurrent request handling
-- **ADR-002**: Plug over Phoenix for minimal footprint
-- **ADR-003**: In-memory state over persistence for simplicity
-- **ADR-004**: Capability matrix for version-specific features
-- **ADR-005**: Container-first deployment strategy
-- **ADR-006**: Environment variable configuration for flexibility
+**Foundation ADR Sequence (AI-Assisted Project Orchestration):**
+- **ADR-0001**: Record architecture decisions - Systematic documentation approach
+- **ADR-0002**: Adopt development best practices - TDD, semantic versioning, Gitflow, Diataxis documentation
+- **ADR-0003**: Elixir/OTP implementation choice - Technology stack for concurrent request handling
+
+**Implementation ADRs:**
+- **ADR-0004**: Plug over Phoenix for minimal footprint
+- **ADR-0005**: In-memory state over persistence for simplicity
+- **ADR-0006**: Capability matrix for version-specific features
+- **ADR-0007**: Container-first deployment strategy
+- **ADR-0008**: Environment variable configuration for flexibility
+- **ADR-0009**: Comprehensive API coverage matrix architecture
+- **ADR-0010**: Historical context from pvex project extraction
 
 ## **API Coverage**
 
@@ -343,7 +350,7 @@ config :mock_pve_api,
 - [x] Design comprehensive coverage matrix data structure
 - [x] Implement MockPveApi.Coverage module with 28+ endpoints
 - [x] Add coverage-aware router with intelligent error responses
-- [x] Create ADR-005 for coverage matrix architecture
+- [x] Create ADR-0009 for coverage matrix architecture
 - [x] Generate comprehensive API coverage documentation
 - [x] Add coverage validation and statistics functions
 - [x] Implement coverage API endpoints (/api2/json/_coverage/*)
@@ -416,6 +423,26 @@ config :mock_pve_api,
 
 **🎯 PRODUCTION READY**: SSL/TLS support enables secure testing scenarios, and improved test stability ensures reliability for CI/CD integration.
 
+### **Phase 4.6: Foundation ADR Sequence & Supply Chain Security (v0.4.6)** ✅
+- [x] **Foundation ADR Sequence Implementation**: AI-Assisted Project Orchestration pattern language
+  - [x] **ADR-0001: Record Architecture Decisions** - Systematic documentation approach following adr-tools format
+  - [x] **ADR-0002: Adopt Development Best Practices** - Comprehensive practices: TDD, semantic versioning, Gitflow, C4 DSL, Diataxis documentation framework, sprint-based development, container-first approach
+  - [x] **ADR-0003: Elixir/OTP Implementation Choice** - Technology stack decision with comprehensive analysis
+  - [x] **ADR Restructuring**: Systematically renumbered existing ADRs (001-007, 013) to new sequence (0004-0010)
+  - [x] **Documentation Updates**: Updated all cross-references across project documentation
+- [x] **Supply Chain Security & SBOM Best Practices**:
+  - [x] **SBOM Generation**: Integrated comprehensive Software Bill of Materials generation
+  - [x] **Multi-Format Support**: SPDX 2.3, CycloneDX 1.4, and custom Mix dependency formats
+  - [x] **Best Practice Integration**: Added SBOM to development best practices in ADR-0002
+  - [x] **Quality Standards**: Enhanced container standards with supply chain security
+  - [x] **Version Tracking**: Updated project version to v0.4.6 reflecting systematic practices
+- [x] **Architecture Documentation Enhancement**:
+  - [x] **C4 Model Update**: Enhanced system description with Foundation ADR Sequence context
+  - [x] **ADR README**: Comprehensive ADR directory documentation with process guidelines
+  - [x] **Cross-Reference Updates**: Synchronized all documentation with new ADR numbering
+
+**🎯 FOUNDATION COMPLETE**: The project now follows AI-Assisted Project Orchestration pattern language with systematic development practices, comprehensive architecture decisions documentation, and enterprise-grade supply chain security through SBOM generation.
+
 ### **Phase 5: Docker Hub Release (v0.5.0)** 🎯 **NEXT PRIORITY**
 - [ ] Docker Hub repository setup and automation
 - [ ] Automated multi-arch builds (amd64, arm64)
@@ -423,7 +450,7 @@ config :mock_pve_api,
 - [ ] GitHub Actions for automated publishing
 - [ ] Container security scanning and vulnerability assessment
 - [ ] SBOM generation for supply chain security
-- [ ] Release v0.4.5 as stable production image
+- [ ] Release v0.4.6 as stable production image
 - [ ] Update container registry documentation
 
 ### **Phase 6: Advanced Features (v0.6.0)**
@@ -468,10 +495,17 @@ config :mock_pve_api,
 
 ### **Container Standards**
 - **Size**: Alpine-based images under 50MB
-- **Security**: Regular vulnerability scanning
+- **Security**: Regular vulnerability scanning and SBOM generation
 - **Health**: Health check endpoints required
 - **Signals**: Graceful shutdown handling
 - **Logging**: Structured JSON logging to stdout
+
+### **Supply Chain Security**
+- **SBOM Generation**: Comprehensive Software Bill of Materials for all releases
+- **Format Support**: SPDX 2.3, CycloneDX 1.4, and custom Mix dependency formats
+- **Vulnerability Assessment**: Automated security scanning with Syft and Grype
+- **Dependency Tracking**: Complete Elixir/OTP dependency tree analysis
+- **Transparency**: Public SBOM availability for enterprise compliance
 
 ### **API Compatibility**
 - **Schema Validation**: Responses match PVE API documentation

@@ -60,10 +60,77 @@ jobs:
       - name: Generate documentation
         run: mix docs
 
+  security-audit:
+    name: Security Audit & SBOM Generation
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: '1.17'
+          otp-version: '27'
+      
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-1.17-27-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-1.17-27-
+      
+      - name: Install dependencies
+        run: mix deps.get
+      
+      - name: Install Syft for SBOM generation
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+      
+      - name: Install Grype for vulnerability scanning
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+      
+      - name: Generate SBOM files
+        run: ./scripts/generate-sbom.sh --source
+      
+      - name: Run vulnerability scan
+        run: |
+          if [ -f sbom/source-spdx.json ]; then
+            grype sbom:sbom/source-spdx.json -o json > sbom/vulnerabilities.json || true
+            grype sbom:sbom/source-spdx.json -o table > sbom/vulnerabilities.txt || true
+          fi
+      
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom-files
+          path: |
+            sbom/*.json
+            sbom/*.txt
+            sbom/README.md
+            sbom/metadata.json
+          retention-days: 90
+      
+      - name: Upload SBOM to GitHub (on release)
+        if: github.event_name == 'release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Upload SBOM files as release assets
+          gh release upload ${{ github.ref_name }} sbom/source-spdx.json --clobber || true
+          gh release upload ${{ github.ref_name }} sbom/source-cyclonedx.json --clobber || true
+          gh release upload ${{ github.ref_name }} sbom/mix-dependencies.json --clobber || true
+
   docker-build:
     name: Build Docker Images
     runs-on: ubuntu-latest
-    needs: test
+    needs: [test, security-audit]
     
     steps:
       - name: Checkout code
@@ -97,6 +164,7 @@ jobs:
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
+        id: build
         with:
           context: .
           file: ./docker/Dockerfile
@@ -106,6 +174,39 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      
+      - name: Install Syft for container SBOM
+        if: github.event_name != 'pull_request'
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+      
+      - name: Generate container SBOM
+        if: github.event_name != 'pull_request'
+        run: |
+          mkdir -p container-sbom
+          # Generate SBOM for the built image
+          syft ${{ env.IMAGE_NAME }}:latest -o spdx-json > container-sbom/container-spdx.json
+          syft ${{ env.IMAGE_NAME }}:latest -o cyclonedx-json > container-sbom/container-cyclonedx.json
+          syft ${{ env.IMAGE_NAME }}:latest -o table > container-sbom/container-packages.txt
+      
+      - name: Upload container SBOM artifacts
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v3
+        with:
+          name: container-sbom-files
+          path: |
+            container-sbom/*.json
+            container-sbom/*.txt
+          retention-days: 90
+      
+      - name: Upload container SBOM to GitHub (on release)
+        if: github.event_name == 'release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Upload container SBOM files as release assets
+          gh release upload ${{ github.ref_name }} container-sbom/container-spdx.json --clobber || true
+          gh release upload ${{ github.ref_name }} container-sbom/container-cyclonedx.json --clobber || true
 
   integration-test:
     name: Integration Tests

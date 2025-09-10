@@ -1,0 +1,35 @@
+{
+  "project": {
+    "name": "mock-pve-api",
+    "version": "0.4.6",
+    "description": "Mock Proxmox VE API Server for testing and development",
+    "license": "MIT",
+    "repository": "https://github.com/jrjsmrtn/mock-pve-api",
+    "registry": "docker.io/jrjsmrtn/mock-pve-api"
+  },
+  "sbom": {
+    "generated_at": "2025-09-10T22:11:40Z",
+    "generator": "mock-pve-api/generate-sbom.sh",
+    "formats": [
+      "SPDX-JSON",
+      "CycloneDX-JSON",
+      "Custom-Mix-JSON"
+    ],
+    "files": [
+      "mix-dependencies.json",
+      "source-spdx.json",
+      "source-cyclonedx.json",
+      "source-packages.txt",
+      "container-spdx.json",
+      "container-cyclonedx.json",
+      "container-packages.txt",
+      "vulnerabilities.json",
+      "vulnerabilities.txt"
+    ]
+  },
+  "security": {
+    "vulnerability_scanning": true,
+    "last_scanned": "2025-09-10T22:11:40Z",
+    "scanner": "grype"
+  }
+}

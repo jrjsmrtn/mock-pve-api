@@ -33,6 +33,9 @@ help: ## Show this help message
 	@echo "$(GREEN)Architecture:$(RESET)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E '^(arch-|validate):' | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-12s$(RESET) %s\n", $$1, $$2}'
 	@echo ""
+	@echo "$(GREEN)Security:$(RESET)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E '^(sbom|vulnerability|security):' | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-12s$(RESET) %s\n", $$1, $$2}'
+	@echo ""
 	@echo "$(GREEN)Release:$(RESET)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E '^(release|tag):' | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(YELLOW)%-12s$(RESET) %s\n", $$1, $$2}'
 
@@ -258,11 +261,49 @@ benchmark: container-build ## Run performance benchmarks
 	fi
 	@$(CONTAINER_RUNTIME) stop benchmark-mock-pve && $(CONTAINER_RUNTIME) rm benchmark-mock-pve
 
+## Security & Compliance Commands
+sbom: ## Generate Software Bill of Materials (SBOM)
+	@echo "$(BLUE)Generating SBOM files...$(RESET)"
+	./scripts/generate-sbom.sh
+	@echo "$(GREEN)SBOM generation completed$(RESET)"
+
+sbom-deps: ## Generate SBOM for dependencies only
+	@echo "$(BLUE)Generating dependency SBOM...$(RESET)"
+	./scripts/generate-sbom.sh --deps-only
+	@echo "$(GREEN)Dependency SBOM generated$(RESET)"
+
+sbom-container: ## Generate SBOM for container image
+	@echo "$(BLUE)Generating container SBOM...$(RESET)"
+	./scripts/generate-sbom.sh --container
+	@echo "$(GREEN)Container SBOM generated$(RESET)"
+
+sbom-source: ## Generate SBOM for source code
+	@echo "$(BLUE)Generating source SBOM...$(RESET)"
+	./scripts/generate-sbom.sh --source
+	@echo "$(GREEN)Source SBOM generated$(RESET)"
+
+vulnerability-scan: ## Run vulnerability scan on SBOM
+	@echo "$(BLUE)Running vulnerability scan...$(RESET)"
+	@if [ ! -f sbom/source-spdx.json ]; then \
+		echo "$(YELLOW)SBOM not found, generating first...$(RESET)"; \
+		./scripts/generate-sbom.sh --source; \
+	fi
+	@if command -v grype >/dev/null 2>&1; then \
+		grype sbom:sbom/source-spdx.json; \
+	else \
+		echo "$(YELLOW)Grype not installed, installing...$(RESET)"; \
+		./scripts/generate-sbom.sh; \
+	fi
+
+security-audit: sbom vulnerability-scan ## Complete security audit with SBOM and vulnerability scan
+	@echo "$(GREEN)Security audit completed$(RESET)"
+
 ## Release Commands  
-release-check: validate test-integration ## Check if ready for release
+release-check: validate test-integration security-audit ## Check if ready for release
 	@echo "$(BLUE)Checking release readiness...$(RESET)"
 	@echo "$(GREEN)✓ Code validation passed$(RESET)"
-	@echo "$(GREEN)✓ Integration tests passed$(RESET)"  
+	@echo "$(GREEN)✓ Integration tests passed$(RESET)"
+	@echo "$(GREEN)✓ Security audit completed$(RESET)"
 	@echo "$(GREEN)✓ Ready for release$(RESET)"
 
 tag: ## Create and push git tag (usage: make tag VERSION=v0.1.0)
@@ -318,4 +359,5 @@ install-dev-deps: ## Install development dependencies (credo, dialyzer, etc.)
 .PHONY: help deps compile test test-cover test-watch format format-check lint typecheck docs docs-open clean server
 .PHONY: docker-build docker-build-dev docker-run docker-run-dev docker-run-versions docker-stop-versions docker-compose-up docker-compose-down
 .PHONY: arch-validate arch-viz validate test-examples test-integration benchmark
+.PHONY: sbom sbom-deps sbom-container sbom-source vulnerability-scan security-audit
 .PHONY: release-check tag release version check-deps install-dev-deps

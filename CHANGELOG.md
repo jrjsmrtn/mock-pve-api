@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.6] - 2025-09-11 (Foundation ADR Sequence & Supply Chain Security)
+
+### Added
+- **Foundation ADR Sequence Implementation**: AI-Assisted Project Orchestration pattern language
+  - **ADR-0001: Record Architecture Decisions** - Systematic documentation approach following adr-tools format
+  - **ADR-0002: Adopt Development Best Practices** - Comprehensive practices including TDD, semantic versioning, Gitflow, C4 DSL, Diataxis documentation framework, sprint-based development, and container-first approach
+  - **ADR-0003: Elixir/OTP Implementation Choice** - Technology stack decision with comprehensive analysis and rationale
+  - **ADR Directory README** - Complete ADR process documentation with foundation sequence explanation
+- **Supply Chain Security & SBOM Best Practices**:
+  - **SBOM Generation Integration** - Added comprehensive Software Bill of Materials generation to development best practices
+  - **Multi-Format SBOM Support** - SPDX 2.3, CycloneDX 1.4, and custom Mix dependency formats documented in ADR-0002
+  - **Supply Chain Security Standards** - Enhanced quality standards with enterprise compliance requirements
+  - **SBOM Workflow Documentation** - Complete workflow commands and vulnerability assessment integration
+
+### Changed
+- **ADR Structure**: Systematically renumbered existing ADRs from 001-007, 013 to new Foundation sequence 0004-0010
+- **Documentation References**: Updated all cross-references across project documentation for new ADR numbering
+- **Architecture Documentation**: Enhanced C4 model system description with Foundation ADR Sequence context
+- **Development Roadmap**: Added Phase 4.6 completion with comprehensive Foundation ADR and supply chain security achievements
+- **Quality Standards**: Enhanced container standards and added dedicated Supply Chain Security section
+
+### Fixed
+- **ADR Cross-References**: Updated all internal links and references across CHANGELOG.md, README.md, architecture documentation, and explanation content
+- **ADR Content Numbering**: Corrected internal ADR numbering to match new file naming convention
+
 ## [0.4.4] - 2025-09-01 (Diátaxis Documentation Reorganization)
 
 ### Added
@@ -28,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Documentation Links**: Fixed all broken internal documentation links after reorganization
-- **ADR Numbering**: Resolved duplicate ADR-005 numbers by renaming API coverage matrix to ADR-007
+- **ADR Numbering**: Resolved duplicate ADR-005 numbers by renaming API coverage matrix to ADR-0009
 - **Relative Paths**: Corrected all relative path calculations for new directory structure
 
 ### Removed
@@ -105,7 +130,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - GET `/api2/json/_coverage/categories` - Per-category implementation status
   - GET `/api2/json/_coverage/missing` - Critical endpoints not yet implemented
 - **Architecture Documentation**:
-  - ADR-005: Comprehensive API Coverage Matrix architecture decision
+  - ADR-0009: Comprehensive API Coverage Matrix architecture decision
   - Complete API coverage reference document (850+ lines)
   - Per-endpoint documentation with parameters, examples, version compatibility
 - **Test Infrastructure**:

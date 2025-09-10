@@ -1,4 +1,4 @@
-# ADR-003: In-Memory State Management Strategy
+# ADR-0005: In-Memory State Management Strategy
 
 **Date:** 2025-01-30  
 **Status:** Accepted  

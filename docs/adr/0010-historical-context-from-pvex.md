@@ -1,4 +1,4 @@
-# ADR-013: Historical Context from pvex Project
+# ADR-0010: Historical Context from pvex Project
 
 **Date:** 2025-08-30  
 **Status:** Accepted and Documented  
@@ -136,7 +136,7 @@ The mock server's success in pvex provides baseline metrics for standalone adopt
 ## Links
 
 * [Original] [pvex ADR-013: Mock Testing Strategy](https://github.com/jrjsmrtn/pvex/blob/main/docs/adr/013-mock-testing-strategy.md)
-* [Relates to] [ADR-001: Elixir Implementation Choice](001-elixir-implementation-choice.md)
-* [Relates to] [ADR-002: Plug Framework Selection](002-plug-framework-selection.md)
+* [Relates to] [ADR-0003: Elixir/OTP Implementation Choice](0003-elixir-otp-implementation-choice.md)
+* [Relates to] [ADR-0004: Plug Framework Selection](0004-plug-over-phoenix-minimal-framework.md)
 * [Enables] Broader Proxmox VE ecosystem testing capabilities
 * [Supports] Multi-language client library development and testing

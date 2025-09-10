@@ -49,3 +49,8 @@ mock_pve_api-*.tar
 # Temporary files
 tmp/
 temp/
+
+# SBOM and Security
+sbom/vulnerabilities.json
+sbom/vulnerabilities.txt
+# Keep SBOM structure files but ignore vulnerability reports

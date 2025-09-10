@@ -17,7 +17,7 @@ Architecture Decision Records (ADRs) capture important architectural decisions a
 
 ### Core Technology Stack
 
-#### [ADR-001: Elixir/OTP for Mock Server Implementation](../adr/001-elixir-otp-implementation.md)
+#### [ADR-0003: Elixir/OTP Implementation Choice](../adr/0003-elixir-otp-implementation-choice.md)
 **Status**: Accepted | **Date**: 2025-01-30
 
 **Decision**: Use Elixir/OTP with GenServer state management for the core mock server implementation.
@@ -33,7 +33,7 @@ Architecture Decision Records (ADRs) capture important architectural decisions a
 
 ---
 
-#### [ADR-002: Plug over Phoenix for HTTP Handling](../adr/002-plug-over-phoenix.md)
+#### [ADR-0004: Plug over Phoenix for Minimal Framework Footprint](../adr/0004-plug-over-phoenix-minimal-framework.md)
 **Status**: Accepted | **Date**: 2025-01-30
 
 **Decision**: Use Plug directly with Cowboy rather than the full Phoenix framework.
@@ -50,7 +50,7 @@ Architecture Decision Records (ADRs) capture important architectural decisions a
 
 ### State and Data Management
 
-#### [ADR-003: In-Memory State Management](../adr/003-in-memory-state-management.md)
+#### [ADR-0005: In-Memory State Management Strategy](../adr/0005-in-memory-state-management.md)
 **Status**: Accepted | **Date**: 2025-01-30
 
 **Decision**: Use in-memory GenServer state rather than persistent storage.
@@ -65,7 +65,7 @@ Architecture Decision Records (ADRs) capture important architectural decisions a
 
 ---
 
-#### [ADR-004: Capability Matrix for Version Compatibility](../adr/004-capability-matrix-version-compatibility.md)
+#### [ADR-0006: Capability Matrix for Version Compatibility](../adr/0006-capability-matrix-version-compatibility.md)
 **Status**: Accepted | **Date**: 2025-01-30
 
 **Decision**: Implement feature availability through a capability matrix system.
@@ -82,7 +82,7 @@ Architecture Decision Records (ADRs) capture important architectural decisions a
 
 ### Deployment and Configuration
 
-#### [ADR-005: Container-First Deployment Strategy](../adr/005-container-first-deployment.md)
+#### [ADR-0007: Container-First Deployment Strategy](../adr/0007-container-first-deployment.md)
 **Status**: Accepted | **Date**: 2025-01-30
 
 **Decision**: Design for container deployment with Docker/Podman as primary distribution method.
@@ -97,7 +97,7 @@ Architecture Decision Records (ADRs) capture important architectural decisions a
 
 ---
 
-#### [ADR-006: Environment Variable Configuration](../adr/006-environment-variable-configuration.md)
+#### [ADR-0008: Environment Variable Configuration Strategy](../adr/0008-environment-variable-configuration.md)
 **Status**: Accepted | **Date**: 2025-01-30
 
 **Decision**: Use environment variables for runtime configuration with sensible defaults.
@@ -114,7 +114,7 @@ Architecture Decision Records (ADRs) capture important architectural decisions a
 
 ### API Design and Coverage
 
-#### [ADR-007: Comprehensive API Coverage Matrix](../adr/007-comprehensive-api-coverage-matrix.md)
+#### [ADR-0009: Comprehensive API Coverage Matrix](../adr/0009-comprehensive-api-coverage-matrix.md)
 **Status**: Accepted | **Date**: 2025-08-30
 
 **Decision**: Implement a systematic API coverage tracking and validation system.
@@ -131,7 +131,7 @@ Architecture Decision Records (ADRs) capture important architectural decisions a
 
 ### Historical Context
 
-#### [ADR-013: Historical Context from pvex](../adr/013-historical-context-from-pvex.md)
+#### [ADR-0010: Historical Context from pvex Project](../adr/0010-historical-context-from-pvex.md)
 **Status**: Accepted | **Date**: 2025-01-30
 
 **Decision**: Extract and evolve the mock server functionality from the pvex project.

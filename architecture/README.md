@@ -48,12 +48,12 @@ Implementation details are documented in the source code with comprehensive modu
 
 The architecture is based on several key decisions documented in our ADRs:
 
-1. **[ADR-001](../docs/adr/001-elixir-otp-implementation.md)**: Elixir/OTP for concurrent request handling and fault tolerance
-2. **[ADR-002](../docs/adr/002-plug-over-phoenix.md)**: Plug over Phoenix for minimal footprint
-3. **[ADR-003](../docs/adr/003-in-memory-state-management.md)**: In-memory state management for simplicity and performance
-4. **[ADR-004](../docs/adr/004-capability-matrix-version-compatibility.md)**: Capability matrix for version compatibility
-5. **[ADR-005](../docs/adr/005-container-first-deployment.md)**: Container-first deployment strategy
-6. **[ADR-006](../docs/adr/006-environment-variable-configuration.md)**: Environment variable configuration
+1. **[ADR-0003](../docs/adr/0003-elixir-otp-implementation-choice.md)**: Elixir/OTP for concurrent request handling and fault tolerance
+2. **[ADR-0004](../docs/adr/0004-plug-over-phoenix-minimal-framework.md)**: Plug over Phoenix for minimal footprint
+3. **[ADR-0005](../docs/adr/0005-in-memory-state-management.md)**: In-memory state management for simplicity and performance
+4. **[ADR-0006](../docs/adr/0006-capability-matrix-version-compatibility.md)**: Capability matrix for version compatibility
+5. **[ADR-0007](../docs/adr/0007-container-first-deployment.md)**: Container-first deployment strategy
+6. **[ADR-0008](../docs/adr/0008-environment-variable-configuration.md)**: Environment variable configuration
 
 ## Core Architectural Principles
 

@@ -460,8 +460,8 @@ podman-compose up mock-pve-7 mock-pve-8 mock-pve-9
 
 ### 🏗️ Architecture & Design
 - **[Architecture Overview](architecture/README.md)** - C4 model and system design
-- **[ADR-001: Elixir Implementation](docs/adr/001-elixir-otp-implementation.md)** - Why Elixir/OTP
-- **[ADR-013: Historical Context](docs/adr/013-historical-context-from-pvex.md)** - Origin story from pvex
+- **[ADR-0003: Elixir/OTP Implementation Choice](docs/adr/0003-elixir-otp-implementation-choice.md)** - Why Elixir/OTP
+- **[ADR-0010: Historical Context](docs/adr/0010-historical-context-from-pvex.md)** - Origin story from pvex
 
 ### 🧪 Examples
 - **[Multi-Language Examples](examples/)** - Python, JavaScript, Go, Ruby, Shell, Elixir

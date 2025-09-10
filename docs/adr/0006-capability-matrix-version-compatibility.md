@@ -1,4 +1,4 @@
-# ADR-004: Capability Matrix for Version Compatibility
+# ADR-0006: Capability Matrix for Version Compatibility
 
 **Date:** 2025-01-30  
 **Status:** Accepted  

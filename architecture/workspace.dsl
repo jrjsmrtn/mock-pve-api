@@ -13,7 +13,7 @@ workspace {
         clientLibrary = softwareSystem "PVE Client Library" "Client library for Proxmox VE (Python, JavaScript, Go, Elixir, etc.)" "Client"
         
         # Main System  
-        mockPveApi = softwareSystem "Mock PVE API Server" "Containerized mock server simulating Proxmox VE REST API" {
+        mockPveApi = softwareSystem "Mock PVE API Server" "Containerized mock server simulating Proxmox VE REST API with Foundation ADR Sequence (ADR-0001: Architecture Decisions, ADR-0002: Development Best Practices, ADR-0003: Elixir/OTP Choice) and comprehensive supply chain security through SBOM generation" {
             tags "MockServer"
             
             # Containers

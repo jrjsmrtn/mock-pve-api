@@ -1,4 +1,4 @@
-# ADR-006: Environment Variable Configuration Strategy
+# ADR-0008: Environment Variable Configuration Strategy
 
 **Date:** 2025-01-30  
 **Status:** Accepted  

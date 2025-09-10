@@ -1,4 +1,4 @@
-# ADR-002: Plug over Phoenix for Minimal Framework Footprint
+# ADR-0004: Plug over Phoenix for Minimal Framework Footprint
 
 **Date:** 2025-01-30  
 **Status:** Accepted  
