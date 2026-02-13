@@ -1,0 +1,19 @@
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "*.{ex,exs}"
+      run: mix format --check-formatted
+    compile:
+      glob: "*.{ex,exs}"
+      run: mix compile --warnings-as-errors 2>&1
+    docs-coverage:
+      glob: "lib/mock_pve_api/coverage.ex"
+      run: mix docs.coverage --check
+    gitleaks:
+      run: gitleaks protect --staged --no-banner
+
+pre-push:
+  commands:
+    test:
+      run: mix test

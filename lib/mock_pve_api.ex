@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi do
   @moduledoc """
   Mock Proxmox VE API Server for testing purposes.

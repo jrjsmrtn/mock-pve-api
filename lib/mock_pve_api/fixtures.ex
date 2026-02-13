@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.Fixtures do
   @moduledoc """
   Version-specific response fixtures for the Mock PVE Server.

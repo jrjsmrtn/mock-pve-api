@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.SimpleEndpointTest do
   @moduledoc """
   Simple endpoint validation that uses the existing server on port 8006.

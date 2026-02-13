@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.MixProject do
   use Mix.Project
 

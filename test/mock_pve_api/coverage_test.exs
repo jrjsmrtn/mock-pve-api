@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.CoverageTest do
   use ExUnit.Case, async: true
   doctest MockPveApi.Coverage

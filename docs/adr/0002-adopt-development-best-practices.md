@@ -137,6 +137,55 @@ make sbom-cyclonedx        # CycloneDX format for tooling integration
 make vulnerability-scan    # Security vulnerability assessment
 ```
 
+### Consistent Quality Gates
+**Approach**: Escalating quality gate chain — fast local checks, thorough pre-push validation, comprehensive CI
+
+**Local Development**:
+- **`.editorconfig`**: Enforces consistent formatting (UTF-8, LF, 2-space indent for Elixir, tabs for Makefiles)
+- **Lefthook**: Git hook manager replacing ad-hoc shell scripts
+  - **Pre-commit** (parallel): `mix format --check-formatted`, `mix compile --warnings-as-errors`, `mix docs.coverage --check` (conditional on coverage.ex changes), `gitleaks protect --staged` (secret detection)
+  - **Pre-push**: `mix test`
+- **SPDX headers**: All source files carry `SPDX-FileCopyrightText` and `SPDX-License-Identifier` headers
+
+**CI (GitHub Actions)**:
+- Format check, compile with `--force --warnings-as-errors`, test with coverage, documentation generation
+- Security audit with SBOM generation and vulnerability scanning
+- Container build and multi-version integration tests
+
+**Quality Gate Chain**:
+
+| Check | Pre-commit | Pre-push | CI |
+|-------|-----------|----------|-----|
+| `mix format --check-formatted` | yes | - | yes |
+| `mix compile --warnings-as-errors` | yes | - | yes (--force) |
+| `mix docs.coverage --check` | conditional | - | - |
+| `gitleaks protect --staged` | yes | - | - |
+| `gitleaks detect` | - | - | yes |
+| `mix test` | - | yes | yes (--cover) |
+| `mix docs` | - | - | yes |
+| Security audit / SBOM | - | - | yes |
+| Container build + integration | - | - | yes |
+
+### Erlef Aegis & OpenSSF Compliance
+**Approach**: Align with the [EEF Security Working Group's Aegis initiative](https://security.erlef.org/aegis/) and [OpenSSF](https://openssf.org/) best practices to strengthen supply chain security and meet emerging regulations (EU CRA, NIST SSDF).
+
+**Aegis alignment**:
+- **SBOM generation**: SPDX and CycloneDX formats for all releases (see Supply Chain Security section above)
+- **SPDX licence headers**: Machine-readable copyright and licence metadata on all source files
+- **Secret detection**: [Gitleaks](https://github.com/gitleaks/gitleaks) scans staged changes at pre-commit and full history in CI
+- **Vulnerability handling**: Automated scanning with Grype integrated into CI pipeline
+- **Dependency tracking**: Complete Elixir/OTP dependency tree with version pinning via `mix.lock`
+- **Account security**: Follow Hex.pm recommendations for maintainer authentication as they evolve
+
+**OpenSSF Scorecard alignment**:
+- **Branch protection**: Main branch protected; PRs required for merges
+- **CI tests**: Automated test suite runs on every push and PR
+- **Code review**: All PRs require review before merge
+- **Dependency updates**: Pinned dependencies with regular update checks
+- **Licence**: SPDX-compliant MIT licence with machine-readable headers
+- **Security policy**: Vulnerability disclosure and security audit practices
+- **Signed releases**: Target signed container images and package provenance as Aegis tooling matures
+
 ## Consequences
 
 **Positive:**
@@ -150,12 +199,15 @@ make vulnerability-scan    # Security vulnerability assessment
 - Iterative Development: Sprint-based approach enables rapid feedback and course correction
 - Container Quality: Systematic approach to container image security and distribution
 - Supply Chain Security: SBOM generation provides transparency and vulnerability tracking for dependencies
+- Consistent Quality Gates: Escalating pre-commit/pre-push/CI chain catches issues early without slowing development
+- Regulatory Readiness: Aegis and OpenSSF alignment prepares the project for EU CRA and NIST SSDF requirements
 
 **Negative:**
 - Development Overhead: Additional process steps slow initial endpoint development
-- Tool Dependencies: Requires familiarity with multiple tools and frameworks (Elixir, Podman, C4 DSL)
+- Tool Dependencies: Requires familiarity with multiple tools and frameworks (Elixir, Podman, C4 DSL, lefthook)
 - Maintenance Commitment: Documentation and architecture models need ongoing updates with PVE API evolution
 - Sprint Overhead: Sprint ceremonies add time overhead to development process
+- Evolving Standards: Aegis and OpenSSF recommendations are still maturing; practices may need revision as tooling stabilises
 
 ## Implementation Plan
 
@@ -183,6 +235,16 @@ make vulnerability-scan    # Security vulnerability assessment
 - [ ] Complete Docker Hub release automation
 - [ ] Implement multi-architecture container builds
 
+### Phase 5: Quality Gates & Compliance (In Progress)
+- [x] Add `.editorconfig` for consistent editor formatting
+- [x] Replace ad-hoc pre-commit hook with lefthook (pre-commit + pre-push)
+- [x] Add SPDX copyright/licence headers to all source files
+- [x] Modernise GitHub Actions workflow (actions/cache@v4, upload-artifact@v4, `--force` compile)
+- [x] Add gitleaks secret detection (pre-commit via lefthook, CI via gitleaks-action)
+- [ ] Evaluate OpenSSF Scorecard and address findings
+- [ ] Adopt Hex.pm account security recommendations as Aegis tooling matures
+- [ ] Add signed container image provenance
+
 ## Validation Criteria
 
 These practices will be validated through:
@@ -194,6 +256,9 @@ These practices will be validated through:
 6. **Documentation Completeness**: All four Diataxis types populated and maintained ✓
 7. **Container Quality**: Successful Docker Hub distribution with security scanning ⏳
 8. **Supply Chain Security**: SBOM generation for all releases with vulnerability assessment ✓
+9. **Quality Gates**: Pre-commit and pre-push hooks enforced via lefthook; CI pipeline green ✓
+10. **SPDX Compliance**: All source files carry machine-readable licence headers ✓
+11. **OpenSSF Scorecard**: Target score improvement as checks are addressed ⏳
 
 ## Related Decisions
 

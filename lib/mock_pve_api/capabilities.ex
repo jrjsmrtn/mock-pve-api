@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.Capabilities do
   @moduledoc """
   Version-aware capability system for the Mock PVE Server.

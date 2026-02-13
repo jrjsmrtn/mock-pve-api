@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
 # setup-podman.sh - Podman Setup Script for Mock PVE API Server
 # 
 # This script helps users install Podman and set up the Mock PVE API Server

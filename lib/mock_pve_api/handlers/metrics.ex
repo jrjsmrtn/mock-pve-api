@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.Handlers.Metrics do
   @moduledoc """
   Handler for PVE metrics and statistics endpoints.

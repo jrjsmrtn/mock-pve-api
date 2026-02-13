@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.Coverage do
   @moduledoc """
   Comprehensive PVE API coverage matrix for the Mock PVE Server.

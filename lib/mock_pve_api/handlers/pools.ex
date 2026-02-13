@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.Handlers.Pools do
   @moduledoc """
   Handler for PVE resource pool endpoints.

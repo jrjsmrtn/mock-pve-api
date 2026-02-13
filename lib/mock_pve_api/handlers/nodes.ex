@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.Handlers.Nodes do
   @moduledoc """
   Handler for PVE node-related endpoints including VMs and containers.

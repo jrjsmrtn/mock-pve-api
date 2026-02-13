@@ -50,6 +50,12 @@ mock_pve_api-*.tar
 tmp/
 temp/
 
+# Lefthook
+lefthook-local.yml
+
+# Local binaries (lefthook, etc.)
+/bin/
+
 # SBOM and Security
 sbom/vulnerabilities.json
 sbom/vulnerabilities.txt

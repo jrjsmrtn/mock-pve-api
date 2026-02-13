@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.VersionCompatibilityTest do
   @moduledoc """
   Version compatibility tests for the Mock PVE API Server.

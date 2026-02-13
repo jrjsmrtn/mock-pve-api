@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule Mix.Tasks.Docs.Coverage do
   @moduledoc """
   Generates comprehensive API reference documentation from the Coverage module.

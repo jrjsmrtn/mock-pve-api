@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 # Test Helper for MockPveApi
 # Sets up the test environment and provides common testing utilities
 

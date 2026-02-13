@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.Handlers.Sdn do
   @moduledoc """
   Handler for PVE Software Defined Networking (SDN) endpoints.

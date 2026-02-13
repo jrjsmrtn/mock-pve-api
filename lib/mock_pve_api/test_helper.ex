@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 defmodule MockPveApi.TestHelper do
   @moduledoc """
   Test helper functions for client libraries using the Mock PVE API Server.

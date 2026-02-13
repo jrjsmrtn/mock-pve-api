@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
 set -euo pipefail
 
 # SBOM Generation Script for Mock PVE API

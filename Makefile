@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 # Makefile for Mock PVE API Server
 # Provides convenient commands for development, testing, and architecture validation
 
@@ -109,16 +112,30 @@ docs-coverage-check: ## Check if API reference docs are up-to-date
 	@echo "$(BLUE)Checking API reference documentation...$(RESET)"
 	@mix docs.coverage --check
 
-install-hooks: ## Install git pre-commit hooks
-	@echo "$(BLUE)Installing git hooks...$(RESET)"
-	@cp scripts/hooks/pre-commit .git/hooks/pre-commit
-	@chmod +x .git/hooks/pre-commit
-	@echo "$(GREEN)Git hooks installed successfully$(RESET)"
+LEFTHOOK_VERSION ?= 2.1.1
+
+install-lefthook: ## Install lefthook binary (if not present)
+	@if command -v lefthook >/dev/null 2>&1; then \
+		echo "$(GREEN)lefthook already on PATH$(RESET)"; \
+	elif [ -x bin/lefthook ]; then \
+		echo "$(GREEN)lefthook already installed at bin/lefthook$(RESET)"; \
+	else \
+		echo "$(BLUE)Downloading lefthook $(LEFTHOOK_VERSION)...$(RESET)"; \
+		mkdir -p bin; \
+		OS=$$(uname -s); ARCH=$$(uname -m); \
+		if [ "$$ARCH" = "aarch64" ]; then ARCH=arm64; fi; \
+		URL="https://github.com/evilmartians/lefthook/releases/download/v$(LEFTHOOK_VERSION)/lefthook_$(LEFTHOOK_VERSION)_$${OS}_$${ARCH}"; \
+		curl -fsSL "$$URL" -o bin/lefthook && chmod +x bin/lefthook; \
+		echo "$(GREEN)lefthook installed at bin/lefthook$(RESET)"; \
+	fi
+
+LEFTHOOK := $(shell command -v lefthook 2>/dev/null || echo bin/lefthook)
+
+install-hooks: install-lefthook ## Install git hooks via lefthook
+	$(LEFTHOOK) install
 
 uninstall-hooks: ## Remove git hooks
-	@echo "$(BLUE)Removing git hooks...$(RESET)"
-	@rm -f .git/hooks/pre-commit
-	@echo "$(GREEN)Git hooks removed$(RESET)"
+	$(LEFTHOOK) uninstall
 
 clean: ## Clean build artifacts
 	@echo "$(BLUE)Cleaning build artifacts...$(RESET)"
@@ -368,6 +385,8 @@ check-deps: ## Check for required dependencies
 	@echo -n "Docker: "; command -v docker >/dev/null 2>&1 && echo "$(GREEN)✓$(RESET)" || echo "$(YELLOW)○$(RESET)"
 	@echo -n "Podman: "; command -v podman >/dev/null 2>&1 && echo "$(GREEN)✓$(RESET)" || echo "$(YELLOW)○$(RESET)"
 	@echo -n "curl: "; command -v curl >/dev/null 2>&1 && echo "$(GREEN)✓$(RESET)" || echo "$(YELLOW)○$(RESET)"
+	@echo -n "lefthook: "; (command -v lefthook >/dev/null 2>&1 || [ -x bin/lefthook ]) && echo "$(GREEN)✓$(RESET)" || echo "$(YELLOW)○$(RESET)"
+	@echo -n "gitleaks: "; command -v gitleaks >/dev/null 2>&1 && echo "$(GREEN)✓$(RESET)" || echo "$(YELLOW)○$(RESET)"
 	@echo ""
 	@echo "$(GREEN)✓ Required  $(YELLOW)○ Optional  $(RED)✗ Missing$(RESET)"
 
@@ -376,7 +395,7 @@ install-dev-deps: ## Install development dependencies (credo, dialyzer, etc.)
 	mix archive.install hex phx_new --force
 	@echo "$(GREEN)Development dependencies installed$(RESET)"
 
-.PHONY: help deps compile test test-cover test-watch format format-check lint typecheck docs docs-open docs-coverage docs-coverage-check install-hooks uninstall-hooks clean server
+.PHONY: help deps compile test test-cover test-watch format format-check lint typecheck docs docs-open docs-coverage docs-coverage-check install-lefthook install-hooks uninstall-hooks clean server
 .PHONY: docker-build docker-build-dev docker-run docker-run-dev docker-run-versions docker-stop-versions docker-compose-up docker-compose-down
 .PHONY: arch-validate arch-viz validate test-examples test-integration benchmark
 .PHONY: sbom sbom-deps sbom-container sbom-source vulnerability-scan security-audit

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
 name: CI/CD Pipeline
 
 on:
@@ -36,7 +39,7 @@ jobs:
           otp-version: ${{ matrix.otp }}
       
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             deps
@@ -52,7 +55,7 @@ jobs:
         run: mix format --check-formatted
       
       - name: Compile with warnings as errors
-        run: mix compile --warnings-as-errors
+        run: mix compile --force --warnings-as-errors
       
       - name: Run tests
         run: mix test --cover
@@ -60,15 +63,30 @@ jobs:
       - name: Generate documentation
         run: mix docs
 
+  secret-scan:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   security-audit:
     name: Security Audit & SBOM Generation
     runs-on: ubuntu-latest
     needs: test
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Elixir
         uses: erlef/setup-beam@v1
         with:
@@ -76,7 +94,7 @@ jobs:
           otp-version: '27'
       
       - name: Cache dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             deps
@@ -107,7 +125,7 @@ jobs:
           fi
       
       - name: Upload SBOM artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sbom-files
           path: |
@@ -191,7 +209,7 @@ jobs:
       
       - name: Upload container SBOM artifacts
         if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: container-sbom-files
           path: |

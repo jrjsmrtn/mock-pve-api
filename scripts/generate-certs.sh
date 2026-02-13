@@ -1,4 +1,6 @@
 #!/bin/bash
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
 # Certificate Generation Script for Mock PVE API Server
 # Generates self-signed certificates for SSL/TLS testing
 
