@@ -763,15 +763,13 @@ defmodule MockPveApi.State do
     new_backups = Map.put(state.backups, backup_key, backup)
 
     # Create task for backup operation
-    {:ok, upid} =
+    {:reply, {:ok, upid}, new_state} =
       handle_call({:create_task, node, "vzdump", %{vmid: vmid}}, nil, %{
         state
         | backups: new_backups
       })
 
-    new_state = elem(upid, 2)
-
-    {:reply, {:ok, elem(upid, 1)}, new_state}
+    {:reply, {:ok, upid}, new_state}
   end
 
   def handle_call({:list_backups, node, storage}, _from, state) do
@@ -793,15 +791,14 @@ defmodule MockPveApi.State do
 
       {_key, _backup} ->
         # Create task for restore operation
-        {:ok, upid} =
+        {:reply, {:ok, upid}, new_state} =
           handle_call(
             {:create_task, node, "qmrestore", %{vmid: vmid, archive: backup_file}},
             nil,
             state
           )
 
-        new_state = elem(upid, 2)
-        {:reply, {:ok, elem(upid, 1)}, new_state}
+        {:reply, {:ok, upid}, new_state}
     end
   end
 
@@ -819,16 +816,14 @@ defmodule MockPveApi.State do
         new_vms = Map.put(state.vms, vmid, updated_vm)
 
         # Create migration task
-        {:ok, upid} =
+        {:reply, {:ok, upid}, new_state} =
           handle_call(
             {:create_task, node, "qmigrate", %{vmid: vmid, target: target_node}},
             nil,
             %{state | vms: new_vms}
           )
 
-        new_state = elem(upid, 2)
-
-        {:reply, {:ok, elem(upid, 1)}, new_state}
+        {:reply, {:ok, upid}, new_state}
     end
   end
 
@@ -846,16 +841,14 @@ defmodule MockPveApi.State do
         new_containers = Map.put(state.containers, vmid, updated_container)
 
         # Create migration task
-        {:ok, upid} =
+        {:reply, {:ok, upid}, new_state} =
           handle_call(
             {:create_task, node, "pctmigrate", %{vmid: vmid, target: target_node}},
             nil,
             %{state | containers: new_containers}
           )
 
-        new_state = elem(upid, 2)
-
-        {:reply, {:ok, elem(upid, 1)}, new_state}
+        {:reply, {:ok, upid}, new_state}
     end
   end
 

@@ -1,7 +1,7 @@
 # Mock PVE API
 
 [![Hex.pm Version](https://img.shields.io/hexpm/v/mock_pve_api.svg)](https://hex.pm/packages/mock_pve_api)
-[![Container Pulls](https://img.shields.io/docker/pulls/jrjsmrtn/mock-pve-api)](https://hub.docker.com/r/jrjsmrtn/mock-pve-api)
+[![GHCR](https://img.shields.io/badge/GHCR-ghcr.io%2Fjrjsmrtn%2Fmock--pve--api-blue)](https://github.com/jrjsmrtn/mock-pve-api/pkgs/container/mock-pve-api)
 [![Podman Compatible](https://img.shields.io/badge/podman-compatible-326ce5.svg)](https://podman.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://github.com/jrjsmrtn/mock-pve-api/workflows/CI/badge.svg)](https://github.com/jrjsmrtn/mock-pve-api/actions)
@@ -32,7 +32,7 @@ Born from the [**pvex**](https://github.com/jrjsmrtn/pvex) project during Sprint
 
 ## Quick Start
 
-> **📦 Container Images**: Pre-built container images will be available on Docker Hub in the next release. For now, please build from source.
+> **📦 Container Images**: Pre-built container images are available on [GHCR](https://github.com/jrjsmrtn/mock-pve-api/pkgs/container/mock-pve-api). You can also build from source.
 
 ### Build and Run with Containers (Current Method)
 
@@ -168,22 +168,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      mock-pve:
+        image: ghcr.io/jrjsmrtn/mock-pve-api:latest
+        ports:
+          - 8006:8006
+        env:
+          MOCK_PVE_VERSION: "8.3"
+        options: >-
+          --health-cmd "curl -f http://localhost:8006/api2/json/version || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
-
-      # Checkout mock-pve-api and build container
-      - name: Setup mock PVE server
-        run: |
-          git clone https://github.com/jrjsmrtn/mock-pve-api.git
-          cd mock-pve-api
-          docker build -f docker/Dockerfile -t mock-pve-api:ci .
-          docker run -d --name mock-pve -p 8006:8006 \
-            -e MOCK_PVE_VERSION=8.3 \
-            -e MOCK_PVE_LOG_LEVEL=info \
-            mock-pve-api:ci
-
-          # Wait for server to be ready
-          timeout 30 bash -c 'until curl -f http://localhost:8006/api2/json/version; do sleep 1; done'
 
       - name: Run tests against mock PVE
         run: |
@@ -192,10 +191,6 @@ jobs:
         env:
           PVE_HOST: localhost
           PVE_PORT: 8006
-          MOCK_PVE_VERSION: 8.3
-
-      - name: Cleanup
-        run: docker stop mock-pve && docker rm mock-pve
 ```
 
 ## Configuration
@@ -287,7 +282,7 @@ podman run -d --name mock-pve-ssl \
   -e MOCK_PVE_SSL_ENABLED=true \
   -e MOCK_PVE_SSL_KEYFILE=certs/server.key \
   -e MOCK_PVE_SSL_CERTFILE=certs/server.crt \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Test HTTPS connection
 curl -k https://localhost:8006/api2/json/version
@@ -407,13 +402,14 @@ podman inspect mock-pve-api:latest | jq '.[0].Config'
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Add tests if needed
-5. Ensure tests pass (`mix test`)
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
+2. Install git hooks: `make install-hooks` (runs format, compile, and gitleaks checks on commit)
+3. Create a feature branch (`git checkout -b feature/amazing-feature`)
+4. Make your changes
+5. Add tests if needed
+6. Ensure tests pass (`mix test`)
+7. Commit your changes (`git commit -m 'Add amazing feature'`)
+8. Push to the branch (`git push origin feature/amazing-feature`)
+9. Open a Pull Request
 
 ## Use Cases
 
@@ -423,7 +419,7 @@ Perfect for testing PVE client libraries without needing real hardware:
 
 ```bash
 # In your CI pipeline
-podman run -d --name mock-pve -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -d --name mock-pve -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
 sleep 10  # Wait for startup
 python -m pytest tests/integration/
 podman stop mock-pve
@@ -471,6 +467,7 @@ podman-compose up mock-pve-7 mock-pve-8 mock-pve-9
 - **[API Endpoints](docs/reference/api-endpoints.md)** - Complete endpoint documentation
 - **[Environment Variables](docs/reference/environment-variables.md)** - Configuration reference
 - **[Client Examples](docs/reference/client-examples.md)** - Multi-language examples
+- **[Quality Gates](docs/reference/quality-gates.md)** - Pre-commit, pre-push, and CI quality checks
 
 #### Explanation
 
@@ -532,6 +529,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 📖 [Documentation](https://hexdocs.pm/mock_pve_api)
 - 🐛 [Issues](https://github.com/jrjsmrtn/mock-pve-api/issues)
 - 💬 [Discussions](https://github.com/jrjsmrtn/mock-pve-api/discussions)
+- 🔒 [Security Policy](SECURITY.md)
 
 ## Related Projects
 

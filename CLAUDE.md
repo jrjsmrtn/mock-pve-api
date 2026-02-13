@@ -12,11 +12,11 @@
 - Cross-language client library testing
 - Development environment provisioning
 
-**Current Status:** 0.4.6 (Foundation ADR Sequence & Supply Chain Security Best Practices)
+**Current Status:** 0.4.7 (Quality Gates & Compliance)
 **Supported PVE Versions:** 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 9.0
 **Target Elixir Version:** 1.15+
 **Target OTP Version:** 26+
-**Distribution:** OCI Registry (docker.io/jrjsmrtn/mock-pve-api)
+**Distribution:** OCI Registry (ghcr.io/jrjsmrtn/mock-pve-api)
 **Containerization:** Podman-first, Docker-compatible approach
 
 ## **Development Commands**
@@ -41,6 +41,12 @@ mix credo                 # Static analysis (when added)
 mix dialyzer              # Type checking (when added)
 mix docs                  # Generate documentation
 
+# Quality gates (lefthook)
+make install-hooks        # Install lefthook git hooks (pre-commit + pre-push)
+make uninstall-hooks      # Remove git hooks
+# Pre-commit: mix format --check-formatted, mix compile --warnings-as-errors, gitleaks
+# Pre-push: mix test
+
 # Release building
 MIX_ENV=prod mix release  # Build production release
 mix hex.build             # Build hex package (future)
@@ -60,7 +66,7 @@ make docker-run           # Alias for container-run
 
 # Manual container commands (Podman recommended)
 podman build -f containers/Containerfile -t mock-pve-api:latest .
-podman run -d -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -d -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Multi-version testing
 make container-run-versions  # Run PVE 7.4, 8.0, 8.3, 9.0 simultaneously
@@ -114,7 +120,7 @@ curl -f http://localhost:8006/api2/json/version || echo "Server not healthy"
 - **Primary Runtime**: Podman for enhanced security, rootless operation, and systemd integration
 - **Compatibility**: Full Docker compatibility maintained through OCI compliance
 - **Security**: Rootless containers by default, no privileged daemon required
-- **Registry**: Uses `docker.io/` prefix for universal registry access
+- **Registry**: GHCR (`ghcr.io/jrjsmrtn/mock-pve-api`) via GitHub Packages
 - **Development**: Volume mounts and live reload support for both runtimes
 - **CI/CD**: Native support in GitHub Actions, GitLab CI, Jenkins with both runtimes
 
@@ -156,7 +162,7 @@ MockPveApi.Capabilities.supports?(version, :ha_affinity)        # true for 9.0+
 ### **Key Architectural Decisions**
 **Foundation ADR Sequence (AI-Assisted Project Orchestration):**
 - **ADR-0001**: Record architecture decisions - Systematic documentation approach
-- **ADR-0002**: Adopt development best practices - TDD, semantic versioning, Gitflow, Diataxis documentation
+- **ADR-0002**: Adopt development best practices - TDD, semantic versioning, Gitflow, Diataxis documentation, quality gates, Erlef Aegis/OpenSSF compliance
 - **ADR-0003**: Elixir/OTP implementation choice - Technology stack for concurrent request handling
 
 **Implementation ADRs:**
@@ -320,16 +326,6 @@ config :mock_pve_api,
 - [x] Multi-language examples
 - [x] Comprehensive documentation
 
-### **Phase 2: Docker Hub Release (v0.5.0)** 🎯 **NEXT PRIORITY**
-- [ ] Docker Hub repository setup and automation
-- [ ] Automated multi-arch builds (amd64, arm64)
-- [ ] Semantic versioning tags synchronized with git releases
-- [ ] GitHub Actions for automated publishing
-- [ ] Container security scanning and vulnerability assessment
-- [ ] SBOM generation for supply chain security
-- [ ] Release v0.4.3 as stable production image
-- [ ] Update container registry documentation
-
 ### **Phase 3: Enhanced API Coverage (v0.3.0)** ✅
 - [x] VM/Container lifecycle operations (start, stop, migrate)
 - [x] Backup and restore endpoints
@@ -384,7 +380,7 @@ config :mock_pve_api,
 - [x] Real server testing with live mock server instance
 - [x] **VALIDATION MILESTONE: 100% endpoint verification** - All 37 endpoints tested and working
 
-**🎯 READY FOR DISTRIBUTION**: With comprehensive validation complete, the mock server is production-ready for community release via Docker Hub.
+**🎯 READY FOR DISTRIBUTION**: With comprehensive validation complete, the mock server is production-ready for community release via GHCR.
 
 ### **Phase 4.4: Diátaxis Documentation Reorganization (v0.4.4)** ✅
 - [x] Complete documentation structure reorganization following Diátaxis framework
@@ -443,14 +439,29 @@ config :mock_pve_api,
 
 **🎯 FOUNDATION COMPLETE**: The project now follows AI-Assisted Project Orchestration pattern language with systematic development practices, comprehensive architecture decisions documentation, and enterprise-grade supply chain security through SBOM generation.
 
-### **Phase 5: Docker Hub Release (v0.5.0)** 🎯 **NEXT PRIORITY**
-- [ ] Docker Hub repository setup and automation
+### **Phase 4.7: Quality Gates & Compliance (v0.4.7)** ✅
+- [x] **Consistent Quality Gates**: Escalating pre-commit/pre-push/CI chain via lefthook
+  - [x] `.editorconfig` for consistent editor formatting
+  - [x] `.lefthook.yml` with pre-commit (format, compile, docs-coverage, gitleaks) and pre-push (test)
+  - [x] Gitleaks secret detection with `.gitleaks.toml` allowlist for mock data false positives
+  - [x] Modernised GitHub Actions workflow (actions/cache@v4, upload-artifact@v4, `--force` compile)
+- [x] **Erlef Aegis & OpenSSF Compliance**:
+  - [x] SPDX copyright/licence headers on all source files
+  - [x] `SECURITY.md` with solo-maintainer security policy
+  - [x] Dependabot for Mix and GitHub Actions dependencies
+  - [x] OpenSSF Scorecard in CI (`ossf/scorecard-action@v2.4.1`, main only)
+  - [x] Branch protection on `main` (no force push, no deletion)
+- [x] **GHCR Container Registry**: Migrated from GHCR to GitHub Container Registry
+  - [x] CI workflow uses `ghcr.io/jrjsmrtn/mock-pve-api` with GITHUB_TOKEN auth
+  - [x] Container SBOM generation for published images
+- [x] **Documentation**: Extracted `docs/reference/quality-gates.md` from ADR-0002
+
+### **Phase 5: Container Distribution (v0.5.0)** 🎯 **NEXT PRIORITY**
 - [ ] Automated multi-arch builds (amd64, arm64)
 - [ ] Semantic versioning tags synchronized with git releases
-- [ ] GitHub Actions for automated publishing
 - [ ] Container security scanning and vulnerability assessment
-- [ ] SBOM generation for supply chain security
-- [ ] Release v0.4.6 as stable production image
+- [ ] Signed container image provenance
+- [ ] Release v0.4.7 as stable production image
 - [ ] Update container registry documentation
 
 ### **Phase 6: Advanced Features (v0.6.0)**
@@ -488,14 +499,19 @@ config :mock_pve_api,
 
 ### **Code Quality**
 - **Format**: Enforced via `mix format` and `.formatter.exs`
+- **Quality Gates**: Escalating chain — pre-commit (format, compile, gitleaks) -> pre-push (test) -> CI (comprehensive)
+- **Git Hooks**: Managed by lefthook (`.lefthook.yml`), install with `make install-hooks`
+- **Secret Detection**: Gitleaks at pre-commit and CI, with `.gitleaks.toml` allowlist
+- **SPDX Headers**: All source files carry machine-readable copyright/licence headers
 - **Documentation**: Module and function documentation required
 - **Type Specs**: Comprehensive typespecs for public functions
 - **Testing**: Minimum 80% test coverage for new features
 - **Reviews**: All PRs require review before merge
 
 ### **Container Standards**
+- **Registry**: GHCR (`ghcr.io/jrjsmrtn/mock-pve-api`) with GITHUB_TOKEN auth
 - **Size**: Alpine-based images under 50MB
-- **Security**: Regular vulnerability scanning and SBOM generation
+- **Security**: Regular vulnerability scanning, SBOM generation, Dependabot
 - **Health**: Health check endpoints required
 - **Signals**: Graceful shutdown handling
 - **Logging**: Structured JSON logging to stdout
@@ -520,7 +536,7 @@ config :mock_pve_api,
 # GitHub Actions
 services:
   mock-pve:
-    image: docker.io/jrjsmrtn/mock-pve-api:latest
+    image: ghcr.io/jrjsmrtn/mock-pve-api:latest
     ports:
       - 8006:8006
     env:
@@ -528,7 +544,7 @@ services:
 
 # GitLab CI
 services:
-  - name: docker.io/jrjsmrtn/mock-pve-api:latest
+  - name: ghcr.io/jrjsmrtn/mock-pve-api:latest
     alias: mock-pve
     variables:
       MOCK_PVE_VERSION: "8.3"
@@ -555,7 +571,7 @@ podman run -d --name mock-pve-ssl \
   -e MOCK_PVE_SSL_ENABLED=true \
   -e MOCK_PVE_SSL_KEYFILE=certs/server.key \
   -e MOCK_PVE_SSL_CERTFILE=certs/server.crt \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 ### **Local Development**
@@ -566,7 +582,7 @@ podman run -d --name mock-pve \
   -p 8006:8006 \
   -e MOCK_PVE_VERSION=8.3 \
   -e MOCK_PVE_LOG_LEVEL=debug \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Docker compatibility (legacy)
 docker run -d --name mock-pve \
@@ -600,6 +616,7 @@ done
 git clone https://github.com/jrjsmrtn/mock-pve-api.git
 cd mock-pve-api
 mix deps.get
+make install-hooks        # Install lefthook git hooks
 mix test
 mix run --no-halt
 ```
@@ -622,27 +639,27 @@ mix run --no-halt
 ## **Project Goals**
 
 ### **Short Term (3 months)**
-- Achieve 1000+ Docker Hub pulls
+- Achieve 1000+ GHCR pulls
 - Support 90% of common PVE API endpoints
 - Integrate with 3+ PVE client libraries
 - Establish CI/CD best practices
 
 ### **Medium Term (6 months)**
 - Become the standard for PVE API testing
-- Achieve 5000+ Docker Hub pulls
+- Achieve 5000+ GHCR pulls
 - Support all major PVE API endpoints
 - Build active contributor community
 
 ### **Long Term (12 months)**
 - Official recognition from Proxmox community
 - Integration into PVE client library test suites
-- 10,000+ Docker Hub pulls
+- 10,000+ GHCR pulls
 - Comprehensive plugin ecosystem
 - Reference implementation for PVE API behavior
 
 ## **Success Metrics**
 
-- **Adoption**: Docker Hub pulls, GitHub stars, forks
+- **Adoption**: GHCR pulls, GitHub stars, forks
 - **Quality**: Test coverage, bug reports, response time
 - **Community**: Contributors, issues, discussions
 - **Impact**: Client libraries using mock-pve-api

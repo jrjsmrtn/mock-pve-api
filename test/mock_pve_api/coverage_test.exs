@@ -340,6 +340,38 @@ defmodule MockPveApi.CoverageTest do
     end
   end
 
+  describe "get_endpoint_info parameterized paths" do
+    test "matches SDN zone path" do
+      info = Coverage.get_endpoint_info("/api2/json/cluster/sdn/zones/myzone")
+      assert info != nil
+      assert info.path == "/api2/json/cluster/sdn/zones/{zone}"
+    end
+
+    test "matches pool path" do
+      info = Coverage.get_endpoint_info("/api2/json/pools/production")
+      assert info != nil
+      assert info.path == "/api2/json/pools/{poolid}"
+    end
+
+    test "matches node status path" do
+      info = Coverage.get_endpoint_info("/api2/json/nodes/pve-node1/status")
+      assert info != nil
+      assert info.path == "/api2/json/nodes/{node}/status"
+    end
+
+    test "matches storage content path" do
+      info = Coverage.get_endpoint_info("/api2/json/nodes/pve1/storage/local/content")
+      assert info != nil
+      assert info.path == "/api2/json/nodes/{node}/storage/{storage}/content"
+    end
+
+    test "matches VM status command path" do
+      info = Coverage.get_endpoint_info("/api2/json/nodes/pve1/qemu/100/status/start")
+      assert info != nil
+      assert info.path == "/api2/json/nodes/{node}/qemu/{vmid}/status/{command}"
+    end
+  end
+
   describe "coverage matrix completeness" do
     test "has version endpoint" do
       version_info = Coverage.get_endpoint_info("/api2/json/version")
