@@ -11,7 +11,7 @@ defmodule MockPveApi.SimpleEndpointTest do
   alias MockPveApi.Coverage
 
   @moduletag :simple_endpoint_validation
-  @base_url "http://127.0.0.1:8006/api2/json"
+  @base_url "http://127.0.0.1:#{Application.compile_env(:mock_pve_api, :port, 8007)}/api2/json"
 
   describe "endpoint availability validation" do
     test "validates all 37 endpoints are accessible" do

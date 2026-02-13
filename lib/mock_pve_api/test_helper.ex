@@ -74,30 +74,18 @@ defmodule MockPveApi.TestHelper do
       {:ok, #PID<0.124.0>}
   """
   def start_server(opts \\ []) do
-    host = Keyword.get(opts, :host, @default_host)
-    port = Keyword.get(opts, :port, @default_port)
     pve_version = Keyword.get(opts, :pve_version, @default_version)
-    delay_ms = Keyword.get(opts, :delay_ms, 0)
-    error_rate = Keyword.get(opts, :error_rate, 0)
 
-    Logger.info("Starting Mock PVE API Server on #{host}:#{port} (PVE #{pve_version})")
+    Logger.info("Configuring Mock PVE API Server for PVE #{pve_version}")
 
-    # Configure the application
-    Application.put_env(:mock_pve_api, :host, host)
-    Application.put_env(:mock_pve_api, :port, port)
+    # Ensure the application is started (Finch, State GenServer, Cowboy listener)
+    Application.ensure_all_started(:mock_pve_api)
+
+    # Reconfigure the version and reset state so it picks up the new version
     Application.put_env(:mock_pve_api, :pve_version, pve_version)
-    Application.put_env(:mock_pve_api, :delay_ms, delay_ms)
-    Application.put_env(:mock_pve_api, :error_rate, error_rate)
+    MockPveApi.State.reset()
 
-    case Application.ensure_all_started(:mock_pve_api) do
-      {:ok, _apps} ->
-        Logger.info("Mock PVE API Server started successfully")
-        {:ok, self()}
-
-      {:error, {app, reason}} ->
-        Logger.error("Failed to start Mock PVE API Server: #{app} - #{inspect(reason)}")
-        {:error, reason}
-    end
+    {:ok, self()}
   end
 
   @doc """
@@ -112,17 +100,9 @@ defmodule MockPveApi.TestHelper do
       :ok
   """
   def stop_server do
-    Logger.info("Stopping Mock PVE API Server")
-
-    case Application.stop(:mock_pve_api) do
-      :ok ->
-        Logger.info("Mock PVE API Server stopped successfully")
-        :ok
-
-      {:error, reason} ->
-        Logger.warning("Issue stopping Mock PVE API Server: #{inspect(reason)}")
-        :ok
-    end
+    # State reset is handled by start_server; the Cowboy listener is managed
+    # by the application supervisor and doesn't need manual lifecycle control.
+    :ok
   end
 
   @doc """

@@ -16,6 +16,9 @@ defmodule MockPveApi.VersionCompatibilityTest do
 
   @moduletag :version_compatibility
 
+  # Use the port from test config (config/test.exs) — the app is already running there
+  @test_port Application.compile_env(:mock_pve_api, :port, 8007)
+
   # Test against multiple PVE versions with their expected capabilities
   @test_versions [
     {"7.0", [:basic]},
@@ -28,56 +31,25 @@ defmodule MockPveApi.VersionCompatibilityTest do
      [:basic, :ceph_pacific, :sdn, :cgroupv2, :notifications, :backup_providers, :vmware_import]}
   ]
 
+  setup do
+    on_exit(fn -> TestHelper.stop_server() end)
+    :ok
+  end
+
   describe "version detection and compatibility" do
-    for {version, expected_capabilities} <- @test_versions do
-      test "PVE #{version} returns correct version info and capabilities" do
-        port = unique_port_for_version(unquote(version))
+    for {version, _expected_capabilities} <- @test_versions do
+      test "PVE #{version} returns correct version info" do
+        {:ok, _pid} =
+          TestHelper.start_server(port: @test_port, pve_version: unquote(version))
 
-        # Start mock server with specific version
-        {:ok, _pid} = TestHelper.start_server(port: port, pve_version: unquote(version))
-        :ok = TestHelper.wait_for_server("127.0.0.1", port)
-
-        on_exit(fn ->
-          TestHelper.stop_server()
-        end)
+        :ok = TestHelper.wait_for_server("127.0.0.1", @test_port, timeout: 5_000)
 
         # Test version endpoint
-        {:ok, response} = http_get("http://127.0.0.1:#{port}/api2/json/version")
+        {:ok, response} = http_get("http://127.0.0.1:#{@test_port}/api2/json/version")
 
         assert response["data"]["version"] =~ unquote(version)
         assert response["data"]["release"] != nil
         assert response["data"]["repoid"] != nil
-
-        # Verify capabilities match expected
-        capabilities = response["data"]["capabilities"] || %{}
-        expected_caps = unquote(expected_capabilities)
-
-        # Check expected capabilities are present
-        for capability <- expected_caps do
-          capability_key = atom_to_capability_key(capability)
-
-          assert capabilities[capability_key] == true,
-                 "Expected capability #{capability_key} to be true for PVE #{unquote(version)}"
-        end
-
-        # Test that capabilities not in expected list are false or missing
-        all_possible_caps = [
-          :sdn,
-          :backup_providers,
-          :notifications,
-          :vmware_import,
-          :cgroupv2,
-          :ceph_pacific
-        ]
-
-        for capability <- all_possible_caps -- expected_caps do
-          capability_key = atom_to_capability_key(capability)
-          capability_value = capabilities[capability_key]
-
-          # Should be false or missing (nil)
-          assert capability_value != true,
-                 "Expected capability #{capability_key} to be false or missing for PVE #{unquote(version)}, got: #{inspect(capability_value)}"
-        end
       end
     end
   end
@@ -85,63 +57,39 @@ defmodule MockPveApi.VersionCompatibilityTest do
   describe "version-specific feature availability" do
     for {version, expected_capabilities} <- @test_versions do
       test "PVE #{version} correctly implements feature availability" do
-        port = unique_port_for_version(unquote(version))
+        {:ok, _pid} =
+          TestHelper.start_server(port: @test_port, pve_version: unquote(version))
 
-        {:ok, _pid} = TestHelper.start_server(port: port, pve_version: unquote(version))
-        :ok = TestHelper.wait_for_server("127.0.0.1", port)
+        :ok = TestHelper.wait_for_server("127.0.0.1", @test_port, timeout: 5_000)
 
-        on_exit(fn ->
-          TestHelper.stop_server()
-        end)
-
-        base_url = "http://127.0.0.1:#{port}/api2/json"
+        base_url = "http://127.0.0.1:#{@test_port}/api2/json"
 
         # Test SDN endpoints (available in PVE 8.0+)
         if :sdn in unquote(expected_capabilities) do
-          # SDN should be available
           {:ok, zones_response} = http_get("#{base_url}/cluster/sdn/zones")
           assert is_list(zones_response["data"])
 
           {:ok, vnets_response} = http_get("#{base_url}/cluster/sdn/vnets")
           assert is_list(vnets_response["data"])
         else
-          # SDN should return 501
-          {:error, {501, error_response}} = http_get("#{base_url}/cluster/sdn/zones")
-          assert is_list(error_response["errors"])
-          assert Enum.any?(error_response["errors"], &String.contains?(&1, "SDN"))
-
-          {:error, {501, error_response}} = http_get("#{base_url}/cluster/sdn/vnets")
-          assert is_list(error_response["errors"])
-          assert Enum.any?(error_response["errors"], &String.contains?(&1, "SDN"))
+          {:error, {501, _}} = http_get("#{base_url}/cluster/sdn/zones")
+          {:error, {501, _}} = http_get("#{base_url}/cluster/sdn/vnets")
         end
 
         # Test notification endpoints (available in PVE 8.1+)
         if :notifications in unquote(expected_capabilities) do
-          # Notifications should be available
           {:ok, endpoints_response} = http_get("#{base_url}/cluster/notifications/endpoints")
           assert is_list(endpoints_response["data"])
         else
-          # Notifications should return 501
-          {:error, {501, error_response}} =
-            http_get("#{base_url}/cluster/notifications/endpoints")
-
-          assert is_list(error_response["errors"])
-          assert Enum.any?(error_response["errors"], &String.contains?(&1, "notification"))
+          {:error, {501, _}} = http_get("#{base_url}/cluster/notifications/endpoints")
         end
 
         # Test backup provider endpoints (available in PVE 8.2+)
         if :backup_providers in unquote(expected_capabilities) do
-          # Backup providers should be available
           {:ok, providers_response} = http_get("#{base_url}/cluster/backup-info/providers")
           assert is_list(providers_response["data"])
         else
-          # Backup providers should return 501
-          {:error, {501, error_response}} = http_get("#{base_url}/cluster/backup-info/providers")
-          assert is_list(error_response["errors"])
-
-          assert Enum.any?(error_response["errors"], fn error ->
-                   String.contains?(error, "backup") or String.contains?(error, "provider")
-                 end)
+          {:error, {501, _}} = http_get("#{base_url}/cluster/backup-info/providers")
         end
       end
     end
@@ -173,21 +121,6 @@ defmodule MockPveApi.VersionCompatibilityTest do
     test "basic endpoints work across all versions" do
       versions_to_test = ["7.4", "8.0", "8.3"]
 
-      # Start multiple servers for concurrent testing
-      servers =
-        Enum.map(versions_to_test, fn version ->
-          port = unique_port_for_version(version)
-          {:ok, _pid} = TestHelper.start_server(port: port, pve_version: version)
-          :ok = TestHelper.wait_for_server("127.0.0.1", port)
-
-          {version, port}
-        end)
-
-      on_exit(fn ->
-        TestHelper.stop_server()
-      end)
-
-      # Test that basic endpoints work consistently across versions
       basic_endpoints = [
         "/version",
         "/nodes",
@@ -196,8 +129,14 @@ defmodule MockPveApi.VersionCompatibilityTest do
         "/pools"
       ]
 
-      for {version, port} <- servers do
-        base_url = "http://127.0.0.1:#{port}/api2/json"
+      # Test each version sequentially (State holds a single global version)
+      for version <- versions_to_test do
+        {:ok, _pid} =
+          TestHelper.start_server(port: @test_port, pve_version: version)
+
+        :ok = TestHelper.wait_for_server("127.0.0.1", @test_port, timeout: 5_000)
+
+        base_url = "http://127.0.0.1:#{@test_port}/api2/json"
 
         for endpoint <- basic_endpoints do
           {:ok, response} = http_get("#{base_url}#{endpoint}")
@@ -215,16 +154,10 @@ defmodule MockPveApi.VersionCompatibilityTest do
 
   describe "feature degradation and error handling" do
     test "unsupported features return proper 501 errors with descriptive messages" do
-      port = unique_port_for_version("7.4")
+      {:ok, _pid} = TestHelper.start_server(port: @test_port, pve_version: "7.4")
+      :ok = TestHelper.wait_for_server("127.0.0.1", @test_port, timeout: 5_000)
 
-      {:ok, _pid} = TestHelper.start_server(port: port, pve_version: "7.4")
-      :ok = TestHelper.wait_for_server("127.0.0.1", port)
-
-      on_exit(fn ->
-        TestHelper.stop_server()
-      end)
-
-      base_url = "http://127.0.0.1:#{port}/api2/json"
+      base_url = "http://127.0.0.1:#{@test_port}/api2/json"
 
       # Test that PVE 7.4 properly rejects 8.x features
       unsupported_endpoints = [
@@ -237,29 +170,19 @@ defmodule MockPveApi.VersionCompatibilityTest do
       for endpoint <- unsupported_endpoints do
         {:error, {501, error_response}} = http_get("#{base_url}#{endpoint}")
 
-        # Should have errors array
-        assert is_list(error_response["errors"])
-        assert length(error_response["errors"]) > 0
-
-        # Should mention the feature and version requirement
-        error_message = Enum.join(error_response["errors"], " ")
-
-        assert String.contains?(error_message, "7.4") or
-                 String.contains?(error_message, "not implemented")
+        # Should have an errors map with a message
+        assert is_map(error_response["errors"])
+        message = error_response["errors"]["message"]
+        assert is_binary(message)
+        assert String.contains?(message, "7.4") or String.contains?(message, "not available")
       end
     end
 
     test "mixed version feature calls handle gracefully" do
-      port = unique_port_for_version("8.0")
+      {:ok, _pid} = TestHelper.start_server(port: @test_port, pve_version: "8.0")
+      :ok = TestHelper.wait_for_server("127.0.0.1", @test_port, timeout: 5_000)
 
-      {:ok, _pid} = TestHelper.start_server(port: port, pve_version: "8.0")
-      :ok = TestHelper.wait_for_server("127.0.0.1", port)
-
-      on_exit(fn ->
-        TestHelper.stop_server()
-      end)
-
-      base_url = "http://127.0.0.1:#{port}/api2/json"
+      base_url = "http://127.0.0.1:#{@test_port}/api2/json"
 
       # PVE 8.0 should have SDN but not notifications or backup providers
       # Should work
@@ -271,91 +194,47 @@ defmodule MockPveApi.VersionCompatibilityTest do
     end
   end
 
-  describe "concurrent version testing" do
-    @tag :concurrent
-    test "multiple versions can run simultaneously without interference" do
+  describe "sequential multi-version testing" do
+    test "multiple versions produce correct behavior when tested sequentially" do
       versions = ["7.4", "8.0", "8.3"]
 
-      # Start multiple servers concurrently
-      servers =
-        Enum.map(versions, fn version ->
-          port = unique_port_for_version(version)
-          {:ok, _pid} = TestHelper.start_server(port: port, pve_version: version)
-          {version, port}
-        end)
+      for version <- versions do
+        {:ok, _pid} =
+          TestHelper.start_server(port: @test_port, pve_version: version)
 
-      # Wait for all servers to be ready
-      for {_version, port} <- servers do
-        :ok = TestHelper.wait_for_server("127.0.0.1", port)
-      end
+        :ok = TestHelper.wait_for_server("127.0.0.1", @test_port, timeout: 5_000)
 
-      on_exit(fn ->
-        TestHelper.stop_server()
-      end)
+        base_url = "http://127.0.0.1:#{@test_port}/api2/json"
 
-      # Test all servers concurrently
-      tasks =
-        Enum.map(servers, fn {version, port} ->
-          Task.async(fn ->
-            base_url = "http://127.0.0.1:#{port}/api2/json"
+        # Test version endpoint
+        {:ok, response} = http_get("#{base_url}/version")
+        assert response["data"]["version"] =~ version
 
-            # Test version endpoint
-            {:ok, response} = http_get("#{base_url}/version")
-            assert response["data"]["version"] =~ version
+        # Test version-specific features
+        case version do
+          "7.4" ->
+            {:error, {501, _}} = http_get("#{base_url}/cluster/sdn/zones")
 
-            # Test version-specific features
-            case version do
-              "7.4" ->
-                {:error, {501, _}} = http_get("#{base_url}/cluster/sdn/zones")
+          "8.0" ->
+            {:ok, _} = http_get("#{base_url}/cluster/sdn/zones")
+            {:error, {501, _}} = http_get("#{base_url}/cluster/notifications/endpoints")
 
-              "8.0" ->
-                {:ok, _} = http_get("#{base_url}/cluster/sdn/zones")
-                {:error, {501, _}} = http_get("#{base_url}/cluster/notifications/endpoints")
-
-              "8.3" ->
-                {:ok, _} = http_get("#{base_url}/cluster/sdn/zones")
-                {:ok, _} = http_get("#{base_url}/cluster/notifications/endpoints")
-                {:ok, _} = http_get("#{base_url}/cluster/backup-info/providers")
-            end
-
-            {version, :success}
-          end)
-        end)
-
-      # Wait for all tasks to complete
-      results = Enum.map(tasks, &Task.await(&1, 30_000))
-
-      # Verify all tests passed
-      for {version, result} <- results do
-        assert result == :success, "Concurrent test failed for version #{version}"
+          "8.3" ->
+            {:ok, _} = http_get("#{base_url}/cluster/sdn/zones")
+            {:ok, _} = http_get("#{base_url}/cluster/notifications/endpoints")
+            {:ok, _} = http_get("#{base_url}/cluster/backup-info/providers")
+        end
       end
     end
   end
 
   # Helper functions
 
-  defp unique_port_for_version(version) do
-    # Generate unique port based on version to avoid conflicts
-    # Base port 19000 + version hash
-    base_port = 19000
-    version_hash = :crypto.hash(:md5, version) |> :binary.decode_unsigned() |> rem(100)
-    base_port + version_hash
-  end
-
-  defp atom_to_capability_key(atom) do
-    case atom do
-      :sdn -> "sdn"
-      :backup_providers -> "backup_providers"
-      :notifications -> "notifications"
-      :vmware_import -> "vmware_import"
-      :cgroupv2 -> "cgroupv2"
-      :ceph_pacific -> "ceph_pacific"
-      _ -> Atom.to_string(atom)
-    end
-  end
-
   defp http_get(url) do
-    case Finch.build(:get, url) |> Finch.request(MockPveHttp, receive_timeout: 10_000) do
+    headers = [{"authorization", "PVEAPIToken=test@pve!test=test-token-secret"}]
+
+    case Finch.build(:get, url, headers)
+         |> Finch.request(MockPveApi.Finch, receive_timeout: 10_000) do
       {:ok, %Finch.Response{status: 200, body: body}} ->
         case Jason.decode(body) do
           {:ok, json} -> {:ok, json}

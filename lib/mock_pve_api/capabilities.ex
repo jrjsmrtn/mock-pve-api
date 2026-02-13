@@ -179,7 +179,8 @@ defmodule MockPveApi.Capabilities do
 
   # Endpoint to capability mapping
   @endpoint_capabilities %{
-    # SDN endpoints (8.0+)
+    # SDN endpoints (8.0+) - use :sdn_tech_preview as baseline;
+    # has_capability? is extended below to treat :sdn_stable as a superset
     "/api2/json/cluster/sdn/zones" => :sdn_tech_preview,
     "/api2/json/cluster/sdn/vnets" => :sdn_tech_preview,
     "/api2/json/cluster/sdn/subnets" => :sdn_tech_preview,
@@ -203,7 +204,7 @@ defmodule MockPveApi.Capabilities do
     "/api2/json/nodes/{node}/import-esxi" => :vmware_import_wizard,
 
     # Backup provider endpoints (8.2+)
-    "/api2/json/cluster/backup-providers" => :backup_providers,
+    "/api2/json/cluster/backup-info/providers" => :backup_providers,
     "/api2/json/nodes/{node}/storage/{storage}/backup-providers" => :backup_providers,
 
     # PVE 9.x specific endpoints
@@ -255,7 +256,14 @@ defmodule MockPveApi.Capabilities do
   @spec has_capability?(version(), capability()) :: boolean()
   def has_capability?(version, capability) do
     capabilities = get_capabilities(version)
-    capability in capabilities
+
+    if capability in capabilities do
+      true
+    else
+      # :sdn_stable is a superset of :sdn_tech_preview — versions with
+      # :sdn_stable also support endpoints gated on :sdn_tech_preview
+      capability == :sdn_tech_preview and :sdn_stable in capabilities
+    end
   end
 
   @doc """

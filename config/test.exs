@@ -12,4 +12,4 @@ config :mock_pve_api,
   error_rate: 0
 
 # Reduce log output during tests
-config :logger, level: :warn
+config :logger, level: :warning

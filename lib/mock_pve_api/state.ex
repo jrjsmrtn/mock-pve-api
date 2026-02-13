@@ -17,7 +17,7 @@ defmodule MockPveApi.State do
 
   # Default state structure
   defp initial_state do
-    pve_version = Application.get_env(:mock_pve_server, :pve_version, "8.0")
+    pve_version = Application.get_env(:mock_pve_api, :pve_version, "8.0")
 
     %{
       pve_version: pve_version,
@@ -183,7 +183,7 @@ defmodule MockPveApi.State do
   end
 
   def reset do
-    GenServer.cast(@name, :reset)
+    GenServer.call(@name, :reset)
   end
 
   # Node operations
@@ -1220,11 +1220,12 @@ defmodule MockPveApi.State do
   end
 
   @impl true
-  def handle_cast(:reset, _state) do
+  def handle_call(:reset, _from, _state) do
     Logger.info("Mock PVE Server state reset")
-    {:noreply, initial_state()}
+    {:reply, :ok, initial_state()}
   end
 
+  @impl true
   def handle_cast({:update_node, name, updates}, state) do
     case Map.get(state.nodes, name) do
       nil ->
