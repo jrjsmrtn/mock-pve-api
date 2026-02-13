@@ -1,4 +1,4 @@
-# Mock PVE API 
+# Mock PVE API
 
 [![Hex.pm Version](https://img.shields.io/hexpm/v/mock_pve_api.svg)](https://hex.pm/packages/mock_pve_api)
 [![Container Pulls](https://img.shields.io/docker/pulls/jrjsmrtn/mock-pve-api)](https://hub.docker.com/r/jrjsmrtn/mock-pve-api)
@@ -13,6 +13,7 @@ A lightweight, containerized Mock Proxmox VE API Server for testing and developm
 Born from the [**pvex**](https://github.com/jrjsmrtn/pvex) project during Sprint G, this mock server eliminated infrastructure dependencies for Elixir PVE client testing. Its success and broad ecosystem value led to extraction as a standalone project, now serving the entire Proxmox VE development community across all programming languages.
 
 **Battle-Tested Metrics from pvex Integration:**
+
 - ✅ **Test Reliability**: 100% pass rate across 135+ integration tests
 - ⚡ **Performance**: <1s startup, <100ms API responses
 - 🔄 **CI/CD Ready**: Zero infrastructure dependencies
@@ -45,7 +46,7 @@ podman build -f docker/Dockerfile -t mock-pve-api:latest .
 
 # Run with different PVE versions
 podman run -d -p 8006:8006 -e MOCK_PVE_VERSION=8.3 mock-pve-api:latest
-podman run -d -p 8007:8006 -e MOCK_PVE_VERSION=7.4 mock-pve-api:latest  
+podman run -d -p 8007:8006 -e MOCK_PVE_VERSION=7.4 mock-pve-api:latest
 podman run -d -p 8008:8006 -e MOCK_PVE_VERSION=9.0 mock-pve-api:latest
 
 # Rootless container (more secure)
@@ -53,6 +54,7 @@ podman run -d --userns=keep-id -p 8006:8006 -e MOCK_PVE_VERSION=8.3 mock-pve-api
 ```
 
 **Using the Makefile (Recommended):**
+
 ```bash
 # Build production container
 make container-build
@@ -65,12 +67,12 @@ make container-build-dev
 make container-run-dev
 ```
 
-*💡 Also works with Docker - just replace `podman` with `docker` in the commands above*
+_💡 Also works with Docker - just replace `podman` with `docker` in the commands above_
 
 ### Podman Compose (Build from Source)
 
 ```yaml
-version: '3.8'
+version: "3.8"
 services:
   mock-pve:
     build:
@@ -139,18 +141,18 @@ print(f"Available nodes: {[node['node'] for node in nodes]}")
 ### JavaScript/Node.js Testing
 
 ```javascript
-const axios = require('axios');
+const axios = require("axios");
 
-const baseURL = 'http://localhost:8006/api2/json';
+const baseURL = "http://localhost:8006/api2/json";
 
 async function testMockPVE() {
   // Get version
   const version = await axios.get(`${baseURL}/version`);
-  console.log('PVE Version:', version.data.data.version);
-  
+  console.log("PVE Version:", version.data.data.version);
+
   // List VMs
   const vms = await axios.get(`${baseURL}/cluster/resources?type=vm`);
-  console.log('VMs:', vms.data.data);
+  console.log("VMs:", vms.data.data);
 }
 
 testMockPVE();
@@ -165,10 +167,10 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       # Checkout mock-pve-api and build container
       - name: Setup mock PVE server
         run: |
@@ -179,10 +181,10 @@ jobs:
             -e MOCK_PVE_VERSION=8.3 \
             -e MOCK_PVE_LOG_LEVEL=info \
             mock-pve-api:ci
-          
+
           # Wait for server to be ready
           timeout 30 bash -c 'until curl -f http://localhost:8006/api2/json/version; do sleep 1; done'
-      
+
       - name: Run tests against mock PVE
         run: |
           # Your test commands here
@@ -191,7 +193,7 @@ jobs:
           PVE_HOST: localhost
           PVE_PORT: 8006
           MOCK_PVE_VERSION: 8.3
-          
+
       - name: Cleanup
         run: docker stop mock-pve && docker rm mock-pve
 ```
@@ -200,21 +202,21 @@ jobs:
 
 Configure the mock server using environment variables:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `MOCK_PVE_VERSION` | `8.3` | PVE version to simulate (7.0-9.0) |
-| `MOCK_PVE_PORT` | `8006` | Server port |
-| `MOCK_PVE_HOST` | `0.0.0.0` | Bind address |
-| `MOCK_PVE_SSL_ENABLED` | `false` | Enable SSL/TLS |
-| `MOCK_PVE_SSL_KEYFILE` | `certs/server.key` | SSL private key file |
-| `MOCK_PVE_SSL_CERTFILE` | `certs/server.crt` | SSL certificate file |
-| `MOCK_PVE_SSL_CACERTFILE` | | Optional CA certificate file |
-| `MOCK_PVE_ENABLE_SDN` | `true` | Enable SDN endpoints (8.0+) |
-| `MOCK_PVE_ENABLE_FIREWALL` | `true` | Enable firewall endpoints |
-| `MOCK_PVE_ENABLE_BACKUP_PROVIDERS` | `true` | Enable backup provider endpoints (8.2+) |
-| `MOCK_PVE_DELAY` | `0` | Response delay in milliseconds |
-| `MOCK_PVE_ERROR_RATE` | `0` | Simulate error percentage (0-100) |
-| `MOCK_PVE_LOG_LEVEL` | `info` | Logging level |
+| Variable                           | Default            | Description                             |
+| ---------------------------------- | ------------------ | --------------------------------------- |
+| `MOCK_PVE_VERSION`                 | `8.3`              | PVE version to simulate (7.0-9.0)       |
+| `MOCK_PVE_PORT`                    | `8006`             | Server port                             |
+| `MOCK_PVE_HOST`                    | `0.0.0.0`          | Bind address                            |
+| `MOCK_PVE_SSL_ENABLED`             | `false`            | Enable SSL/TLS                          |
+| `MOCK_PVE_SSL_KEYFILE`             | `certs/server.key` | SSL private key file                    |
+| `MOCK_PVE_SSL_CERTFILE`            | `certs/server.crt` | SSL certificate file                    |
+| `MOCK_PVE_SSL_CACERTFILE`          |                    | Optional CA certificate file            |
+| `MOCK_PVE_ENABLE_SDN`              | `true`             | Enable SDN endpoints (8.0+)             |
+| `MOCK_PVE_ENABLE_FIREWALL`         | `true`             | Enable firewall endpoints               |
+| `MOCK_PVE_ENABLE_BACKUP_PROVIDERS` | `true`             | Enable backup provider endpoints (8.2+) |
+| `MOCK_PVE_DELAY`                   | `0`                | Response delay in milliseconds          |
+| `MOCK_PVE_ERROR_RATE`              | `0`                | Simulate error percentage (0-100)       |
+| `MOCK_PVE_LOG_LEVEL`               | `info`             | Logging level                           |
 
 ### Runtime Configuration
 
@@ -225,15 +227,17 @@ The mock server uses **runtime configuration** (`config/runtime.exs`) to properl
 - Container deployments can be dynamically configured without rebuilding
 
 **Key Benefits:**
+
 - ✅ **Dynamic Version Selection**: Change PVE versions by setting environment variables
 - ✅ **Container Compatibility**: Works with Podman, Docker, and orchestration platforms
 - ✅ **CI/CD Ready**: No configuration baked into images, purely environment-driven
 
 **Example Multi-Version Deployment:**
+
 ```bash
 # Deploy multiple PVE versions simultaneously
 podman run -d -p 8007:8006 -e MOCK_PVE_VERSION=7.4 mock-pve-api:latest
-podman run -d -p 8008:8006 -e MOCK_PVE_VERSION=8.3 mock-pve-api:latest  
+podman run -d -p 8008:8006 -e MOCK_PVE_VERSION=8.3 mock-pve-api:latest
 podman run -d -p 8009:8006 -e MOCK_PVE_VERSION=9.0 mock-pve-api:latest
 
 # Test version differences
@@ -290,6 +294,7 @@ curl -k https://localhost:8006/api2/json/version
 ```
 
 **Important Notes:**
+
 - SSL/TLS is **disabled by default** for backward compatibility
 - The generated certificates are **self-signed** and suitable only for testing
 - Always use `-k` flag with curl or disable SSL verification in your PVE clients
@@ -298,19 +303,22 @@ curl -k https://localhost:8006/api2/json/version
 ## Supported PVE Versions
 
 ### PVE 7.x Series
+
 - **7.0**: Basic virtualization, containers, storage
-- **7.1**: + Ceph Octopus support  
+- **7.1**: + Ceph Octopus support
 - **7.2**: + Network improvements
 - **7.3**: + Ceph Pacific support
 - **7.4**: + cgroup v1, pre-upgrade validation
 
-### PVE 8.x Series  
+### PVE 8.x Series
+
 - **8.0**: + SDN (tech preview), realm sync, resource mappings, cgroup v2
 - **8.1**: + Enhanced notifications, webhooks, filters
 - **8.2**: + VMware import wizard, backup providers, auto-install
 - **8.3**: + OVA import improvements, kernel 6.11 opt-in
 
 ### PVE 9.x Series
+
 - **9.0**: + SDN fabrics, HA affinity rules, LVM snapshots, ZFS RAIDZ expansion
 
 ## API Endpoints Coverage
@@ -318,17 +326,20 @@ curl -k https://localhost:8006/api2/json/version
 The mock server implements the most commonly used PVE API endpoints:
 
 ### Core Endpoints
+
 - ✅ `/api2/json/version` - Version information
 - ✅ `/api2/json/nodes` - Cluster nodes
 - ✅ `/api2/json/cluster/status` - Cluster status
 - ✅ `/api2/json/cluster/resources` - Resource overview
 
 ### Virtualization
+
 - ✅ `/api2/json/nodes/{node}/qemu` - Virtual machines
 - ✅ `/api2/json/nodes/{node}/lxc` - LXC containers
 - ✅ `/api2/json/nodes/{node}/storage` - Storage management
 
 ### Advanced Features (Version Dependent)
+
 - ✅ `/api2/json/cluster/sdn/*` - Software Defined Networking (8.0+)
 - ✅ `/api2/json/cluster/firewall/*` - Firewall management
 - ✅ `/api2/json/cluster/backup-info/providers` - Backup providers (8.2+)
@@ -372,6 +383,7 @@ podman build --platform=linux/amd64,linux/arm64 -f docker/Dockerfile -t mock-pve
 ```
 
 **Container Architecture:**
+
 - **Base Image**: Alpine Linux (minimal footprint ~33MB)
 - **Elixir Runtime**: OTP 26+ with optimized release builds
 - **User Security**: Non-root `mockpve` user (UID 1000)
@@ -379,6 +391,7 @@ podman build --platform=linux/amd64,linux/arm64 -f docker/Dockerfile -t mock-pve
 - **Dependencies**: All production dependencies included (Finch HTTP client, Plug web server)
 
 **Dockerfile Details:**
+
 - **Multi-stage build**: Separate builder and runtime stages
 - **Dependency caching**: Optimized layer caching for faster rebuilds
 - **Security**: No privileged operations, minimal attack surface
@@ -405,6 +418,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ## Use Cases
 
 ### Integration Testing
+
 Perfect for testing PVE client libraries without needing real hardware:
 
 ```bash
@@ -416,6 +430,7 @@ podman stop mock-pve
 ```
 
 ### Local Development
+
 Develop against consistent PVE API responses:
 
 ```bash
@@ -427,6 +442,7 @@ npm test -- --watch
 ```
 
 ### Matrix Testing
+
 Test against multiple PVE versions simultaneously:
 
 ```bash
@@ -437,11 +453,13 @@ podman-compose up mock-pve-7 mock-pve-8 mock-pve-9
 ## 📚 Documentation
 
 #### Tutorials
+
 - **[Getting Started](docs/tutorials/getting-started.md)** - Quick setup and first steps
 - **[Your First Test](docs/tutorials/your-first-test.md)** - Basic API testing walkthrough
 - **[Understanding Versions](docs/tutorials/understanding-versions.md)** - PVE version compatibility
 
 #### How-To Guides
+
 - **[Client Integration](docs/how-to/client-integration.md)** - Integrate with existing PVE clients
 - **[Multi-Version Testing](docs/how-to/multi-version-testing.md)** - Test across PVE versions
 - **[Container Deployment](docs/how-to/container-deployment.md)** - Podman and Docker deployment
@@ -449,21 +467,25 @@ podman-compose up mock-pve-7 mock-pve-8 mock-pve-9
 - **[Migrate from pvex](docs/how-to/migrate-from-pvex.md)** - Transition from embedded mock
 
 #### Reference
+
 - **[API Endpoints](docs/reference/api-endpoints.md)** - Complete endpoint documentation
 - **[Environment Variables](docs/reference/environment-variables.md)** - Configuration reference
 - **[Client Examples](docs/reference/client-examples.md)** - Multi-language examples
 
 #### Explanation
+
 - **[Architecture Decisions](docs/explanation/architecture-decisions.md)** - Design rationale and ADRs
 - **[Version Compatibility](docs/explanation/version-compatibility.md)** - How version simulation works
 - **[State Management](docs/explanation/state-management.md)** - Internal state architecture
 
 ### 🏗️ Architecture & Design
+
 - **[Architecture Overview](docs/architecture/README.md)** - C4 model and system design
 - **[ADR-0003: Elixir/OTP Implementation Choice](docs/adr/0003-elixir-otp-implementation-choice.md)** - Why Elixir/OTP
 - **[ADR-0010: Historical Context](docs/adr/0010-historical-context-from-pvex.md)** - Origin story from pvex
 
 ### 🧪 Examples
+
 - **[Multi-Language Examples](examples/)** - Python, JavaScript, Go, Ruby, Shell, Elixir
 - **[pvex Integration](examples/elixir/pvex_integration.exs)** - Elixir client library integration
 - **[Podman Compose Setups](podman-compose*.yml)** - Development and testing configurations
@@ -520,3 +542,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Made with ❤️ for the Proxmox VE community**
+

@@ -121,10 +121,10 @@ defmodule MockPveApi.State do
             online: true
           },
           "pve-node2" => %{
-            name: "pve-node2", 
+            name: "pve-node2",
             nodeid: 2,
             votes: 1,
-            ring0_addr: "192.168.1.11", 
+            ring0_addr: "192.168.1.11",
             quorum_votes: 1,
             online: true
           }
@@ -150,10 +150,23 @@ defmodule MockPveApi.State do
       },
       roles: %{
         "Administrator" => [
-          "VM.Allocate", "VM.Audit", "VM.Backup", "VM.Clone", "VM.Config.CDROM",
-          "VM.Config.CPU", "VM.Config.Cloudinit", "VM.Config.Disk", "VM.Config.HWType",
-          "VM.Config.Memory", "VM.Config.Network", "VM.Config.Options", "VM.Migrate",
-          "VM.Monitor", "VM.PowerMgmt", "VM.Snapshot", "VM.Snapshot.Rollback"
+          "VM.Allocate",
+          "VM.Audit",
+          "VM.Backup",
+          "VM.Clone",
+          "VM.Config.CDROM",
+          "VM.Config.CPU",
+          "VM.Config.Cloudinit",
+          "VM.Config.Disk",
+          "VM.Config.HWType",
+          "VM.Config.Memory",
+          "VM.Config.Network",
+          "VM.Config.Options",
+          "VM.Migrate",
+          "VM.Monitor",
+          "VM.PowerMgmt",
+          "VM.Snapshot",
+          "VM.Snapshot.Rollback"
         ]
       }
     }
@@ -648,15 +661,16 @@ defmodule MockPveApi.State do
     case Map.get(state.pools, poolid) do
       nil ->
         {:reply, {:error, "Pool '#{poolid}' not found"}, state}
-      
+
       existing_pool ->
-        updated_pool = Map.merge(existing_pool, %{
-          comment: Map.get(params, "comment", existing_pool.comment)
-        })
-        
+        updated_pool =
+          Map.merge(existing_pool, %{
+            comment: Map.get(params, "comment", existing_pool.comment)
+          })
+
         new_pools = Map.put(state.pools, poolid, updated_pool)
         new_state = %{state | pools: new_pools}
-        
+
         {:reply, {:ok, updated_pool}, new_state}
     end
   end
@@ -726,9 +740,11 @@ defmodule MockPveApi.State do
   end
 
   def handle_call({:create_backup, node, vmid, params}, _from, state) do
-    backup_file = "vzdump-#{if vmid < 1000, do: "qemu", else: "lxc"}-#{vmid}-#{Date.utc_today()}-12_00_00.vma.zst"
+    backup_file =
+      "vzdump-#{if vmid < 1000, do: "qemu", else: "lxc"}-#{vmid}-#{Date.utc_today()}-12_00_00.vma.zst"
+
     storage = Map.get(params, :storage, "local")
-    
+
     backup = %{
       node: node,
       vmid: vmid,
@@ -742,34 +758,45 @@ defmodule MockPveApi.State do
     # Create backup entry
     backup_key = "#{storage}:backup/#{backup_file}"
     new_backups = Map.put(state.backups, backup_key, backup)
-    
+
     # Create task for backup operation
-    {:ok, upid} = handle_call({:create_task, node, "vzdump", %{vmid: vmid}}, nil, %{state | backups: new_backups})
+    {:ok, upid} =
+      handle_call({:create_task, node, "vzdump", %{vmid: vmid}}, nil, %{
+        state
+        | backups: new_backups
+      })
+
     new_state = elem(upid, 2)
 
     {:reply, {:ok, elem(upid, 1)}, new_state}
   end
 
   def handle_call({:list_backups, node, storage}, _from, state) do
-    backups = 
+    backups =
       state.backups
       |> Enum.filter(fn {_key, backup} -> backup.node == node and backup.storage == storage end)
       |> Enum.map(&elem(&1, 1))
-    
+
     {:reply, backups, state}
   end
 
   def handle_call({:restore_backup, node, vmid, backup_file, _params}, _from, state) do
     # Check if backup exists
-    case Enum.find(state.backups, fn {_key, backup} -> 
-      backup.filename == backup_file and backup.node == node 
-    end) do
+    case Enum.find(state.backups, fn {_key, backup} ->
+           backup.filename == backup_file and backup.node == node
+         end) do
       nil ->
         {:reply, {:error, "Backup file not found"}, state}
-      
+
       {_key, _backup} ->
         # Create task for restore operation
-        {:ok, upid} = handle_call({:create_task, node, "qmrestore", %{vmid: vmid, archive: backup_file}}, nil, state)
+        {:ok, upid} =
+          handle_call(
+            {:create_task, node, "qmrestore", %{vmid: vmid, archive: backup_file}},
+            nil,
+            state
+          )
+
         new_state = elem(upid, 2)
         {:reply, {:ok, elem(upid, 1)}, new_state}
     end
@@ -779,19 +806,25 @@ defmodule MockPveApi.State do
     case Map.get(state.vms, vmid) do
       nil ->
         {:reply, {:error, "VM #{vmid} not found"}, state}
-      
+
       vm when vm.node != node ->
         {:reply, {:error, "VM #{vmid} not on node #{node}"}, state}
-      
+
       vm ->
         # Update VM to new node
         updated_vm = %{vm | node: target_node}
         new_vms = Map.put(state.vms, vmid, updated_vm)
-        
+
         # Create migration task
-        {:ok, upid} = handle_call({:create_task, node, "qmigrate", %{vmid: vmid, target: target_node}}, nil, %{state | vms: new_vms})
+        {:ok, upid} =
+          handle_call(
+            {:create_task, node, "qmigrate", %{vmid: vmid, target: target_node}},
+            nil,
+            %{state | vms: new_vms}
+          )
+
         new_state = elem(upid, 2)
-        
+
         {:reply, {:ok, elem(upid, 1)}, new_state}
     end
   end
@@ -800,19 +833,25 @@ defmodule MockPveApi.State do
     case Map.get(state.containers, vmid) do
       nil ->
         {:reply, {:error, "Container #{vmid} not found"}, state}
-      
+
       container when container.node != node ->
         {:reply, {:error, "Container #{vmid} not on node #{node}"}, state}
-      
+
       container ->
         # Update container to new node
         updated_container = %{container | node: target_node}
         new_containers = Map.put(state.containers, vmid, updated_container)
-        
+
         # Create migration task
-        {:ok, upid} = handle_call({:create_task, node, "pctmigrate", %{vmid: vmid, target: target_node}}, nil, %{state | containers: new_containers})
+        {:ok, upid} =
+          handle_call(
+            {:create_task, node, "pctmigrate", %{vmid: vmid, target: target_node}},
+            nil,
+            %{state | containers: new_containers}
+          )
+
         new_state = elem(upid, 2)
-        
+
         {:reply, {:ok, elem(upid, 1)}, new_state}
     end
   end
@@ -822,27 +861,28 @@ defmodule MockPveApi.State do
     case Map.get(state.users, username) do
       nil ->
         {:reply, {:error, "Authentication failed"}, state}
-      
+
       _user ->
         ticket = :crypto.strong_rand_bytes(32) |> Base.encode64()
         csrf_token = :crypto.strong_rand_bytes(16) |> Base.encode64()
-        
+
         ticket_data = %{
           username: username,
           ticket: ticket,
           csrf_token: csrf_token,
           created_at: :os.system_time(:second),
-          expires_at: :os.system_time(:second) + 7200  # 2 hours
+          # 2 hours
+          expires_at: :os.system_time(:second) + 7200
         }
-        
+
         new_tickets = Map.put(state.tickets, ticket, ticket_data)
-        
+
         response = %{
           username: username,
           ticket: ticket,
           CSRFPreventionToken: csrf_token
         }
-        
+
         {:reply, {:ok, response}, %{state | tickets: new_tickets}}
     end
   end
@@ -851,7 +891,7 @@ defmodule MockPveApi.State do
     case Map.get(state.tickets, ticket) do
       nil ->
         {:reply, {:error, "Invalid ticket"}, state}
-      
+
       ticket_data ->
         if ticket_data.expires_at > :os.system_time(:second) do
           {:reply, {:ok, ticket_data}, state}
@@ -867,11 +907,11 @@ defmodule MockPveApi.State do
     case Map.get(state.users, username) do
       nil ->
         {:reply, {:error, "User not found"}, state}
-      
+
       _user ->
         token_value = :crypto.strong_rand_bytes(32) |> Base.encode64()
         full_tokenid = "#{username}!#{tokenid}"
-        
+
         token_data = %{
           tokenid: full_tokenid,
           token: token_value,
@@ -880,28 +920,28 @@ defmodule MockPveApi.State do
           expire: Map.get(params, :expire, 0),
           created_at: :os.system_time(:second)
         }
-        
+
         new_tokens = Map.put(state.api_tokens, full_tokenid, token_data)
-        
+
         response = %{
           tokenid: full_tokenid,
           value: "#{full_tokenid}=#{token_value}"
         }
-        
+
         {:reply, {:ok, response}, %{state | api_tokens: new_tokens}}
     end
   end
 
   def handle_call({:get_permissions, userid}, _from, state) do
-    permissions = 
+    permissions =
       state.permissions
       |> Enum.filter(fn {_path, users} -> Map.has_key?(users, userid) end)
-      |> Enum.map(fn {path, users} -> 
+      |> Enum.map(fn {path, users} ->
         roles = Map.get(users, userid, [])
         privileges = Enum.flat_map(roles, fn role -> Map.get(state.roles, role, []) end)
         %{path: path, roles: roles, privileges: privileges}
       end)
-    
+
     {:reply, permissions, state}
   end
 
@@ -909,10 +949,10 @@ defmodule MockPveApi.State do
     current_path_perms = Map.get(state.permissions, path, %{})
     current_user_roles = Map.get(current_path_perms, userid, [])
     updated_roles = [roleid | current_user_roles] |> Enum.uniq()
-    
+
     new_path_perms = Map.put(current_path_perms, userid, updated_roles)
     new_permissions = Map.put(state.permissions, path, new_path_perms)
-    
+
     {:reply, :ok, %{state | permissions: new_permissions}}
   end
 
@@ -921,14 +961,17 @@ defmodule MockPveApi.State do
     if Map.has_key?(state.users, userid) do
       {:reply, {:error, "User #{userid} already exists"}, state}
     else
-      user = 
-        Map.merge(%{
-          userid: userid,
-          comment: "",
-          enable: 1,
-          expire: 0,
-          groups: []
-        }, params)
+      user =
+        Map.merge(
+          %{
+            userid: userid,
+            comment: "",
+            enable: 1,
+            expire: 0,
+            groups: []
+          },
+          params
+        )
 
       new_users = Map.put(state.users, userid, user)
       new_state = %{state | users: new_users}
@@ -941,7 +984,7 @@ defmodule MockPveApi.State do
     case Map.get(state.users, userid) do
       nil ->
         {:reply, {:error, "User #{userid} not found"}, state}
-      
+
       user ->
         updated_user = Map.merge(user, params)
         new_users = Map.put(state.users, userid, updated_user)
@@ -954,17 +997,17 @@ defmodule MockPveApi.State do
     case Map.get(state.users, userid) do
       nil ->
         {:reply, {:error, "User #{userid} not found"}, state}
-      
+
       _user ->
         # Also clean up any API tokens for this user
-        tokens_to_remove = 
+        tokens_to_remove =
           state.api_tokens
           |> Enum.filter(fn {tokenid, _token} -> String.starts_with?(tokenid, "#{userid}!") end)
           |> Enum.map(&elem(&1, 0))
-        
+
         new_tokens = Enum.reduce(tokens_to_remove, state.api_tokens, &Map.delete(&2, &1))
         new_users = Map.delete(state.users, userid)
-        
+
         new_state = %{state | users: new_users, api_tokens: new_tokens}
         {:reply, :ok, new_state}
     end
@@ -975,11 +1018,14 @@ defmodule MockPveApi.State do
     if Map.has_key?(state.groups, groupid) do
       {:reply, {:error, "Group #{groupid} already exists"}, state}
     else
-      group = 
-        Map.merge(%{
-          groupid: groupid,
-          comment: ""
-        }, params)
+      group =
+        Map.merge(
+          %{
+            groupid: groupid,
+            comment: ""
+          },
+          params
+        )
 
       new_groups = Map.put(state.groups, groupid, group)
       new_state = %{state | groups: new_groups}
@@ -992,7 +1038,7 @@ defmodule MockPveApi.State do
     case Map.get(state.groups, groupid) do
       nil ->
         {:reply, {:error, "Group #{groupid} not found"}, state}
-      
+
       group ->
         updated_group = Map.merge(group, params)
         new_groups = Map.put(state.groups, groupid, updated_group)
@@ -1005,7 +1051,7 @@ defmodule MockPveApi.State do
     case Map.get(state.groups, groupid) do
       nil ->
         {:reply, {:error, "Group #{groupid} not found"}, state}
-      
+
       _group ->
         new_groups = Map.delete(state.groups, groupid)
         new_state = %{state | groups: new_groups}
@@ -1018,7 +1064,7 @@ defmodule MockPveApi.State do
     case Map.get(state.api_tokens, tokenid) do
       nil ->
         {:reply, {:error, "Token #{tokenid} not found"}, state}
-      
+
       _token ->
         new_tokens = Map.delete(state.api_tokens, tokenid)
         new_state = %{state | api_tokens: new_tokens}
@@ -1030,7 +1076,7 @@ defmodule MockPveApi.State do
     case Map.get(state.api_tokens, tokenid) do
       nil ->
         {:reply, {:error, "Token #{tokenid} not found"}, state}
-      
+
       token ->
         # Only allow updating certain fields, not the actual token value
         allowed_updates = Map.take(params, [:comment, :expire, :privsep])
@@ -1043,10 +1089,11 @@ defmodule MockPveApi.State do
 
   # Cluster management callbacks
   def handle_call(:get_cluster_status, _from, state) do
-    cluster_nodes = 
+    cluster_nodes =
       state.nodes
       |> Enum.map(fn {node_name, node_data} ->
         cluster_node = get_in(state, [:cluster_config, :nodes, node_name]) || %{}
+
         Map.merge(node_data, %{
           type: "node",
           level: "",
@@ -1061,8 +1108,8 @@ defmodule MockPveApi.State do
   def handle_call({:join_cluster, hostname, nodeid, votes}, _from, state) do
     # Generate a new node name based on the hostname
     new_node_name = hostname
-    new_nodeid = nodeid || (map_size(state.cluster_config.nodes) + 1)
-    
+    new_nodeid = nodeid || map_size(state.cluster_config.nodes) + 1
+
     # Create new node configuration
     new_node = %{
       name: new_node_name,
@@ -1072,36 +1119,46 @@ defmodule MockPveApi.State do
       quorum_votes: votes,
       online: true
     }
-    
+
     # Update cluster configuration
-    updated_cluster_config = 
+    updated_cluster_config =
       state.cluster_config
       |> put_in([:nodes, new_node_name], new_node)
       |> update_in([:expected_votes], &(&1 + votes))
       |> put_in([:quorum, :expected_votes], state.cluster_config.expected_votes + votes)
       |> put_in([:quorum, :total_votes], state.cluster_config.quorum.total_votes + votes)
-    
+
     # Add node to main nodes state
     default_node = %{
       node: new_node_name,
       status: "online",
       cpu: 0.05,
       maxcpu: 4,
-      mem: 2_147_483_648,  # 2GB
-      maxmem: 8_589_934_592,  # 8GB
-      disk: 30_000_000_000,  # 30GB
-      maxdisk: 100_000_000_000,  # 100GB
+      # 2GB
+      mem: 2_147_483_648,
+      # 8GB
+      maxmem: 8_589_934_592,
+      # 30GB
+      disk: 30_000_000_000,
+      # 100GB
+      maxdisk: 100_000_000_000,
       uptime: 3600,
       version: state.pve_version,
       kernel: "6.2.16-15-pve"
     }
-    
+
     updated_nodes = Map.put(state.nodes, new_node_name, default_node)
-    
+
     # Create join task
-    task_result = handle_call({:create_task, new_node_name, "clusterjoin", %{hostname: hostname}}, nil, %{state | cluster_config: updated_cluster_config, nodes: updated_nodes})
+    task_result =
+      handle_call({:create_task, new_node_name, "clusterjoin", %{hostname: hostname}}, nil, %{
+        state
+        | cluster_config: updated_cluster_config,
+          nodes: updated_nodes
+      })
+
     {:reply, {:ok, upid}, final_state} = task_result
-    
+
     {:reply, {:ok, upid}, final_state}
   end
 
@@ -1110,23 +1167,23 @@ defmodule MockPveApi.State do
   end
 
   def handle_call({:update_cluster_config, params}, _from, state) do
-    updated_config = 
+    updated_config =
       Enum.reduce(params, state.cluster_config, fn {key, value}, acc ->
         case key do
           "cluster_name" -> Map.put(acc, :cluster_name, value)
           _ -> acc
         end
       end)
-    
+
     new_state = %{state | cluster_config: updated_config}
     {:reply, {:ok, updated_config}, new_state}
   end
 
   def handle_call(:get_cluster_nodes_config, _from, state) do
-    nodes_list = 
+    nodes_list =
       state.cluster_config.nodes
       |> Enum.map(fn {_name, node_config} -> node_config end)
-    
+
     {:reply, nodes_list, state}
   end
 
@@ -1134,23 +1191,29 @@ defmodule MockPveApi.State do
     case get_in(state, [:cluster_config, :nodes, node_name]) do
       nil ->
         {:reply, {:error, "Node #{node_name} not found in cluster"}, state}
-      
+
       node_config ->
         votes = Map.get(node_config, :votes, 1)
-        
+
         # Update cluster configuration
-        updated_cluster_config = 
+        updated_cluster_config =
           state.cluster_config
           |> put_in([:nodes], Map.delete(state.cluster_config.nodes, node_name))
           |> update_in([:expected_votes], &(&1 - votes))
           |> put_in([:quorum, :expected_votes], state.cluster_config.expected_votes - votes)
           |> put_in([:quorum, :total_votes], state.cluster_config.quorum.total_votes - votes)
-        
+
         # Remove from main nodes state
         updated_nodes = Map.delete(state.nodes, node_name)
-        
+
         # Create removal task
-        task_result = handle_call({:create_task, node_name, "clusterremove", %{node: node_name}}, nil, %{state | cluster_config: updated_cluster_config, nodes: updated_nodes})
+        task_result =
+          handle_call({:create_task, node_name, "clusterremove", %{node: node_name}}, nil, %{
+            state
+            | cluster_config: updated_cluster_config,
+              nodes: updated_nodes
+          })
+
         {:reply, {:ok, upid}, final_state} = task_result
         {:reply, {:ok, upid}, final_state}
     end
@@ -1215,7 +1278,7 @@ defmodule MockPveApi.State do
     case Map.get(state.tasks, upid) do
       nil ->
         {:noreply, state}
-      
+
       task ->
         updated_task = Map.merge(task, updates)
         new_tasks = Map.put(state.tasks, upid, updated_task)

@@ -16,41 +16,58 @@ defmodule MockPveApi.Coverage do
   - :pve9_only - 🟠 Available in PVE 9.x+ only
   """
 
-  @type endpoint_category() :: 
-    :version | :cluster | :nodes | :vms | :containers | :storage | 
-    :network | :firewall | :access | :backup | :hardware | :pools | :monitoring
+  @type endpoint_category() ::
+          :version
+          | :cluster
+          | :nodes
+          | :vms
+          | :containers
+          | :storage
+          | :network
+          | :firewall
+          | :access
+          | :backup
+          | :hardware
+          | :pools
+          | :monitoring
 
   @type http_method() :: :get | :post | :put | :delete | :patch
-  
-  @type implementation_status() :: 
-    :implemented | :partial | :in_progress | :planned | :not_supported |
-    :pve8_only | :pve9_only
+
+  @type implementation_status() ::
+          :implemented
+          | :partial
+          | :in_progress
+          | :planned
+          | :not_supported
+          | :pve8_only
+          | :pve9_only
 
   @type priority() :: :critical | :high | :medium | :low
 
   @type parameter() :: %{
-    name: String.t(),
-    type: :string | :integer | :boolean | :array | :object,
-    required: boolean(),
-    description: String.t(),
-    values: [String.t()] | nil,
-    default: any() | nil
-  }
+          name: String.t(),
+          type: :string | :integer | :boolean | :array | :object,
+          required: boolean(),
+          description: String.t(),
+          values: [String.t()] | nil,
+          default: any() | nil
+        }
 
   @type endpoint_info() :: %{
-    path: String.t(),
-    methods: [http_method()],
-    status: implementation_status(),
-    priority: priority(),
-    since: String.t(),
-    description: String.t(),
-    parameters: [parameter()],
-    response_schema: map(),
-    capabilities_required: [atom()],
-    test_coverage: boolean(),
-    handler_module: atom() | nil,
-    notes: String.t() | nil
-  }
+          path: String.t(),
+          methods: [http_method()],
+          status: implementation_status(),
+          priority: priority(),
+          since: String.t(),
+          description: String.t(),
+          parameters: [parameter()],
+          response_schema: map(),
+          example_response: map() | nil,
+          capabilities_required: [atom()],
+          test_coverage: boolean(),
+          handler_module: atom() | nil,
+          notes: String.t() | nil
+        }
 
   # Comprehensive API Coverage Matrix based on pvex analysis (305+ endpoints)
   @coverage_matrix %{
@@ -66,9 +83,17 @@ defmodule MockPveApi.Coverage do
         parameters: [],
         response_schema: %{
           version: :string,
-          release: :string, 
+          release: :string,
           repoid: :string,
           keyboard: :string
+        },
+        example_response: %{
+          data: %{
+            version: "8.3",
+            release: "8.3-1",
+            repoid: "abcd1234",
+            keyboard: "en-us"
+          }
         },
         capabilities_required: [],
         test_coverage: true,
@@ -124,9 +149,30 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Join node to existing cluster",
         parameters: [
-          %{name: "hostname", type: :string, required: true, description: "Cluster hostname", values: nil, default: nil},
-          %{name: "nodeid", type: :integer, required: false, description: "Node ID", values: nil, default: nil},
-          %{name: "votes", type: :integer, required: false, description: "Number of votes", values: nil, default: 1}
+          %{
+            name: "hostname",
+            type: :string,
+            required: true,
+            description: "Cluster hostname",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "nodeid",
+            type: :integer,
+            required: false,
+            description: "Node ID",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "votes",
+            type: :integer,
+            required: false,
+            description: "Number of votes",
+            values: nil,
+            default: 1
+          }
         ],
         response_schema: %{data: :string},
         capabilities_required: [:cluster_basic],
@@ -170,7 +216,14 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Remove node from cluster",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :string},
         capabilities_required: [:cluster_basic],
@@ -201,7 +254,14 @@ defmodule MockPveApi.Coverage do
         since: "8.0",
         description: "Individual SDN zone operations",
         parameters: [
-          %{name: "zone", type: :string, required: true, description: "Zone identifier", values: nil, default: nil}
+          %{
+            name: "zone",
+            type: :string,
+            required: true,
+            description: "Zone identifier",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:sdn_tech_preview],
@@ -279,8 +339,22 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Node status and control operations",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "command", type: :string, required: false, description: "Control command", values: ["reboot", "shutdown"], default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "command",
+            type: :string,
+            required: false,
+            description: "Control command",
+            values: ["reboot", "shutdown"],
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:cluster_basic],
@@ -296,7 +370,14 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Node-specific version information",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:cluster_basic],
@@ -312,7 +393,14 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Node time configuration",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:cluster_basic],
@@ -332,8 +420,22 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "List and create virtual machines on node",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "full", type: :boolean, required: false, description: "Full VM information", values: nil, default: false}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "full",
+            type: :boolean,
+            required: false,
+            description: "Full VM information",
+            values: nil,
+            default: false
+          }
         ],
         response_schema: %{data: :array},
         capabilities_required: [:basic_virtualization],
@@ -346,11 +448,25 @@ defmodule MockPveApi.Coverage do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :critical,
-        since: "6.0", 
+        since: "6.0",
         description: "Individual VM configuration and management",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "vmid", type: :integer, required: true, description: "VM ID", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "VM ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:basic_virtualization],
@@ -366,8 +482,22 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Current VM status and statistics",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "vmid", type: :integer, required: true, description: "VM ID", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "VM ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:basic_virtualization],
@@ -383,9 +513,30 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "VM control operations (start, stop, reset, etc.)",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "vmid", type: :integer, required: true, description: "VM ID", values: nil, default: nil},
-          %{name: "command", type: :string, required: true, description: "Control command", values: ["start", "stop", "reset", "shutdown", "suspend", "resume"], default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "VM ID",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "command",
+            type: :string,
+            required: true,
+            description: "Control command",
+            values: ["start", "stop", "reset", "shutdown", "suspend", "resume"],
+            default: nil
+          }
         ],
         response_schema: %{data: :string},
         capabilities_required: [:basic_virtualization],
@@ -401,9 +552,30 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Clone virtual machine",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "vmid", type: :integer, required: true, description: "Source VM ID", values: nil, default: nil},
-          %{name: "newid", type: :integer, required: true, description: "New VM ID", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "Source VM ID",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "newid",
+            type: :integer,
+            required: true,
+            description: "New VM ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :string},
         capabilities_required: [:basic_virtualization],
@@ -419,9 +591,30 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Clone LXC container",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "vmid", type: :integer, required: true, description: "Source Container ID", values: nil, default: nil},
-          %{name: "newid", type: :integer, required: true, description: "New Container ID", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "Source Container ID",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "newid",
+            type: :integer,
+            required: true,
+            description: "New Container ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :string},
         capabilities_required: [:containers],
@@ -441,7 +634,14 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "List and create LXC containers on node",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :array},
         capabilities_required: [:containers],
@@ -457,8 +657,22 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Individual LXC container configuration",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "vmid", type: :integer, required: true, description: "Container ID", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "Container ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:containers],
@@ -474,8 +688,22 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Current container status and statistics",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "vmid", type: :integer, required: true, description: "Container ID", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "Container ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:containers],
@@ -495,8 +723,22 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "List storage configured for node",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "content", type: :string, required: false, description: "Filter by content type", values: ["images", "backup", "vztmpl"], default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "content",
+            type: :string,
+            required: false,
+            description: "Filter by content type",
+            values: ["images", "backup", "vztmpl"],
+            default: nil
+          }
         ],
         response_schema: %{data: :array},
         capabilities_required: [:storage_basic],
@@ -512,8 +754,22 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Storage status and capacity information",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "storage", type: :string, required: true, description: "Storage ID", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "storage",
+            type: :string,
+            required: true,
+            description: "Storage ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:storage_basic],
@@ -529,8 +785,22 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Storage content management (images, backups, templates)",
         parameters: [
-          %{name: "node", type: :string, required: true, description: "Node name", values: nil, default: nil},
-          %{name: "storage", type: :string, required: true, description: "Storage ID", values: nil, default: nil}
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "storage",
+            type: :string,
+            required: true,
+            description: "Storage ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :array},
         capabilities_required: [:storage_basic],
@@ -564,7 +834,14 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Individual user account operations",
         parameters: [
-          %{name: "userid", type: :string, required: true, description: "User ID", values: nil, default: nil}
+          %{
+            name: "userid",
+            type: :string,
+            required: true,
+            description: "User ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:user_management_basic],
@@ -580,9 +857,30 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Authentication ticket creation",
         parameters: [
-          %{name: "username", type: :string, required: true, description: "Username", values: nil, default: nil},
-          %{name: "password", type: :string, required: true, description: "Password", values: nil, default: nil},
-          %{name: "realm", type: :string, required: false, description: "Authentication realm", values: nil, default: "pam"}
+          %{
+            name: "username",
+            type: :string,
+            required: true,
+            description: "Username",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "password",
+            type: :string,
+            required: true,
+            description: "Password",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "realm",
+            type: :string,
+            required: false,
+            description: "Authentication realm",
+            values: nil,
+            default: "pam"
+          }
         ],
         response_schema: %{data: %{ticket: :string, CSRFPreventionToken: :string}},
         capabilities_required: [:user_management_basic],
@@ -612,7 +910,14 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Individual group operations",
         parameters: [
-          %{name: "groupid", type: :string, required: true, description: "Group ID", values: nil, default: nil}
+          %{
+            name: "groupid",
+            type: :string,
+            required: true,
+            description: "Group ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:user_management_basic],
@@ -642,8 +947,22 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Individual API token operations",
         parameters: [
-          %{name: "userid", type: :string, required: true, description: "User ID", values: nil, default: nil},
-          %{name: "tokenid", type: :string, required: true, description: "Token ID", values: nil, default: nil}
+          %{
+            name: "userid",
+            type: :string,
+            required: true,
+            description: "User ID",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "tokenid",
+            type: :string,
+            required: true,
+            description: "Token ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:user_management_basic],
@@ -677,7 +996,14 @@ defmodule MockPveApi.Coverage do
         since: "6.0",
         description: "Individual pool operations",
         parameters: [
-          %{name: "poolid", type: :string, required: true, description: "Pool ID", values: nil, default: nil}
+          %{
+            name: "poolid",
+            type: :string,
+            required: true,
+            description: "Pool ID",
+            values: nil,
+            default: nil
+          }
         ],
         response_schema: %{data: :object},
         capabilities_required: [:cluster_basic],
@@ -729,7 +1055,7 @@ defmodule MockPveApi.Coverage do
   @spec get_coverage_stats() :: map()
   def get_coverage_stats do
     all_endpoints = get_all_endpoints()
-    
+
     stats = %{
       total: length(all_endpoints),
       implemented: count_by_status(all_endpoints, :implemented),
@@ -740,10 +1066,10 @@ defmodule MockPveApi.Coverage do
       pve8_only: count_by_status(all_endpoints, :pve8_only),
       pve9_only: count_by_status(all_endpoints, :pve9_only)
     }
-    
-    coverage_percentage = 
+
+    coverage_percentage =
       (stats.implemented + stats.partial) / stats.total * 100
-    
+
     Map.put(stats, :coverage_percentage, Float.round(coverage_percentage, 1))
   end
 
@@ -785,12 +1111,13 @@ defmodule MockPveApi.Coverage do
       total = length(endpoint_list)
       implemented = length(Enum.filter(endpoint_list, &(&1.status == :implemented)))
       coverage = if total > 0, do: Float.round(implemented / total * 100, 1), else: 0.0
-      
-      {category, %{
-        total: total,
-        implemented: implemented,
-        coverage_percentage: coverage
-      }}
+
+      {category,
+       %{
+         total: total,
+         implemented: implemented,
+         coverage_percentage: coverage
+       }}
     end)
     |> Enum.into(%{})
   end
@@ -801,23 +1128,26 @@ defmodule MockPveApi.Coverage do
   @spec validate_coverage() :: {:ok, [String.t()]} | {:error, [String.t()]}
   def validate_coverage do
     issues = []
-    
+
     # Check for endpoints without tests
-    no_tests = get_all_endpoints()
-    |> Enum.filter(&(!&1.test_coverage && &1.status == :implemented))
-    |> Enum.map(&"Missing tests: #{&1.path}")
-    
+    no_tests =
+      get_all_endpoints()
+      |> Enum.filter(&(!&1.test_coverage && &1.status == :implemented))
+      |> Enum.map(&"Missing tests: #{&1.path}")
+
     # Check for missing critical endpoints
-    missing_critical = get_missing_critical_endpoints()
-    |> Enum.map(&"Critical endpoint not implemented: #{&1.path}")
-    
+    missing_critical =
+      get_missing_critical_endpoints()
+      |> Enum.map(&"Critical endpoint not implemented: #{&1.path}")
+
     # Check for endpoints without handler modules
-    no_handlers = get_all_endpoints()
-    |> Enum.filter(&(is_nil(&1.handler_module) && &1.status == :implemented))
-    |> Enum.map(&"Missing handler module: #{&1.path}")
-    
+    no_handlers =
+      get_all_endpoints()
+      |> Enum.filter(&(is_nil(&1.handler_module) && &1.status == :implemented))
+      |> Enum.map(&"Missing handler module: #{&1.path}")
+
     all_issues = issues ++ no_tests ++ missing_critical ++ no_handlers
-    
+
     if length(all_issues) == 0 do
       {:ok, ["Coverage validation passed"]}
     else
@@ -839,7 +1169,9 @@ defmodule MockPveApi.Coverage do
   @spec version_compatible?(String.t(), String.t()) :: boolean()
   def version_compatible?(endpoint_path, pve_version) do
     case get_endpoint_info(endpoint_path) do
-      nil -> false
+      nil ->
+        false
+
       endpoint_info ->
         case endpoint_info.status do
           :pve8_only -> version_gte?(pve_version, "8.0")
@@ -876,7 +1208,7 @@ defmodule MockPveApi.Coverage do
         |> String.replace("{poolid}", "[^/]+")
         |> String.replace("{zone}", "[^/]+")
         |> String.replace("{command}", "[^/]+")
-      
+
       Regex.match?(~r/^#{pattern_regex}$/, endpoint_path)
     end
   end
@@ -885,6 +1217,7 @@ defmodule MockPveApi.Coverage do
     # Simple version comparison - could be enhanced with proper semver
     String.to_float(version_a) >= String.to_float(version_b)
   rescue
-    _ -> true  # Default to true if version parsing fails
+    # Default to true if version parsing fails
+    _ -> true
   end
 end

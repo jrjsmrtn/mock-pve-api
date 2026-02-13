@@ -9,15 +9,19 @@ The Mock PVE API Server simulates a complete Proxmox VE environment including no
 ## Core Design Principles
 
 ### 1. Centralized State Management
+
 All resource state is managed by a single GenServer process (`MockPveApi.State`) that serializes access and ensures consistency.
 
 ### 2. In-Memory Storage
+
 State is kept entirely in memory for fast access and simple deployment without external dependencies.
 
 ### 3. Process Isolation
+
 HTTP requests are handled in separate processes, isolating failures and preventing one request from affecting others.
 
 ### 4. Atomic Operations
+
 State changes are atomic - either they succeed completely or fail without partial updates.
 
 ## State Architecture
@@ -33,7 +37,7 @@ State changes are atomic - either they succeed completely or fail without partia
     backup_providers: true,
     notifications: true
   },
-  
+
   # Infrastructure Resources
   nodes: %{
     "pve-node-1" => %{
@@ -44,32 +48,32 @@ State changes are atomic - either they succeed completely or fail without partia
       pve_version: "8.3-1"
     }
   },
-  
-  # Compute Resources  
+
+  # Compute Resources
   vms: %{
     100 => %{
       vmid: 100,
       name: "test-vm",
-      node: "pve-node-1", 
+      node: "pve-node-1",
       status: "running",
       cpu: 0.25,
       memory: 2147483648,
       config: %{cores: 2, memory: 2048}
     }
   },
-  
+
   containers: %{
     200 => %{
       vmid: 200,
       name: "test-container",
       node: "pve-node-1",
-      status: "running", 
+      status: "running",
       cpu: 0.10,
       memory: 1073741824,
       config: %{cores: 1, memory: 1024}
     }
   },
-  
+
   # Storage Resources
   storage: %{
     "local" => %{
@@ -81,7 +85,7 @@ State changes are atomic - either they succeed completely or fail without partia
       total: 107374182400
     }
   },
-  
+
   # Organization Resources
   pools: %{
     "production" => %{
@@ -93,7 +97,7 @@ State changes are atomic - either they succeed completely or fail without partia
       ]
     }
   },
-  
+
   # Access Control
   users: %{
     "root@pam" => %{
@@ -102,14 +106,14 @@ State changes are atomic - either they succeed completely or fail without partia
       comment: "Built-in Superuser"
     }
   },
-  
+
   groups: %{
     "administrators" => %{
-      groupid: "administrators", 
+      groupid: "administrators",
       members: ["root@pam"]
     }
   },
-  
+
   # Version-Specific Features (PVE 8.0+)
   sdn: %{
     zones: %{
@@ -121,7 +125,7 @@ State changes are atomic - either they succeed completely or fail without partia
     },
     vnets: %{
       "vnet100" => %{
-        vnet: "vnet100", 
+        vnet: "vnet100",
         zone: "localnetwork",
         tag: 100
       }
@@ -133,6 +137,7 @@ State changes are atomic - either they succeed completely or fail without partia
 ### State Access Patterns
 
 #### Read Operations
+
 ```elixir
 # Get all VMs on a specific node
 def get_node_vms(node_name) do
@@ -141,16 +146,17 @@ end
 
 # Implementation in GenServer
 def handle_call({:get_node_vms, node_name}, _from, state) do
-  vms = 
+  vms =
     state.vms
     |> Enum.filter(fn {_id, vm} -> vm.node == node_name end)
     |> Enum.map(fn {_id, vm} -> vm end)
-  
+
   {:reply, vms, state}
 end
 ```
 
-#### Write Operations  
+#### Write Operations
+
 ```elixir
 # Create new VM
 def create_vm(vm_config) do
@@ -161,7 +167,7 @@ end
 def handle_call({:create_vm, config}, _from, state) do
   with :ok <- validate_vm_config(config),
        :ok <- check_vmid_available(state, config.vmid) do
-    
+
     vm = %{
       vmid: config.vmid,
       name: config.name,
@@ -169,7 +175,7 @@ def handle_call({:create_vm, config}, _from, state) do
       status: "stopped",
       config: config
     }
-    
+
     new_state = put_in(state.vms[config.vmid], vm)
     {:reply, {:ok, vm}, new_state}
   else
@@ -207,14 +213,14 @@ end
 def handle_call({:start_vm, vmid}, _from, state) do
   case get_in(state.vms, [vmid]) do
     nil -> {:reply, {:error, :not_found}, state}
-    vm -> 
+    vm ->
       case validate_state_transition(vm.status, :running) do
         :ok ->
           updated_vm = %{vm | status: :running, uptime: 0}
           new_state = put_in(state.vms[vmid], updated_vm)
           task_id = generate_task_id("qmstart", vmid)
           {:reply, {:ok, task_id}, new_state}
-        
+
         error -> {:reply, error, state}
       end
   end
@@ -226,10 +232,10 @@ end
 ```elixir
 # Ensure unique IDs for VMs and containers
 def allocate_next_vmid(state) do
-  used_ids = 
+  used_ids =
     (Map.keys(state.vms) ++ Map.keys(state.containers))
     |> MapSet.new()
-  
+
   # Find next available ID starting from 100
   Stream.iterate(100, &(&1 + 1))
   |> Enum.find(&(not MapSet.member?(used_ids, &1)))
@@ -240,7 +246,7 @@ def validate_pool_members(state, members) do
   Enum.all?(members, fn member ->
     case member do
       %{type: "qemu", vmid: vmid} -> Map.has_key?(state.vms, vmid)
-      %{type: "lxc", vmid: vmid} -> Map.has_key?(state.containers, vmid) 
+      %{type: "lxc", vmid: vmid} -> Map.has_key?(state.containers, vmid)
       _ -> false
     end
   end)
@@ -277,24 +283,24 @@ def handle_call({:move_vm_pools, vmid, from_pool, to_pool}, _from, state) do
   with {:ok, vm} <- get_vm(state, vmid),
        {:ok, from_pool_data} <- get_pool(state, from_pool),
        {:ok, to_pool_data} <- get_pool(state, to_pool) do
-    
+
     # Atomic update: remove from one pool, add to another
     member = %{type: "qemu", vmid: vmid, node: vm.node}
-    
+
     updated_from_pool = %{
-      from_pool_data | 
+      from_pool_data |
       members: List.delete(from_pool_data.members, member)
     }
-    
+
     updated_to_pool = %{
       to_pool_data |
       members: [member | to_pool_data.members]
     }
-    
+
     new_state = state
                 |> put_in([:pools, from_pool], updated_from_pool)
                 |> put_in([:pools, to_pool], updated_to_pool)
-    
+
     {:reply, :ok, new_state}
   else
     error -> {:reply, error, state}
@@ -328,28 +334,28 @@ end
 defmodule MockPveApi.State do
   def init(_args) do
     version = Application.get_env(:mock_pve_api, :pve_version, "8.3")
-    
+
     initial_state = %{
       version: version,
       capabilities: MockPveApi.Capabilities.get_capabilities(version),
       nodes: create_default_nodes(),
-      vms: create_default_vms(), 
+      vms: create_default_vms(),
       containers: create_default_containers(),
       storage: create_default_storage(),
       pools: %{},
       users: create_default_users(),
       groups: create_default_groups()
     }
-    
+
     # Add version-specific resources
     final_state = case supports_sdn?(version) do
       true -> Map.put(initial_state, :sdn, create_default_sdn())
       false -> initial_state
     end
-    
+
     {:ok, final_state}
   end
-  
+
   defp create_default_nodes do
     %{
       "pve-node-1" => %{
@@ -389,7 +395,7 @@ end
 def handle_call({:get_state_size}, _from, state) do
   size_info = %{
     nodes: map_size(state.nodes),
-    vms: map_size(state.vms), 
+    vms: map_size(state.vms),
     containers: map_size(state.containers),
     storage: map_size(state.storage),
     pools: map_size(state.pools),
@@ -403,7 +409,7 @@ end
 
 def create_resource_with_limit(state, resource_type, resource_data) do
   current_count = count_resources(state, resource_type)
-  
+
   if current_count >= @max_resources do
     {:error, :resource_limit_exceeded}
   else
@@ -434,36 +440,36 @@ end
 ```elixir
 defmodule MockPveApi.StateTest do
   use ExUnit.Case
-  
+
   test "VM creation updates state correctly" do
     # Create VM
     {:ok, task_id} = State.create_vm(%{
       vmid: 999,
-      name: "test-vm-999", 
+      name: "test-vm-999",
       node: "pve-node-1"
     })
-    
+
     # Verify state
     {:ok, vm} = State.get_vm(999)
     assert vm.vmid == 999
     assert vm.name == "test-vm-999"
     assert vm.status == "stopped"
   end
-  
+
   test "concurrent VM operations maintain consistency" do
     # Spawn multiple processes creating VMs
     tasks = for i <- 1..10 do
-      Task.async(fn -> 
+      Task.async(fn ->
         State.create_vm(%{vmid: 1000 + i, name: "concurrent-#{i}"})
       end)
     end
-    
+
     # Wait for all to complete
     results = Task.await_many(tasks)
-    
+
     # All should succeed
     assert Enum.all?(results, &match?({:ok, _}, &1))
-    
+
     # Verify all VMs exist
     vms = State.list_vms()
     concurrent_vms = Enum.filter(vms, &String.starts_with?(&1.name, "concurrent-"))
@@ -489,10 +495,10 @@ end
 
 def validate_node_references(state) do
   # Ensure all VMs and containers reference valid nodes
-  invalid_refs = 
+  invalid_refs =
     (Map.values(state.vms) ++ Map.values(state.containers))
     |> Enum.reject(fn resource -> Map.has_key?(state.nodes, resource.node) end)
-  
+
   case invalid_refs do
     [] -> :ok
     refs -> {:error, {:invalid_node_references, refs}}
@@ -508,7 +514,7 @@ end
 # Get current state summary via API
 curl http://localhost:8006/api2/json/_debug/state/summary
 
-# Get detailed resource counts  
+# Get detailed resource counts
 curl http://localhost:8006/api2/json/_debug/state/resources
 
 # Reset state to initial configuration
@@ -528,15 +534,16 @@ curl -X POST http://localhost:8006/api2/json/_debug/state/reset
 # Add logging to state operations
 def handle_call({:create_vm, config}, from, state) do
   Logger.info("Creating VM: #{inspect(config)} from #{inspect(from)}")
-  
+
   result = create_vm_impl(config, state)
-  
+
   Logger.info("VM creation result: #{inspect(result)}")
-  
+
   result
 end
 ```
 
 ---
 
-*The state management system is designed to be simple, consistent, and testable. When extending functionality, maintain these principles to ensure reliable operation across all use cases.*
+_The state management system is designed to be simple, consistent, and testable. When extending functionality, maintain these principles to ensure reliable operation across all use cases._
+

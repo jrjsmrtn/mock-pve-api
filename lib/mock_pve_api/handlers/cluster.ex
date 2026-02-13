@@ -70,7 +70,10 @@ defmodule MockPveApi.Handlers.Cluster do
     else
       conn
       |> put_resp_content_type("application/json")
-      |> send_resp(400, Jason.encode!(%{errors: %{hostname: "property is missing and it is not optional"}}))
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{hostname: "property is missing and it is not optional"}})
+      )
     end
   end
 
@@ -180,7 +183,7 @@ defmodule MockPveApi.Handlers.Cluster do
         group: "db-group"
       },
       %{
-        sid: "rule-2", 
+        sid: "rule-2",
         comment: "Web servers prefer node1",
         state: "enabled",
         type: "affinity",

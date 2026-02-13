@@ -14,7 +14,7 @@ defmodule MockPveApi.Handlers.Metrics do
   def get_node_rrd(conn) do
     node_name = conn.path_params["node"]
     query_params = conn.query_params
-    
+
     case State.get_node(node_name) do
       nil ->
         send_not_found(conn, "Node", node_name)
@@ -23,9 +23,9 @@ defmodule MockPveApi.Handlers.Metrics do
         # Generate sample RRD data
         timeframe = Map.get(query_params, "timeframe", "hour")
         cf = Map.get(query_params, "cf", "AVERAGE")
-        
+
         data = generate_rrd_data(timeframe, cf)
-        
+
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: data}))
@@ -39,7 +39,7 @@ defmodule MockPveApi.Handlers.Metrics do
   def get_node_rrd_data(conn) do
     node_name = conn.path_params["node"]
     query_params = conn.query_params
-    
+
     case State.get_node(node_name) do
       nil ->
         send_not_found(conn, "Node", node_name)
@@ -48,7 +48,7 @@ defmodule MockPveApi.Handlers.Metrics do
         # Generate sample RRD data points
         timeframe = Map.get(query_params, "timeframe", "hour")
         points = generate_rrd_data_points(timeframe, node)
-        
+
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: points}))
@@ -63,7 +63,7 @@ defmodule MockPveApi.Handlers.Metrics do
     node_name = conn.path_params["node"]
     vmid = String.to_integer(conn.path_params["vmid"])
     query_params = conn.query_params
-    
+
     case State.get_vm(node_name, vmid) do
       nil ->
         send_not_found(conn, "VM", vmid)
@@ -71,9 +71,9 @@ defmodule MockPveApi.Handlers.Metrics do
       vm ->
         timeframe = Map.get(query_params, "timeframe", "hour")
         cf = Map.get(query_params, "cf", "AVERAGE")
-        
+
         data = generate_vm_rrd_data(vm, timeframe, cf)
-        
+
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: data}))
@@ -88,7 +88,7 @@ defmodule MockPveApi.Handlers.Metrics do
     node_name = conn.path_params["node"]
     vmid = String.to_integer(conn.path_params["vmid"])
     query_params = conn.query_params
-    
+
     case State.get_container(node_name, vmid) do
       nil ->
         send_not_found(conn, "Container", vmid)
@@ -96,9 +96,9 @@ defmodule MockPveApi.Handlers.Metrics do
       container ->
         timeframe = Map.get(query_params, "timeframe", "hour")
         cf = Map.get(query_params, "cf", "AVERAGE")
-        
+
         data = generate_container_rrd_data(container, timeframe, cf)
-        
+
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: data}))
@@ -111,7 +111,7 @@ defmodule MockPveApi.Handlers.Metrics do
   """
   def get_cluster_metrics(conn) do
     _server_id = conn.path_params["id"]
-    
+
     # Generate cluster-wide metrics
     metrics = %{
       cpu: %{
@@ -120,20 +120,26 @@ defmodule MockPveApi.Handlers.Metrics do
         nodes: 2
       },
       memory: %{
-        used: 12_884_901_888,  # 12GB
-        total: 25_769_803_776, # 24GB
+        # 12GB
+        used: 12_884_901_888,
+        # 24GB
+        total: 25_769_803_776,
         free: 12_884_901_888,
         usage_percent: 50.0
       },
       storage: %{
-        used: 75_000_000_000,   # 75GB
-        total: 150_000_000_000, # 150GB
+        # 75GB
+        used: 75_000_000_000,
+        # 150GB
+        total: 150_000_000_000,
         free: 75_000_000_000,
         usage_percent: 50.0
       },
       network: %{
-        in: 1_048_576,   # 1MB/s
-        out: 524_288     # 512KB/s
+        # 1MB/s
+        in: 1_048_576,
+        # 512KB/s
+        out: 524_288
       },
       nodes_online: 2,
       nodes_total: 2,
@@ -154,7 +160,7 @@ defmodule MockPveApi.Handlers.Metrics do
   """
   def get_node_netstat(conn) do
     node_name = conn.path_params["node"]
-    
+
     case State.get_node(node_name) do
       nil ->
         send_not_found(conn, "Node", node_name)
@@ -170,7 +176,8 @@ defmodule MockPveApi.Handlers.Metrics do
             packets_out: :rand.uniform(1_000_000),
             errors_in: 0,
             errors_out: 0,
-            speed: 1000  # Mbps
+            # Mbps
+            speed: 1000
           },
           %{
             name: "vmbr0",
@@ -196,7 +203,7 @@ defmodule MockPveApi.Handlers.Metrics do
   """
   def get_node_report(conn) do
     node_name = conn.path_params["node"]
-    
+
     case State.get_node(node_name) do
       nil ->
         send_not_found(conn, "Node", node_name)
@@ -205,21 +212,21 @@ defmodule MockPveApi.Handlers.Metrics do
         report = """
         Node Report for #{node_name}
         =============================
-        
+
         System Information:
         - Kernel: #{node.kernel}
         - PVE Version: #{node.version}
         - Uptime: #{div(node.uptime, 86400)} days
         - CPU: #{node.maxcpu} cores, #{Float.round(node.cpu * 100, 2)}% usage
-        - Memory: #{div(node.mem, 1024*1024*1024)}GB / #{div(node.maxmem, 1024*1024*1024)}GB
-        - Storage: #{div(node.disk, 1024*1024*1024)}GB / #{div(node.maxdisk, 1024*1024*1024)}GB
-        
+        - Memory: #{div(node.mem, 1024 * 1024 * 1024)}GB / #{div(node.maxmem, 1024 * 1024 * 1024)}GB
+        - Storage: #{div(node.disk, 1024 * 1024 * 1024)}GB / #{div(node.maxdisk, 1024 * 1024 * 1024)}GB
+
         Virtual Machines:
         #{get_vm_summary(node_name)}
-        
+
         Containers:
         #{get_container_summary(node_name)}
-        
+
         Generated at: #{DateTime.utc_now()}
         """
 
@@ -246,9 +253,10 @@ defmodule MockPveApi.Handlers.Metrics do
     now = :os.system_time(:second)
     interval = get_interval(timeframe)
     points = get_point_count(timeframe)
-    
-    for i <- 0..(points-1) do
-      timestamp = now - (i * interval)
+
+    for i <- 0..(points - 1) do
+      timestamp = now - i * interval
+
       %{
         time: timestamp,
         cpu: Float.round(:rand.normal(node.cpu, 0.1), 3),
@@ -282,7 +290,7 @@ defmodule MockPveApi.Handlers.Metrics do
 
   defp generate_time_series_data(timeframe) do
     point_count = get_point_count(timeframe)
-    
+
     for _i <- 1..point_count do
       %{
         cpu: Float.round(:rand.uniform() * 0.8, 3),
@@ -297,7 +305,7 @@ defmodule MockPveApi.Handlers.Metrics do
 
   defp generate_vm_time_series(vm, timeframe) do
     point_count = get_point_count(timeframe)
-    
+
     for _i <- 1..point_count do
       %{
         cpu: Float.round(:rand.uniform() * 0.6, 3),
@@ -312,7 +320,7 @@ defmodule MockPveApi.Handlers.Metrics do
 
   defp generate_container_time_series(container, timeframe) do
     point_count = get_point_count(timeframe)
-    
+
     for _i <- 1..point_count do
       %{
         cpu: Float.round(:rand.uniform() * 0.4, 3),
@@ -325,33 +333,49 @@ defmodule MockPveApi.Handlers.Metrics do
     end
   end
 
-  defp get_resolution("hour"), do: 60      # 1 minute
-  defp get_resolution("day"), do: 300     # 5 minutes  
-  defp get_resolution("week"), do: 1800   # 30 minutes
-  defp get_resolution("month"), do: 7200  # 2 hours
-  defp get_resolution("year"), do: 86400  # 1 day
+  # 1 minute
+  defp get_resolution("hour"), do: 60
+  # 5 minutes  
+  defp get_resolution("day"), do: 300
+  # 30 minutes
+  defp get_resolution("week"), do: 1800
+  # 2 hours
+  defp get_resolution("month"), do: 7200
+  # 1 day
+  defp get_resolution("year"), do: 86400
   defp get_resolution(_), do: 60
 
-  defp get_interval("hour"), do: 60       # 1 minute
-  defp get_interval("day"), do: 300      # 5 minutes
-  defp get_interval("week"), do: 1800    # 30 minutes
-  defp get_interval("month"), do: 7200   # 2 hours
-  defp get_interval("year"), do: 86400   # 1 day
+  # 1 minute
+  defp get_interval("hour"), do: 60
+  # 5 minutes
+  defp get_interval("day"), do: 300
+  # 30 minutes
+  defp get_interval("week"), do: 1800
+  # 2 hours
+  defp get_interval("month"), do: 7200
+  # 1 day
+  defp get_interval("year"), do: 86400
   defp get_interval(_), do: 60
 
-  defp get_point_count("hour"), do: 60    # 60 points
-  defp get_point_count("day"), do: 288    # 288 points (24h / 5min)
-  defp get_point_count("week"), do: 336   # 336 points (7d / 30min)
-  defp get_point_count("month"), do: 360  # 360 points (30d / 2h)
-  defp get_point_count("year"), do: 365   # 365 points (365d / 1d)
+  # 60 points
+  defp get_point_count("hour"), do: 60
+  # 288 points (24h / 5min)
+  defp get_point_count("day"), do: 288
+  # 336 points (7d / 30min)
+  defp get_point_count("week"), do: 336
+  # 360 points (30d / 2h)
+  defp get_point_count("month"), do: 360
+  # 365 points (365d / 1d)
+  defp get_point_count("year"), do: 365
   defp get_point_count(_), do: 60
 
   defp get_vm_summary(node_name) do
     vms = State.get_vms(node_name)
+
     case vms do
       [] ->
         "- No VMs configured"
-      
+
       vms ->
         vms
         |> Enum.map(fn vm ->
@@ -363,10 +387,11 @@ defmodule MockPveApi.Handlers.Metrics do
 
   defp get_container_summary(node_name) do
     containers = State.get_containers(node_name)
+
     case containers do
       [] ->
         "- No containers configured"
-      
+
       containers ->
         containers
         |> Enum.map(fn ct ->

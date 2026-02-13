@@ -70,14 +70,15 @@ defmodule MockPveApi.Handlers.Storage do
       _node ->
         content_type = Map.get(params, "content", "backup")
         filename = Map.get(params, "filename", "uploaded-content")
-        
+
         # Simulate content creation
         new_content = %{
           content: content_type,
           ctime: :os.system_time(:second),
           format: get_format_from_filename(filename),
           notes: Map.get(params, "notes", ""),
-          size: Map.get(params, "size", 1073741824),  # 1GB default
+          # 1GB default
+          size: Map.get(params, "size", 1_073_741_824),
           storage: storage_id,
           volid: "#{storage_id}:#{content_type}/#{filename}"
         }

@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# Pre-commit hook for mock-pve-api
+#
+# This hook ensures:
+# 1. Code is properly formatted
+# 2. API reference documentation is up-to-date
+#
+# Install this hook by running: make install-hooks
+# Or manually: cp scripts/hooks/pre-commit .git/hooks/pre-commit
+
+set -e
+
+echo "Running pre-commit checks..."
+
+# Check if any Elixir files are staged
+STAGED_EX_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.exs?$' || true)
+
+if [ -n "$STAGED_EX_FILES" ]; then
+    # Check code formatting
+    echo "Checking code format..."
+    if ! mix format --check-formatted; then
+        echo ""
+        echo "ERROR: Code is not formatted. Run 'mix format' and stage the changes."
+        exit 1
+    fi
+fi
+
+# Check if Coverage module was modified (not the mix task)
+COVERAGE_MODIFIED=$(git diff --cached --name-only | grep -E '^lib/mock_pve_api/coverage\.ex$' || true)
+
+if [ -n "$COVERAGE_MODIFIED" ]; then
+    echo "Coverage module modified. Checking if API reference is up-to-date..."
+
+    if ! mix docs.coverage --check; then
+        echo ""
+        echo "ERROR: API reference documentation is outdated."
+        echo "Run 'mix docs.coverage' and stage the generated file."
+        exit 1
+    fi
+fi
+
+# Also check if the docs file was deleted but coverage module wasn't updated
+if git diff --cached --name-only --diff-filter=D | grep -q 'docs/reference/api-reference.md'; then
+    echo ""
+    echo "ERROR: api-reference.md was deleted. This file is auto-generated."
+    echo "If you need to update it, modify the Coverage module and run 'mix docs.coverage'."
+    exit 1
+fi
+
+echo "Pre-commit checks passed!"

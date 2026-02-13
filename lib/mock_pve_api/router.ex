@@ -452,6 +452,7 @@ defmodule MockPveApi.Router do
   # Coverage API endpoints
   get "/api2/json/_coverage/stats" do
     stats = Coverage.get_coverage_stats()
+
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: stats}))
@@ -459,6 +460,7 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/_coverage/categories" do
     category_stats = Coverage.get_category_stats()
+
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: category_stats}))
@@ -466,6 +468,7 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/_coverage/missing" do
     missing = Coverage.get_missing_critical_endpoints()
+
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: missing}))
@@ -475,38 +478,40 @@ defmodule MockPveApi.Router do
   match _ do
     endpoint_path = conn.request_path
     method = String.downcase(conn.method) |> String.to_atom()
-    
+
     case Coverage.get_endpoint_info(endpoint_path) do
       nil ->
         Logger.warning("Unknown endpoint: #{conn.method} #{endpoint_path}")
         send_unknown_endpoint_error(conn, endpoint_path)
-        
+
       endpoint_info ->
         case endpoint_info.status do
           :not_supported ->
             Logger.info("Endpoint not supported: #{endpoint_path}")
             send_not_supported_error(conn, endpoint_info)
-            
+
           :planned ->
             Logger.info("Endpoint planned but not implemented: #{endpoint_path}")
             send_planned_error(conn, endpoint_info)
-            
+
           :pve8_only ->
             version = State.get_pve_version()
+
             if version_gte?(version, "8.0") do
               send_not_implemented_error(conn, endpoint_info)
             else
               send_version_error(conn, endpoint_info, "8.0")
             end
-            
+
           :pve9_only ->
             version = State.get_pve_version()
+
             if version_gte?(version, "9.0") do
               send_not_implemented_error(conn, endpoint_info)
             else
               send_version_error(conn, endpoint_info, "9.0")
             end
-            
+
           _ ->
             if method in endpoint_info.methods do
               Logger.warning("Endpoint matched but handler missing: #{endpoint_path}")
@@ -582,9 +587,15 @@ defmodule MockPveApi.Router do
   defp get_auth_header(conn) do
     # Check Authorization header first
     case get_req_header(conn, "authorization") do
-      ["Bearer " <> token] -> {:ok, :token, token}
-      ["PVEAuthCookie=" <> ticket] -> {:ok, :ticket, ticket}
-      ["PVEAPIToken=" <> token] -> {:ok, :api_token, token}
+      ["Bearer " <> token] ->
+        {:ok, :token, token}
+
+      ["PVEAuthCookie=" <> ticket] ->
+        {:ok, :ticket, ticket}
+
+      ["PVEAPIToken=" <> token] ->
+        {:ok, :api_token, token}
+
       [] ->
         # Check cookies if no Authorization header
         case get_req_header(conn, "cookie") do
@@ -594,9 +605,13 @@ defmodule MockPveApi.Router do
               %{"PVEAuthCookie" => ticket} -> {:ok, :ticket, ticket}
               _ -> {:error, :missing}
             end
-          [] -> {:error, :missing}
+
+          [] ->
+            {:error, :missing}
         end
-      _ -> {:error, :missing}
+
+      _ ->
+        {:error, :missing}
     end
   end
 
@@ -626,36 +641,38 @@ defmodule MockPveApi.Router do
   defp check_coverage_status(conn, _opts) do
     endpoint_path = conn.request_path
     method = String.downcase(conn.method) |> String.to_atom()
-    
+
     case Coverage.get_endpoint_info(endpoint_path) do
       nil ->
         # Unknown endpoint, let catch-all handle it
         conn
-        
+
       endpoint_info ->
         case {endpoint_info.status, method in endpoint_info.methods} do
           {:not_supported, _} ->
             send_not_supported_error(conn, endpoint_info) |> halt()
-            
+
           {:pve8_only, _} ->
             version = State.get_pve_version()
+
             if version_gte?(version, "8.0") do
               conn
             else
               send_version_error(conn, endpoint_info, "8.0") |> halt()
             end
-            
+
           {:pve9_only, _} ->
             version = State.get_pve_version()
+
             if version_gte?(version, "9.0") do
               conn
             else
               send_version_error(conn, endpoint_info, "9.0") |> halt()
             end
-            
+
           {_, false} ->
             send_method_not_allowed_error(conn, endpoint_info) |> halt()
-            
+
           _ ->
             conn
         end
@@ -672,9 +689,11 @@ defmodule MockPveApi.Router do
     # Track endpoint usage for metrics
     endpoint_path = conn.request_path
     method = String.downcase(conn.method) |> String.to_atom()
-    
+
     case Coverage.get_endpoint_info(endpoint_path) do
-      nil -> conn
+      nil ->
+        conn
+
       endpoint_info ->
         Logger.debug("API call: #{method} #{endpoint_path} (status: #{endpoint_info.status})")
         # TODO: Add metrics collection here
@@ -686,92 +705,114 @@ defmodule MockPveApi.Router do
   defp send_unknown_endpoint_error(conn, endpoint_path) do
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(404, Jason.encode!(%{
-      errors: ["Unknown endpoint: #{endpoint_path}"],
-      coverage_info: "Endpoint not found in coverage matrix"
-    }))
+    |> send_resp(
+      404,
+      Jason.encode!(%{
+        errors: ["Unknown endpoint: #{endpoint_path}"],
+        coverage_info: "Endpoint not found in coverage matrix"
+      })
+    )
   end
 
   defp send_not_supported_error(conn, endpoint_info) do
     conn
-    |> put_resp_content_type("application/json") 
-    |> send_resp(501, Jason.encode!(%{
-      errors: ["Endpoint not supported: #{endpoint_info.path}"],
-      coverage_info: %{
-        status: endpoint_info.status,
-        description: endpoint_info.description,
-        notes: endpoint_info.notes
-      }
-    }))
+    |> put_resp_content_type("application/json")
+    |> send_resp(
+      501,
+      Jason.encode!(%{
+        errors: ["Endpoint not supported: #{endpoint_info.path}"],
+        coverage_info: %{
+          status: endpoint_info.status,
+          description: endpoint_info.description,
+          notes: endpoint_info.notes
+        }
+      })
+    )
   end
 
   defp send_planned_error(conn, endpoint_info) do
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(501, Jason.encode!(%{
-      errors: ["Endpoint planned but not yet implemented: #{endpoint_info.path}"],
-      coverage_info: %{
-        status: endpoint_info.status,
-        priority: endpoint_info.priority,
-        description: endpoint_info.description,
-        notes: endpoint_info.notes
-      }
-    }))
+    |> send_resp(
+      501,
+      Jason.encode!(%{
+        errors: ["Endpoint planned but not yet implemented: #{endpoint_info.path}"],
+        coverage_info: %{
+          status: endpoint_info.status,
+          priority: endpoint_info.priority,
+          description: endpoint_info.description,
+          notes: endpoint_info.notes
+        }
+      })
+    )
   end
 
   defp send_version_error(conn, endpoint_info, required_version) do
     current_version = State.get_pve_version()
+
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(501, Jason.encode!(%{
-      errors: [
-        "Feature not available in PVE #{current_version}",
-        "Endpoint #{endpoint_info.path} requires PVE #{required_version}+"
-      ],
-      coverage_info: %{
-        required_version: required_version,
-        current_version: current_version,
-        capabilities_required: endpoint_info.capabilities_required
-      }
-    }))
+    |> send_resp(
+      501,
+      Jason.encode!(%{
+        errors: [
+          "Feature not available in PVE #{current_version}",
+          "Endpoint #{endpoint_info.path} requires PVE #{required_version}+"
+        ],
+        coverage_info: %{
+          required_version: required_version,
+          current_version: current_version,
+          capabilities_required: endpoint_info.capabilities_required
+        }
+      })
+    )
   end
 
   defp send_not_implemented_error(conn, endpoint_info) do
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(501, Jason.encode!(%{
-      errors: ["Endpoint found but handler not implemented: #{endpoint_info.path}"],
-      coverage_info: %{
-        status: endpoint_info.status,
-        handler_module: endpoint_info.handler_module,
-        notes: endpoint_info.notes
-      }
-    }))
+    |> send_resp(
+      501,
+      Jason.encode!(%{
+        errors: ["Endpoint found but handler not implemented: #{endpoint_info.path}"],
+        coverage_info: %{
+          status: endpoint_info.status,
+          handler_module: endpoint_info.handler_module,
+          notes: endpoint_info.notes
+        }
+      })
+    )
   end
 
   defp send_handler_missing_error(conn, endpoint_info) do
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(500, Jason.encode!(%{
-      errors: ["Handler module missing for implemented endpoint: #{endpoint_info.path}"],
-      coverage_info: %{
-        expected_handler: endpoint_info.handler_module,
-        status: endpoint_info.status
-      }
-    }))
+    |> send_resp(
+      500,
+      Jason.encode!(%{
+        errors: ["Handler module missing for implemented endpoint: #{endpoint_info.path}"],
+        coverage_info: %{
+          expected_handler: endpoint_info.handler_module,
+          status: endpoint_info.status
+        }
+      })
+    )
   end
 
   defp send_method_not_allowed_error(conn, endpoint_info) do
     conn
-    |> put_resp_content_type("application/json") 
+    |> put_resp_content_type("application/json")
     |> put_resp_header("allow", Enum.join(endpoint_info.methods, ", ") |> String.upcase())
-    |> send_resp(405, Jason.encode!(%{
-      errors: ["Method not allowed: #{String.upcase(conn.method)}"],
-      coverage_info: %{
-        allowed_methods: endpoint_info.methods,
-        endpoint: endpoint_info.path
-      }
-    }))
+    |> send_resp(
+      405,
+      Jason.encode!(%{
+        errors: ["Method not allowed: #{String.upcase(conn.method)}"],
+        coverage_info: %{
+          allowed_methods: endpoint_info.methods,
+          endpoint: endpoint_info.path
+        }
+      })
+    )
   end
 
   defp version_gte?(version_a, version_b) do

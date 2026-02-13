@@ -50,9 +50,11 @@ defmodule MockPveApi.Handlers.Access do
   """
   def list_users(conn) do
     users = State.get_state().users
-    user_list = Enum.map(users, fn {userid, user} ->
-      Map.put(user, :userid, userid)
-    end)
+
+    user_list =
+      Enum.map(users, fn {userid, user} ->
+        Map.put(user, :userid, userid)
+      end)
 
     conn
     |> put_resp_content_type("application/json")
@@ -110,7 +112,7 @@ defmodule MockPveApi.Handlers.Access do
     userid = conn.path_params["userid"]
     tokens = State.get_state().api_tokens
 
-    user_tokens = 
+    user_tokens =
       tokens
       |> Enum.filter(fn {tokenid, _token} -> String.starts_with?(tokenid, "#{userid}!") end)
       |> Enum.map(fn {_tokenid, token} ->
@@ -128,10 +130,11 @@ defmodule MockPveApi.Handlers.Access do
   """
   def get_permissions(conn) do
     # In a real implementation, this would get the user from the auth token
-    userid = "root@pam"  # Mock current user
-    
+    # Mock current user
+    userid = "root@pam"
+
     permissions = State.get_permissions(userid)
-    
+
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: permissions}))
@@ -149,7 +152,7 @@ defmodule MockPveApi.Handlers.Access do
 
     if userid && roleid do
       :ok = State.set_permissions(path, userid, roleid)
-      
+
       conn
       |> put_resp_content_type("application/json")
       |> send_resp(200, Jason.encode!(%{data: nil}))
@@ -166,9 +169,11 @@ defmodule MockPveApi.Handlers.Access do
   """
   def list_roles(conn) do
     roles = State.get_state().roles
-    role_list = Enum.map(roles, fn {roleid, privileges} ->
-      %{roleid: roleid, privs: privileges}
-    end)
+
+    role_list =
+      Enum.map(roles, fn {roleid, privileges} ->
+        %{roleid: roleid, privs: privileges}
+      end)
 
     conn
     |> put_resp_content_type("application/json")
@@ -182,14 +187,14 @@ defmodule MockPveApi.Handlers.Access do
   def create_user(conn) do
     params = conn.body_params
     userid = Map.get(params, "userid")
-    
+
     if userid do
       case State.create_user(userid, params) do
         {:ok, user} ->
           conn
           |> put_resp_content_type("application/json")
           |> send_resp(200, Jason.encode!(%{data: user}))
-          
+
         {:error, message} ->
           conn
           |> put_resp_content_type("application/json")
@@ -198,7 +203,10 @@ defmodule MockPveApi.Handlers.Access do
     else
       conn
       |> put_resp_content_type("application/json")
-      |> send_resp(400, Jason.encode!(%{errors: %{userid: "property is missing and it is not optional"}}))
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{userid: "property is missing and it is not optional"}})
+      )
     end
   end
 
@@ -209,13 +217,13 @@ defmodule MockPveApi.Handlers.Access do
   def update_user(conn) do
     userid = conn.path_params["userid"]
     params = conn.body_params
-    
+
     case State.update_user(userid, params) do
       {:ok, user} ->
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: user}))
-        
+
       {:error, message} ->
         conn
         |> put_resp_content_type("application/json")
@@ -229,13 +237,13 @@ defmodule MockPveApi.Handlers.Access do
   """
   def delete_user(conn) do
     userid = conn.path_params["userid"]
-    
+
     case State.delete_user(userid) do
       :ok ->
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: nil}))
-        
+
       {:error, message} ->
         conn
         |> put_resp_content_type("application/json")
@@ -249,9 +257,11 @@ defmodule MockPveApi.Handlers.Access do
   """
   def list_groups(conn) do
     groups = State.get_state().groups
-    group_list = Enum.map(groups, fn {groupid, group} ->
-      Map.put(group, :groupid, groupid)
-    end)
+
+    group_list =
+      Enum.map(groups, fn {groupid, group} ->
+        Map.put(group, :groupid, groupid)
+      end)
 
     conn
     |> put_resp_content_type("application/json")
@@ -265,14 +275,14 @@ defmodule MockPveApi.Handlers.Access do
   def create_group(conn) do
     params = conn.body_params
     groupid = Map.get(params, "groupid")
-    
+
     if groupid do
       case State.create_group(groupid, params) do
         {:ok, group} ->
           conn
           |> put_resp_content_type("application/json")
           |> send_resp(200, Jason.encode!(%{data: group}))
-          
+
         {:error, message} ->
           conn
           |> put_resp_content_type("application/json")
@@ -281,7 +291,10 @@ defmodule MockPveApi.Handlers.Access do
     else
       conn
       |> put_resp_content_type("application/json")
-      |> send_resp(400, Jason.encode!(%{errors: %{groupid: "property is missing and it is not optional"}}))
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{groupid: "property is missing and it is not optional"}})
+      )
     end
   end
 
@@ -313,13 +326,13 @@ defmodule MockPveApi.Handlers.Access do
   def update_group(conn) do
     groupid = conn.path_params["groupid"]
     params = conn.body_params
-    
+
     case State.update_group(groupid, params) do
       {:ok, group} ->
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: group}))
-        
+
       {:error, message} ->
         conn
         |> put_resp_content_type("application/json")
@@ -333,13 +346,13 @@ defmodule MockPveApi.Handlers.Access do
   """
   def delete_group(conn) do
     groupid = conn.path_params["groupid"]
-    
+
     case State.delete_group(groupid) do
       :ok ->
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: nil}))
-        
+
       {:error, message} ->
         conn
         |> put_resp_content_type("application/json")
@@ -353,9 +366,11 @@ defmodule MockPveApi.Handlers.Access do
   """
   def list_domains(conn) do
     domains = State.get_state().domains
-    domain_list = Enum.map(domains, fn {realm, domain} ->
-      Map.put(domain, :realm, realm)
-    end)
+
+    domain_list =
+      Enum.map(domains, fn {realm, domain} ->
+        Map.put(domain, :realm, realm)
+      end)
 
     conn
     |> put_resp_content_type("application/json")
@@ -370,13 +385,13 @@ defmodule MockPveApi.Handlers.Access do
     userid = conn.path_params["userid"]
     tokenid = conn.path_params["tokenid"]
     full_tokenid = "#{userid}!#{tokenid}"
-    
+
     case State.delete_api_token(full_tokenid) do
       :ok ->
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: nil}))
-        
+
       {:error, message} ->
         conn
         |> put_resp_content_type("application/json")
@@ -392,18 +407,19 @@ defmodule MockPveApi.Handlers.Access do
     userid = conn.path_params["userid"]
     tokenid = conn.path_params["tokenid"]
     full_tokenid = "#{userid}!#{tokenid}"
-    
+
     tokens = State.get_state().api_tokens
-    
+
     case Map.get(tokens, full_tokenid) do
       nil ->
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(404, Jason.encode!(%{errors: %{message: "Token '#{tokenid}' not found"}}))
-        
+
       token ->
         # Don't include the actual token value in response
         safe_token = Map.take(token, [:tokenid, :privsep, :comment, :expire, :created_at])
+
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: safe_token}))
@@ -419,14 +435,15 @@ defmodule MockPveApi.Handlers.Access do
     tokenid = conn.path_params["tokenid"]
     full_tokenid = "#{userid}!#{tokenid}"
     params = conn.body_params
-    
+
     case State.update_api_token(full_tokenid, params) do
       {:ok, token} ->
         safe_token = Map.take(token, [:tokenid, :privsep, :comment, :expire, :created_at])
+
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: safe_token}))
-        
+
       {:error, message} ->
         conn
         |> put_resp_content_type("application/json")

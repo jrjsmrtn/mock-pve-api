@@ -88,13 +88,13 @@ defmodule MockPveApi.Handlers.Pools do
   def update_pool(conn) do
     poolid = conn.path_params["poolid"]
     params = conn.body_params
-    
+
     case State.update_pool(poolid, params) do
       {:ok, pool} ->
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: pool}))
-        
+
       {:error, message} ->
         conn
         |> put_resp_content_type("application/json")

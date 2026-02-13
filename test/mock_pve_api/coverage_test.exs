@@ -14,7 +14,8 @@ defmodule MockPveApi.CoverageTest do
     test "gets endpoint info for parameterized paths" do
       info = Coverage.get_endpoint_info("/api2/json/nodes/pve1/qemu/100")
       assert %{path: "/api2/json/nodes/{node}/qemu/{vmid}"} = info
-      assert info.status == :implemented  # Endpoint is now fully implemented
+      # Endpoint is now fully implemented
+      assert info.status == :implemented
       assert info.priority == :critical
     end
 
@@ -26,7 +27,7 @@ defmodule MockPveApi.CoverageTest do
     test "matches complex parameterized paths" do
       info = Coverage.get_endpoint_info("/api2/json/nodes/pve1/storage/local/content")
       assert %{path: "/api2/json/nodes/{node}/storage/{storage}/content"} = info
-      
+
       info = Coverage.get_endpoint_info("/api2/json/nodes/pve1/qemu/100/status/start")
       assert %{path: "/api2/json/nodes/{node}/qemu/{vmid}/status/{command}"} = info
     end
@@ -49,8 +50,18 @@ defmodule MockPveApi.CoverageTest do
 
     test "gets all valid categories" do
       categories = Coverage.get_categories()
-      expected_categories = [:version, :cluster, :nodes, :vms, :containers, :storage, :access, :pools]
-      
+
+      expected_categories = [
+        :version,
+        :cluster,
+        :nodes,
+        :vms,
+        :containers,
+        :storage,
+        :access,
+        :pools
+      ]
+
       for category <- expected_categories do
         assert category in categories, "Missing category: #{category}"
       end
@@ -60,26 +71,28 @@ defmodule MockPveApi.CoverageTest do
   describe "coverage statistics" do
     test "calculates overall coverage stats" do
       stats = Coverage.get_coverage_stats()
-      
+
       assert is_integer(stats.total)
       assert is_integer(stats.implemented)
       assert is_integer(stats.partial)
       assert is_integer(stats.planned)
       assert is_float(stats.coverage_percentage)
-      
+
       assert stats.total > 0
       assert stats.coverage_percentage >= 0.0 and stats.coverage_percentage <= 100.0
-      assert stats.total == stats.implemented + stats.partial + stats.in_progress + 
-                           stats.planned + stats.not_supported + stats.pve8_only + stats.pve9_only
+
+      assert stats.total ==
+               stats.implemented + stats.partial + stats.in_progress +
+                 stats.planned + stats.not_supported + stats.pve8_only + stats.pve9_only
     end
 
     test "calculates category stats" do
       category_stats = Coverage.get_category_stats()
-      
+
       assert is_map(category_stats)
       assert Map.has_key?(category_stats, :version)
       assert Map.has_key?(category_stats, :cluster)
-      
+
       version_stats = category_stats.version
       assert version_stats.total == 1
       assert version_stats.implemented == 1
@@ -90,17 +103,17 @@ defmodule MockPveApi.CoverageTest do
   describe "endpoints by status" do
     test "gets implemented endpoints" do
       implemented = Coverage.get_endpoints_by_status(:implemented)
-      
+
       assert length(implemented) > 0
       assert Enum.all?(implemented, &(&1.status == :implemented))
-      
+
       # Version endpoint should always be implemented
       assert Enum.any?(implemented, &(&1.path == "/api2/json/version"))
     end
 
     test "gets planned endpoints" do
       planned = Coverage.get_endpoints_by_status(:planned)
-      
+
       assert Enum.all?(planned, &(&1.status == :planned))
       # All endpoints are implemented - no planned endpoints remaining
       assert length(planned) >= 0
@@ -108,7 +121,7 @@ defmodule MockPveApi.CoverageTest do
 
     test "gets partial endpoints" do
       partial = Coverage.get_endpoints_by_status(:partial)
-      
+
       assert Enum.all?(partial, &(&1.status == :partial))
     end
   end
@@ -116,17 +129,17 @@ defmodule MockPveApi.CoverageTest do
   describe "endpoints by priority" do
     test "gets critical priority endpoints" do
       critical = Coverage.get_endpoints_by_priority(:critical)
-      
+
       assert length(critical) > 0
       assert Enum.all?(critical, &(&1.priority == :critical))
-      
+
       # Version endpoint should be critical
       assert Enum.any?(critical, &(&1.path == "/api2/json/version"))
     end
 
     test "gets missing critical endpoints" do
       missing_critical = Coverage.get_missing_critical_endpoints()
-      
+
       # All endpoints should have priority :critical and status != :implemented
       for endpoint <- missing_critical do
         assert endpoint.priority == :critical
@@ -145,10 +158,10 @@ defmodule MockPveApi.CoverageTest do
 
     test "checks version compatibility for PVE 8+ endpoints" do
       sdn_path = "/api2/json/cluster/sdn/zones"
-      
+
       # Should not work on PVE 7.x
       refute Coverage.version_compatible?(sdn_path, "7.4")
-      
+
       # Should work on PVE 8.0+
       assert Coverage.version_compatible?(sdn_path, "8.0")
       assert Coverage.version_compatible?(sdn_path, "8.3")
@@ -157,11 +170,11 @@ defmodule MockPveApi.CoverageTest do
 
     test "checks version compatibility for PVE 9+ endpoints" do
       ha_path = "/api2/json/cluster/ha/affinity"
-      
+
       # Should not work on PVE 7.x or 8.x
       refute Coverage.version_compatible?(ha_path, "7.4")
       refute Coverage.version_compatible?(ha_path, "8.3")
-      
+
       # Should work on PVE 9.0+
       assert Coverage.version_compatible?(ha_path, "9.0")
     end
@@ -177,7 +190,7 @@ defmodule MockPveApi.CoverageTest do
         {:ok, messages} ->
           assert is_list(messages)
           assert length(messages) > 0
-          
+
         {:error, issues} ->
           assert is_list(issues)
           # Log issues for debugging but don't fail test in development
@@ -190,7 +203,7 @@ defmodule MockPveApi.CoverageTest do
     test "identifies endpoints without test coverage" do
       all_implemented = Coverage.get_endpoints_by_status(:implemented)
       untested = Enum.filter(all_implemented, &(!&1.test_coverage))
-      
+
       # In a mature implementation, this should be empty
       # For now, just verify the check works
       for endpoint <- untested do
@@ -201,8 +214,8 @@ defmodule MockPveApi.CoverageTest do
 
     test "identifies endpoints without handler modules" do
       all_implemented = Coverage.get_endpoints_by_status(:implemented)
-      no_handlers = Enum.filter(all_implemented, &(is_nil(&1.handler_module)))
-      
+      no_handlers = Enum.filter(all_implemented, &is_nil(&1.handler_module))
+
       # All implemented endpoints should have handlers
       for endpoint <- no_handlers do
         IO.puts("Warning: Implemented endpoint without handler: #{endpoint.path}")
@@ -212,33 +225,54 @@ defmodule MockPveApi.CoverageTest do
 
   describe "endpoint schema validation" do
     test "all endpoints have required fields" do
-      all_endpoints = Coverage.get_categories()
-      |> Enum.flat_map(&Coverage.get_category_endpoints/1)
-      
+      all_endpoints =
+        Coverage.get_categories()
+        |> Enum.flat_map(&Coverage.get_category_endpoints/1)
+
       for endpoint <- all_endpoints do
         assert is_binary(endpoint.path), "Missing path for endpoint"
-        assert is_list(endpoint.methods) and length(endpoint.methods) > 0, "Missing methods for #{endpoint.path}"
-        assert endpoint.status in [:implemented, :partial, :in_progress, :planned, :not_supported, :pve8_only, :pve9_only],
+
+        assert is_list(endpoint.methods) and length(endpoint.methods) > 0,
+               "Missing methods for #{endpoint.path}"
+
+        assert endpoint.status in [
+                 :implemented,
+                 :partial,
+                 :in_progress,
+                 :planned,
+                 :not_supported,
+                 :pve8_only,
+                 :pve9_only
+               ],
                "Invalid status for #{endpoint.path}: #{endpoint.status}"
-        assert endpoint.priority in [:critical, :high, :medium, :low], "Invalid priority for #{endpoint.path}"
+
+        assert endpoint.priority in [:critical, :high, :medium, :low],
+               "Invalid priority for #{endpoint.path}"
+
         assert is_binary(endpoint.since), "Missing since version for #{endpoint.path}"
         assert is_binary(endpoint.description), "Missing description for #{endpoint.path}"
         assert is_list(endpoint.parameters), "Missing parameters list for #{endpoint.path}"
         assert is_map(endpoint.response_schema), "Missing response_schema for #{endpoint.path}"
-        assert is_list(endpoint.capabilities_required), "Missing capabilities_required for #{endpoint.path}"
+
+        assert is_list(endpoint.capabilities_required),
+               "Missing capabilities_required for #{endpoint.path}"
+
         assert is_boolean(endpoint.test_coverage), "Missing test_coverage for #{endpoint.path}"
       end
     end
 
     test "validates parameter schemas" do
-      all_endpoints = Coverage.get_categories()
-      |> Enum.flat_map(&Coverage.get_category_endpoints/1)
-      
+      all_endpoints =
+        Coverage.get_categories()
+        |> Enum.flat_map(&Coverage.get_category_endpoints/1)
+
       for endpoint <- all_endpoints do
         for param <- endpoint.parameters do
           assert is_binary(param.name), "Parameter missing name in #{endpoint.path}"
-          assert param.type in [:string, :integer, :boolean, :array, :object], 
+
+          assert param.type in [:string, :integer, :boolean, :array, :object],
                  "Invalid parameter type in #{endpoint.path}"
+
           assert is_boolean(param.required), "Parameter missing required flag in #{endpoint.path}"
           assert is_binary(param.description), "Parameter missing description in #{endpoint.path}"
         end
@@ -249,44 +283,52 @@ defmodule MockPveApi.CoverageTest do
   describe "method validation" do
     test "validates HTTP methods are valid" do
       valid_methods = [:get, :post, :put, :delete, :patch]
-      
-      all_endpoints = Coverage.get_categories()
-      |> Enum.flat_map(&Coverage.get_category_endpoints/1)
-      
+
+      all_endpoints =
+        Coverage.get_categories()
+        |> Enum.flat_map(&Coverage.get_category_endpoints/1)
+
       for endpoint <- all_endpoints do
         for method <- endpoint.methods do
-          assert method in valid_methods, 
+          assert method in valid_methods,
                  "Invalid HTTP method #{method} for #{endpoint.path}"
         end
       end
     end
 
     test "validates method combinations make sense" do
-      all_endpoints = Coverage.get_categories()
-      |> Enum.flat_map(&Coverage.get_category_endpoints/1)
-      
+      all_endpoints =
+        Coverage.get_categories()
+        |> Enum.flat_map(&Coverage.get_category_endpoints/1)
+
       # Endpoints that are exceptions to normal REST patterns
       action_endpoints = [
-        "/api2/json/access/ticket",  # Authentication - POST only
-        "/api2/json/nodes/{node}/qemu/{vmid}/status/{command}",  # VM actions - POST only
-        "/api2/json/nodes/{node}/lxc/{vmid}/status/{command}",   # Container actions - POST only
-        "/api2/json/nodes/{node}/qemu/{vmid}/clone",  # VM cloning - POST only
-        "/api2/json/nodes/{node}/lxc/{vmid}/clone",   # Container cloning - POST only
-        "/api2/json/cluster/config/join"  # Cluster join action - POST only
+        # Authentication - POST only
+        "/api2/json/access/ticket",
+        # VM actions - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/status/{command}",
+        # Container actions - POST only
+        "/api2/json/nodes/{node}/lxc/{vmid}/status/{command}",
+        # VM cloning - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/clone",
+        # Container cloning - POST only
+        "/api2/json/nodes/{node}/lxc/{vmid}/clone",
+        # Cluster join action - POST only
+        "/api2/json/cluster/config/join"
       ]
-      
+
       for endpoint <- all_endpoints do
         methods = endpoint.methods
-        
+
         # If POST is present for creation, GET should also be present for listing
         # Exception: action endpoints that only perform operations
-        if :post in methods and 
-           String.ends_with?(endpoint.path, "}") == false and
-           endpoint.path not in action_endpoints do
+        if :post in methods and
+             String.ends_with?(endpoint.path, "}") == false and
+             endpoint.path not in action_endpoints do
           # This is a collection endpoint with POST, should have GET
           assert :get in methods, "Collection endpoint #{endpoint.path} has POST but no GET"
         end
-        
+
         # If PUT is present, GET should also be present  
         if :put in methods do
           assert :get in methods, "Endpoint #{endpoint.path} has PUT but no GET"
@@ -311,7 +353,9 @@ defmodule MockPveApi.CoverageTest do
     test "has core VM endpoints" do
       assert Coverage.get_endpoint_info("/api2/json/nodes/{node}/qemu") != nil
       assert Coverage.get_endpoint_info("/api2/json/nodes/{node}/qemu/{vmid}") != nil
-      assert Coverage.get_endpoint_info("/api2/json/nodes/{node}/qemu/{vmid}/status/current") != nil
+
+      assert Coverage.get_endpoint_info("/api2/json/nodes/{node}/qemu/{vmid}/status/current") !=
+               nil
     end
 
     test "has core container endpoints" do
@@ -321,15 +365,15 @@ defmodule MockPveApi.CoverageTest do
 
     test "coverage percentage is reasonable" do
       stats = Coverage.get_coverage_stats()
-      
+
       # Should have reasonable coverage (> 50%) for initial implementation
-      assert stats.coverage_percentage > 50.0, 
+      assert stats.coverage_percentage > 50.0,
              "Coverage percentage too low: #{stats.coverage_percentage}%"
-      
+
       # Should have some critical endpoints implemented
       critical_endpoints = Coverage.get_endpoints_by_priority(:critical)
       implemented_critical = Enum.filter(critical_endpoints, &(&1.status == :implemented))
-      
+
       assert length(implemented_critical) > 0, "No critical endpoints implemented"
     end
   end

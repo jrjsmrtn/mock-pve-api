@@ -280,13 +280,16 @@ defmodule MockPveApi.Capabilities do
       nil ->
         # Try to find capabilities for base version (e.g., "7.4.1" -> "7.4")
         base_version = extract_base_version(version)
+
         case @capabilities[base_version] do
           nil ->
             # If base version not found, find closest lower version
             find_closest_version_capabilities(version)
+
           capabilities ->
             capabilities
         end
+
       capabilities ->
         capabilities
     end
@@ -296,7 +299,7 @@ defmodule MockPveApi.Capabilities do
   defp extract_base_version(version) do
     # Handle pre-release versions like "8.0-rc1", "8.1-beta2"
     clean_version = version |> String.split("-") |> hd()
-    
+
     case String.split(clean_version, ".") do
       [major, minor | _] -> "#{major}.#{minor}"
       _ -> clean_version
@@ -314,15 +317,20 @@ defmodule MockPveApi.Capabilities do
             _ -> false
           end
         end)
-        |> Enum.max_by(fn {v, _caps} ->
-          case parse_version(v) do
-            {:ok, parsed_v} -> parsed_v
-            _ -> {0, 0}
-          end
-        end, fn -> {"7.0", @capabilities["7.0"]} end)
+        |> Enum.max_by(
+          fn {v, _caps} ->
+            case parse_version(v) do
+              {:ok, parsed_v} -> parsed_v
+              _ -> {0, 0}
+            end
+          end,
+          fn -> {"7.0", @capabilities["7.0"]} end
+        )
         |> elem(1)
+
       _ ->
-        @capabilities["7.0"]  # Default to oldest version for invalid versions
+        # Default to oldest version for invalid versions
+        @capabilities["7.0"]
     end
   end
 
@@ -331,7 +339,7 @@ defmodule MockPveApi.Capabilities do
     try do
       # Clean pre-release suffixes like "8.0-rc1" -> "8.0"
       clean_version = version |> String.split("-") |> hd()
-      
+
       case String.split(clean_version, ".") |> Enum.map(&String.to_integer/1) do
         [major, minor] -> {:ok, {major, minor}}
         [major, minor | _] -> {:ok, {major, minor}}

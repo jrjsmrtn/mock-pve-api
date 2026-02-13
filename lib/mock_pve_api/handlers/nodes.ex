@@ -258,23 +258,24 @@ defmodule MockPveApi.Handlers.Nodes do
 
       vm ->
         # Comprehensive VM info including config and status
-        vm_info = Map.merge(vm, %{
-          status: "running",
-          uptime: 86400,
-          pid: 1234,
-          cpu: 0.15,
-          cpus: vm.cores || 2,
-          maxcpu: vm.cores || 2,
-          mem: 2147483648,
-          maxmem: vm.memory || 4294967296,
-          disk: 0,
-          maxdisk: 21474836480,
-          netin: 1024000,
-          netout: 512000,
-          diskread: 10485760,
-          diskwrite: 5242880,
-          digest: "vm_digest_#{vmid}"
-        })
+        vm_info =
+          Map.merge(vm, %{
+            status: "running",
+            uptime: 86400,
+            pid: 1234,
+            cpu: 0.15,
+            cpus: vm.cores || 2,
+            maxcpu: vm.cores || 2,
+            mem: 2_147_483_648,
+            maxmem: vm.memory || 4_294_967_296,
+            disk: 0,
+            maxdisk: 21_474_836_480,
+            netin: 1_024_000,
+            netout: 512_000,
+            diskread: 10_485_760,
+            diskwrite: 5_242_880,
+            digest: "vm_digest_#{vmid}"
+          })
 
         conn
         |> put_resp_content_type("application/json")
@@ -509,22 +510,23 @@ defmodule MockPveApi.Handlers.Nodes do
 
       container ->
         # Comprehensive container info including config and status
-        container_info = Map.merge(container, %{
-          status: "running",
-          uptime: 86400,
-          cpu: 0.08,
-          cpus: container.cores || 2,
-          maxcpu: container.cores || 2,
-          mem: 1073741824,
-          maxmem: container.memory || 2147483648,
-          disk: 0,
-          maxdisk: 10737418240,
-          netin: 512000,
-          netout: 256000,
-          diskread: 5242880,
-          diskwrite: 2621440,
-          digest: "container_digest_#{vmid}"
-        })
+        container_info =
+          Map.merge(container, %{
+            status: "running",
+            uptime: 86400,
+            cpu: 0.08,
+            cpus: container.cores || 2,
+            maxcpu: container.cores || 2,
+            mem: 1_073_741_824,
+            maxmem: container.memory || 2_147_483_648,
+            disk: 0,
+            maxdisk: 10_737_418_240,
+            netin: 512_000,
+            netout: 256_000,
+            diskread: 5_242_880,
+            diskwrite: 2_621_440,
+            digest: "container_digest_#{vmid}"
+          })
 
         conn
         |> put_resp_content_type("application/json")
@@ -796,7 +798,8 @@ defmodule MockPveApi.Handlers.Nodes do
         send_not_found(conn, "VM", vmid)
 
       _vm ->
-        {:ok, upid} = State.create_task(node_name, "qmsnapshot", %{vmid: vmid, snapname: snapname})
+        {:ok, upid} =
+          State.create_task(node_name, "qmsnapshot", %{vmid: vmid, snapname: snapname})
 
         conn
         |> put_resp_content_type("application/json")
@@ -816,6 +819,7 @@ defmodule MockPveApi.Handlers.Nodes do
     cond do
       vmid_param ->
         vmid = String.to_integer(vmid_param)
+
         case State.create_backup(node_name, vmid, params) do
           {:ok, upid} ->
             conn
@@ -947,11 +951,12 @@ defmodule MockPveApi.Handlers.Nodes do
         # Add realistic progress simulation
         now = :os.system_time(:second)
         elapsed = now - task.starttime
-        
+
         # Simulate task progress
-        progress = min(100, div(elapsed * 100, 60))  # Complete in ~60 seconds
-        
-        status = 
+        # Complete in ~60 seconds
+        progress = min(100, div(elapsed * 100, 60))
+
+        status =
           if progress >= 100 do
             Map.merge(task, %{
               status: "OK",
@@ -1029,7 +1034,7 @@ defmodule MockPveApi.Handlers.Nodes do
     # In a real implementation, this would actually set the system time
     # For mocking, we just return success
     timezone = Map.get(params, "timezone", "Europe/Vienna")
-    
+
     updated_config = %{
       timezone: timezone,
       time: :os.system_time(:second),
@@ -1037,7 +1042,7 @@ defmodule MockPveApi.Handlers.Nodes do
     }
 
     conn
-    |> put_resp_content_type("application/json") 
+    |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: updated_config}))
   end
 
@@ -1051,55 +1056,71 @@ defmodule MockPveApi.Handlers.Nodes do
 
     case task.type do
       "qmstart" ->
-        base_logs ++ [
-          %{n: 3, t: "#{task.starttime + 2}: starting VM #{task.vmid}"},
-          %{n: 4, t: "#{task.starttime + 5}: VM #{task.vmid} started successfully"}
-        ]
+        base_logs ++
+          [
+            %{n: 3, t: "#{task.starttime + 2}: starting VM #{task.vmid}"},
+            %{n: 4, t: "#{task.starttime + 5}: VM #{task.vmid} started successfully"}
+          ]
 
       "qmstop" ->
-        base_logs ++ [
-          %{n: 3, t: "#{task.starttime + 2}: stopping VM #{task.vmid}"},
-          %{n: 4, t: "#{task.starttime + 5}: VM #{task.vmid} stopped successfully"}
-        ]
+        base_logs ++
+          [
+            %{n: 3, t: "#{task.starttime + 2}: stopping VM #{task.vmid}"},
+            %{n: 4, t: "#{task.starttime + 5}: VM #{task.vmid} stopped successfully"}
+          ]
 
       "qmigrate" ->
         target = Map.get(task, :target, "unknown")
-        base_logs ++ [
-          %{n: 3, t: "#{task.starttime + 2}: starting migration of VM #{task.vmid} to #{target}"},
-          %{n: 4, t: "#{task.starttime + 10}: copying VM state..."},
-          %{n: 5, t: "#{task.starttime + 20}: migration completed successfully"}
-        ]
+
+        base_logs ++
+          [
+            %{
+              n: 3,
+              t: "#{task.starttime + 2}: starting migration of VM #{task.vmid} to #{target}"
+            },
+            %{n: 4, t: "#{task.starttime + 10}: copying VM state..."},
+            %{n: 5, t: "#{task.starttime + 20}: migration completed successfully"}
+          ]
 
       "qmclone" ->
         newid = Map.get(task, :newid, "unknown")
-        base_logs ++ [
-          %{n: 3, t: "#{task.starttime + 2}: starting clone of VM #{task.vmid} to #{newid}"},
-          %{n: 4, t: "#{task.starttime + 5}: creating VM configuration..."},
-          %{n: 5, t: "#{task.starttime + 10}: copying disk images..."},
-          %{n: 6, t: "#{task.starttime + 25}: clone completed successfully"}
-        ]
+
+        base_logs ++
+          [
+            %{n: 3, t: "#{task.starttime + 2}: starting clone of VM #{task.vmid} to #{newid}"},
+            %{n: 4, t: "#{task.starttime + 5}: creating VM configuration..."},
+            %{n: 5, t: "#{task.starttime + 10}: copying disk images..."},
+            %{n: 6, t: "#{task.starttime + 25}: clone completed successfully"}
+          ]
 
       "pctclone" ->
         newid = Map.get(task, :newid, "unknown")
-        base_logs ++ [
-          %{n: 3, t: "#{task.starttime + 2}: starting clone of Container #{task.vmid} to #{newid}"},
-          %{n: 4, t: "#{task.starttime + 5}: creating container configuration..."},
-          %{n: 5, t: "#{task.starttime + 10}: copying container data..."},
-          %{n: 6, t: "#{task.starttime + 20}: clone completed successfully"}
-        ]
+
+        base_logs ++
+          [
+            %{
+              n: 3,
+              t: "#{task.starttime + 2}: starting clone of Container #{task.vmid} to #{newid}"
+            },
+            %{n: 4, t: "#{task.starttime + 5}: creating container configuration..."},
+            %{n: 5, t: "#{task.starttime + 10}: copying container data..."},
+            %{n: 6, t: "#{task.starttime + 20}: clone completed successfully"}
+          ]
 
       "vzdump" ->
-        base_logs ++ [
-          %{n: 3, t: "#{task.starttime + 2}: starting backup of VM #{task.vmid}"},
-          %{n: 4, t: "#{task.starttime + 10}: creating snapshot..."},
-          %{n: 5, t: "#{task.starttime + 20}: backing up VM config..."},
-          %{n: 6, t: "#{task.starttime + 30}: backup completed successfully"}
-        ]
+        base_logs ++
+          [
+            %{n: 3, t: "#{task.starttime + 2}: starting backup of VM #{task.vmid}"},
+            %{n: 4, t: "#{task.starttime + 10}: creating snapshot..."},
+            %{n: 5, t: "#{task.starttime + 20}: backing up VM config..."},
+            %{n: 6, t: "#{task.starttime + 30}: backup completed successfully"}
+          ]
 
       _ ->
-        base_logs ++ [
-          %{n: 3, t: "#{task.starttime + 5}: task completed successfully"}
-        ]
+        base_logs ++
+          [
+            %{n: 3, t: "#{task.starttime + 5}: task completed successfully"}
+          ]
     end
   end
 

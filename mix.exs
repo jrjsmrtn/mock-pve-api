@@ -51,7 +51,7 @@ defmodule MockPveApi.MixProject do
       main: "MockPveApi",
       extras: ["README.md", "CHANGELOG.md"],
       groups_for_modules: [
-        "Core": [MockPveApi, MockPveApi.Application],
+        Core: [MockPveApi, MockPveApi.Application],
         "API Handlers": [
           MockPveApi.Router,
           MockPveApi.Handlers.Version,
@@ -62,7 +62,7 @@ defmodule MockPveApi.MixProject do
           MockPveApi.Handlers.Access,
           MockPveApi.Handlers.Metrics
         ],
-        "Infrastructure": [
+        Infrastructure: [
           MockPveApi.State,
           MockPveApi.Capabilities,
           MockPveApi.Coverage,

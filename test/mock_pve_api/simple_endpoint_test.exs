@@ -1,7 +1,7 @@
 defmodule MockPveApi.SimpleEndpointTest do
   @moduledoc """
   Simple endpoint validation that uses the existing server on port 8006.
-  
+
   This test validates all 37 endpoints by making HTTP requests to a running
   mock server instance, avoiding the complexity of starting multiple test servers.
   """
@@ -17,22 +17,24 @@ defmodule MockPveApi.SimpleEndpointTest do
     test "validates all 37 endpoints are accessible" do
       # Ensure server is running
       case http_get("#{@base_url}/version") do
-        {:ok, _} -> :ok
-        {:error, _} -> 
+        {:ok, _} ->
+          :ok
+
+        {:error, _} ->
           flunk("Mock PVE API server must be running on port 8006. Run: mix run --no-halt")
       end
 
       # Get all endpoints from coverage matrix
       all_endpoints = get_all_endpoints()
-      
+
       # Validate we have exactly 37 endpoints
-      assert length(all_endpoints) == 37, 
+      assert length(all_endpoints) == 37,
              "Expected 37 endpoints, found #{length(all_endpoints)}"
 
       IO.puts("\n=== TESTING 37 ENDPOINTS ===")
 
       # Test each endpoint
-      results = 
+      results =
         for endpoint <- all_endpoints do
           test_endpoint(endpoint)
         end
@@ -50,6 +52,7 @@ defmodule MockPveApi.SimpleEndpointTest do
       # Show failures
       if failures > 0 do
         IO.puts("\nFAILURES:")
+
         for {status, path, reason} <- results, status == :error do
           IO.puts("  - #{path}: #{reason}")
         end
@@ -58,8 +61,8 @@ defmodule MockPveApi.SimpleEndpointTest do
       # Assert high success rate
       total_valid = successes + version_incompatible
       success_rate = total_valid / length(all_endpoints) * 100
-      
-      assert success_rate >= 90.0, 
+
+      assert success_rate >= 90.0,
              "Success rate too low: #{Float.round(success_rate, 1)}%"
     end
 
@@ -78,9 +81,9 @@ defmodule MockPveApi.SimpleEndpointTest do
       for {path, expected_methods} <- endpoint_method_tests do
         for method <- expected_methods do
           result = http_request(method, "#{@base_url}#{path}")
-          
+
           # Should not return 405 (Method Not Allowed) for expected methods
-          assert not match?({:error, {405, _}}, result), 
+          assert not match?({:error, {405, _}}, result),
                  "Expected method #{method} should be allowed for #{path}"
         end
 
@@ -90,9 +93,9 @@ defmodule MockPveApi.SimpleEndpointTest do
 
         for method <- unsupported_methods do
           result = http_request(method, "#{@base_url}#{path}")
-          
+
           # Should return 405 for unsupported methods (or other error, but not success)
-          refute match?({:ok, _}, result), 
+          refute match?({:ok, _}, result),
                  "Unsupported method #{method} should not succeed for #{path}"
         end
       end
@@ -102,7 +105,7 @@ defmodule MockPveApi.SimpleEndpointTest do
       # Test key endpoints for consistent response format
       test_endpoints = [
         "/version",
-        "/nodes", 
+        "/nodes",
         "/cluster/status",
         "/cluster/resources",
         "/pools"
@@ -133,7 +136,7 @@ defmodule MockPveApi.SimpleEndpointTest do
 
       # Test SDN endpoints (should work on PVE 8.0+)
       sdn_result = http_get("#{@base_url}/cluster/sdn/zones")
-      
+
       if version_supports_sdn?(server_version) do
         # For PVE 8.0+, SDN should either work or return acceptable errors (not 501)
         refute match?({:error, {501, _}}, sdn_result),
@@ -145,7 +148,7 @@ defmodule MockPveApi.SimpleEndpointTest do
 
       # Test notification endpoints (should work on PVE 8.1+)
       notification_result = http_get("#{@base_url}/cluster/notifications/endpoints")
-      
+
       if version_supports_notifications?(server_version) do
         # For PVE 8.1+, notifications should either work or return acceptable errors (not 501)
         refute match?({:error, {501, _}}, notification_result),
@@ -153,15 +156,18 @@ defmodule MockPveApi.SimpleEndpointTest do
       else
         # For PVE 8.0 and below, notifications may or may not return 501, so we'll be lenient
         case notification_result do
-          {:error, {501, _}} -> :ok  # Expected 501
-          {:ok, _} -> :ok           # Maybe implemented anyway
-          _ -> :ok                  # Other errors are acceptable
+          # Expected 501
+          {:error, {501, _}} -> :ok
+          # Maybe implemented anyway
+          {:ok, _} -> :ok
+          # Other errors are acceptable
+          _ -> :ok
         end
       end
 
       # Test backup providers (should work on PVE 8.2+)
       backup_result = http_get("#{@base_url}/cluster/backup-info/providers")
-      
+
       if version_supports_backup_providers?(server_version) do
         # For PVE 8.2+, backup providers should either work or return acceptable errors (not 501)
         refute match?({:error, {501, _}}, backup_result),
@@ -169,9 +175,12 @@ defmodule MockPveApi.SimpleEndpointTest do
       else
         # For earlier versions, we'll be lenient about the response
         case backup_result do
-          {:error, {501, _}} -> :ok  # Expected 501
-          {:ok, _} -> :ok           # Maybe implemented anyway
-          _ -> :ok                  # Other errors are acceptable
+          # Expected 501
+          {:error, {501, _}} -> :ok
+          # Maybe implemented anyway
+          {:ok, _} -> :ok
+          # Other errors are acceptable
+          _ -> :ok
         end
       end
     end
@@ -195,19 +204,19 @@ defmodule MockPveApi.SimpleEndpointTest do
   defp get_all_endpoints do
     Coverage.get_categories()
     |> Enum.flat_map(&Coverage.get_category_endpoints/1)
-    |> Enum.sort_by(&(&1.path))
+    |> Enum.sort_by(& &1.path)
   end
 
   defp test_endpoint(endpoint) do
     # Test the primary method (usually GET)
     primary_method = if :get in endpoint.methods, do: :get, else: hd(endpoint.methods)
-    
+
     # Convert parameterized paths to concrete paths
     test_path = resolve_path_parameters(endpoint.path)
-    
+
     # Remove /api2/json prefix from path since base_url already includes it
     clean_path = String.replace_prefix(test_path, "/api2/json", "")
-    
+
     case http_request(primary_method, "#{@base_url}#{clean_path}") do
       {:ok, response} ->
         if is_map(response) and Map.has_key?(response, "data") do
@@ -249,11 +258,11 @@ defmodule MockPveApi.SimpleEndpointTest do
       :lt -> false
     end
   rescue
-    _ -> 
-      String.starts_with?(version, "8.1") or 
-      String.starts_with?(version, "8.2") or 
-      String.starts_with?(version, "8.3") or
-      String.starts_with?(version, "9.")
+    _ ->
+      String.starts_with?(version, "8.1") or
+        String.starts_with?(version, "8.2") or
+        String.starts_with?(version, "8.3") or
+        String.starts_with?(version, "9.")
   end
 
   defp version_supports_backup_providers?(version) do
@@ -264,9 +273,9 @@ defmodule MockPveApi.SimpleEndpointTest do
     end
   rescue
     _ ->
-      String.starts_with?(version, "8.2") or 
-      String.starts_with?(version, "8.3") or
-      String.starts_with?(version, "9.")
+      String.starts_with?(version, "8.2") or
+        String.starts_with?(version, "8.3") or
+        String.starts_with?(version, "9.")
   end
 
   defp http_get(url) do

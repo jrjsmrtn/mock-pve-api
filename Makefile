@@ -100,6 +100,26 @@ docs-open: docs ## Generate and open documentation
 		echo "$(YELLOW)Please open doc/index.html manually$(RESET)"; \
 	fi
 
+docs-coverage: ## Generate API reference documentation from Coverage module
+	@echo "$(BLUE)Generating API reference documentation...$(RESET)"
+	mix docs.coverage
+	@echo "$(GREEN)Documentation generated at docs/reference/api-reference.md$(RESET)"
+
+docs-coverage-check: ## Check if API reference docs are up-to-date
+	@echo "$(BLUE)Checking API reference documentation...$(RESET)"
+	@mix docs.coverage --check
+
+install-hooks: ## Install git pre-commit hooks
+	@echo "$(BLUE)Installing git hooks...$(RESET)"
+	@cp scripts/hooks/pre-commit .git/hooks/pre-commit
+	@chmod +x .git/hooks/pre-commit
+	@echo "$(GREEN)Git hooks installed successfully$(RESET)"
+
+uninstall-hooks: ## Remove git hooks
+	@echo "$(BLUE)Removing git hooks...$(RESET)"
+	@rm -f .git/hooks/pre-commit
+	@echo "$(GREEN)Git hooks removed$(RESET)"
+
 clean: ## Clean build artifacts
 	@echo "$(BLUE)Cleaning build artifacts...$(RESET)"
 	mix clean
@@ -356,7 +376,7 @@ install-dev-deps: ## Install development dependencies (credo, dialyzer, etc.)
 	mix archive.install hex phx_new --force
 	@echo "$(GREEN)Development dependencies installed$(RESET)"
 
-.PHONY: help deps compile test test-cover test-watch format format-check lint typecheck docs docs-open clean server
+.PHONY: help deps compile test test-cover test-watch format format-check lint typecheck docs docs-open docs-coverage docs-coverage-check install-hooks uninstall-hooks clean server
 .PHONY: docker-build docker-build-dev docker-run docker-run-dev docker-run-versions docker-stop-versions docker-compose-up docker-compose-down
 .PHONY: arch-validate arch-viz validate test-examples test-integration benchmark
 .PHONY: sbom sbom-deps sbom-container sbom-source vulnerability-scan security-audit

@@ -18,28 +18,30 @@ defmodule MockPveApi do
     ssl_enabled = Application.get_env(:mock_pve_api, :ssl_enabled, false)
 
     # Configure server scheme and options
-    {scheme, server_opts} = if ssl_enabled do
-      # Convert relative paths to absolute paths
-      keyfile = Application.get_env(:mock_pve_api, :ssl_keyfile) |> Path.expand()
-      certfile = Application.get_env(:mock_pve_api, :ssl_certfile) |> Path.expand()
-      
-      ssl_opts = [
-        port: port,
-        ip: parse_ip(host),
-        keyfile: keyfile,
-        certfile: certfile
-      ]
-      
-      # Add CA certificate file if specified
-      ssl_opts = case Application.get_env(:mock_pve_api, :ssl_cacertfile) do
-        nil -> ssl_opts
-        cacertfile -> Keyword.put(ssl_opts, :cacertfile, Path.expand(cacertfile))
-      end
+    {scheme, server_opts} =
+      if ssl_enabled do
+        # Convert relative paths to absolute paths
+        keyfile = Application.get_env(:mock_pve_api, :ssl_keyfile) |> Path.expand()
+        certfile = Application.get_env(:mock_pve_api, :ssl_certfile) |> Path.expand()
 
-      {:https, ssl_opts}
-    else
-      {:http, [port: port, ip: parse_ip(host)]}
-    end
+        ssl_opts = [
+          port: port,
+          ip: parse_ip(host),
+          keyfile: keyfile,
+          certfile: certfile
+        ]
+
+        # Add CA certificate file if specified
+        ssl_opts =
+          case Application.get_env(:mock_pve_api, :ssl_cacertfile) do
+            nil -> ssl_opts
+            cacertfile -> Keyword.put(ssl_opts, :cacertfile, Path.expand(cacertfile))
+          end
+
+        {:https, ssl_opts}
+      else
+        {:http, [port: port, ip: parse_ip(host)]}
+      end
 
     children = [
       # HTTP client for test helper
@@ -68,11 +70,18 @@ defmodule MockPveApi do
 
     # Set SSL options if enabled
     if ssl_enabled do
-      Application.put_env(:mock_pve_api, :ssl_keyfile, 
-        Keyword.get(opts, :ssl_keyfile, "certs/server.key"))
-      Application.put_env(:mock_pve_api, :ssl_certfile, 
-        Keyword.get(opts, :ssl_certfile, "certs/server.crt"))
-      
+      Application.put_env(
+        :mock_pve_api,
+        :ssl_keyfile,
+        Keyword.get(opts, :ssl_keyfile, "certs/server.key")
+      )
+
+      Application.put_env(
+        :mock_pve_api,
+        :ssl_certfile,
+        Keyword.get(opts, :ssl_certfile, "certs/server.crt")
+      )
+
       if cacertfile = Keyword.get(opts, :ssl_cacertfile) do
         Application.put_env(:mock_pve_api, :ssl_cacertfile, cacertfile)
       end

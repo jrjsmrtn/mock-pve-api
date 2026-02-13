@@ -83,7 +83,7 @@ defmodule MockPveApi.Handlers.Sdn do
         digest: "vnet1digest"
       },
       %{
-        vnet: "vnet200", 
+        vnet: "vnet200",
         zone: "localnetwork",
         tag: 200,
         alias: "Development Network",
@@ -132,14 +132,20 @@ defmodule MockPveApi.Handlers.Sdn do
   # Helper functions
   defp get_int_param(params, key) do
     case Map.get(params, key) do
-      nil -> nil
-      val when is_integer(val) -> val
-      val when is_binary(val) -> 
+      nil ->
+        nil
+
+      val when is_integer(val) ->
+        val
+
+      val when is_binary(val) ->
         case Integer.parse(val) do
           {int, ""} -> int
           _ -> nil
         end
-      _ -> nil
+
+      _ ->
+        nil
     end
   end
 end
