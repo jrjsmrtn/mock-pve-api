@@ -11,7 +11,7 @@ pre-commit:
       glob: "lib/mock_pve_api/coverage.ex"
       run: mix docs.coverage --check
     gitleaks:
-      run: gitleaks protect --staged --no-banner
+      run: gitleaks protect --staged --no-banner --config .gitleaks.toml
 
 pre-push:
   commands:

@@ -138,53 +138,16 @@ make vulnerability-scan    # Security vulnerability assessment
 ```
 
 ### Consistent Quality Gates
-**Approach**: Escalating quality gate chain — fast local checks, thorough pre-push validation, comprehensive CI
+**Approach**: Escalating quality gate chain — pre-commit (fast) -> pre-push (thorough) -> CI (comprehensive) — using `.editorconfig`, lefthook, gitleaks, and GitHub Actions.
 
-**Local Development**:
-- **`.editorconfig`**: Enforces consistent formatting (UTF-8, LF, 2-space indent for Elixir, tabs for Makefiles)
-- **Lefthook**: Git hook manager replacing ad-hoc shell scripts
-  - **Pre-commit** (parallel): `mix format --check-formatted`, `mix compile --warnings-as-errors`, `mix docs.coverage --check` (conditional on coverage.ex changes), `gitleaks protect --staged` (secret detection)
-  - **Pre-push**: `mix test`
-- **SPDX headers**: All source files carry `SPDX-FileCopyrightText` and `SPDX-License-Identifier` headers
-
-**CI (GitHub Actions)**:
-- Format check, compile with `--force --warnings-as-errors`, test with coverage, documentation generation
-- Security audit with SBOM generation and vulnerability scanning
-- Container build and multi-version integration tests
-
-**Quality Gate Chain**:
-
-| Check | Pre-commit | Pre-push | CI |
-|-------|-----------|----------|-----|
-| `mix format --check-formatted` | yes | - | yes |
-| `mix compile --warnings-as-errors` | yes | - | yes (--force) |
-| `mix docs.coverage --check` | conditional | - | - |
-| `gitleaks protect --staged` | yes | - | - |
-| `gitleaks detect` | - | - | yes |
-| `mix test` | - | yes | yes (--cover) |
-| `mix docs` | - | - | yes |
-| Security audit / SBOM | - | - | yes |
-| Container build + integration | - | - | yes |
+See [docs/reference/quality-gates.md](../reference/quality-gates.md) for operational details (configuration, commands, CI job structure, scorecard baseline).
 
 ### Erlef Aegis & OpenSSF Compliance
 **Approach**: Align with the [EEF Security Working Group's Aegis initiative](https://security.erlef.org/aegis/) and [OpenSSF](https://openssf.org/) best practices to strengthen supply chain security and meet emerging regulations (EU CRA, NIST SSDF).
 
-**Aegis alignment**:
-- **SBOM generation**: SPDX and CycloneDX formats for all releases (see Supply Chain Security section above)
-- **SPDX licence headers**: Machine-readable copyright and licence metadata on all source files
-- **Secret detection**: [Gitleaks](https://github.com/gitleaks/gitleaks) scans staged changes at pre-commit and full history in CI
-- **Vulnerability handling**: Automated scanning with Grype integrated into CI pipeline
-- **Dependency tracking**: Complete Elixir/OTP dependency tree with version pinning via `mix.lock`
-- **Account security**: Follow Hex.pm recommendations for maintainer authentication as they evolve
+Key practices: SBOM generation, SPDX licence headers, gitleaks secret detection, Grype vulnerability scanning, Dependabot dependency updates, branch protection, `SECURITY.md`, and OpenSSF Scorecard in CI.
 
-**OpenSSF Scorecard alignment**:
-- **Branch protection**: Main branch protected; PRs required for merges
-- **CI tests**: Automated test suite runs on every push and PR
-- **Code review**: All PRs require review before merge
-- **Dependency updates**: Pinned dependencies with regular update checks
-- **Licence**: SPDX-compliant MIT licence with machine-readable headers
-- **Security policy**: Vulnerability disclosure and security audit practices
-- **Signed releases**: Target signed container images and package provenance as Aegis tooling matures
+See [docs/reference/quality-gates.md](../reference/quality-gates.md) for the full alignment matrix.
 
 ## Consequences
 
@@ -241,7 +204,9 @@ make vulnerability-scan    # Security vulnerability assessment
 - [x] Add SPDX copyright/licence headers to all source files
 - [x] Modernise GitHub Actions workflow (actions/cache@v4, upload-artifact@v4, `--force` compile)
 - [x] Add gitleaks secret detection (pre-commit via lefthook, CI via gitleaks-action)
-- [ ] Evaluate OpenSSF Scorecard and address findings
+- [x] Evaluate OpenSSF Scorecard and address findings (baseline 2.2/10; SECURITY.md, Dependabot, branch protection added)
+- [x] Add OpenSSF Scorecard to CI (`ossf/scorecard-action@v2.4.1`, main only)
+- [x] Extract quality gates reference doc (`docs/reference/quality-gates.md`)
 - [ ] Adopt Hex.pm account security recommendations as Aegis tooling matures
 - [ ] Add signed container image provenance
 
