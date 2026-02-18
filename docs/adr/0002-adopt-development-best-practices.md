@@ -1,10 +1,8 @@
-# 2. Adopt Development Best Practices
+# ADR-0002: Adopt Development Best Practices
 
-Date: 2025-01-30
-
-## Status
-
-Accepted
+**Date:** 2025-01-30
+**Status:** Accepted
+**Deciders:** Georges Martin
 
 ## Context
 
@@ -94,7 +92,7 @@ podman run --rm -p 8080:8080 \
 - **Sprint Review**: Demonstrate completed API endpoints and validate against PVE compatibility requirements
 - **Sprint Retrospective**: Continuous improvement of endpoint development and testing process
 
-### Documentation Framework (Diataxis)
+### Documentation Framework (Diátaxis)
 **Four Documentation Types**:
 1. **Tutorials** (Learning-oriented): Getting started guides for new users and contributors
 2. **How-to Guides** (Problem-oriented): Specific integration task solutions (CI/CD, multi-version testing)
@@ -149,6 +147,23 @@ Key practices: SBOM generation, SPDX licence headers, gitleaks secret detection,
 
 See [docs/reference/quality-gates.md](../reference/quality-gates.md) for the full alignment matrix.
 
+### AI-Assisted Development
+
+#### Usage Rules (`usage_rules` dependency)
+
+The `usage_rules` hex package (dev-only) provides Elixir usage rules for Claude Code and other AI assistants, ensuring generated code follows language conventions.
+
+```elixir
+# mix.exs
+{:usage_rules, "~> 1.1", only: :dev, runtime: false}
+```
+
+Configured to load rules for `[:elixir]` (Plug-based project, no Ash/Phoenix framework rules needed).
+
+#### Claude Code Skills (`.claude/skills/`)
+
+Project-specific skills provide domain context for AI-assisted development sessions covering PVE API simulation, version compatibility, and endpoint implementation patterns.
+
 ## Consequences
 
 **Positive:**
@@ -157,7 +172,7 @@ See [docs/reference/quality-gates.md](../reference/quality-gates.md) for the ful
 - Controlled Releases: Gitflow manages development complexity and Docker Hub publishing
 - Change Transparency: Keep a Changelog format aids users and maintainers of container images
 - Architecture Visibility: C4 DSL provides clear system understanding for contributors
-- Comprehensive Documentation: Diataxis serves all user types effectively (developers, DevOps, end users)
+- Comprehensive Documentation: Diátaxis serves all user types effectively (developers, DevOps, end users)
 - Professional Standards: Industry best practices increase adoption confidence and Docker Hub credibility
 - Iterative Development: Sprint-based approach enables rapid feedback and course correction
 - Container Quality: Systematic approach to container image security and distribution
@@ -181,7 +196,7 @@ See [docs/reference/quality-gates.md](../reference/quality-gates.md) for the ful
 - [x] Create initial C4 DSL architecture model
 
 ### Phase 2: Documentation Framework (Completed)
-- [x] Establish Diataxis documentation structure
+- [x] Establish Diátaxis documentation structure
 - [x] Convert existing documentation to appropriate categories
 - [x] Create comprehensive tutorial and reference content
 - [x] Set up C4 DSL validation in development workflow
@@ -218,7 +233,7 @@ These practices will be validated through:
 3. **Git History**: Clean, meaningful commit history following gitflow ✓
 4. **Change Documentation**: All releases documented in changelog ✓
 5. **Architecture Currency**: C4 DSL models updated with implementation changes ✓
-6. **Documentation Completeness**: All four Diataxis types populated and maintained ✓
+6. **Documentation Completeness**: All four Diátaxis types populated and maintained ✓
 7. **Container Quality**: Successful Docker Hub distribution with security scanning ⏳
 8. **Supply Chain Security**: SBOM generation for all releases with vulnerability assessment ✓
 9. **Quality Gates**: Pre-commit and pre-push hooks enforced via lefthook; CI pipeline green ✓
@@ -227,6 +242,5 @@ These practices will be validated through:
 
 ## Related Decisions
 
-- ADR-0001: Record architecture decisions (establishes documentation process)
-- ADR-0003: Elixir/OTP implementation choice (will follow these established practices)
-- Future ADRs: Container deployment, API coverage strategy, version compatibility matrix
+- [ADR-0001: Record Architecture Decisions](0001-record-architecture-decisions.md)
+- [ADR-0003: Elixir/OTP Implementation Choice](0003-elixir-otp-implementation-choice.md)

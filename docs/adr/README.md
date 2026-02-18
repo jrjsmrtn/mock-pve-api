@@ -16,7 +16,7 @@ The project follows the **AI-Assisted Project Orchestration** pattern language, 
 **[0002-adopt-development-best-practices.md](0002-adopt-development-best-practices.md)**
 - **Status**: Accepted
 - **Purpose**: Comprehensive development practices for testing infrastructure
-- **Key Practices**: TDD, Semantic Versioning, Gitflow, Keep a Changelog, C4 DSL, Diataxis Documentation, Sprint-based Development, Container-first approach
+- **Key Practices**: TDD, Semantic Versioning, Gitflow, Keep a Changelog, C4 DSL, Diátaxis Documentation, Sprint-based Development, Container-first approach
 
 ### ADR-0003: Elixir/OTP Implementation Choice
 **[0003-elixir-otp-implementation-choice.md](0003-elixir-otp-implementation-choice.md)**
