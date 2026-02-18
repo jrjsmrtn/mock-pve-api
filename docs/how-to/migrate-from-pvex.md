@@ -549,4 +549,4 @@ end
 
 ## Contributing
 
-The Mock PVE API Server welcomes contributions to improve compatibility and add features. See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
+The Mock PVE API Server welcomes contributions to improve compatibility and add features. See [CONTRIBUTING.md](../../CONTRIBUTING.md) for guidelines.

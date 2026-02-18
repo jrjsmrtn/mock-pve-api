@@ -403,7 +403,7 @@ docker logs <container_id>
 
 ## Next Steps
 
-- **[API Endpoints Reference](../reference/api-endpoints.md)**: Complete list of supported endpoints
+- **[API Reference](../reference/api-reference.md)**: Complete list of supported endpoints
 - **[Environment Variables Reference](../reference/environment-variables.md)**: Detailed configuration options
 - **[CI/CD Setup Guide](../how-to/setup-ci-cd.md)**: Advanced CI/CD patterns
 - **[Version Compatibility Explanation](../explanation/version-compatibility.md)**: PVE version differences

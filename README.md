@@ -468,7 +468,7 @@ podman-compose up mock-pve-7 mock-pve-8 mock-pve-9
 
 #### Reference
 
-- **[API Endpoints](docs/reference/api-endpoints.md)** - Complete endpoint documentation
+- **[API Reference](docs/reference/api-reference.md)** - Complete endpoint documentation
 - **[Environment Variables](docs/reference/environment-variables.md)** - Configuration reference
 - **[Client Examples](docs/reference/client-examples.md)** - Multi-language examples
 - **[Quality Gates](docs/reference/quality-gates.md)** - Pre-commit, pre-push, and CI quality checks
@@ -489,7 +489,7 @@ podman-compose up mock-pve-7 mock-pve-8 mock-pve-9
 
 - **[Multi-Language Examples](examples/)** - Python, JavaScript, Go, Ruby, Shell, Elixir
 - **[pvex Integration](examples/elixir/pvex_integration.exs)** - Elixir client library integration
-- **[Podman Compose Setups](podman-compose*.yml)** - Development and testing configurations
+- **[Podman Compose Setup](podman-compose.yml)** - Development and testing configuration
 
 ## Architecture
 
