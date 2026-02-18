@@ -2,7 +2,7 @@
 
 **Date:** 2025-01-30  
 **Status:** Accepted  
-**Deciders:** Development Team
+**Deciders:** Georges Martin
 
 ## Context and Problem Statement
 

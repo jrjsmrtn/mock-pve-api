@@ -2,7 +2,7 @@
 
 **Date:** 2025-01-30  
 **Status:** Implemented  
-**Deciders:** Development Team  
+**Deciders:** Georges Martin  
 **Sprint:** API Coverage Matrix Implementation
 
 ## Context and Problem Statement
@@ -151,7 +151,7 @@ end
 
 ## Related Decisions
 
-* [ADR-0001](0001-record-architecture-decisions.md): Establishes ADR documentation framework
-* [ADR-0003](0003-elixir-otp-implementation-choice.md): Technology choice enables efficient coverage matrix
-* [ADR-0004](0004-plug-over-phoenix-minimal-framework.md): Plug framework supports coverage-aware routing
-* [ADR-0006](0006-capability-matrix-version-compatibility.md): Capability matrix complements coverage matrix
+- [ADR-0001: Record Architecture Decisions](0001-record-architecture-decisions.md)
+- [ADR-0003: Elixir/OTP Implementation Choice](0003-elixir-otp-implementation-choice.md)
+- [ADR-0004: Plug over Phoenix for Minimal Framework Footprint](0004-plug-over-phoenix-minimal-framework.md)
+- [ADR-0006: Capability Matrix for Version Compatibility](0006-capability-matrix-version-compatibility.md)

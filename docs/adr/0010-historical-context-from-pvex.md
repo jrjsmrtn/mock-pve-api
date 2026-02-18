@@ -1,8 +1,8 @@
-# ADR-0011: Historical Context from pvex Project
+# ADR-0010: Historical Context from pvex Project
 
 **Date:** 2025-08-30
 **Status:** Accepted and Documented
-**Deciders:** Development Team
+**Deciders:** Georges Martin
 
 ## Context and Problem Statement
 
