@@ -117,11 +117,16 @@ docs/
 - **CI/CD**: Native container integration for GitHub Actions, GitLab CI, Jenkins
 - **Security**: Rootless containers, vulnerability scanning, comprehensive SBOM generation
 
+### Consistent Quality Gates
+**Approach**: Escalating quality gate chain — pre-commit (fast) -> pre-push (thorough) -> CI (comprehensive) — using `.editorconfig`, lefthook, gitleaks, and GitHub Actions.
+
+See [docs/reference/quality-gates.md](../reference/quality-gates.md) for operational details (configuration, commands, CI job structure, scorecard baseline).
+
 ### Supply Chain Security & SBOM Generation
 **Approach**: Comprehensive Software Bill of Materials (SBOM) generation for supply chain transparency
 - **SBOM Formats**: Support for SPDX 2.3, CycloneDX 1.4, and custom Mix dependency formats
 - **Dependency Tracking**: Complete Elixir/OTP dependency tree analysis with version pinning
-- **Vulnerability Scanning**: Automated security scanning with Syft and Grype tools  
+- **Vulnerability Scanning**: Automated security scanning with Syft and Grype tools
 - **CI/CD Integration**: SBOM generation integrated into GitHub Actions release pipeline
 - **Transparency**: Public SBOM availability for container images and releases
 - **Compliance**: Meets enterprise and government supply chain security requirements
@@ -134,11 +139,6 @@ make sbom-spdx             # SPDX JSON format for compliance
 make sbom-cyclonedx        # CycloneDX format for tooling integration
 make vulnerability-scan    # Security vulnerability assessment
 ```
-
-### Consistent Quality Gates
-**Approach**: Escalating quality gate chain — pre-commit (fast) -> pre-push (thorough) -> CI (comprehensive) — using `.editorconfig`, lefthook, gitleaks, and GitHub Actions.
-
-See [docs/reference/quality-gates.md](../reference/quality-gates.md) for operational details (configuration, commands, CI job structure, scorecard baseline).
 
 ### Erlef Aegis & OpenSSF Compliance
 **Approach**: Align with the [EEF Security Working Group's Aegis initiative](https://security.erlef.org/aegis/) and [OpenSSF](https://openssf.org/) best practices to strengthen supply chain security and meet emerging regulations (EU CRA, NIST SSDF).
