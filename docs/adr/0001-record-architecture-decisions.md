@@ -1,10 +1,8 @@
-# 1. Record Architecture Decisions
+# ADR-0001: Record Architecture Decisions
 
-Date: 2025-01-30
-
-## Status
-
-Accepted
+**Date:** 2025-01-30
+**Status:** Accepted
+**Deciders:** Georges Martin
 
 ## Context
 
@@ -66,6 +64,5 @@ echo "# Architecture Decision Records" > docs/adr/README.md
 
 ## Related Decisions
 
-- Future ADRs will follow this established process
-- All significant architectural decisions will be documented using this format
-- Foundation ADR sequence (0001-0003) establishes systematic development practices
+- [ADR-0002: Adopt Development Best Practices](0002-adopt-development-best-practices.md)
+- [ADR-0003: Elixir/OTP Implementation Choice](0003-elixir-otp-implementation-choice.md)

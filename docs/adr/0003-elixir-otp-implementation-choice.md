@@ -1,10 +1,8 @@
-# 3. Elixir/OTP Implementation Choice
+# ADR-0003: Elixir/OTP Implementation Choice
 
-Date: 2025-01-30
-
-## Status
-
-Accepted
+**Date:** 2025-01-30
+**Status:** Accepted
+**Deciders:** Georges Martin
 
 ## Context
 
@@ -290,8 +288,8 @@ While Elixir/OTP is the optimal choice, the architecture allows for future migra
 
 ## Related Decisions
 
-* ADR-0001: Record architecture decisions (establishes documentation framework)
-* ADR-0002: Adopt development best practices (defines development methodology)
-* ADR-0004: Plug Framework Selection (detailed HTTP framework choice)
-* ADR-0005: In-Memory State Management (state storage strategy)
-* ADR-0006: Container-First Deployment Strategy (deployment methodology)
+- [ADR-0001: Record Architecture Decisions](0001-record-architecture-decisions.md)
+- [ADR-0002: Adopt Development Best Practices](0002-adopt-development-best-practices.md)
+- [ADR-0004: Plug Framework Selection](0004-plug-over-phoenix-minimal-framework.md)
+- [ADR-0005: In-Memory State Management](0005-in-memory-state-management.md)
+- [ADR-0007: Container-First Deployment Strategy](0007-container-first-deployment.md)
