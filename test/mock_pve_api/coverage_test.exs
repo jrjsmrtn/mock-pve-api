@@ -62,7 +62,12 @@ defmodule MockPveApi.CoverageTest do
         :containers,
         :storage,
         :access,
-        :pools
+        :pools,
+        :sdn,
+        :monitoring,
+        :backup,
+        :hardware,
+        :firewall
       ]
 
       for category <- expected_categories do
@@ -317,10 +322,33 @@ defmodule MockPveApi.CoverageTest do
         # Container cloning - POST only
         "/api2/json/nodes/{node}/lxc/{vmid}/clone",
         # Cluster join action - POST only
-        "/api2/json/cluster/config/join"
+        "/api2/json/cluster/config/join",
+        # Realm sync action - POST only
+        "/api2/json/access/domains/{realm}/sync",
+        # Backup (vzdump) - POST only
+        "/api2/json/nodes/{node}/vzdump",
+        # Restore actions - POST only
+        "/api2/json/nodes/{node}/qmrestore",
+        "/api2/json/nodes/{node}/vzrestore",
+        # VM migration - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/migrate",
+        # Container migration - POST only
+        "/api2/json/nodes/{node}/lxc/{vmid}/migrate",
+        # VM snapshot - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/snapshot",
+        # Node execute - POST only
+        "/api2/json/nodes/{node}/execute",
+        # Container status action - POST only
+        "/api2/json/nodes/{node}/lxc/{vmid}/status/{action}",
+        # Storage import - POST only
+        "/api2/json/nodes/{node}/storage/{storage}/import"
       ]
 
-      for endpoint <- all_endpoints do
+      # Only validate method combinations on implemented endpoints —
+      # planned endpoints may have action-only methods we haven't verified.
+      implemented = Enum.filter(all_endpoints, &(&1.status == :implemented))
+
+      for endpoint <- implemented do
         methods = endpoint.methods
 
         # If POST is present for creation, GET should also be present for listing
@@ -328,12 +356,16 @@ defmodule MockPveApi.CoverageTest do
         if :post in methods and
              String.ends_with?(endpoint.path, "}") == false and
              endpoint.path not in action_endpoints do
-          # This is a collection endpoint with POST, should have GET
           assert :get in methods, "Collection endpoint #{endpoint.path} has POST but no GET"
         end
 
-        # If PUT is present, GET should also be present  
-        if :put in methods do
+        # If PUT is present, GET should also be present
+        # Exception: action-only endpoints (password change, ACL update)
+        put_only_actions = [
+          "/api2/json/access/acl"
+        ]
+
+        if :put in methods and endpoint.path not in put_only_actions do
           assert :get in methods, "Endpoint #{endpoint.path} has PUT but no GET"
         end
       end
@@ -398,18 +430,26 @@ defmodule MockPveApi.CoverageTest do
       assert Coverage.get_endpoint_info("/api2/json/nodes/{node}/lxc/{vmid}") != nil
     end
 
-    test "coverage percentage is reasonable" do
+    test "coverage percentage reflects planned endpoint catalog" do
       stats = Coverage.get_coverage_stats()
 
-      # Should have reasonable coverage (> 50%) for initial implementation
-      assert stats.coverage_percentage > 50.0,
-             "Coverage percentage too low: #{stats.coverage_percentage}%"
+      # With ~300 total endpoints and ~68 implemented, coverage is ~22-35%
+      assert stats.coverage_percentage > 15.0,
+             "Coverage percentage unexpectedly low: #{stats.coverage_percentage}%"
+
+      assert stats.coverage_percentage < 50.0,
+             "Coverage percentage unexpectedly high: #{stats.coverage_percentage}% — " <>
+               "if many planned endpoints were implemented, update this assertion"
 
       # Should have some critical endpoints implemented
       critical_endpoints = Coverage.get_endpoints_by_priority(:critical)
       implemented_critical = Enum.filter(critical_endpoints, &(&1.status == :implemented))
 
       assert length(implemented_critical) > 0, "No critical endpoints implemented"
+
+      # Planned endpoints should outnumber implemented ones
+      assert stats.planned > stats.implemented,
+             "Expected more planned than implemented endpoints"
     end
   end
 end

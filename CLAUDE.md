@@ -464,6 +464,19 @@ config :mock_pve_api,
 - [ ] Release v0.4.7 as stable production image
 - [ ] Update container registry documentation
 
+### **Phase 5.1: Simulation Features (v0.5.1)**
+- [ ] **Implement feature toggle env vars**: Wire `MOCK_PVE_ENABLE_SDN`, `MOCK_PVE_ENABLE_FIREWALL`, `MOCK_PVE_ENABLE_BACKUP_PROVIDERS` to router/handlers so they actually enable/disable endpoint groups at runtime
+- [ ] **Implement response delay**: Read `MOCK_PVE_DELAY` (configured in runtime.exs) and apply as `Process.sleep/1` in the router plug pipeline
+- [ ] **Implement error injection**: Read `MOCK_PVE_ERROR_RATE` and randomly return 500 errors at the configured percentage
+- [ ] **Firewall endpoint stubs**: Add `MockPveApi.Handlers.Firewall` with cluster-level, node-level, and VM/container-level firewall endpoints matching the real PVE API (mirrors `Pvex.Resources.Firewall`)
+- [ ] Tests for all new features
+
+### **Phase 5.2: Client Validation & Cross-Language Testing (v0.5.2)**
+- [ ] **Validate example scripts**: Run each script in `examples/` (Python, JavaScript, Go, Ruby, Shell, Elixir) against a live mock-pve-api instance, fix any failures
+- [ ] **proxmoxer integration test**: Install the [proxmoxer](https://github.com/proxmoxer/proxmoxer) Python library and run its standard operations (auth, list nodes, list VMs, create/delete VM, storage listing) against mock-pve-api; document gaps and fix mock responses as needed
+- [ ] **Automated example testing**: Add a `make test-examples` target that starts mock-pve-api, runs all example scripts, and reports results
+- [ ] **Document compatibility**: Update README and docs with verified client library compatibility matrix
+
 ### **Phase 6: Advanced Features (v0.6.0)**
 - [ ] WebSocket support for console/VNC simulation
 - [ ] Event streaming simulation
@@ -474,12 +487,11 @@ config :mock_pve_api,
 - [x] **SSL/TLS Support**: Moved to Phase 4.5 ✅ (Complete HTTPS support implemented)
 - [ ] Target: 95% coverage including version-specific features
 
-### **Phase 6: Testing Framework (v0.6.0)**
+### **Phase 6.1: Testing Framework (v0.6.1)**
 - [ ] **Integration Test Stabilization**: Fix remaining timeout issues in VersionCompatibilityTest
   - [ ] Improve server startup/shutdown timing in multi-server tests
   - [ ] Add better port conflict detection and resolution
   - [ ] Implement more robust test isolation for concurrent server instances
-  - [ ] Achieve 100% test suite reliability (52/52 tests passing)
 - [ ] Test helper library for common scenarios
 - [ ] Chaos engineering features (random failures)
 - [ ] Network condition simulation (latency, timeouts)

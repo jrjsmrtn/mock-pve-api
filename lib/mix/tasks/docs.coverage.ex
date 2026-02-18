@@ -80,7 +80,10 @@ defmodule Mix.Tasks.Docs.Coverage do
   defp generate_markdown do
     stats = MockPveApi.Coverage.get_coverage_stats()
     category_stats = MockPveApi.Coverage.get_category_stats()
-    categories = MockPveApi.Coverage.get_categories()
+
+    categories =
+      MockPveApi.Coverage.category_modules()
+      |> Enum.map(& &1.category())
 
     [
       generate_header(),
@@ -127,7 +130,7 @@ defmodule Mix.Tasks.Docs.Coverage do
 
     ```bash
     # Start the mock server
-    docker run -d -p 8006:8006 -e MOCK_PVE_VERSION=8.3 docker.io/jrjsmrtn/mock-pve-api:latest
+    podman run -d -p 8006:8006 -e MOCK_PVE_VERSION=8.3 ghcr.io/jrjsmrtn/mock-pve-api:latest
 
     # Test the connection
     curl http://localhost:8006/api2/json/version
@@ -174,6 +177,7 @@ defmodule Mix.Tasks.Docs.Coverage do
     | Icon | Status | Description |
     |------|--------|-------------|
     | ✅ | Implemented | Fully functional with complete response simulation |
+    | 📋 | Planned | Cataloged but not yet implemented |
     | 🔴 | PVE 8.0+ | Feature requires PVE 8.0 or later |
     | 🟠 | PVE 9.0+ | Feature requires PVE 9.0 or later |
 
@@ -596,7 +600,7 @@ defmodule Mix.Tasks.Docs.Coverage do
       docker run -d --name pve-$version \\
         -p $((8000 + ${version%%.*})):8006 \\
         -e MOCK_PVE_VERSION=$version \\
-        docker.io/jrjsmrtn/mock-pve-api:latest
+        ghcr.io/jrjsmrtn/mock-pve-api:latest
     done
     ```
 
@@ -623,17 +627,10 @@ defmodule Mix.Tasks.Docs.Coverage do
     3. **Version-Specific Features**: Accurate feature availability per version
     4. **Error Messages**: Similar error message formats
 
-    ### SDK and Client Library Compatibility
+    ### Client Library Usage
 
-    The Mock PVE API works with existing PVE client libraries:
-
-    - **Python**: `proxmoxer`, `python-proxmox`
-    - **JavaScript**: `proxmox-api`, `node-proxmox`
-    - **Go**: `proxmox-api-go`
-    - **Elixir**: `pvex`
-    - **PHP**: `proxmox-ve-api`
-
-    Configure your client to use `http://localhost:8006` as the PVE host.
+    Configure your PVE client library to use `http://localhost:8006` as the PVE host
+    with SSL verification disabled. The mock server accepts all authentication requests.
 
     ---
 
@@ -670,6 +667,11 @@ defmodule Mix.Tasks.Docs.Coverage do
   defp format_category_name(:storage), do: "Storage"
   defp format_category_name(:access), do: "Access Control"
   defp format_category_name(:pools), do: "Resource Pools"
+  defp format_category_name(:sdn), do: "SDN"
+  defp format_category_name(:monitoring), do: "Monitoring"
+  defp format_category_name(:backup), do: "Backup"
+  defp format_category_name(:hardware), do: "Hardware"
+  defp format_category_name(:firewall), do: "Firewall"
   defp format_category_name(other), do: other |> to_string() |> String.capitalize()
 
   defp format_category_title(:version), do: "Version Information"
@@ -680,6 +682,11 @@ defmodule Mix.Tasks.Docs.Coverage do
   defp format_category_title(:storage), do: "Storage Management"
   defp format_category_title(:access), do: "Access Control & User Management"
   defp format_category_title(:pools), do: "Resource Pool Management"
+  defp format_category_title(:sdn), do: "Software-Defined Networking (SDN)"
+  defp format_category_title(:monitoring), do: "Monitoring & Metrics"
+  defp format_category_title(:backup), do: "Backup & Restore"
+  defp format_category_title(:hardware), do: "Hardware Detection & Passthrough"
+  defp format_category_title(:firewall), do: "Firewall Management"
   defp format_category_title(other), do: other |> to_string() |> String.capitalize()
 
   defp format_priority(:critical), do: "Critical"
@@ -696,5 +703,10 @@ defmodule Mix.Tasks.Docs.Coverage do
   defp category_order(:storage), do: 5
   defp category_order(:access), do: 6
   defp category_order(:pools), do: 7
+  defp category_order(:sdn), do: 8
+  defp category_order(:monitoring), do: 9
+  defp category_order(:backup), do: 10
+  defp category_order(:hardware), do: 11
+  defp category_order(:firewall), do: 12
   defp category_order(_), do: 99
 end

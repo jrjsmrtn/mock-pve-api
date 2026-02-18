@@ -3,20 +3,24 @@
 
 defmodule MockPveApi.Coverage do
   @moduledoc """
-  Comprehensive PVE API coverage matrix for the Mock PVE Server.
+  PVE API coverage matrix for the Mock PVE Server.
 
-  This module defines all PVE API endpoints, their implementation status,
-  parameters, response schemas, and version requirements. Based on pvex project
-  analysis showing 97.8% API coverage across 305+ endpoints.
+  This module aggregates endpoint definitions from category-based sub-modules
+  under `MockPveApi.Coverage.*`. Each sub-module implements the
+  `MockPveApi.Coverage.Category` behaviour and owns a slice of the PVE API
+  surface area.
+
+  The canonical reference for PVE API endpoints is the
+  [PVE API Viewer](https://pve.proxmox.com/pve-docs/api-viewer/).
 
   Status Legend:
-  - :implemented - ✅ Fully implemented with complete functionality
-  - :partial - 🟡 Core functionality available, some features missing
-  - :in_progress - 🔄 Currently being developed
-  - :planned - 📋 Planned for implementation
-  - :not_supported - ❌ Not supported/not planned
-  - :pve8_only - 🔴 Available in PVE 8.x+ only
-  - :pve9_only - 🟠 Available in PVE 9.x+ only
+  - :implemented - Fully implemented with complete functionality
+  - :partial - Core functionality available, some features missing
+  - :in_progress - Currently being developed
+  - :planned - Planned for implementation
+  - :not_supported - Not supported/not planned
+  - :pve8_only - Available in PVE 8.x+ only
+  - :pve9_only - Available in PVE 9.x+ only
   """
 
   @type endpoint_category() ::
@@ -26,13 +30,13 @@ defmodule MockPveApi.Coverage do
           | :vms
           | :containers
           | :storage
-          | :network
-          | :firewall
           | :access
+          | :pools
+          | :sdn
+          | :monitoring
           | :backup
           | :hardware
-          | :pools
-          | :monitoring
+          | :firewall
 
   @type http_method() :: :get | :post | :put | :delete | :patch
 
@@ -72,950 +76,39 @@ defmodule MockPveApi.Coverage do
           notes: String.t() | nil
         }
 
-  # Comprehensive API Coverage Matrix based on pvex analysis (305+ endpoints)
-  @coverage_matrix %{
-    # Version Information (Critical Foundation)
-    version: %{
-      "/api2/json/version" => %{
-        path: "/api2/json/version",
-        methods: [:get],
-        status: :implemented,
-        priority: :critical,
-        since: "6.0",
-        description: "Get PVE version information and server details",
-        parameters: [],
-        response_schema: %{
-          version: :string,
-          release: :string,
-          repoid: :string,
-          keyboard: :string
-        },
-        example_response: %{
-          data: %{
-            version: "8.3",
-            release: "8.3-1",
-            repoid: "abcd1234",
-            keyboard: "en-us"
-          }
-        },
-        capabilities_required: [],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Version,
-        notes: "Foundation endpoint required for client compatibility"
-      }
-    },
+  # Category sub-modules — order determines display order in docs
+  @category_modules [
+    MockPveApi.Coverage.Version,
+    MockPveApi.Coverage.Cluster,
+    MockPveApi.Coverage.Nodes,
+    MockPveApi.Coverage.VMs,
+    MockPveApi.Coverage.Containers,
+    MockPveApi.Coverage.Storage,
+    MockPveApi.Coverage.Access,
+    MockPveApi.Coverage.Pools,
+    MockPveApi.Coverage.Sdn,
+    MockPveApi.Coverage.Monitoring,
+    MockPveApi.Coverage.Backup,
+    MockPveApi.Coverage.Hardware,
+    MockPveApi.Coverage.Firewall
+  ]
 
-    # Cluster Management (18 endpoints, pvex: 94% coverage)
-    cluster: %{
-      "/api2/json/cluster/status" => %{
-        path: "/api2/json/cluster/status",
-        methods: [:get],
-        status: :implemented,
-        priority: :critical,
-        since: "6.0",
-        description: "Get cluster status and node information",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [:cluster_basic],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Cluster,
-        notes: nil
-      },
-      "/api2/json/cluster/resources" => %{
-        path: "/api2/json/cluster/resources",
-        methods: [:get],
-        status: :implemented,
-        priority: :high,
-        since: "6.0",
-        description: "Get cluster resource overview (VMs, containers, storage)",
-        parameters: [
-          %{
-            name: "type",
-            type: :string,
-            required: false,
-            description: "Filter by resource type",
-            values: ["vm", "storage", "node", "sdn"],
-            default: nil
-          }
-        ],
-        response_schema: %{data: :array},
-        capabilities_required: [:cluster_basic],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Cluster,
-        notes: nil
-      },
-      "/api2/json/cluster/config/join" => %{
-        path: "/api2/json/cluster/config/join",
-        methods: [:post],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "Join node to existing cluster",
-        parameters: [
-          %{
-            name: "hostname",
-            type: :string,
-            required: true,
-            description: "Cluster hostname",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "nodeid",
-            type: :integer,
-            required: false,
-            description: "Node ID",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "votes",
-            type: :integer,
-            required: false,
-            description: "Number of votes",
-            values: nil,
-            default: 1
-          }
-        ],
-        response_schema: %{data: :string},
-        capabilities_required: [:cluster_basic],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Cluster,
-        notes: "Cluster management operations implemented"
-      },
-      "/api2/json/cluster/config" => %{
-        path: "/api2/json/cluster/config",
-        methods: [:get, :put],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "Cluster configuration management",
-        parameters: [],
-        response_schema: %{data: :object},
-        capabilities_required: [:cluster_basic],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Cluster,
-        notes: "Cluster configuration implemented"
-      },
-      "/api2/json/cluster/config/nodes" => %{
-        path: "/api2/json/cluster/config/nodes",
-        methods: [:get],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "List cluster nodes configuration",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [:cluster_basic],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Cluster,
-        notes: "Cluster nodes listing implemented"
-      },
-      "/api2/json/cluster/config/nodes/{node}" => %{
-        path: "/api2/json/cluster/config/nodes/{node}",
-        methods: [:delete],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "Remove node from cluster",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :string},
-        capabilities_required: [:cluster_basic],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Cluster,
-        notes: "Node removal from cluster implemented"
-      },
-      # SDN Management (PVE 8.0+, pvex: 97% coverage)
-      "/api2/json/cluster/sdn/zones" => %{
-        path: "/api2/json/cluster/sdn/zones",
-        methods: [:get, :post],
-        status: :implemented,
-        priority: :medium,
-        since: "8.0",
-        description: "Software Defined Networking zone management",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [:sdn_tech_preview],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.SDN,
-        notes: "SDN features available in PVE 8.0+ only"
-      },
-      "/api2/json/cluster/sdn/zones/{zone}" => %{
-        path: "/api2/json/cluster/sdn/zones/{zone}",
-        methods: [:get, :put, :delete],
-        status: :implemented,
-        priority: :medium,
-        since: "8.0",
-        description: "Individual SDN zone operations",
-        parameters: [
-          %{
-            name: "zone",
-            type: :string,
-            required: true,
-            description: "Zone identifier",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:sdn_tech_preview],
-        test_coverage: true,
-        handler_module: "Elixir.MockPveApi.Handlers.Sdn",
-        notes: "Complete CRUD operations for SDN zones"
-      },
-      "/api2/json/cluster/sdn/vnets" => %{
-        path: "/api2/json/cluster/sdn/vnets",
-        methods: [:get, :post],
-        status: :implemented,
-        priority: :medium,
-        since: "8.0",
-        description: "Virtual network management",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [:sdn_tech_preview],
-        test_coverage: true,
-        handler_module: "Elixir.MockPveApi.Handlers.Sdn",
-        notes: "Virtual network management with creation support"
-      },
-      # Backup Provider Management (PVE 8.2+)
-      "/api2/json/cluster/backup-info/providers" => %{
-        path: "/api2/json/cluster/backup-info/providers",
-        methods: [:get],
-        status: :implemented,
-        priority: :medium,
-        since: "8.2",
-        description: "List available backup providers",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [:backup_providers],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Cluster,
-        notes: "Backup provider plugins introduced in PVE 8.2"
-      },
-      # HA Affinity Rules (PVE 9.0+, pvex: 100% coverage)
-      "/api2/json/cluster/ha/affinity" => %{
-        path: "/api2/json/cluster/ha/affinity",
-        methods: [:get, :post],
-        status: :implemented,
-        priority: :medium,
-        since: "9.0",
-        description: "HA resource affinity rules management",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [:ha_resource_affinity],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Cluster,
-        notes: "HA affinity rules new in PVE 9.0"
-      }
-    },
+  # Build the coverage matrix at compile time from sub-modules.
+  # Inject the map key as `path` for any endpoint where `path` is empty
+  # (planned endpoints use a compact helper that omits the path).
+  @coverage_matrix Enum.into(@category_modules, %{}, fn mod ->
+                     endpoints =
+                       mod.endpoints()
+                       |> Enum.into(%{}, fn {key, info} ->
+                         if info.path == "" do
+                           {key, %{info | path: key}}
+                         else
+                           {key, info}
+                         end
+                       end)
 
-    # Node Management (25 endpoints, pvex: 96% coverage)  
-    nodes: %{
-      "/api2/json/nodes" => %{
-        path: "/api2/json/nodes",
-        methods: [:get],
-        status: :implemented,
-        priority: :critical,
-        since: "6.0",
-        description: "List all cluster nodes with status",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [:cluster_basic],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Nodes,
-        notes: nil
-      },
-      "/api2/json/nodes/{node}/status" => %{
-        path: "/api2/json/nodes/{node}/status",
-        methods: [:get, :post],
-        status: :implemented,
-        priority: :high,
-        since: "6.0",
-        description: "Node status and control operations",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "command",
-            type: :string,
-            required: false,
-            description: "Control command",
-            values: ["reboot", "shutdown"],
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:cluster_basic],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Nodes,
-        notes: nil
-      },
-      "/api2/json/nodes/{node}/version" => %{
-        path: "/api2/json/nodes/{node}/version",
-        methods: [:get],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "Node-specific version information",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:cluster_basic],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Nodes,
-        notes: nil
-      },
-      "/api2/json/nodes/{node}/time" => %{
-        path: "/api2/json/nodes/{node}/time",
-        methods: [:get, :put],
-        status: :implemented,
-        priority: :low,
-        since: "6.0",
-        description: "Node time configuration",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:cluster_basic],
-        test_coverage: true,
-        handler_module: "Elixir.MockPveApi.Handlers.Nodes",
-        notes: "Node time configuration and timezone management"
-      }
-    },
-
-    # Virtual Machine Management (35 endpoints, pvex: 97% coverage)
-    vms: %{
-      "/api2/json/nodes/{node}/qemu" => %{
-        path: "/api2/json/nodes/{node}/qemu",
-        methods: [:get, :post],
-        status: :implemented,
-        priority: :critical,
-        since: "6.0",
-        description: "List and create virtual machines on node",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "full",
-            type: :boolean,
-            required: false,
-            description: "Full VM information",
-            values: nil,
-            default: false
-          }
-        ],
-        response_schema: %{data: :array},
-        capabilities_required: [:basic_virtualization],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.VMs,
-        notes: nil
-      },
-      "/api2/json/nodes/{node}/qemu/{vmid}" => %{
-        path: "/api2/json/nodes/{node}/qemu/{vmid}",
-        methods: [:get, :put, :delete],
-        status: :implemented,
-        priority: :critical,
-        since: "6.0",
-        description: "Individual VM configuration and management",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "vmid",
-            type: :integer,
-            required: true,
-            description: "VM ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:basic_virtualization],
-        test_coverage: true,
-        handler_module: "Elixir.MockPveApi.Handlers.Nodes",
-        notes: "Complete VM configuration and management with comprehensive status info"
-      },
-      "/api2/json/nodes/{node}/qemu/{vmid}/status/current" => %{
-        path: "/api2/json/nodes/{node}/qemu/{vmid}/status/current",
-        methods: [:get],
-        status: :implemented,
-        priority: :high,
-        since: "6.0",
-        description: "Current VM status and statistics",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "vmid",
-            type: :integer,
-            required: true,
-            description: "VM ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:basic_virtualization],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.VMs,
-        notes: nil
-      },
-      "/api2/json/nodes/{node}/qemu/{vmid}/status/{command}" => %{
-        path: "/api2/json/nodes/{node}/qemu/{vmid}/status/{command}",
-        methods: [:post],
-        status: :implemented,
-        priority: :high,
-        since: "6.0",
-        description: "VM control operations (start, stop, reset, etc.)",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "vmid",
-            type: :integer,
-            required: true,
-            description: "VM ID",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "command",
-            type: :string,
-            required: true,
-            description: "Control command",
-            values: ["start", "stop", "reset", "shutdown", "suspend", "resume"],
-            default: nil
-          }
-        ],
-        response_schema: %{data: :string},
-        capabilities_required: [:basic_virtualization],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.VMs,
-        notes: "VM lifecycle operations fully supported"
-      },
-      "/api2/json/nodes/{node}/qemu/{vmid}/clone" => %{
-        path: "/api2/json/nodes/{node}/qemu/{vmid}/clone",
-        methods: [:post],
-        status: :implemented,
-        priority: :high,
-        since: "6.0",
-        description: "Clone virtual machine",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "vmid",
-            type: :integer,
-            required: true,
-            description: "Source VM ID",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "newid",
-            type: :integer,
-            required: true,
-            description: "New VM ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :string},
-        capabilities_required: [:basic_virtualization],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Nodes,
-        notes: "VM cloning operations implemented"
-      },
-      "/api2/json/nodes/{node}/lxc/{vmid}/clone" => %{
-        path: "/api2/json/nodes/{node}/lxc/{vmid}/clone",
-        methods: [:post],
-        status: :implemented,
-        priority: :high,
-        since: "6.0",
-        description: "Clone LXC container",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "vmid",
-            type: :integer,
-            required: true,
-            description: "Source Container ID",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "newid",
-            type: :integer,
-            required: true,
-            description: "New Container ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :string},
-        capabilities_required: [:containers],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Nodes,
-        notes: "Container cloning operations implemented"
-      }
-    },
-
-    # LXC Container Management (30 endpoints, pvex: 97% coverage) 
-    containers: %{
-      "/api2/json/nodes/{node}/lxc" => %{
-        path: "/api2/json/nodes/{node}/lxc",
-        methods: [:get, :post],
-        status: :implemented,
-        priority: :critical,
-        since: "6.0",
-        description: "List and create LXC containers on node",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :array},
-        capabilities_required: [:containers],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Containers,
-        notes: nil
-      },
-      "/api2/json/nodes/{node}/lxc/{vmid}" => %{
-        path: "/api2/json/nodes/{node}/lxc/{vmid}",
-        methods: [:get, :put, :delete],
-        status: :implemented,
-        priority: :critical,
-        since: "6.0",
-        description: "Individual LXC container configuration",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "vmid",
-            type: :integer,
-            required: true,
-            description: "Container ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:containers],
-        test_coverage: true,
-        handler_module: "Elixir.MockPveApi.Handlers.Nodes",
-        notes: "Complete container configuration and management with comprehensive status info"
-      },
-      "/api2/json/nodes/{node}/lxc/{vmid}/status/current" => %{
-        path: "/api2/json/nodes/{node}/lxc/{vmid}/status/current",
-        methods: [:get],
-        status: :implemented,
-        priority: :high,
-        since: "6.0",
-        description: "Current container status and statistics",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "vmid",
-            type: :integer,
-            required: true,
-            description: "Container ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:containers],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Containers,
-        notes: nil
-      }
-    },
-
-    # Storage Management (40 endpoints, pvex: 98% coverage)
-    storage: %{
-      "/api2/json/nodes/{node}/storage" => %{
-        path: "/api2/json/nodes/{node}/storage",
-        methods: [:get],
-        status: :implemented,
-        priority: :high,
-        since: "6.0",
-        description: "List storage configured for node",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "content",
-            type: :string,
-            required: false,
-            description: "Filter by content type",
-            values: ["images", "backup", "vztmpl"],
-            default: nil
-          }
-        ],
-        response_schema: %{data: :array},
-        capabilities_required: [:storage_basic],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Storage,
-        notes: nil
-      },
-      "/api2/json/nodes/{node}/storage/{storage}/status" => %{
-        path: "/api2/json/nodes/{node}/storage/{storage}/status",
-        methods: [:get],
-        status: :implemented,
-        priority: :high,
-        since: "6.0",
-        description: "Storage status and capacity information",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "storage",
-            type: :string,
-            required: true,
-            description: "Storage ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:storage_basic],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Storage,
-        notes: nil
-      },
-      "/api2/json/nodes/{node}/storage/{storage}/content" => %{
-        path: "/api2/json/nodes/{node}/storage/{storage}/content",
-        methods: [:get, :post],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "Storage content management (images, backups, templates)",
-        parameters: [
-          %{
-            name: "node",
-            type: :string,
-            required: true,
-            description: "Node name",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "storage",
-            type: :string,
-            required: true,
-            description: "Storage ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :array},
-        capabilities_required: [:storage_basic],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Storage,
-        notes: "Content listing implemented, content creation partial"
-      }
-    },
-
-    # User Management & Access Control (24 endpoints, pvex: 96% coverage)
-    access: %{
-      "/api2/json/access/users" => %{
-        path: "/api2/json/access/users",
-        methods: [:get, :post],
-        status: :implemented,
-        priority: :high,
-        since: "6.0",
-        description: "User account management",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [:user_management_basic],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Access,
-        notes: nil
-      },
-      "/api2/json/access/users/{userid}" => %{
-        path: "/api2/json/access/users/{userid}",
-        methods: [:get, :put, :delete],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "Individual user account operations",
-        parameters: [
-          %{
-            name: "userid",
-            type: :string,
-            required: true,
-            description: "User ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:user_management_basic],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Access,
-        notes: "Individual user CRUD operations implemented"
-      },
-      "/api2/json/access/ticket" => %{
-        path: "/api2/json/access/ticket",
-        methods: [:post],
-        status: :implemented,
-        priority: :high,
-        since: "6.0",
-        description: "Authentication ticket creation",
-        parameters: [
-          %{
-            name: "username",
-            type: :string,
-            required: true,
-            description: "Username",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "password",
-            type: :string,
-            required: true,
-            description: "Password",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "realm",
-            type: :string,
-            required: false,
-            description: "Authentication realm",
-            values: nil,
-            default: "pam"
-          }
-        ],
-        response_schema: %{data: %{ticket: :string, CSRFPreventionToken: :string}},
-        capabilities_required: [:user_management_basic],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Access,
-        notes: "Authentication system implemented"
-      },
-      "/api2/json/access/groups" => %{
-        path: "/api2/json/access/groups",
-        methods: [:get, :post],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "User group management",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [:user_management_basic],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Access,
-        notes: "Group management implemented"
-      },
-      "/api2/json/access/groups/{groupid}" => %{
-        path: "/api2/json/access/groups/{groupid}",
-        methods: [:get, :put, :delete],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "Individual group operations",
-        parameters: [
-          %{
-            name: "groupid",
-            type: :string,
-            required: true,
-            description: "Group ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:user_management_basic],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Access,
-        notes: "Individual group CRUD operations implemented"
-      },
-      "/api2/json/access/domains" => %{
-        path: "/api2/json/access/domains",
-        methods: [:get],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "Authentication realms/domains listing",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [:user_management_basic],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Access,
-        notes: "Domains/realms listing implemented"
-      },
-      "/api2/json/access/users/{userid}/token/{tokenid}" => %{
-        path: "/api2/json/access/users/{userid}/token/{tokenid}",
-        methods: [:get, :put, :delete],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "Individual API token operations",
-        parameters: [
-          %{
-            name: "userid",
-            type: :string,
-            required: true,
-            description: "User ID",
-            values: nil,
-            default: nil
-          },
-          %{
-            name: "tokenid",
-            type: :string,
-            required: true,
-            description: "Token ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:user_management_basic],
-        test_coverage: false,
-        handler_module: MockPveApi.Handlers.Access,
-        notes: "API token CRUD operations implemented"
-      }
-    },
-
-    # Resource Pool Management (15 endpoints, pvex: 100% coverage)
-    pools: %{
-      "/api2/json/pools" => %{
-        path: "/api2/json/pools",
-        methods: [:get, :post],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "Resource pool management",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [:cluster_basic],
-        test_coverage: true,
-        handler_module: MockPveApi.Handlers.Pools,
-        notes: nil
-      },
-      "/api2/json/pools/{poolid}" => %{
-        path: "/api2/json/pools/{poolid}",
-        methods: [:get, :put, :delete],
-        status: :implemented,
-        priority: :medium,
-        since: "6.0",
-        description: "Individual pool operations",
-        parameters: [
-          %{
-            name: "poolid",
-            type: :string,
-            required: true,
-            description: "Pool ID",
-            values: nil,
-            default: nil
-          }
-        ],
-        response_schema: %{data: :object},
-        capabilities_required: [:cluster_basic],
-        test_coverage: true,
-        handler_module: "Elixir.MockPveApi.Handlers.Pools",
-        notes: "Complete CRUD operations for resource pools"
-      }
-    }
-  }
+                     {mod.category(), endpoints}
+                   end)
 
   @doc """
   Gets endpoint information by path pattern matching.
@@ -1027,7 +120,7 @@ defmodule MockPveApi.Coverage do
       "/api2/json/version"
       iex> info.status
       :implemented
-      
+
       iex> info = MockPveApi.Coverage.get_endpoint_info("/api2/json/nodes/pve1/qemu/100")
       iex> info.path
       "/api2/json/nodes/{node}/qemu/{vmid}"
@@ -1167,6 +260,12 @@ defmodule MockPveApi.Coverage do
   end
 
   @doc """
+  Returns the ordered list of category modules.
+  """
+  @spec category_modules() :: [module()]
+  def category_modules, do: @category_modules
+
+  @doc """
   Checks if an endpoint is version-compatible.
   """
   @spec version_compatible?(String.t(), String.t()) :: boolean()
@@ -1197,22 +296,12 @@ defmodule MockPveApi.Coverage do
   end
 
   defp matches_pattern?(endpoint_path, pattern) do
-    # First try exact match for cases where we're looking up by pattern
     if endpoint_path == pattern do
       true
     else
-      # Handle parameterized routes like /nodes/{node}/qemu/{vmid}
-      pattern_regex =
-        pattern
-        |> String.replace("{node}", "[^/]+")
-        |> String.replace("{vmid}", "[0-9]+")
-        |> String.replace("{storage}", "[^/]+")
-        |> String.replace("{userid}", "[^/]+")
-        |> String.replace("{poolid}", "[^/]+")
-        |> String.replace("{zone}", "[^/]+")
-        |> String.replace("{command}", "[^/]+")
-
-      Regex.match?(~r/^#{pattern_regex}$/, endpoint_path)
+      # Generic: replace any {param} with a segment matcher
+      regex_str = Regex.replace(~r/\{[^}]+\}/, pattern, "[^/]+")
+      Regex.match?(~r/^#{regex_str}$/, endpoint_path)
     end
   end
 

@@ -1,7 +1,7 @@
 # Mock PVE API
 
-[![Hex.pm Version](https://img.shields.io/hexpm/v/mock_pve_api.svg)](https://hex.pm/packages/mock_pve_api)
-[![GHCR](https://img.shields.io/badge/GHCR-ghcr.io%2Fjrjsmrtn%2Fmock--pve--api-blue)](https://github.com/jrjsmrtn/mock-pve-api/pkgs/container/mock-pve-api)
+<!-- [![Hex.pm Version](https://img.shields.io/hexpm/v/mock_pve_api.svg)](https://hex.pm/packages/mock_pve_api) -->
+<!-- [![GHCR](https://img.shields.io/badge/GHCR-ghcr.io%2Fjrjsmrtn%2Fmock--pve--api-blue)](https://github.com/jrjsmrtn/mock-pve-api/pkgs/container/mock-pve-api) -->
 [![Podman Compatible](https://img.shields.io/badge/podman-compatible-326ce5.svg)](https://podman.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://github.com/jrjsmrtn/mock-pve-api/workflows/CI/badge.svg)](https://github.com/jrjsmrtn/mock-pve-api/actions)
@@ -14,25 +14,24 @@ Born from the [**pvex**](https://github.com/jrjsmrtn/pvex) project during Sprint
 
 **Battle-Tested Metrics from pvex Integration:**
 
-- ✅ **Test Reliability**: 100% pass rate across 135+ integration tests
-- ⚡ **Performance**: <1s startup, <100ms API responses
+- ✅ **Test Reliability**: 100% pass rate across 560+ unit and integration tests
 - 🔄 **CI/CD Ready**: Zero infrastructure dependencies
 - 🎯 **Version Coverage**: Complete PVE 7.0-9.0 feature matrix
-- 🌍 **Multi-Language**: Proven with Python, JavaScript, Elixir, Go, Ruby clients
+- 🌍 **Multi-Language**: Example scripts for Python, JavaScript, Elixir, Go, Ruby, Shell
 
 ## Features
 
 - **Complete PVE Version Support**: Simulates PVE 7.0 through 9.0 with version-specific features
 - **Realistic API Responses**: Accurate JSON responses matching real PVE API schemas
 - **Stateful Resource Management**: In-memory state tracking for VM, container, and storage lifecycle testing
-- **Container-Ready**: OCI images available on registries for instant deployment with Podman or Docker
+- **Container-Ready**: Build OCI images for deployment with Podman or Docker
 - **CI/CD Friendly**: Zero external dependencies - perfect for GitHub Actions, GitLab CI, etc.
-- **Configurable**: Environment variables for version simulation, delays, error injection
+- **Configurable**: Environment variables for version simulation and SSL/TLS
 - **Language Agnostic**: Works with any PVE client library (Python, JavaScript, Go, Elixir, etc.)
 
 ## Quick Start
 
-> **📦 Container Images**: Pre-built container images are available on [GHCR](https://github.com/jrjsmrtn/mock-pve-api/pkgs/container/mock-pve-api). You can also build from source.
+> **📦 Container Images**: Build from source using Podman or Docker. Pre-built images on GHCR are planned for a future release.
 
 ### Build and Run with Containers (Current Method)
 
@@ -82,7 +81,6 @@ services:
       - "8006:8006"
     environment:
       - MOCK_PVE_VERSION=8.3
-      - MOCK_PVE_ENABLE_SDN=true
       - MOCK_PVE_LOG_LEVEL=info
     # Podman-specific: Enable systemd integration
     systemd: true
@@ -168,6 +166,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    # NOTE: Replace with ghcr.io/jrjsmrtn/mock-pve-api:latest once
+    # pre-built images are published (Phase 5). For now, build from source.
     services:
       mock-pve:
         image: ghcr.io/jrjsmrtn/mock-pve-api:latest
@@ -206,12 +206,17 @@ Configure the mock server using environment variables:
 | `MOCK_PVE_SSL_KEYFILE`             | `certs/server.key` | SSL private key file                    |
 | `MOCK_PVE_SSL_CERTFILE`            | `certs/server.crt` | SSL certificate file                    |
 | `MOCK_PVE_SSL_CACERTFILE`          |                    | Optional CA certificate file            |
-| `MOCK_PVE_ENABLE_SDN`              | `true`             | Enable SDN endpoints (8.0+)             |
-| `MOCK_PVE_ENABLE_FIREWALL`         | `true`             | Enable firewall endpoints               |
-| `MOCK_PVE_ENABLE_BACKUP_PROVIDERS` | `true`             | Enable backup provider endpoints (8.2+) |
-| `MOCK_PVE_DELAY`                   | `0`                | Response delay in milliseconds          |
-| `MOCK_PVE_ERROR_RATE`              | `0`                | Simulate error percentage (0-100)       |
 | `MOCK_PVE_LOG_LEVEL`               | `info`             | Logging level                           |
+
+**Planned environment variables** (configured but not yet implemented):
+
+| Variable                           | Default   | Description                             |
+| ---------------------------------- | --------- | --------------------------------------- |
+| `MOCK_PVE_ENABLE_SDN`              | `true`    | Enable SDN endpoints (8.0+)             |
+| `MOCK_PVE_ENABLE_FIREWALL`         | `true`    | Enable firewall endpoints               |
+| `MOCK_PVE_ENABLE_BACKUP_PROVIDERS` | `true`    | Enable backup provider endpoints (8.2+) |
+| `MOCK_PVE_DELAY`                   | `0`       | Response delay in milliseconds          |
+| `MOCK_PVE_ERROR_RATE`              | `0`       | Simulate error percentage (0-100)       |
 
 ### Runtime Configuration
 
@@ -336,7 +341,6 @@ The mock server implements the most commonly used PVE API endpoints:
 ### Advanced Features (Version Dependent)
 
 - ✅ `/api2/json/cluster/sdn/*` - Software Defined Networking (8.0+)
-- ✅ `/api2/json/cluster/firewall/*` - Firewall management
 - ✅ `/api2/json/cluster/backup-info/providers` - Backup providers (8.2+)
 - ✅ `/api2/json/access/users` - User management
 - ✅ `/api2/json/pools` - Resource pools
@@ -419,7 +423,7 @@ Perfect for testing PVE client libraries without needing real hardware:
 
 ```bash
 # In your CI pipeline
-podman run -d --name mock-pve -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
+podman run -d --name mock-pve -p 8006:8006 mock-pve-api:latest  # locally built image
 sleep 10  # Wait for startup
 python -m pytest tests/integration/
 podman stop mock-pve
@@ -508,12 +512,14 @@ lib/
 │   ├── state.ex                 # Resource state management
 │   ├── fixtures.ex              # Response fixtures
 │   └── handlers/                # API endpoint handlers
-│       ├── version.ex
-│       ├── nodes.ex
-│       ├── storage.ex
-│       ├── cluster.ex
-│       ├── pools.ex
-│       └── access.ex
+│       ├── access.ex            # Authentication, users, groups, ACLs
+│       ├── cluster.ex           # Cluster status, config, join/leave
+│       ├── metrics.ex           # RRD data, netstat, node reports
+│       ├── nodes.ex             # VM/container lifecycle, tasks
+│       ├── pools.ex             # Resource pool management
+│       ├── sdn.ex               # SDN zones, VNets (8.0+)
+│       ├── storage.ex           # Storage content management
+│       └── version.ex           # Version information
 ```
 
 ## Changelog
@@ -526,7 +532,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 📖 [Documentation](https://hexdocs.pm/mock_pve_api)
+<!-- - 📖 [Documentation](https://hexdocs.pm/mock_pve_api) -->
 - 🐛 [Issues](https://github.com/jrjsmrtn/mock-pve-api/issues)
 - 💬 [Discussions](https://github.com/jrjsmrtn/mock-pve-api/discussions)
 - 🔒 [Security Policy](SECURITY.md)

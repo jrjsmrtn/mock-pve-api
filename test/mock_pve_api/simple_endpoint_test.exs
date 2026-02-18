@@ -5,7 +5,7 @@ defmodule MockPveApi.SimpleEndpointTest do
   @moduledoc """
   Simple endpoint validation that uses the existing server on port 8006.
 
-  This test validates all 37 endpoints by making HTTP requests to a running
+  This test validates all implemented endpoints by making HTTP requests to a running
   mock server instance, avoiding the complexity of starting multiple test servers.
   """
 
@@ -17,7 +17,7 @@ defmodule MockPveApi.SimpleEndpointTest do
   @base_url "http://127.0.0.1:#{Application.compile_env(:mock_pve_api, :port, 8007)}/api2/json"
 
   describe "endpoint availability validation" do
-    test "validates all 37 endpoints are accessible" do
+    test "validates all implemented endpoints are accessible" do
       # Ensure server is running
       case http_get("#{@base_url}/version") do
         {:ok, _} ->
@@ -27,14 +27,14 @@ defmodule MockPveApi.SimpleEndpointTest do
           flunk("Mock PVE API server must be running on port 8006. Run: mix run --no-halt")
       end
 
-      # Get all endpoints from coverage matrix
-      all_endpoints = get_all_endpoints()
+      # Get only implemented endpoints from coverage matrix
+      all_endpoints = get_implemented_endpoints()
+      count = length(all_endpoints)
 
-      # Validate we have exactly 37 endpoints
-      assert length(all_endpoints) == 37,
-             "Expected 37 endpoints, found #{length(all_endpoints)}"
+      assert count >= 37,
+             "Expected at least 37 implemented endpoints, found #{count}"
 
-      IO.puts("\n=== TESTING 37 ENDPOINTS ===")
+      IO.puts("\n=== TESTING #{count} IMPLEMENTED ENDPOINTS ===")
 
       # Test each endpoint
       results =
@@ -202,12 +202,27 @@ defmodule MockPveApi.SimpleEndpointTest do
     |> String.replace("{tokenid}", "test-token")
     |> String.replace("{zone}", "test-zone")
     |> String.replace("{command}", "start")
+    |> String.replace("{action}", "start")
+    |> String.replace("{realm}", "pam")
+    |> String.replace("{id}", "test-id")
+    |> String.replace("{upid}", "UPID:pve1:00000001:00000000:00000000:test:0:root@pam:")
+    |> String.replace("{pos}", "0")
+    |> String.replace("{group}", "test-group")
+    |> String.replace("{name}", "test-name")
+    |> String.replace("{cidr}", "10.0.0.0-24")
+    |> String.replace("{pciid}", "0000:00:00.0")
+    |> String.replace("{service}", "pvedaemon")
   end
 
   defp get_all_endpoints do
     Coverage.get_categories()
     |> Enum.flat_map(&Coverage.get_category_endpoints/1)
     |> Enum.sort_by(& &1.path)
+  end
+
+  defp get_implemented_endpoints do
+    get_all_endpoints()
+    |> Enum.filter(&(&1.status == :implemented))
   end
 
   defp test_endpoint(endpoint) do

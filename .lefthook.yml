@@ -8,7 +8,7 @@ pre-commit:
       glob: "*.{ex,exs}"
       run: mix compile --warnings-as-errors 2>&1
     docs-coverage:
-      glob: "lib/mock_pve_api/coverage.ex"
+      glob: "lib/mock_pve_api/coverage{.ex,/*.ex}"
       run: mix docs.coverage --check
     gitleaks:
       run: gitleaks protect --staged --no-banner --config .gitleaks.toml
