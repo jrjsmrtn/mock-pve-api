@@ -187,4 +187,83 @@ defmodule MockPveApi.Handlers.StorageTest do
       assert body["data"]["content"] == "backup"
     end
   end
+
+  # Router integration tests for new storage endpoints
+
+  defp request(method, path, body \\ nil) do
+    conn =
+      Plug.Test.conn(method, path, body && Jason.encode!(body))
+      |> Plug.Conn.put_req_header("content-type", "application/json")
+      |> Plug.Conn.put_req_header("authorization", "PVEAPIToken=root@pam!test=secret")
+
+    MockPveApi.Router.call(conn, MockPveApi.Router.init([]))
+  end
+
+  defp json(conn, status) do
+    assert conn.status == status
+    Jason.decode!(conn.resp_body)
+  end
+
+  describe "storage CRUD via router" do
+    test "create and get storage" do
+      conn =
+        request(:post, "/api2/json/storage", %{
+          "storage" => "nfs-share",
+          "type" => "nfs",
+          "content" => "backup,iso"
+        })
+
+      assert conn.status == 200
+
+      conn = request(:get, "/api2/json/storage/nfs-share")
+      storage = json(conn, 200)["data"]
+      assert storage["storage"] == "nfs-share"
+      assert storage["type"] == "nfs"
+    end
+
+    test "update storage" do
+      conn =
+        request(:put, "/api2/json/storage/local", %{
+          "content" => "images,backup,iso,vztmpl"
+        })
+
+      assert conn.status == 200
+      updated = State.get_storage_by_id("local")
+      assert updated.content == "images,backup,iso,vztmpl"
+    end
+
+    test "delete storage" do
+      conn = request(:delete, "/api2/json/storage/local-lvm")
+      assert conn.status == 200
+      assert State.get_storage_by_id("local-lvm") == nil
+    end
+
+    test "create duplicate storage returns 400" do
+      conn = request(:post, "/api2/json/storage", %{"storage" => "local", "type" => "dir"})
+      assert conn.status == 400
+    end
+
+    test "get nonexistent storage returns 404" do
+      conn = request(:get, "/api2/json/storage/nonexistent")
+      assert conn.status == 404
+    end
+
+    test "create storage requires storage name" do
+      conn = request(:post, "/api2/json/storage", %{"type" => "dir"})
+      assert conn.status == 400
+    end
+  end
+
+  describe "storage upload via router" do
+    test "upload returns UPID" do
+      conn =
+        request(:post, "/api2/json/nodes/pve-node1/storage/local/upload", %{
+          "content" => "iso",
+          "filename" => "test.iso"
+        })
+
+      data = json(conn, 200)["data"]
+      assert String.starts_with?(data, "UPID:")
+    end
+  end
 end

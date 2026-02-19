@@ -142,6 +142,29 @@ defmodule MockPveApi.Coverage.Backup do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Cluster,
         notes: nil
+      },
+      "/api2/json/nodes/{node}/vzdump/defaults" => %{
+        path: "/api2/json/nodes/{node}/vzdump/defaults",
+        methods: [:get],
+        status: :implemented,
+        priority: :low,
+        since: "6.0",
+        description: "Get vzdump default options",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
       }
     }
   end
@@ -153,9 +176,7 @@ defmodule MockPveApi.Coverage.Backup do
         planned(:post, :medium, "6.0", "Restore VM from backup"),
       "/api2/json/nodes/{node}/vzrestore" =>
         planned(:post, :medium, "6.0", "Restore container from backup"),
-      # Vzdump defaults and extractconfig
-      "/api2/json/nodes/{node}/vzdump/defaults" =>
-        planned(:get, :low, "6.0", "Get vzdump default options"),
+      # Vzdump extractconfig
       "/api2/json/nodes/{node}/vzdump/extractconfig" =>
         planned(:get, :low, "6.0", "Extract configuration from backup archive")
     }

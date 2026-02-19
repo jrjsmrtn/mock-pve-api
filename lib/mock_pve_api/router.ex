@@ -180,6 +180,50 @@ defmodule MockPveApi.Router do
     Nodes.get_node_version(conn)
   end
 
+  get "/api2/json/nodes/:node/config" do
+    Nodes.get_node_config(conn)
+  end
+
+  put "/api2/json/nodes/:node/config" do
+    Nodes.update_node_config(conn)
+  end
+
+  get "/api2/json/nodes/:node/dns" do
+    Nodes.get_node_dns(conn)
+  end
+
+  put "/api2/json/nodes/:node/dns" do
+    Nodes.update_node_dns(conn)
+  end
+
+  get "/api2/json/nodes/:node/apt/update" do
+    Nodes.get_apt_updates(conn)
+  end
+
+  post "/api2/json/nodes/:node/apt/update" do
+    Nodes.post_apt_update(conn)
+  end
+
+  get "/api2/json/nodes/:node/apt/versions" do
+    Nodes.get_apt_versions(conn)
+  end
+
+  get "/api2/json/nodes/:node/network/:iface" do
+    Nodes.get_node_network_iface(conn)
+  end
+
+  put "/api2/json/nodes/:node/network/:iface" do
+    Nodes.update_node_network_iface(conn)
+  end
+
+  delete "/api2/json/nodes/:node/network/:iface" do
+    Nodes.delete_node_network_iface(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/list" do
+    Nodes.list_disks(conn)
+  end
+
   get "/api2/json/nodes/:node/tasks" do
     Nodes.get_node_tasks(conn)
   end
@@ -194,6 +238,10 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/nodes/:node/execute" do
     Nodes.execute_command(conn)
+  end
+
+  get "/api2/json/nodes/:node/vzdump/defaults" do
+    Nodes.get_vzdump_defaults(conn)
   end
 
   # VM endpoints
@@ -362,6 +410,10 @@ defmodule MockPveApi.Router do
     Nodes.get_task_log(conn)
   end
 
+  delete "/api2/json/nodes/:node/tasks/:upid" do
+    Nodes.delete_task(conn)
+  end
+
   get "/api2/json/nodes/:node/time" do
     Nodes.get_node_time(conn)
   end
@@ -404,12 +456,40 @@ defmodule MockPveApi.Router do
     Storage.list_storage(conn)
   end
 
+  post "/api2/json/storage" do
+    Storage.create_storage(conn)
+  end
+
+  get "/api2/json/storage/:storage" do
+    Storage.get_storage(conn)
+  end
+
+  put "/api2/json/storage/:storage" do
+    Storage.update_storage(conn)
+  end
+
+  delete "/api2/json/storage/:storage" do
+    Storage.delete_storage(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage/content/:volume" do
+    Storage.get_storage_volume(conn)
+  end
+
+  delete "/api2/json/nodes/:node/storage/:storage/content/:volume" do
+    Storage.delete_storage_volume(conn)
+  end
+
   get "/api2/json/nodes/:node/storage/:storage/content" do
     Storage.get_storage_content(conn)
   end
 
   post "/api2/json/nodes/:node/storage/:storage/content" do
     Storage.create_storage_content(conn)
+  end
+
+  post "/api2/json/nodes/:node/storage/:storage/upload" do
+    Storage.upload_storage_content(conn)
   end
 
   # Cluster endpoints  

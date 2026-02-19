@@ -1159,4 +1159,296 @@ defmodule MockPveApi.Handlers.Nodes do
 
   defp maybe_put(map, _key, nil), do: map
   defp maybe_put(map, key, value), do: Map.put(map, key, value)
+
+  # Node DNS endpoints
+
+  @doc """
+  GET /api2/json/nodes/:node/dns
+  Gets node DNS configuration.
+  """
+  def get_node_dns(conn) do
+    node_name = conn.path_params["node"]
+    dns = State.get_node_dns(node_name)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: dns}))
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/dns
+  Updates node DNS configuration.
+  """
+  def update_node_dns(conn) do
+    node_name = conn.path_params["node"]
+    params = conn.body_params
+    :ok = State.update_node_dns(node_name, params)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # APT endpoints
+
+  @doc """
+  GET /api2/json/nodes/:node/apt/update
+  Lists available package updates.
+  """
+  def get_apt_updates(conn) do
+    updates = [
+      %{
+        "Package" => "pve-manager",
+        "Title" => "Proxmox VE Manager",
+        "OldVersion" => "8.0.3",
+        "Version" => "8.0.4",
+        "Section" => "admin",
+        "Priority" => "optional",
+        "Origin" => "Proxmox"
+      },
+      %{
+        "Package" => "libpve-common-perl",
+        "Title" => "Proxmox VE common library",
+        "OldVersion" => "8.0.5",
+        "Version" => "8.0.6",
+        "Section" => "perl",
+        "Priority" => "optional",
+        "Origin" => "Proxmox"
+      }
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: updates}))
+  end
+
+  @doc """
+  POST /api2/json/nodes/:node/apt/update
+  Triggers package database refresh.
+  """
+  def post_apt_update(conn) do
+    node_name = conn.path_params["node"]
+    upid = "UPID:#{node_name}:00000001:00000000:00000000:aptupdate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/apt/versions
+  Gets installed package versions.
+  """
+  def get_apt_versions(conn) do
+    versions = [
+      %{
+        "Package" => "pve-manager",
+        "Title" => "Proxmox VE Manager",
+        "CurrentState" => "Installed",
+        "RunningKernel" => "6.2.16-15-pve",
+        "OldVersion" => "8.0.3",
+        "Version" => "8.0.3",
+        "ManagerVersion" => "8.0.3"
+      },
+      %{
+        "Package" => "proxmox-ve",
+        "Title" => "Proxmox Virtual Environment",
+        "CurrentState" => "Installed",
+        "OldVersion" => "8.0.2",
+        "Version" => "8.0.2"
+      }
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: versions}))
+  end
+
+  # Network interface individual endpoints
+
+  @doc """
+  GET /api2/json/nodes/:node/network/:iface
+  Gets a specific network interface configuration.
+  """
+  def get_node_network_iface(conn) do
+    node_name = conn.path_params["node"]
+    iface = conn.path_params["iface"]
+
+    case State.get_node_network_iface(node_name, iface) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "Interface '#{iface}' not found on '#{node_name}'"}})
+        )
+
+      iface_info ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: iface_info}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/network/:iface
+  Updates a network interface configuration.
+  """
+  def update_node_network_iface(conn) do
+    node_name = conn.path_params["node"]
+    iface = conn.path_params["iface"]
+    params = conn.body_params
+
+    case State.update_node_network_iface(node_name, iface, params) do
+      {:ok, _updated} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  DELETE /api2/json/nodes/:node/network/:iface
+  Deletes a network interface configuration.
+  """
+  def delete_node_network_iface(conn) do
+    node_name = conn.path_params["node"]
+    iface = conn.path_params["iface"]
+
+    case State.delete_node_network_iface(node_name, iface) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  # Disk listing
+
+  @doc """
+  GET /api2/json/nodes/:node/disks/list
+  Lists local disks on a node.
+  """
+  def list_disks(conn) do
+    disks = [
+      %{
+        devpath: "/dev/sda",
+        size: 500_107_862_016,
+        serial: "WD-WCC4M1234567",
+        model: "WDC WD5003ABYX-01WERA0",
+        type: "hdd",
+        rpm: 7200,
+        vendor: "WDC",
+        wwn: "0x50014ee2",
+        health: "PASSED",
+        gpt: 1,
+        used: "LVM"
+      },
+      %{
+        devpath: "/dev/sdb",
+        size: 256_060_514_304,
+        serial: "S1234567890",
+        model: "Samsung SSD 860",
+        type: "ssd",
+        rpm: 0,
+        vendor: "Samsung",
+        wwn: "0x50025385",
+        health: "PASSED",
+        gpt: 1,
+        used: "LVM"
+      }
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: disks}))
+  end
+
+  # Task delete
+
+  @doc """
+  DELETE /api2/json/nodes/:node/tasks/:upid
+  Stops/deletes a task.
+  """
+  def delete_task(conn) do
+    upid = conn.path_params["upid"]
+
+    case State.delete_task(upid) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  # Node config
+
+  @doc """
+  GET /api2/json/nodes/:node/config
+  Gets node configuration.
+  """
+  def get_node_config(conn) do
+    node_name = conn.path_params["node"]
+    config = State.get_node_config(node_name)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: config}))
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/config
+  Updates node configuration.
+  """
+  def update_node_config(conn) do
+    node_name = conn.path_params["node"]
+    params = conn.body_params
+    :ok = State.update_node_config(node_name, params)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # Vzdump defaults
+
+  @doc """
+  GET /api2/json/nodes/:node/vzdump/defaults
+  Gets default vzdump options.
+  """
+  def get_vzdump_defaults(conn) do
+    defaults = %{
+      mode: "snapshot",
+      compress: "zstd",
+      storage: "local",
+      mailnotification: "always",
+      mailto: "",
+      maxfiles: 1,
+      pigz: 0,
+      bwlimit: 0,
+      ionice: 7,
+      lockwait: 180,
+      stopwait: 10,
+      tmpdir: "/var/tmp"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: defaults}))
+  end
 end

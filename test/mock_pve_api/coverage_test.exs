@@ -309,7 +309,9 @@ defmodule MockPveApi.CoverageTest do
         # Container status action - POST only
         "/api2/json/nodes/{node}/lxc/{vmid}/status/{action}",
         # Storage import - POST only
-        "/api2/json/nodes/{node}/storage/{storage}/import"
+        "/api2/json/nodes/{node}/storage/{storage}/import",
+        # Storage upload - POST only (returns UPID)
+        "/api2/json/nodes/{node}/storage/{storage}/upload"
       ]
 
       # Only validate method combinations on implemented endpoints —

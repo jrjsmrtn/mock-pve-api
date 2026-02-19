@@ -102,6 +102,61 @@ defmodule MockPveApi.State do
       sdn_vnets: %{},
       sdn_subnets: %{},
       sdn_controllers: %{},
+      storage_content: %{},
+      node_dns: %{},
+      node_network_interfaces: %{
+        "pve-node1" => %{
+          "eth0" => %{
+            iface: "eth0",
+            type: "eth",
+            active: 1,
+            autostart: 1,
+            method: "static",
+            address: "192.168.1.10",
+            netmask: "255.255.255.0",
+            gateway: "192.168.1.1"
+          },
+          "vmbr0" => %{
+            iface: "vmbr0",
+            type: "bridge",
+            active: 1,
+            autostart: 1,
+            method: "static",
+            address: "192.168.1.10",
+            netmask: "255.255.255.0",
+            gateway: "192.168.1.1",
+            bridge_ports: "eth0",
+            bridge_stp: "off",
+            bridge_fd: 0
+          }
+        },
+        "pve-node2" => %{
+          "eth0" => %{
+            iface: "eth0",
+            type: "eth",
+            active: 1,
+            autostart: 1,
+            method: "static",
+            address: "192.168.1.11",
+            netmask: "255.255.255.0",
+            gateway: "192.168.1.1"
+          },
+          "vmbr0" => %{
+            iface: "vmbr0",
+            type: "bridge",
+            active: 1,
+            autostart: 1,
+            method: "static",
+            address: "192.168.1.11",
+            netmask: "255.255.255.0",
+            gateway: "192.168.1.1",
+            bridge_ports: "eth0",
+            bridge_stp: "off",
+            bridge_fd: 0
+          }
+        }
+      },
+      node_configs: %{},
       pools: %{},
       users: %{
         "root@pam" => %{
@@ -679,6 +734,68 @@ defmodule MockPveApi.State do
 
   def delete_sdn_controller(controller) do
     GenServer.call(@name, {:delete_sdn_controller, controller})
+  end
+
+  # Storage CRUD operations
+  def get_storage_by_id(storage_id) do
+    GenServer.call(@name, {:get_storage_by_id, storage_id})
+  end
+
+  def create_storage(storage_id, params) do
+    GenServer.call(@name, {:create_storage, storage_id, params})
+  end
+
+  def update_storage(storage_id, params) do
+    GenServer.call(@name, {:update_storage, storage_id, params})
+  end
+
+  def delete_storage(storage_id) do
+    GenServer.call(@name, {:delete_storage, storage_id})
+  end
+
+  # Storage volume operations
+  def get_storage_volume(node, storage, volume) do
+    GenServer.call(@name, {:get_storage_volume, node, storage, volume})
+  end
+
+  def delete_storage_volume(node, storage, volume) do
+    GenServer.call(@name, {:delete_storage_volume, node, storage, volume})
+  end
+
+  # Node DNS operations
+  def get_node_dns(node) do
+    GenServer.call(@name, {:get_node_dns, node})
+  end
+
+  def update_node_dns(node, params) do
+    GenServer.call(@name, {:update_node_dns, node, params})
+  end
+
+  # Node network interface operations
+  def get_node_network_iface(node, iface) do
+    GenServer.call(@name, {:get_node_network_iface, node, iface})
+  end
+
+  def update_node_network_iface(node, iface, params) do
+    GenServer.call(@name, {:update_node_network_iface, node, iface, params})
+  end
+
+  def delete_node_network_iface(node, iface) do
+    GenServer.call(@name, {:delete_node_network_iface, node, iface})
+  end
+
+  # Node config operations
+  def get_node_config(node) do
+    GenServer.call(@name, {:get_node_config, node})
+  end
+
+  def update_node_config(node, params) do
+    GenServer.call(@name, {:update_node_config, node, params})
+  end
+
+  # Task delete
+  def delete_task(upid) do
+    GenServer.call(@name, {:delete_task, upid})
   end
 
   # Version and capability operations
@@ -2343,6 +2460,221 @@ defmodule MockPveApi.State do
       _controller ->
         new_controllers = Map.delete(state.sdn_controllers, controller)
         {:reply, :ok, %{state | sdn_controllers: new_controllers}}
+    end
+  end
+
+  # Storage CRUD handle_calls
+
+  def handle_call({:get_storage_by_id, storage_id}, _from, state) do
+    {:reply, Map.get(state.storage, storage_id), state}
+  end
+
+  def handle_call({:create_storage, storage_id, params}, _from, state) do
+    if Map.has_key?(state.storage, storage_id) do
+      {:reply, {:error, "Storage '#{storage_id}' already exists"}, state}
+    else
+      storage = %{
+        storage: storage_id,
+        type: Map.get(params, "type", "dir"),
+        content: Map.get(params, "content", "images"),
+        path: Map.get(params, "path"),
+        nodes: Map.get(params, "nodes", ""),
+        enabled: Map.get(params, "enabled", 1),
+        shared: Map.get(params, "shared", 0),
+        digest: "mock-digest-#{System.unique_integer([:positive])}"
+      }
+
+      new_storage = Map.put(state.storage, storage_id, storage)
+      {:reply, {:ok, storage}, %{state | storage: new_storage}}
+    end
+  end
+
+  def handle_call({:update_storage, storage_id, params}, _from, state) do
+    case Map.get(state.storage, storage_id) do
+      nil ->
+        {:reply, {:error, "Storage '#{storage_id}' not found"}, state}
+
+      existing ->
+        updates =
+          Enum.reduce(params, existing, fn
+            {"type", v}, acc -> Map.put(acc, :type, v)
+            {"content", v}, acc -> Map.put(acc, :content, v)
+            {"path", v}, acc -> Map.put(acc, :path, v)
+            {"nodes", v}, acc -> Map.put(acc, :nodes, v)
+            {"enabled", v}, acc -> Map.put(acc, :enabled, v)
+            {"shared", v}, acc -> Map.put(acc, :shared, v)
+            {"disable", v}, acc -> Map.put(acc, :disable, v)
+            _, acc -> acc
+          end)
+
+        new_storage = Map.put(state.storage, storage_id, updates)
+        {:reply, {:ok, updates}, %{state | storage: new_storage}}
+    end
+  end
+
+  def handle_call({:delete_storage, storage_id}, _from, state) do
+    case Map.get(state.storage, storage_id) do
+      nil ->
+        {:reply, {:error, "Storage '#{storage_id}' not found"}, state}
+
+      _storage ->
+        new_storage = Map.delete(state.storage, storage_id)
+        {:reply, :ok, %{state | storage: new_storage}}
+    end
+  end
+
+  # Storage volume operations
+
+  def handle_call({:get_storage_volume, _node, storage_id, volume}, _from, state) do
+    key = {storage_id, volume}
+
+    case Map.get(state.storage_content, key) do
+      nil ->
+        # Check if storage exists at all
+        if Map.has_key?(state.storage, storage_id) do
+          {:reply, nil, state}
+        else
+          {:reply, {:error, "Storage '#{storage_id}' not found"}, state}
+        end
+
+      content ->
+        {:reply, content, state}
+    end
+  end
+
+  def handle_call({:delete_storage_volume, _node, storage_id, volume}, _from, state) do
+    key = {storage_id, volume}
+
+    case Map.get(state.storage_content, key) do
+      nil ->
+        {:reply, {:error, "Volume '#{volume}' not found"}, state}
+
+      _content ->
+        new_content = Map.delete(state.storage_content, key)
+        {:reply, :ok, %{state | storage_content: new_content}}
+    end
+  end
+
+  # Node DNS handle_calls
+
+  def handle_call({:get_node_dns, node}, _from, state) do
+    dns =
+      Map.get(state.node_dns, node, %{
+        dns1: "8.8.8.8",
+        dns2: "8.8.4.4",
+        dns3: "",
+        search: "local"
+      })
+
+    {:reply, dns, state}
+  end
+
+  def handle_call({:update_node_dns, node, params}, _from, state) do
+    current = Map.get(state.node_dns, node, %{})
+
+    updated =
+      Enum.reduce(params, current, fn
+        {"dns1", v}, acc -> Map.put(acc, :dns1, v)
+        {"dns2", v}, acc -> Map.put(acc, :dns2, v)
+        {"dns3", v}, acc -> Map.put(acc, :dns3, v)
+        {"search", v}, acc -> Map.put(acc, :search, v)
+        _, acc -> acc
+      end)
+
+    new_dns = Map.put(state.node_dns, node, updated)
+    {:reply, :ok, %{state | node_dns: new_dns}}
+  end
+
+  # Node network interface handle_calls
+
+  def handle_call({:get_node_network_iface, node, iface}, _from, state) do
+    result =
+      case Map.get(state.node_network_interfaces, node) do
+        nil -> nil
+        ifaces -> Map.get(ifaces, iface)
+      end
+
+    {:reply, result, state}
+  end
+
+  def handle_call({:update_node_network_iface, node, iface, params}, _from, state) do
+    node_ifaces = Map.get(state.node_network_interfaces, node, %{})
+
+    case Map.get(node_ifaces, iface) do
+      nil ->
+        {:reply, {:error, "Interface '#{iface}' not found"}, state}
+
+      existing ->
+        updated =
+          Enum.reduce(params, existing, fn
+            {"address", v}, acc -> Map.put(acc, :address, v)
+            {"netmask", v}, acc -> Map.put(acc, :netmask, v)
+            {"gateway", v}, acc -> Map.put(acc, :gateway, v)
+            {"method", v}, acc -> Map.put(acc, :method, v)
+            {"autostart", v}, acc -> Map.put(acc, :autostart, v)
+            {"bridge_ports", v}, acc -> Map.put(acc, :bridge_ports, v)
+            {"mtu", v}, acc -> Map.put(acc, :mtu, v)
+            _, acc -> acc
+          end)
+
+        new_ifaces = Map.put(node_ifaces, iface, updated)
+        new_all = Map.put(state.node_network_interfaces, node, new_ifaces)
+        {:reply, {:ok, updated}, %{state | node_network_interfaces: new_all}}
+    end
+  end
+
+  def handle_call({:delete_node_network_iface, node, iface}, _from, state) do
+    node_ifaces = Map.get(state.node_network_interfaces, node, %{})
+
+    case Map.get(node_ifaces, iface) do
+      nil ->
+        {:reply, {:error, "Interface '#{iface}' not found"}, state}
+
+      _existing ->
+        new_ifaces = Map.delete(node_ifaces, iface)
+        new_all = Map.put(state.node_network_interfaces, node, new_ifaces)
+        {:reply, :ok, %{state | node_network_interfaces: new_all}}
+    end
+  end
+
+  # Node config handle_calls
+
+  def handle_call({:get_node_config, node}, _from, state) do
+    config =
+      Map.get(state.node_configs, node, %{
+        description: "",
+        wakeonlan: "",
+        startall_onboot_delay: 0
+      })
+
+    {:reply, config, state}
+  end
+
+  def handle_call({:update_node_config, node, params}, _from, state) do
+    current = Map.get(state.node_configs, node, %{})
+
+    updated =
+      Enum.reduce(params, current, fn
+        {"description", v}, acc -> Map.put(acc, :description, v)
+        {"wakeonlan", v}, acc -> Map.put(acc, :wakeonlan, v)
+        {"startall-onboot-delay", v}, acc -> Map.put(acc, :startall_onboot_delay, v)
+        _, acc -> acc
+      end)
+
+    new_configs = Map.put(state.node_configs, node, updated)
+    {:reply, :ok, %{state | node_configs: new_configs}}
+  end
+
+  # Task delete handle_call
+
+  def handle_call({:delete_task, upid}, _from, state) do
+    case Map.get(state.tasks, upid) do
+      nil ->
+        {:reply, {:error, "Task '#{upid}' not found"}, state}
+
+      _task ->
+        new_tasks = Map.delete(state.tasks, upid)
+        {:reply, :ok, %{state | tasks: new_tasks}}
     end
   end
 

@@ -217,6 +217,8 @@ defmodule MockPveApi.SimpleEndpointTest do
     |> String.replace("{subnet}", "10.0.0.0-24")
     |> String.replace("{controller}", "test-ctrl")
     |> String.replace("{cidr}", "10.0.0.0-24")
+    |> String.replace("{volume}", "local:iso/test.iso")
+    |> String.replace("{iface}", "eth0")
     |> String.replace("{pciid}", "0000:00:00.0")
     |> String.replace("{service}", "pvedaemon")
   end

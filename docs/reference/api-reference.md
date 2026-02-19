@@ -46,18 +46,18 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 |----------|-------|-------------|----------|
 | Version | 1 | 1 | 100.0% |
 | Cluster | 36 | 19 | 52.8% |
-| Nodes | 28 | 11 | 39.3% |
+| Nodes | 28 | 18 | 64.3% |
 | Virtual Machines | 21 | 11 | 52.4% |
 | LXC Containers | 17 | 11 | 64.7% |
-| Storage | 20 | 6 | 30.0% |
+| Storage | 20 | 9 | 45.0% |
 | Access Control | 17 | 15 | 88.2% |
 | Resource Pools | 2 | 2 | 100.0% |
 | SDN | 13 | 9 | 69.2% |
 | Monitoring | 16 | 7 | 43.8% |
-| Backup | 9 | 5 | 55.6% |
+| Backup | 9 | 6 | 66.7% |
 | Hardware | 7 | 0 | 0.0% |
 | Firewall | 41 | 0 | 0.0% |
-| **TOTAL** | **228** | **97** | **42.5%** |
+| **TOTAL** | **228** | **108** | **47.4%** |
 
 
 ## Status Legend
@@ -920,7 +920,7 @@ Node index — lists available sub-resources
 ```
 
 
-### `/nodes/{node}/apt/update` 📋
+### `/nodes/{node}/apt/update` ✅
 
 APT package update management
 
@@ -930,15 +930,21 @@ APT package update management
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/nodes/{node}/apt/versions` 📋
+### `/nodes/{node}/apt/versions` ✅
 
 Get package version information
 
@@ -948,10 +954,16 @@ Get package version information
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
@@ -992,7 +1004,7 @@ Get node TLS certificate info
 ```
 
 
-### `/nodes/{node}/config` 📋
+### `/nodes/{node}/config` ✅
 
 Node configuration options
 
@@ -1001,6 +1013,12 @@ Node configuration options
 | **Methods** | GET, PUT |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
 
 **Example Response**:
 ```json
@@ -1028,7 +1046,7 @@ Initialize disk with GPT
 ```
 
 
-### `/nodes/{node}/disks/list` 📋
+### `/nodes/{node}/disks/list` ✅
 
 List local disks
 
@@ -1038,10 +1056,16 @@ List local disks
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
@@ -1064,7 +1088,7 @@ Get SMART health data for disks
 ```
 
 
-### `/nodes/{node}/dns` 📋
+### `/nodes/{node}/dns` ✅
 
 Node DNS configuration
 
@@ -1073,6 +1097,12 @@ Node DNS configuration
 | **Methods** | GET, PUT |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
 
 **Example Response**:
 ```json
@@ -1184,7 +1214,7 @@ List available network interfaces
 ```
 
 
-### `/nodes/{node}/network/{iface}` 📋
+### `/nodes/{node}/network/{iface}` ✅
 
 Individual network interface management
 
@@ -1193,6 +1223,13 @@ Individual network interface management
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `iface` | string | Yes | Interface name | - |
 
 **Example Response**:
 ```json
@@ -1329,7 +1366,7 @@ List tasks on node
 ```
 
 
-### `/nodes/{node}/tasks/{upid}` 📋
+### `/nodes/{node}/tasks/{upid}` ✅
 
 Stop a running task
 
@@ -1338,6 +1375,13 @@ Stop a running task
 | **Methods** | DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `upid` | string | Yes | Task UPID | - |
 
 **Example Response**:
 ```json
@@ -2841,7 +2885,7 @@ Storage content management (images, backups, templates)
 **Notes**: Content listing implemented, content creation partial
 
 
-### `/nodes/{node}/storage/{storage}/content/{volume}` 📋
+### `/nodes/{node}/storage/{storage}/content/{volume}` ✅
 
 Individual storage volume operations
 
@@ -2850,6 +2894,14 @@ Individual storage volume operations
 | **Methods** | GET, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `storage` | string | Yes | Storage ID | - |
+| `volume` | string | Yes | Volume identifier | - |
 
 **Example Response**:
 ```json
@@ -3068,7 +3120,7 @@ Storage status and capacity information
 ```
 
 
-### `/nodes/{node}/storage/{storage}/upload` 📋
+### `/nodes/{node}/storage/{storage}/upload` ✅
 
 Upload content to storage
 
@@ -3077,6 +3129,13 @@ Upload content to storage
 | **Methods** | POST |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `storage` | string | Yes | Storage ID | - |
 
 **Example Response**:
 ```json
@@ -3097,11 +3156,11 @@ Upload content to storage
 
 ### `/storage` ✅
 
-List all storage definitions
+Storage definition management
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | GET, POST |
 | **Priority** | High |
 | **Since** | PVE 6.0 |
 
@@ -3122,7 +3181,7 @@ List all storage definitions
 ```
 
 
-### `/storage/{storage}` 📋
+### `/storage/{storage}` ✅
 
 Individual storage definition CRUD
 
@@ -3131,6 +3190,12 @@ Individual storage definition CRUD
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `storage` | string | Yes | Storage ID | - |
 
 **Example Response**:
 ```json
@@ -4456,7 +4521,7 @@ Create backup (vzdump)
 **Notes**: Inline handler in router
 
 
-### `/nodes/{node}/vzdump/defaults` 📋
+### `/nodes/{node}/vzdump/defaults` ✅
 
 Get vzdump default options
 
@@ -4465,6 +4530,12 @@ Get vzdump default options
 | **Methods** | GET |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
 
 **Example Response**:
 ```json

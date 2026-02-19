@@ -289,37 +289,201 @@ defmodule MockPveApi.Coverage.Nodes do
         test_coverage: false,
         handler_module: MockPveApi.Handlers.Nodes,
         notes: nil
+      },
+      "/api2/json/nodes/{node}/dns" => %{
+        path: "/api2/json/nodes/{node}/dns",
+        methods: [:get, :put],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Node DNS configuration",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:cluster_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/apt/update" => %{
+        path: "/api2/json/nodes/{node}/apt/update",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "APT package update management",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :array},
+        capabilities_required: [:cluster_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/apt/versions" => %{
+        path: "/api2/json/nodes/{node}/apt/versions",
+        methods: [:get],
+        status: :implemented,
+        priority: :low,
+        since: "6.0",
+        description: "Get package version information",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :array},
+        capabilities_required: [:cluster_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/network/{iface}" => %{
+        path: "/api2/json/nodes/{node}/network/{iface}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Individual network interface management",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "iface",
+            type: :string,
+            required: true,
+            description: "Interface name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:cluster_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/disks/list" => %{
+        path: "/api2/json/nodes/{node}/disks/list",
+        methods: [:get],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "List local disks",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :array},
+        capabilities_required: [:cluster_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/tasks/{upid}" => %{
+        path: "/api2/json/nodes/{node}/tasks/{upid}",
+        methods: [:delete],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Stop a running task",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "upid",
+            type: :string,
+            required: true,
+            description: "Task UPID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:cluster_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/config" => %{
+        path: "/api2/json/nodes/{node}/config",
+        methods: [:get, :put],
+        status: :implemented,
+        priority: :low,
+        since: "6.0",
+        description: "Node configuration options",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:cluster_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
       }
     }
   end
 
   defp planned_endpoints do
     %{
-      "/api2/json/nodes/{node}/apt/update" =>
-        planned(:get_post, :medium, "6.0", "APT package update management"),
-      "/api2/json/nodes/{node}/apt/versions" =>
-        planned(:get, :low, "6.0", "Get package version information"),
       "/api2/json/nodes/{node}/certificates/info" =>
         planned(:get, :low, "6.0", "Get node TLS certificate info"),
       "/api2/json/nodes/{node}/certificates/acme/certificate" =>
         planned(:post_put_delete, :low, "6.0", "ACME certificate management"),
-      "/api2/json/nodes/{node}/disks/list" => planned(:get, :medium, "6.0", "List local disks"),
       "/api2/json/nodes/{node}/disks/smart" =>
         planned(:get, :low, "6.0", "Get SMART health data for disks"),
       "/api2/json/nodes/{node}/disks/initgpt" =>
         planned(:post, :low, "6.0", "Initialize disk with GPT"),
-      "/api2/json/nodes/{node}/dns" =>
-        planned(:get_put, :medium, "6.0", "Node DNS configuration"),
       "/api2/json/nodes/{node}/hosts" =>
         planned(:get_post, :low, "6.0", "Node /etc/hosts management"),
       "/api2/json/nodes/{node}/subscription" =>
         planned(:get_post, :low, "6.0", "Node subscription information"),
-      "/api2/json/nodes/{node}/network/{iface}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual network interface management"),
-      "/api2/json/nodes/{node}/tasks/{upid}" =>
-        planned(:delete, :medium, "6.0", "Stop a running task"),
-      "/api2/json/nodes/{node}/config" =>
-        planned(:get_put, :low, "6.0", "Node configuration options"),
       "/api2/json/nodes/{node}/startall" =>
         planned(:post, :low, "6.0", "Start all VMs and containers on node"),
       "/api2/json/nodes/{node}/stopall" =>

@@ -1349,4 +1349,160 @@ defmodule MockPveApi.Handlers.NodesTest do
       assert conn.status == 200
     end
   end
+
+  # --- Router integration tests for Sprint 4.9.4 endpoints ---
+
+  defp request(method, path, body \\ nil) do
+    conn =
+      Plug.Test.conn(method, path, body && Jason.encode!(body))
+      |> Plug.Conn.put_req_header("content-type", "application/json")
+      |> Plug.Conn.put_req_header("authorization", "PVEAPIToken=root@pam!test=secret")
+
+    MockPveApi.Router.call(conn, MockPveApi.Router.init([]))
+  end
+
+  defp json(conn, status) do
+    assert conn.status == status
+    Jason.decode!(conn.resp_body)
+  end
+
+  describe "node DNS" do
+    test "get DNS returns defaults" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/dns")
+      data = json(conn, 200)["data"]
+      assert data["dns1"] == "8.8.8.8"
+    end
+
+    test "update DNS" do
+      conn =
+        request(:put, "/api2/json/nodes/pve-node1/dns", %{
+          "dns1" => "1.1.1.1",
+          "search" => "example.com"
+        })
+
+      assert conn.status == 200
+
+      conn = request(:get, "/api2/json/nodes/pve-node1/dns")
+      data = json(conn, 200)["data"]
+      assert data["dns1"] == "1.1.1.1"
+      assert data["search"] == "example.com"
+    end
+  end
+
+  describe "APT endpoints" do
+    test "get apt updates returns list" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/apt/update")
+      data = json(conn, 200)["data"]
+      assert is_list(data)
+      assert length(data) > 0
+    end
+
+    test "post apt update returns UPID" do
+      conn = request(:post, "/api2/json/nodes/pve-node1/apt/update")
+      data = json(conn, 200)["data"]
+      assert String.starts_with?(data, "UPID:")
+    end
+
+    test "get apt versions returns list" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/apt/versions")
+      data = json(conn, 200)["data"]
+      assert is_list(data)
+      assert length(data) > 0
+    end
+  end
+
+  describe "network interface CRUD" do
+    test "get existing interface" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/network/eth0")
+      data = json(conn, 200)["data"]
+      assert data["iface"] == "eth0"
+      assert data["type"] == "eth"
+    end
+
+    test "get nonexistent interface returns 404" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/network/eth99")
+      assert conn.status == 404
+    end
+
+    test "update interface" do
+      conn =
+        request(:put, "/api2/json/nodes/pve-node1/network/eth0", %{
+          "address" => "10.0.0.100",
+          "netmask" => "255.255.0.0"
+        })
+
+      assert conn.status == 200
+
+      updated = State.get_node_network_iface("pve-node1", "eth0")
+      assert updated.address == "10.0.0.100"
+      assert updated.netmask == "255.255.0.0"
+    end
+
+    test "delete interface" do
+      conn = request(:delete, "/api2/json/nodes/pve-node1/network/eth0")
+      assert conn.status == 200
+      assert State.get_node_network_iface("pve-node1", "eth0") == nil
+    end
+
+    test "delete nonexistent interface returns 404" do
+      conn = request(:delete, "/api2/json/nodes/pve-node1/network/eth99")
+      assert conn.status == 404
+    end
+  end
+
+  describe "disks list" do
+    test "list disks returns array" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/disks/list")
+      data = json(conn, 200)["data"]
+      assert is_list(data)
+      assert length(data) > 0
+      disk = hd(data)
+      assert Map.has_key?(disk, "devpath")
+      assert Map.has_key?(disk, "size")
+    end
+  end
+
+  describe "task delete" do
+    test "delete existing task" do
+      {:ok, upid} = State.create_task("pve-node1", "test", %{})
+      conn = request(:delete, "/api2/json/nodes/pve-node1/tasks/#{URI.encode(upid)}")
+      assert conn.status == 200
+    end
+
+    test "delete nonexistent task returns 404" do
+      conn = request(:delete, "/api2/json/nodes/pve-node1/tasks/UPID:nonexistent:")
+      assert conn.status == 404
+    end
+  end
+
+  describe "node config" do
+    test "get config returns defaults" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/config")
+      data = json(conn, 200)["data"]
+      assert is_map(data)
+    end
+
+    test "update config" do
+      conn =
+        request(:put, "/api2/json/nodes/pve-node1/config", %{
+          "description" => "Production node"
+        })
+
+      assert conn.status == 200
+
+      conn = request(:get, "/api2/json/nodes/pve-node1/config")
+      data = json(conn, 200)["data"]
+      assert data["description"] == "Production node"
+    end
+  end
+
+  describe "vzdump defaults" do
+    test "returns default options" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/vzdump/defaults")
+      data = json(conn, 200)["data"]
+      assert data["mode"] == "snapshot"
+      assert data["compress"] == "zstd"
+      assert data["storage"] == "local"
+    end
+  end
 end

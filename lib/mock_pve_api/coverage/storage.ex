@@ -22,15 +22,15 @@ defmodule MockPveApi.Coverage.Storage do
     %{
       "/api2/json/storage" => %{
         path: "/api2/json/storage",
-        methods: [:get],
+        methods: [:get, :post],
         status: :implemented,
         priority: :high,
         since: "6.0",
-        description: "List all storage definitions",
+        description: "Storage definition management",
         parameters: [],
         response_schema: %{data: :array},
         capabilities_required: [:storage_basic],
-        test_coverage: false,
+        test_coverage: true,
         handler_module: MockPveApi.Handlers.Storage,
         notes: nil
       },
@@ -188,24 +188,111 @@ defmodule MockPveApi.Coverage.Storage do
         test_coverage: false,
         handler_module: nil,
         notes: "Inline handler in router; VMware import introduced in PVE 8.2"
+      },
+      "/api2/json/storage/{storage}" => %{
+        path: "/api2/json/storage/{storage}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Individual storage definition CRUD",
+        parameters: [
+          %{
+            name: "storage",
+            type: :string,
+            required: true,
+            description: "Storage ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:storage_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Storage,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/storage/{storage}/content/{volume}" => %{
+        path: "/api2/json/nodes/{node}/storage/{storage}/content/{volume}",
+        methods: [:get, :delete],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Individual storage volume operations",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "storage",
+            type: :string,
+            required: true,
+            description: "Storage ID",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "volume",
+            type: :string,
+            required: true,
+            description: "Volume identifier",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:storage_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Storage,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/storage/{storage}/upload" => %{
+        path: "/api2/json/nodes/{node}/storage/{storage}/upload",
+        methods: [:post],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Upload content to storage",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "storage",
+            type: :string,
+            required: true,
+            description: "Storage ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :string},
+        capabilities_required: [:storage_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Storage,
+        notes: nil
       }
     }
   end
 
   defp planned_endpoints do
     %{
-      "/api2/json/storage/{storage}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual storage definition CRUD"),
-      "/api2/json/nodes/{node}/storage/{storage}/content/{volume}" =>
-        planned(:get_delete, :medium, "6.0", "Individual storage volume operations"),
       "/api2/json/nodes/{node}/storage/{storage}/prunebackups" =>
         planned(:get_delete, :low, "6.0", "Prune old backups"),
       "/api2/json/nodes/{node}/storage/{storage}/rrd" =>
         planned(:get, :low, "6.0", "Storage RRD statistics"),
       "/api2/json/nodes/{node}/storage/{storage}/rrddata" =>
         planned(:get, :low, "6.0", "Storage RRD data"),
-      "/api2/json/nodes/{node}/storage/{storage}/upload" =>
-        planned(:post, :medium, "6.0", "Upload content to storage"),
       "/api2/json/nodes/{node}/storage/{storage}/file-restore/list" =>
         planned(:get, :low, "7.0", "List files in a backup for single-file restore"),
       "/api2/json/nodes/{node}/storage/{storage}/file-restore/download" =>
