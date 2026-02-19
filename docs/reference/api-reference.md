@@ -45,7 +45,7 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Category | Total | Implemented | Coverage |
 |----------|-------|-------------|----------|
 | Version | 1 | 1 | 100.0% |
-| Cluster | 35 | 12 | 34.3% |
+| Cluster | 36 | 19 | 52.8% |
 | Nodes | 28 | 11 | 39.3% |
 | Virtual Machines | 21 | 11 | 52.4% |
 | LXC Containers | 17 | 11 | 64.7% |
@@ -54,10 +54,10 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Resource Pools | 2 | 2 | 100.0% |
 | SDN | 14 | 4 | 28.6% |
 | Monitoring | 16 | 7 | 43.8% |
-| Backup | 9 | 1 | 11.1% |
+| Backup | 9 | 5 | 55.6% |
 | Hardware | 7 | 0 | 0.0% |
 | Firewall | 41 | 0 | 0.0% |
-| **TOTAL** | **228** | **78** | **34.2%** |
+| **TOTAL** | **229** | **89** | **38.9%** |
 
 
 ## Status Legend
@@ -376,7 +376,33 @@ HA resource affinity rules management
 **Notes**: HA affinity rules new in PVE 9.0
 
 
-### `/cluster/ha/groups` 📋
+### `/cluster/ha/affinity/{rule}` ✅ 🟠
+
+Individual HA affinity rule operations
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 9.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `rule` | string | Yes | Affinity rule ID | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+**Notes**: HA affinity rules new in PVE 9.0
+
+
+### `/cluster/ha/groups` ✅
 
 HA group management
 
@@ -389,12 +415,12 @@ HA group management
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/cluster/ha/groups/{group}` 📋
+### `/cluster/ha/groups/{group}` ✅
 
 Individual HA group operations
 
@@ -404,6 +430,12 @@ Individual HA group operations
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `group` | string | Yes | HA group name | - |
+
 **Example Response**:
 ```json
 {
@@ -412,7 +444,7 @@ Individual HA group operations
 ```
 
 
-### `/cluster/ha/resources` 📋
+### `/cluster/ha/resources` ✅
 
 HA resource management
 
@@ -425,12 +457,12 @@ HA resource management
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/cluster/ha/resources/{sid}` 📋
+### `/cluster/ha/resources/{sid}` ✅
 
 Individual HA resource operations
 
@@ -440,6 +472,12 @@ Individual HA resource operations
 | **Priority** | High |
 | **Since** | PVE 6.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `sid` | string | Yes | HA resource SID (e.g. vm:100) | - |
+
 **Example Response**:
 ```json
 {
@@ -448,7 +486,7 @@ Individual HA resource operations
 ```
 
 
-### `/cluster/ha/status/current` 📋
+### `/cluster/ha/status/current` ✅
 
 Current HA manager and resource status
 
@@ -461,7 +499,7 @@ Current HA manager and resource status
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
@@ -697,7 +735,7 @@ Individual notification matcher operations
 ```
 
 
-### `/cluster/options` 📋
+### `/cluster/options` ✅
 
 Cluster-wide datacenter options
 
@@ -4271,7 +4309,7 @@ Storage RRD statistics (data)
 
 ## Backup & Restore
 
-### `/cluster/backup` 📋
+### `/cluster/backup` ✅
 
 List/create backup jobs
 
@@ -4284,12 +4322,12 @@ List/create backup jobs
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/cluster/backup-info/not-backed-up` 📋
+### `/cluster/backup-info/not-backed-up` ✅
 
 List VMs/CTs not covered by any backup job
 
@@ -4302,12 +4340,12 @@ List VMs/CTs not covered by any backup job
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/cluster/backup/{id}` 📋
+### `/cluster/backup/{id}` ✅
 
 Individual backup job CRUD
 
@@ -4317,6 +4355,12 @@ Individual backup job CRUD
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `id` | string | Yes | Backup job ID | - |
+
 **Example Response**:
 ```json
 {
@@ -4325,7 +4369,7 @@ Individual backup job CRUD
 ```
 
 
-### `/cluster/backup/{id}/included_volumes` 📋
+### `/cluster/backup/{id}/included_volumes` ✅
 
 List volumes included in backup job
 
@@ -4334,6 +4378,12 @@ List volumes included in backup job
 | **Methods** | GET |
 | **Priority** | Low |
 | **Since** | PVE 7.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `id` | string | Yes | Backup job ID | - |
 
 **Example Response**:
 ```json

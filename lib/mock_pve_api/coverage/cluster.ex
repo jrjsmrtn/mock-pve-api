@@ -234,30 +234,142 @@ defmodule MockPveApi.Coverage.Cluster do
         test_coverage: false,
         handler_module: nil,
         notes: "Inline handler in router; notification system introduced in PVE 8.1"
+      },
+      "/api2/json/cluster/ha/resources" => %{
+        path: "/api2/json/cluster/ha/resources",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :high,
+        since: "6.0",
+        description: "HA resource management",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: nil
+      },
+      "/api2/json/cluster/ha/resources/{sid}" => %{
+        path: "/api2/json/cluster/ha/resources/{sid}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :high,
+        since: "6.0",
+        description: "Individual HA resource operations",
+        parameters: [
+          %{
+            name: "sid",
+            type: :string,
+            required: true,
+            description: "HA resource SID (e.g. vm:100)",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: nil
+      },
+      "/api2/json/cluster/ha/status/current" => %{
+        path: "/api2/json/cluster/ha/status/current",
+        methods: [:get],
+        status: :implemented,
+        priority: :high,
+        since: "6.0",
+        description: "Current HA manager and resource status",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: nil
+      },
+      "/api2/json/cluster/ha/groups" => %{
+        path: "/api2/json/cluster/ha/groups",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "HA group management",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: nil
+      },
+      "/api2/json/cluster/ha/groups/{group}" => %{
+        path: "/api2/json/cluster/ha/groups/{group}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Individual HA group operations",
+        parameters: [
+          %{
+            name: "group",
+            type: :string,
+            required: true,
+            description: "HA group name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: nil
+      },
+      "/api2/json/cluster/ha/affinity/{rule}" => %{
+        path: "/api2/json/cluster/ha/affinity/{rule}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :medium,
+        since: "9.0",
+        description: "Individual HA affinity rule operations",
+        parameters: [
+          %{
+            name: "rule",
+            type: :string,
+            required: true,
+            description: "Affinity rule ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:ha_resource_affinity],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: "HA affinity rules new in PVE 9.0"
+      },
+      "/api2/json/cluster/options" => %{
+        path: "/api2/json/cluster/options",
+        methods: [:get, :put],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Cluster-wide datacenter options",
+        parameters: [],
+        response_schema: %{data: :object},
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: nil
       }
     }
   end
 
   defp planned_endpoints do
     %{
-      # HA resources
-      "/api2/json/cluster/ha/resources" =>
-        planned(:get_post, :high, "6.0", "HA resource management"),
-      "/api2/json/cluster/ha/resources/{sid}" =>
-        planned(:get_put_delete, :high, "6.0", "Individual HA resource operations"),
-      "/api2/json/cluster/ha/status/current" =>
-        planned(:get, :high, "6.0", "Current HA manager and resource status"),
-      "/api2/json/cluster/ha/groups" => planned(:get_post, :medium, "6.0", "HA group management"),
-      "/api2/json/cluster/ha/groups/{group}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual HA group operations"),
       # Replication
       "/api2/json/cluster/replication" =>
         planned(:get_post, :medium, "6.0", "Replication job management"),
       "/api2/json/cluster/replication/{id}" =>
         planned(:get_put_delete, :medium, "6.0", "Individual replication job operations"),
-      # Cluster options
-      "/api2/json/cluster/options" =>
-        planned(:get_put, :medium, "6.0", "Cluster-wide datacenter options"),
       # ACME
       "/api2/json/cluster/acme/account" =>
         planned(:get_post, :low, "6.0", "ACME account management"),

@@ -84,6 +84,20 @@ defmodule MockPveApi.State do
         }
       },
       snapshots: %{},
+      ha_resources: %{},
+      ha_groups: %{},
+      ha_affinity_rules: %{},
+      backup_jobs: %{},
+      next_backup_job_id: 1,
+      cluster_options: %{
+        keyboard: "en-us",
+        language: "en",
+        console: "default",
+        email_from: "root",
+        max_workers: 4,
+        migration_type: "secure",
+        ha: %{shutdown_policy: "conditional"}
+      },
       pools: %{},
       users: %{
         "root@pam" => %{
@@ -427,6 +441,112 @@ defmodule MockPveApi.State do
 
   def get_next_vmid do
     GenServer.call(@name, :get_next_vmid)
+  end
+
+  # HA resource operations
+  def list_ha_resources do
+    GenServer.call(@name, :list_ha_resources)
+  end
+
+  def get_ha_resource(sid) do
+    GenServer.call(@name, {:get_ha_resource, sid})
+  end
+
+  def create_ha_resource(sid, params \\ %{}) do
+    GenServer.call(@name, {:create_ha_resource, sid, params})
+  end
+
+  def update_ha_resource(sid, params) do
+    GenServer.call(@name, {:update_ha_resource, sid, params})
+  end
+
+  def delete_ha_resource(sid) do
+    GenServer.call(@name, {:delete_ha_resource, sid})
+  end
+
+  # HA group operations
+  def list_ha_groups do
+    GenServer.call(@name, :list_ha_groups)
+  end
+
+  def get_ha_group(group) do
+    GenServer.call(@name, {:get_ha_group, group})
+  end
+
+  def create_ha_group(group, params \\ %{}) do
+    GenServer.call(@name, {:create_ha_group, group, params})
+  end
+
+  def update_ha_group(group, params) do
+    GenServer.call(@name, {:update_ha_group, group, params})
+  end
+
+  def delete_ha_group(group) do
+    GenServer.call(@name, {:delete_ha_group, group})
+  end
+
+  # HA affinity rule operations
+  def list_ha_affinity_rules do
+    GenServer.call(@name, :list_ha_affinity_rules)
+  end
+
+  def get_ha_affinity_rule(rule) do
+    GenServer.call(@name, {:get_ha_affinity_rule, rule})
+  end
+
+  def create_ha_affinity_rule(rule, params \\ %{}) do
+    GenServer.call(@name, {:create_ha_affinity_rule, rule, params})
+  end
+
+  def update_ha_affinity_rule(rule, params) do
+    GenServer.call(@name, {:update_ha_affinity_rule, rule, params})
+  end
+
+  def delete_ha_affinity_rule(rule) do
+    GenServer.call(@name, {:delete_ha_affinity_rule, rule})
+  end
+
+  # HA status
+  def get_ha_status do
+    GenServer.call(@name, :get_ha_status)
+  end
+
+  # Backup job operations
+  def list_backup_jobs do
+    GenServer.call(@name, :list_backup_jobs)
+  end
+
+  def get_backup_job(id) do
+    GenServer.call(@name, {:get_backup_job, id})
+  end
+
+  def create_backup_job(params \\ %{}) do
+    GenServer.call(@name, {:create_backup_job, params})
+  end
+
+  def update_backup_job(id, params) do
+    GenServer.call(@name, {:update_backup_job, id, params})
+  end
+
+  def delete_backup_job(id) do
+    GenServer.call(@name, {:delete_backup_job, id})
+  end
+
+  def get_backup_job_volumes(id) do
+    GenServer.call(@name, {:get_backup_job_volumes, id})
+  end
+
+  def get_not_backed_up do
+    GenServer.call(@name, :get_not_backed_up)
+  end
+
+  # Cluster options
+  def get_cluster_options do
+    GenServer.call(@name, :get_cluster_options)
+  end
+
+  def update_cluster_options(params) do
+    GenServer.call(@name, {:update_cluster_options, params})
   end
 
   # Version and capability operations
@@ -1364,6 +1484,372 @@ defmodule MockPveApi.State do
     end
   end
 
+  # HA resource callbacks
+  def handle_call(:list_ha_resources, _from, state) do
+    {:reply, Map.values(state.ha_resources), state}
+  end
+
+  def handle_call({:get_ha_resource, sid}, _from, state) do
+    {:reply, Map.get(state.ha_resources, sid), state}
+  end
+
+  def handle_call({:create_ha_resource, sid, params}, _from, state) do
+    if Map.has_key?(state.ha_resources, sid) do
+      {:reply, {:error, "HA resource '#{sid}' already exists"}, state}
+    else
+      resource = %{
+        sid: sid,
+        state: Map.get(params, "state", "started"),
+        group: Map.get(params, "group"),
+        max_restart: Map.get(params, "max_restart", 1),
+        max_relocate: Map.get(params, "max_relocate", 1),
+        comment: Map.get(params, "comment", ""),
+        type: ha_resource_type(sid),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_resources = Map.put(state.ha_resources, sid, resource)
+      {:reply, {:ok, resource}, %{state | ha_resources: new_resources}}
+    end
+  end
+
+  def handle_call({:update_ha_resource, sid, params}, _from, state) do
+    case Map.get(state.ha_resources, sid) do
+      nil ->
+        {:reply, {:error, "HA resource '#{sid}' not found"}, state}
+
+      resource ->
+        updated =
+          Enum.reduce(params, resource, fn
+            {"state", v}, acc -> Map.put(acc, :state, v)
+            {"group", v}, acc -> Map.put(acc, :group, v)
+            {"max_restart", v}, acc -> Map.put(acc, :max_restart, v)
+            {"max_relocate", v}, acc -> Map.put(acc, :max_relocate, v)
+            {"comment", v}, acc -> Map.put(acc, :comment, v)
+            _, acc -> acc
+          end)
+
+        new_resources = Map.put(state.ha_resources, sid, updated)
+        {:reply, {:ok, updated}, %{state | ha_resources: new_resources}}
+    end
+  end
+
+  def handle_call({:delete_ha_resource, sid}, _from, state) do
+    case Map.get(state.ha_resources, sid) do
+      nil ->
+        {:reply, {:error, "HA resource '#{sid}' not found"}, state}
+
+      _resource ->
+        new_resources = Map.delete(state.ha_resources, sid)
+        {:reply, :ok, %{state | ha_resources: new_resources}}
+    end
+  end
+
+  # HA group callbacks
+  def handle_call(:list_ha_groups, _from, state) do
+    {:reply, Map.values(state.ha_groups), state}
+  end
+
+  def handle_call({:get_ha_group, group}, _from, state) do
+    {:reply, Map.get(state.ha_groups, group), state}
+  end
+
+  def handle_call({:create_ha_group, group, params}, _from, state) do
+    if Map.has_key?(state.ha_groups, group) do
+      {:reply, {:error, "HA group '#{group}' already exists"}, state}
+    else
+      ha_group = %{
+        group: group,
+        nodes: Map.get(params, "nodes", ""),
+        restricted: Map.get(params, "restricted", 0),
+        nofailback: Map.get(params, "nofailback", 0),
+        comment: Map.get(params, "comment", ""),
+        type: "group",
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_groups = Map.put(state.ha_groups, group, ha_group)
+      {:reply, {:ok, ha_group}, %{state | ha_groups: new_groups}}
+    end
+  end
+
+  def handle_call({:update_ha_group, group, params}, _from, state) do
+    case Map.get(state.ha_groups, group) do
+      nil ->
+        {:reply, {:error, "HA group '#{group}' not found"}, state}
+
+      ha_group ->
+        updated =
+          Enum.reduce(params, ha_group, fn
+            {"nodes", v}, acc -> Map.put(acc, :nodes, v)
+            {"restricted", v}, acc -> Map.put(acc, :restricted, v)
+            {"nofailback", v}, acc -> Map.put(acc, :nofailback, v)
+            {"comment", v}, acc -> Map.put(acc, :comment, v)
+            _, acc -> acc
+          end)
+
+        new_groups = Map.put(state.ha_groups, group, updated)
+        {:reply, {:ok, updated}, %{state | ha_groups: new_groups}}
+    end
+  end
+
+  def handle_call({:delete_ha_group, group}, _from, state) do
+    case Map.get(state.ha_groups, group) do
+      nil ->
+        {:reply, {:error, "HA group '#{group}' not found"}, state}
+
+      _group ->
+        new_groups = Map.delete(state.ha_groups, group)
+        {:reply, :ok, %{state | ha_groups: new_groups}}
+    end
+  end
+
+  # HA affinity rule callbacks
+  def handle_call(:list_ha_affinity_rules, _from, state) do
+    {:reply, Map.values(state.ha_affinity_rules), state}
+  end
+
+  def handle_call({:get_ha_affinity_rule, rule}, _from, state) do
+    {:reply, Map.get(state.ha_affinity_rules, rule), state}
+  end
+
+  def handle_call({:create_ha_affinity_rule, rule, params}, _from, state) do
+    if Map.has_key?(state.ha_affinity_rules, rule) do
+      {:reply, {:error, "HA affinity rule '#{rule}' already exists"}, state}
+    else
+      affinity_rule = %{
+        id: rule,
+        type: Map.get(params, "type", "affinity"),
+        resources: Map.get(params, "resources", ""),
+        comment: Map.get(params, "comment", ""),
+        enabled: Map.get(params, "enabled", 1),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_rules = Map.put(state.ha_affinity_rules, rule, affinity_rule)
+      {:reply, {:ok, affinity_rule}, %{state | ha_affinity_rules: new_rules}}
+    end
+  end
+
+  def handle_call({:update_ha_affinity_rule, rule, params}, _from, state) do
+    case Map.get(state.ha_affinity_rules, rule) do
+      nil ->
+        {:reply, {:error, "HA affinity rule '#{rule}' not found"}, state}
+
+      affinity_rule ->
+        updated =
+          Enum.reduce(params, affinity_rule, fn
+            {"type", v}, acc -> Map.put(acc, :type, v)
+            {"resources", v}, acc -> Map.put(acc, :resources, v)
+            {"comment", v}, acc -> Map.put(acc, :comment, v)
+            {"enabled", v}, acc -> Map.put(acc, :enabled, v)
+            _, acc -> acc
+          end)
+
+        new_rules = Map.put(state.ha_affinity_rules, rule, updated)
+        {:reply, {:ok, updated}, %{state | ha_affinity_rules: new_rules}}
+    end
+  end
+
+  def handle_call({:delete_ha_affinity_rule, rule}, _from, state) do
+    case Map.get(state.ha_affinity_rules, rule) do
+      nil ->
+        {:reply, {:error, "HA affinity rule '#{rule}' not found"}, state}
+
+      _rule ->
+        new_rules = Map.delete(state.ha_affinity_rules, rule)
+        {:reply, :ok, %{state | ha_affinity_rules: new_rules}}
+    end
+  end
+
+  # HA status callback
+  def handle_call(:get_ha_status, _from, state) do
+    manager_status = %{
+      type: "manager",
+      status: "active",
+      node: "pve-node1",
+      timestamp: :os.system_time(:second),
+      id: "master"
+    }
+
+    resource_statuses =
+      state.ha_resources
+      |> Enum.map(fn {_sid, resource} ->
+        %{
+          type: "service",
+          sid: resource.sid,
+          state: resource.state,
+          node: "pve-node1",
+          status: "active",
+          crm_state: "started",
+          max_restart: resource.max_restart,
+          max_relocate: resource.max_relocate,
+          request_state: resource.state
+        }
+      end)
+
+    {:reply, [manager_status | resource_statuses], state}
+  end
+
+  # Backup job callbacks
+  def handle_call(:list_backup_jobs, _from, state) do
+    {:reply, Map.values(state.backup_jobs), state}
+  end
+
+  def handle_call({:get_backup_job, id}, _from, state) do
+    {:reply, Map.get(state.backup_jobs, id), state}
+  end
+
+  def handle_call({:create_backup_job, params}, _from, state) do
+    id = "backup-#{state.next_backup_job_id}"
+
+    job = %{
+      id: id,
+      type: "vzdump",
+      enabled: Map.get(params, "enabled", 1),
+      schedule: Map.get(params, "schedule", "sat 01:00"),
+      storage: Map.get(params, "storage", "local"),
+      mode: Map.get(params, "mode", "snapshot"),
+      compress: Map.get(params, "compress", "zstd"),
+      vmid: Map.get(params, "vmid"),
+      all: Map.get(params, "all", 0),
+      mailto: Map.get(params, "mailto", ""),
+      mailnotification: Map.get(params, "mailnotification", "always"),
+      comment: Map.get(params, "comment", "")
+    }
+
+    new_jobs = Map.put(state.backup_jobs, id, job)
+
+    {:reply, {:ok, job},
+     %{state | backup_jobs: new_jobs, next_backup_job_id: state.next_backup_job_id + 1}}
+  end
+
+  def handle_call({:update_backup_job, id, params}, _from, state) do
+    case Map.get(state.backup_jobs, id) do
+      nil ->
+        {:reply, {:error, "Backup job '#{id}' not found"}, state}
+
+      job ->
+        updated =
+          Enum.reduce(params, job, fn
+            {"enabled", v}, acc -> Map.put(acc, :enabled, v)
+            {"schedule", v}, acc -> Map.put(acc, :schedule, v)
+            {"storage", v}, acc -> Map.put(acc, :storage, v)
+            {"mode", v}, acc -> Map.put(acc, :mode, v)
+            {"compress", v}, acc -> Map.put(acc, :compress, v)
+            {"vmid", v}, acc -> Map.put(acc, :vmid, v)
+            {"all", v}, acc -> Map.put(acc, :all, v)
+            {"mailto", v}, acc -> Map.put(acc, :mailto, v)
+            {"comment", v}, acc -> Map.put(acc, :comment, v)
+            _, acc -> acc
+          end)
+
+        new_jobs = Map.put(state.backup_jobs, id, updated)
+        {:reply, {:ok, updated}, %{state | backup_jobs: new_jobs}}
+    end
+  end
+
+  def handle_call({:delete_backup_job, id}, _from, state) do
+    case Map.get(state.backup_jobs, id) do
+      nil ->
+        {:reply, {:error, "Backup job '#{id}' not found"}, state}
+
+      _job ->
+        new_jobs = Map.delete(state.backup_jobs, id)
+        {:reply, :ok, %{state | backup_jobs: new_jobs}}
+    end
+  end
+
+  def handle_call({:get_backup_job_volumes, id}, _from, state) do
+    case Map.get(state.backup_jobs, id) do
+      nil ->
+        {:reply, {:error, "Backup job '#{id}' not found"}, state}
+
+      job ->
+        volumes =
+          if job.all == 1 do
+            all_vmids = Map.keys(state.vms) ++ Map.keys(state.containers)
+            Enum.map(all_vmids, fn vmid -> %{vmid: vmid, included: true, reason: "all"} end)
+          else
+            case job.vmid do
+              nil ->
+                []
+
+              vmid_str when is_binary(vmid_str) ->
+                vmid_str
+                |> String.split(",")
+                |> Enum.map(&String.trim/1)
+                |> Enum.map(fn vmid_s ->
+                  vmid = String.to_integer(vmid_s)
+                  %{vmid: vmid, included: true, reason: "explicit"}
+                end)
+
+              _ ->
+                []
+            end
+          end
+
+        {:reply, {:ok, volumes}, state}
+    end
+  end
+
+  def handle_call(:get_not_backed_up, _from, state) do
+    backed_up_vmids =
+      state.backup_jobs
+      |> Enum.flat_map(fn {_id, job} ->
+        cond do
+          job.all == 1 ->
+            Map.keys(state.vms) ++ Map.keys(state.containers)
+
+          is_binary(job.vmid) ->
+            job.vmid
+            |> String.split(",")
+            |> Enum.map(&String.trim/1)
+            |> Enum.map(&String.to_integer/1)
+
+          true ->
+            []
+        end
+      end)
+      |> MapSet.new()
+
+    not_backed_up =
+      (Map.keys(state.vms) ++ Map.keys(state.containers))
+      |> Enum.reject(&MapSet.member?(backed_up_vmids, &1))
+      |> Enum.map(fn vmid ->
+        vm = Map.get(state.vms, vmid)
+        ct = Map.get(state.containers, vmid)
+
+        if vm do
+          %{vmid: vmid, name: Map.get(vm, :name, ""), type: "qemu"}
+        else
+          %{vmid: vmid, name: Map.get(ct, :hostname, ""), type: "lxc"}
+        end
+      end)
+
+    {:reply, not_backed_up, state}
+  end
+
+  # Cluster options callbacks
+  def handle_call(:get_cluster_options, _from, state) do
+    {:reply, state.cluster_options, state}
+  end
+
+  def handle_call({:update_cluster_options, params}, _from, state) do
+    updated =
+      Enum.reduce(params, state.cluster_options, fn
+        {"keyboard", v}, acc -> Map.put(acc, :keyboard, v)
+        {"language", v}, acc -> Map.put(acc, :language, v)
+        {"console", v}, acc -> Map.put(acc, :console, v)
+        {"email_from", v}, acc -> Map.put(acc, :email_from, v)
+        {"max_workers", v}, acc -> Map.put(acc, :max_workers, v)
+        {"migration_type", v}, acc -> Map.put(acc, :migration_type, v)
+        _, acc -> acc
+      end)
+
+    {:reply, {:ok, updated}, %{state | cluster_options: updated}}
+  end
+
   @impl true
   def handle_call(:reset, _from, _state) do
     Logger.info("Mock PVE Server state reset")
@@ -1429,6 +1915,16 @@ defmodule MockPveApi.State do
         updated_task = Map.merge(task, updates)
         new_tasks = Map.put(state.tasks, upid, updated_task)
         {:noreply, %{state | tasks: new_tasks}}
+    end
+  end
+
+  # Private helpers
+
+  defp ha_resource_type(sid) do
+    case String.split(sid, ":", parts: 2) do
+      ["vm", _] -> "vm"
+      ["ct", _] -> "ct"
+      _ -> "vm"
     end
   end
 end

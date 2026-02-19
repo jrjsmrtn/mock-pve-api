@@ -172,54 +172,412 @@ defmodule MockPveApi.Handlers.Cluster do
     |> send_resp(200, Jason.encode!(%{data: providers}))
   end
 
-  @doc """
-  GET /api2/json/cluster/ha/affinity
-  Lists HA resource affinity rules (PVE 9.0+).
-  """
+  # HA Resource endpoints
+
+  @doc "GET /api2/json/cluster/ha/resources"
+  def list_ha_resources(conn) do
+    resources = State.list_ha_resources()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: resources}))
+  end
+
+  @doc "POST /api2/json/cluster/ha/resources"
+  def create_ha_resource(conn) do
+    params = conn.body_params
+    sid = Map.get(params, "sid")
+
+    if sid do
+      case State.create_ha_resource(sid, params) do
+        {:ok, _resource} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: nil}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{sid: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  @doc "GET /api2/json/cluster/ha/resources/:sid"
+  def get_ha_resource(conn) do
+    sid = conn.path_params["sid"]
+
+    case State.get_ha_resource(sid) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: "HA resource '#{sid}' not found"}}))
+
+      resource ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: resource}))
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/ha/resources/:sid"
+  def update_ha_resource(conn) do
+    sid = conn.path_params["sid"]
+    params = conn.body_params
+
+    case State.update_ha_resource(sid, params) do
+      {:ok, _resource} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/ha/resources/:sid"
+  def delete_ha_resource(conn) do
+    sid = conn.path_params["sid"]
+
+    case State.delete_ha_resource(sid) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  # HA Status endpoint
+
+  @doc "GET /api2/json/cluster/ha/status/current"
+  def get_ha_status(conn) do
+    status = State.get_ha_status()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: status}))
+  end
+
+  # HA Group endpoints
+
+  @doc "GET /api2/json/cluster/ha/groups"
+  def list_ha_groups(conn) do
+    groups = State.list_ha_groups()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: groups}))
+  end
+
+  @doc "POST /api2/json/cluster/ha/groups"
+  def create_ha_group(conn) do
+    params = conn.body_params
+    group = Map.get(params, "group")
+
+    if group do
+      case State.create_ha_group(group, params) do
+        {:ok, _group} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: nil}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{group: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  @doc "GET /api2/json/cluster/ha/groups/:group"
+  def get_ha_group(conn) do
+    group = conn.path_params["group"]
+
+    case State.get_ha_group(group) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "HA group '#{group}' not found"}})
+        )
+
+      ha_group ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: ha_group}))
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/ha/groups/:group"
+  def update_ha_group(conn) do
+    group = conn.path_params["group"]
+    params = conn.body_params
+
+    case State.update_ha_group(group, params) do
+      {:ok, _group} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/ha/groups/:group"
+  def delete_ha_group(conn) do
+    group = conn.path_params["group"]
+
+    case State.delete_ha_group(group) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  # HA Affinity Rule endpoints (PVE 9.0+)
+
+  @doc "GET /api2/json/cluster/ha/affinity"
   def list_ha_affinity_rules(conn) do
-    rules = [
-      %{
-        sid: "rule-1",
-        comment: "Database servers on separate hosts",
-        state: "enabled",
-        type: "anti-affinity",
-        group: "db-group"
-      },
-      %{
-        sid: "rule-2",
-        comment: "Web servers prefer node1",
-        state: "enabled",
-        type: "affinity",
-        node: "pve-node1"
-      }
-    ]
+    rules = State.list_ha_affinity_rules()
 
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: rules}))
   end
 
-  @doc """
-  POST /api2/json/cluster/ha/affinity
-  Creates a new HA resource affinity rule (PVE 9.0+).
-  """
+  @doc "POST /api2/json/cluster/ha/affinity"
   def create_ha_affinity_rule(conn) do
     params = conn.body_params
-    sid = Map.get(params, "sid", "auto-#{:rand.uniform(9999)}")
-    rule_type = Map.get(params, "type", "affinity")
-    comment = Map.get(params, "comment", "")
+    rule = Map.get(params, "id", "rule-#{:rand.uniform(9999)}")
 
-    new_rule = %{
-      sid: sid,
-      comment: comment,
-      state: "enabled",
-      type: rule_type,
-      node: Map.get(params, "node"),
-      group: Map.get(params, "group")
-    }
+    case State.create_ha_affinity_rule(rule, params) do
+      {:ok, _rule} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc "GET /api2/json/cluster/ha/affinity/:rule"
+  def get_ha_affinity_rule(conn) do
+    rule = conn.path_params["rule"]
+
+    case State.get_ha_affinity_rule(rule) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "HA affinity rule '#{rule}' not found"}})
+        )
+
+      affinity_rule ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: affinity_rule}))
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/ha/affinity/:rule"
+  def update_ha_affinity_rule(conn) do
+    rule = conn.path_params["rule"]
+    params = conn.body_params
+
+    case State.update_ha_affinity_rule(rule, params) do
+      {:ok, _rule} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/ha/affinity/:rule"
+  def delete_ha_affinity_rule(conn) do
+    rule = conn.path_params["rule"]
+
+    case State.delete_ha_affinity_rule(rule) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  # Backup Job endpoints
+
+  @doc "GET /api2/json/cluster/backup"
+  def list_backup_jobs(conn) do
+    jobs = State.list_backup_jobs()
 
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: new_rule}))
+    |> send_resp(200, Jason.encode!(%{data: jobs}))
+  end
+
+  @doc "POST /api2/json/cluster/backup"
+  def create_backup_job(conn) do
+    params = conn.body_params
+
+    case State.create_backup_job(params) do
+      {:ok, job} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: job.id}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc "GET /api2/json/cluster/backup/:id"
+  def get_backup_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.get_backup_job(id) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "Backup job '#{id}' not found"}})
+        )
+
+      job ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: job}))
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/backup/:id"
+  def update_backup_job(conn) do
+    id = conn.path_params["id"]
+    params = conn.body_params
+
+    case State.update_backup_job(id, params) do
+      {:ok, _job} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/backup/:id"
+  def delete_backup_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.delete_backup_job(id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc "GET /api2/json/cluster/backup/:id/included_volumes"
+  def get_backup_job_volumes(conn) do
+    id = conn.path_params["id"]
+
+    case State.get_backup_job_volumes(id) do
+      {:ok, volumes} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: %{children: volumes}}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc "GET /api2/json/cluster/backup-info/not-backed-up"
+  def get_not_backed_up(conn) do
+    not_backed_up = State.get_not_backed_up()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: not_backed_up}))
+  end
+
+  # Cluster Options endpoints
+
+  @doc "GET /api2/json/cluster/options"
+  def get_cluster_options(conn) do
+    options = State.get_cluster_options()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: options}))
+  end
+
+  @doc "PUT /api2/json/cluster/options"
+  def update_cluster_options(conn) do
+    params = conn.body_params
+
+    {:ok, _options} = State.update_cluster_options(params)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
   end
 end

@@ -410,6 +410,53 @@ defmodule MockPveApi.Router do
     Cluster.list_backup_providers(conn)
   end
 
+  # HA resource endpoints
+  get "/api2/json/cluster/ha/resources" do
+    Cluster.list_ha_resources(conn)
+  end
+
+  post "/api2/json/cluster/ha/resources" do
+    Cluster.create_ha_resource(conn)
+  end
+
+  get "/api2/json/cluster/ha/resources/:sid" do
+    Cluster.get_ha_resource(conn)
+  end
+
+  put "/api2/json/cluster/ha/resources/:sid" do
+    Cluster.update_ha_resource(conn)
+  end
+
+  delete "/api2/json/cluster/ha/resources/:sid" do
+    Cluster.delete_ha_resource(conn)
+  end
+
+  # HA status
+  get "/api2/json/cluster/ha/status/current" do
+    Cluster.get_ha_status(conn)
+  end
+
+  # HA group endpoints
+  get "/api2/json/cluster/ha/groups" do
+    Cluster.list_ha_groups(conn)
+  end
+
+  post "/api2/json/cluster/ha/groups" do
+    Cluster.create_ha_group(conn)
+  end
+
+  get "/api2/json/cluster/ha/groups/:group" do
+    Cluster.get_ha_group(conn)
+  end
+
+  put "/api2/json/cluster/ha/groups/:group" do
+    Cluster.update_ha_group(conn)
+  end
+
+  delete "/api2/json/cluster/ha/groups/:group" do
+    Cluster.delete_ha_group(conn)
+  end
+
   # HA affinity rules (PVE 9.0+)
   get "/api2/json/cluster/ha/affinity" do
     Cluster.list_ha_affinity_rules(conn)
@@ -417,6 +464,57 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/cluster/ha/affinity" do
     Cluster.create_ha_affinity_rule(conn)
+  end
+
+  get "/api2/json/cluster/ha/affinity/:rule" do
+    Cluster.get_ha_affinity_rule(conn)
+  end
+
+  put "/api2/json/cluster/ha/affinity/:rule" do
+    Cluster.update_ha_affinity_rule(conn)
+  end
+
+  delete "/api2/json/cluster/ha/affinity/:rule" do
+    Cluster.delete_ha_affinity_rule(conn)
+  end
+
+  # Backup job endpoints
+  get "/api2/json/cluster/backup" do
+    Cluster.list_backup_jobs(conn)
+  end
+
+  post "/api2/json/cluster/backup" do
+    Cluster.create_backup_job(conn)
+  end
+
+  get "/api2/json/cluster/backup/:id/included_volumes" do
+    Cluster.get_backup_job_volumes(conn)
+  end
+
+  get "/api2/json/cluster/backup/:id" do
+    Cluster.get_backup_job(conn)
+  end
+
+  put "/api2/json/cluster/backup/:id" do
+    Cluster.update_backup_job(conn)
+  end
+
+  delete "/api2/json/cluster/backup/:id" do
+    Cluster.delete_backup_job(conn)
+  end
+
+  # Backup info
+  get "/api2/json/cluster/backup-info/not-backed-up" do
+    Cluster.get_not_backed_up(conn)
+  end
+
+  # Cluster options
+  get "/api2/json/cluster/options" do
+    Cluster.get_cluster_options(conn)
+  end
+
+  put "/api2/json/cluster/options" do
+    Cluster.update_cluster_options(conn)
   end
 
   # Pool endpoints

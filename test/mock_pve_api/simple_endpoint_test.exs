@@ -202,6 +202,8 @@ defmodule MockPveApi.SimpleEndpointTest do
     |> String.replace("{tokenid}", "test-token")
     |> String.replace("{zone}", "test-zone")
     |> String.replace("{snapname}", "test-snap")
+    |> String.replace("{sid}", "vm:100")
+    |> String.replace("{rule}", "rule-1")
     |> String.replace("{command}", "start")
     |> String.replace("{action}", "start")
     |> String.replace("{realm}", "pam")
@@ -244,8 +246,8 @@ defmodule MockPveApi.SimpleEndpointTest do
           {:error, endpoint.path, "Invalid response format"}
         end
 
-      {:error, {status, _}} when status in [400, 401, 403, 422] ->
-        # These are acceptable - endpoint may need parameters or permissions
+      {:error, {status, _}} when status in [400, 401, 403, 404, 422] ->
+        # These are acceptable - endpoint may need parameters, permissions, or resource doesn't exist
         {:ok, endpoint.path, "Expected error (#{status})"}
 
       {:error, {501, _}} ->
