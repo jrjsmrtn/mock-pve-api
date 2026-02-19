@@ -180,71 +180,6 @@ defmodule MockPveApi.Capabilities do
     ]
   }
 
-  # Endpoint to capability mapping
-  @endpoint_capabilities %{
-    # SDN endpoints (8.0+) - use :sdn_tech_preview as baseline;
-    # has_capability? is extended below to treat :sdn_stable as a superset
-    "/api2/json/cluster/sdn/zones" => :sdn_tech_preview,
-    "/api2/json/cluster/sdn/vnets" => :sdn_tech_preview,
-    "/api2/json/cluster/sdn/subnets" => :sdn_tech_preview,
-    "/api2/json/cluster/sdn/controllers" => :sdn_stable,
-
-    # Realm sync endpoints (8.0+)
-    "/api2/json/access/domains/{realm}/sync" => :realm_sync_jobs,
-    "/api2/json/cluster/jobs/realm-sync" => :realm_sync_jobs,
-
-    # Resource mapping endpoints (8.0+)
-    "/api2/json/cluster/mapping/pci" => :resource_mappings,
-    "/api2/json/cluster/mapping/usb" => :resource_mappings,
-
-    # Enhanced notification endpoints (8.1+)
-    "/api2/json/cluster/notifications/endpoints" => :notification_endpoints,
-    "/api2/json/cluster/notifications/targets" => :notification_endpoints,
-    "/api2/json/cluster/notifications/filters" => :notification_filters,
-
-    # VMware import endpoints (8.2+)
-    "/api2/json/nodes/{node}/storage/{storage}/import" => :vmware_import_wizard,
-    "/api2/json/nodes/{node}/import-esxi" => :vmware_import_wizard,
-
-    # Backup provider endpoints (8.2+)
-    "/api2/json/cluster/backup-info/providers" => :backup_providers,
-    "/api2/json/nodes/{node}/storage/{storage}/backup-providers" => :backup_providers,
-
-    # PVE 9.x specific endpoints
-    # SDN Fabric endpoints (9.0+)
-    "/api2/json/cluster/sdn/fabrics" => :sdn_fabrics,
-    "/api2/json/cluster/sdn/fabrics/{fabric_id}" => :sdn_fabrics,
-    "/api2/json/cluster/sdn/fabrics/{fabric_id}/status" => :sdn_fabrics,
-    "/api2/json/cluster/sdn/fabrics/{fabric_id}/routes" => :sdn_fabrics,
-    "/api2/json/cluster/sdn/fabrics/{fabric_id}/openfabric" => :openfabric_routing,
-    "/api2/json/cluster/sdn/fabrics/{fabric_id}/ospf" => :ospf_routing,
-
-    # HA Resource Affinity endpoints (9.0+)
-    "/api2/json/cluster/ha/affinity" => :ha_resource_affinity,
-    "/api2/json/cluster/ha/affinity/{rule_id}" => :ha_resource_affinity,
-    "/api2/json/cluster/ha/affinity/{rule_id}/status" => :ha_resource_affinity,
-    "/api2/json/cluster/ha/affinity/violations" => :ha_resource_affinity,
-    "/api2/json/cluster/ha/affinity/resolve" => :ha_resource_affinity,
-
-    # LVM Snapshot endpoints (9.0+)
-    "/api2/json/nodes/{node}/storage/{storage}/lvm/snapshots" => :lvm_snapshots,
-    "/api2/json/nodes/{node}/storage/{storage}/lvm/snapshots/{snapshot_name}" => :lvm_snapshots,
-    "/api2/json/nodes/{node}/storage/{storage}/lvm/volumes/{volume}/chain" => :lvm_snapshots,
-
-    # ZFS RAIDZ Expansion endpoints (9.0+)
-    "/api2/json/nodes/{node}/storage/zfs/raidz/expandable" => :zfs_raidz_expansion,
-    "/api2/json/nodes/{node}/storage/zfs/{pool_name}/expansion-info" => :zfs_raidz_expansion,
-    "/api2/json/nodes/{node}/storage/zfs/{pool_name}/expand" => :zfs_raidz_expansion,
-    "/api2/json/nodes/{node}/storage/zfs/{pool_name}/expansion-status" => :zfs_raidz_expansion,
-
-    # Enhanced Backup Provider API endpoints (9.0+)
-    "/api2/json/cluster/backup-providers/{provider_id}/config" => :backup_provider_api,
-    "/api2/json/cluster/backup-providers/{provider_id}/test" => :backup_provider_api,
-    "/api2/json/cluster/backup-providers/{provider_id}/backup" => :backup_provider_api,
-    "/api2/json/cluster/backup-providers/backups/{backup_id}" => :backup_provider_api,
-    "/api2/json/cluster/backup-providers/backups/{backup_id}/restore" => :backup_provider_api
-  }
-
   @doc """
   Checks if a capability is available in the given PVE version.
 
@@ -369,42 +304,36 @@ defmodule MockPveApi.Capabilities do
   @doc """
   Checks if an endpoint is supported in the given PVE version.
 
+  Delegates to `MockPveApi.EndpointMatrix` (generated from pve-openapi specs).
+  Endpoints not found in the matrix are assumed supported (e.g. `/api2/json/version`).
+
   ## Examples
 
       iex> MockPveApi.Capabilities.endpoint_supported?("8.0", "/api2/json/cluster/sdn/zones")
       true
-      
+
       iex> MockPveApi.Capabilities.endpoint_supported?("7.4", "/api2/json/cluster/sdn/zones")
-      false
+      true
   """
   @spec endpoint_supported?(version(), String.t()) :: boolean()
   def endpoint_supported?(version, endpoint_path) do
-    case get_endpoint_capability(endpoint_path) do
-      # Endpoint doesn't require specific capability
-      nil -> true
-      capability -> has_capability?(version, capability)
+    # Normalize version to "major.minor" for matrix lookup
+    base_version = extract_base_version(version)
+
+    # If the endpoint exists in *any* version in the matrix, gate it;
+    # otherwise it's a non-API endpoint (e.g. parameterized or custom) — allow it.
+    if endpoint_in_matrix?(endpoint_path) do
+      MockPveApi.EndpointMatrix.available?(endpoint_path, :get, base_version)
+    else
+      true
     end
   end
 
-  @doc """
-  Gets the required capability for an endpoint, if any.
-  """
-  @spec get_endpoint_capability(String.t()) :: capability() | nil
-  def get_endpoint_capability(endpoint_path) do
-    # Try exact match first
-    case Map.get(@endpoint_capabilities, endpoint_path) do
-      nil ->
-        # Try pattern matching for parameterized endpoints
-        @endpoint_capabilities
-        |> Enum.find_value(fn {pattern, capability} ->
-          if matches_pattern?(endpoint_path, pattern) do
-            capability
-          end
-        end)
-
-      capability ->
-        capability
-    end
+  # Check if this path exists in any version's endpoint set (for any HTTP method).
+  defp endpoint_in_matrix?(path) do
+    Enum.any?([:get, :post, :put, :delete], fn method ->
+      MockPveApi.EndpointMatrix.added_in(path, method) != nil
+    end)
   end
 
   @doc """
@@ -506,19 +435,5 @@ defmodule MockPveApi.Capabilities do
     else
       nil -> {:error, "Unknown version"}
     end
-  end
-
-  # Private helper functions
-
-  defp matches_pattern?(endpoint_path, pattern) do
-    # Simple pattern matching for {param} style parameters
-    pattern_regex =
-      pattern
-      |> String.replace("{node}", "[^/]+")
-      |> String.replace("{storage}", "[^/]+")
-      |> String.replace("{realm}", "[^/]+")
-      |> String.replace("{vmid}", "[0-9]+")
-
-    Regex.match?(~r/^#{pattern_regex}$/, endpoint_path)
   end
 end

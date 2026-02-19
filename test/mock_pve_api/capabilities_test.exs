@@ -92,58 +92,35 @@ defmodule MockPveApi.CapabilitiesTest do
   end
 
   # --- endpoint_supported?/2 ---
+  # Now backed by EndpointMatrix (generated from pve-openapi ground-truth specs).
 
   describe "endpoint_supported?/2" do
-    test "returns true for endpoints without capability requirement" do
+    test "returns true for endpoints not in the matrix" do
       assert Capabilities.endpoint_supported?("7.0", "/api2/json/version") == true
     end
 
-    test "returns true for SDN zones on 8.0" do
-      assert Capabilities.endpoint_supported?("8.0", "/api2/json/cluster/sdn/zones") == true
-    end
-
-    test "returns false for SDN zones on 7.4" do
-      assert Capabilities.endpoint_supported?("7.4", "/api2/json/cluster/sdn/zones") == false
-    end
-
-    test "handles parameterized endpoints" do
-      assert Capabilities.endpoint_supported?("8.1", "/api2/json/cluster/notifications/endpoints") ==
-               true
-
-      assert Capabilities.endpoint_supported?("7.4", "/api2/json/cluster/notifications/endpoints") ==
-               false
-    end
-
-    test "backup providers require 8.2+" do
-      assert Capabilities.endpoint_supported?("8.2", "/api2/json/cluster/backup-info/providers")
-      refute Capabilities.endpoint_supported?("8.1", "/api2/json/cluster/backup-info/providers")
-    end
-
-    test "HA affinity requires 9.0" do
-      assert Capabilities.endpoint_supported?("9.0", "/api2/json/cluster/ha/affinity")
-      refute Capabilities.endpoint_supported?("8.3", "/api2/json/cluster/ha/affinity")
-    end
-
-    test "SDN zones supported on 8.1 via sdn_stable superset" do
+    test "SDN zones available since 7.0 per pve-openapi specs" do
+      assert Capabilities.endpoint_supported?("7.0", "/api2/json/cluster/sdn/zones")
+      assert Capabilities.endpoint_supported?("7.4", "/api2/json/cluster/sdn/zones")
+      assert Capabilities.endpoint_supported?("8.0", "/api2/json/cluster/sdn/zones")
       assert Capabilities.endpoint_supported?("8.1", "/api2/json/cluster/sdn/zones")
     end
-  end
 
-  # --- get_endpoint_capability/1 ---
-
-  describe "get_endpoint_capability/1" do
-    test "returns nil for endpoints without capability requirement" do
-      assert Capabilities.get_endpoint_capability("/api2/json/version") == nil
+    test "notification endpoints require 8.1+" do
+      assert Capabilities.endpoint_supported?("8.1", "/api2/json/cluster/notifications/endpoints")
+      assert Capabilities.endpoint_supported?("9.0", "/api2/json/cluster/notifications/endpoints")
+      refute Capabilities.endpoint_supported?("8.0", "/api2/json/cluster/notifications/endpoints")
+      refute Capabilities.endpoint_supported?("7.4", "/api2/json/cluster/notifications/endpoints")
     end
 
-    test "returns capability for known endpoint" do
-      assert Capabilities.get_endpoint_capability("/api2/json/cluster/sdn/zones") ==
-               :sdn_tech_preview
+    test "SDN fabrics require 9.0+" do
+      assert Capabilities.endpoint_supported?("9.0", "/api2/json/cluster/sdn/fabrics")
+      refute Capabilities.endpoint_supported?("8.3", "/api2/json/cluster/sdn/fabrics")
     end
 
-    test "returns capability for notification endpoints" do
-      assert Capabilities.get_endpoint_capability("/api2/json/cluster/notifications/endpoints") ==
-               :notification_endpoints
+    test "HA rules require 9.0+" do
+      assert Capabilities.endpoint_supported?("9.0", "/api2/json/cluster/ha/rules")
+      refute Capabilities.endpoint_supported?("8.3", "/api2/json/cluster/ha/rules")
     end
   end
 

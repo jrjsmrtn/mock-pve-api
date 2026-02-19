@@ -22,10 +22,12 @@ defmodule MockPveApi.VersionCompatibilityTest do
   # Use the port from test config (config/test.exs) — the app is already running there
   @test_port Application.compile_env(:mock_pve_api, :port, 8007)
 
-  # Test against multiple PVE versions with their expected capabilities
+  # Test against multiple PVE versions with their expected capabilities.
+  # SDN zones exist since 7.0 per pve-openapi specs (they were added to the API docs early).
+  # Notifications were added in 8.1. SDN fabrics in 9.0.
   @test_versions [
-    {"7.0", [:basic]},
-    {"7.4", [:basic, :ceph_pacific]},
+    {"7.0", [:basic, :sdn]},
+    {"7.4", [:basic, :ceph_pacific, :sdn]},
     {"8.0", [:basic, :ceph_pacific, :sdn, :cgroupv2]},
     {"8.1", [:basic, :ceph_pacific, :sdn, :cgroupv2, :notifications]},
     {"8.2",
@@ -87,13 +89,8 @@ defmodule MockPveApi.VersionCompatibilityTest do
           {:error, {501, _}} = http_get("#{base_url}/cluster/notifications/endpoints")
         end
 
-        # Test backup provider endpoints (available in PVE 8.2+)
-        if :backup_providers in unquote(expected_capabilities) do
-          {:ok, providers_response} = http_get("#{base_url}/cluster/backup-info/providers")
-          assert is_list(providers_response["data"])
-        else
-          {:error, {501, _}} = http_get("#{base_url}/cluster/backup-info/providers")
-        end
+        # Backup-info/providers is not a real PVE API endpoint — skip version gating test.
+        # Real backup endpoints (/cluster/backup) exist since 7.0 per pve-openapi specs.
       end
     end
   end
@@ -162,23 +159,15 @@ defmodule MockPveApi.VersionCompatibilityTest do
 
       base_url = "http://127.0.0.1:#{@test_port}/api2/json"
 
-      # Test that PVE 7.4 properly rejects 8.x features
-      unsupported_endpoints = [
-        "/cluster/sdn/zones",
-        "/cluster/sdn/vnets",
-        "/cluster/notifications/endpoints",
-        "/cluster/backup-info/providers"
-      ]
+      # Test that PVE 7.4 properly rejects features added after 7.4
+      # Notification endpoints were added in 8.1 per pve-openapi specs
+      {:error, {501, error_response}} =
+        http_get("#{base_url}/cluster/notifications/endpoints")
 
-      for endpoint <- unsupported_endpoints do
-        {:error, {501, error_response}} = http_get("#{base_url}#{endpoint}")
-
-        # Should have an errors map with a message
-        assert is_map(error_response["errors"])
-        message = error_response["errors"]["message"]
-        assert is_binary(message)
-        assert String.contains?(message, "7.4") or String.contains?(message, "not available")
-      end
+      assert is_map(error_response["errors"])
+      message = error_response["errors"]["message"]
+      assert is_binary(message)
+      assert String.contains?(message, "7.4") or String.contains?(message, "not available")
     end
 
     test "mixed version feature calls handle gracefully" do
@@ -187,13 +176,9 @@ defmodule MockPveApi.VersionCompatibilityTest do
 
       base_url = "http://127.0.0.1:#{@test_port}/api2/json"
 
-      # PVE 8.0 should have SDN but not notifications or backup providers
-      # Should work
+      # PVE 8.0 should have SDN zones (exist since 7.0) but not notifications (8.1+)
       {:ok, _response} = http_get("#{base_url}/cluster/sdn/zones")
-      # Should fail
       {:error, {501, _}} = http_get("#{base_url}/cluster/notifications/endpoints")
-      # Should fail
-      {:error, {501, _}} = http_get("#{base_url}/cluster/backup-info/providers")
     end
   end
 
@@ -213,10 +198,11 @@ defmodule MockPveApi.VersionCompatibilityTest do
         {:ok, response} = http_get("#{base_url}/version")
         assert response["data"]["version"] =~ version
 
-        # Test version-specific features
+        # SDN zones exist since 7.0 per pve-openapi; notifications since 8.1
         case version do
           "7.4" ->
-            {:error, {501, _}} = http_get("#{base_url}/cluster/sdn/zones")
+            {:ok, _} = http_get("#{base_url}/cluster/sdn/zones")
+            {:error, {501, _}} = http_get("#{base_url}/cluster/notifications/endpoints")
 
           "8.0" ->
             {:ok, _} = http_get("#{base_url}/cluster/sdn/zones")
@@ -225,7 +211,6 @@ defmodule MockPveApi.VersionCompatibilityTest do
           "8.3" ->
             {:ok, _} = http_get("#{base_url}/cluster/sdn/zones")
             {:ok, _} = http_get("#{base_url}/cluster/notifications/endpoints")
-            {:ok, _} = http_get("#{base_url}/cluster/backup-info/providers")
         end
       end
     end

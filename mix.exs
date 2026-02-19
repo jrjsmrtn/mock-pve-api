@@ -32,7 +32,8 @@ defmodule MockPveApi.MixProject do
       {:plug_cowboy, "~> 2.7"},
       {:jason, "~> 1.4"},
       {:finch, "~> 0.18"},
-      {:ex_doc, "~> 0.30", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.30", only: :dev, runtime: false},
+      {:pve_openapi, path: "../pve-openapi", only: [:dev], runtime: false}
     ]
   end
 
