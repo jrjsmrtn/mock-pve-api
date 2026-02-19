@@ -91,7 +91,7 @@ defmodule MockPveApi.CoverageTest do
 
       assert stats.total ==
                stats.implemented + stats.partial + stats.in_progress +
-                 stats.planned + stats.not_supported + stats.pve8_only + stats.pve9_only
+                 stats.planned + stats.not_supported
     end
 
     test "calculates category stats" do
@@ -156,42 +156,6 @@ defmodule MockPveApi.CoverageTest do
     end
   end
 
-  describe "version compatibility" do
-    test "checks version compatibility for regular endpoints" do
-      # Version endpoint should work on all versions
-      assert Coverage.version_compatible?("/api2/json/version", "7.4")
-      assert Coverage.version_compatible?("/api2/json/version", "8.0")
-      assert Coverage.version_compatible?("/api2/json/version", "9.0")
-    end
-
-    test "checks version compatibility for PVE 8+ endpoints" do
-      sdn_path = "/api2/json/cluster/sdn/zones"
-
-      # Should not work on PVE 7.x
-      refute Coverage.version_compatible?(sdn_path, "7.4")
-
-      # Should work on PVE 8.0+
-      assert Coverage.version_compatible?(sdn_path, "8.0")
-      assert Coverage.version_compatible?(sdn_path, "8.3")
-      assert Coverage.version_compatible?(sdn_path, "9.0")
-    end
-
-    test "checks version compatibility for PVE 9+ endpoints" do
-      ha_path = "/api2/json/cluster/ha/affinity"
-
-      # Should not work on PVE 7.x or 8.x
-      refute Coverage.version_compatible?(ha_path, "7.4")
-      refute Coverage.version_compatible?(ha_path, "8.3")
-
-      # Should work on PVE 9.0+
-      assert Coverage.version_compatible?(ha_path, "9.0")
-    end
-
-    test "returns false for unknown endpoints" do
-      refute Coverage.version_compatible?("/api2/json/unknown", "8.3")
-    end
-  end
-
   describe "coverage validation" do
     test "validates coverage consistency" do
       case Coverage.validate_coverage() do
@@ -248,9 +212,7 @@ defmodule MockPveApi.CoverageTest do
                  :partial,
                  :in_progress,
                  :planned,
-                 :not_supported,
-                 :pve8_only,
-                 :pve9_only
+                 :not_supported
                ],
                "Invalid status for #{endpoint.path}: #{endpoint.status}"
 

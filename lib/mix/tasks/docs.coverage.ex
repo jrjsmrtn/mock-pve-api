@@ -651,8 +651,6 @@ defmodule Mix.Tasks.Docs.Coverage do
   defp status_to_icon(:in_progress), do: "🔄"
   defp status_to_icon(:planned), do: "📋"
   defp status_to_icon(:not_supported), do: "❌"
-  defp status_to_icon(:pve8_only), do: "✅ 🔴"
-  defp status_to_icon(:pve9_only), do: "✅ 🟠"
   defp status_to_icon(_), do: ""
 
   defp version_badge(%{since: since}) when since >= "9.0", do: " 🟠"

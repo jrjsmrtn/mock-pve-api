@@ -19,8 +19,8 @@ defmodule MockPveApi.Coverage do
   - :in_progress - Currently being developed
   - :planned - Planned for implementation
   - :not_supported - Not supported/not planned
-  - :pve8_only - Available in PVE 8.x+ only
-  - :pve9_only - Available in PVE 9.x+ only
+  Version-specific availability is handled by `MockPveApi.EndpointMatrix`,
+  which is generated from pve-openapi specs.
   """
 
   @type endpoint_category() ::
@@ -46,8 +46,6 @@ defmodule MockPveApi.Coverage do
           | :in_progress
           | :planned
           | :not_supported
-          | :pve8_only
-          | :pve9_only
 
   @type priority() :: :critical | :high | :medium | :low
 
@@ -158,9 +156,7 @@ defmodule MockPveApi.Coverage do
       partial: count_by_status(all_endpoints, :partial),
       in_progress: count_by_status(all_endpoints, :in_progress),
       planned: count_by_status(all_endpoints, :planned),
-      not_supported: count_by_status(all_endpoints, :not_supported),
-      pve8_only: count_by_status(all_endpoints, :pve8_only),
-      pve9_only: count_by_status(all_endpoints, :pve9_only)
+      not_supported: count_by_status(all_endpoints, :not_supported)
     }
 
     coverage_percentage =
@@ -265,24 +261,6 @@ defmodule MockPveApi.Coverage do
   @spec category_modules() :: [module()]
   def category_modules, do: @category_modules
 
-  @doc """
-  Checks if an endpoint is version-compatible.
-  """
-  @spec version_compatible?(String.t(), String.t()) :: boolean()
-  def version_compatible?(endpoint_path, pve_version) do
-    case get_endpoint_info(endpoint_path) do
-      nil ->
-        false
-
-      endpoint_info ->
-        case endpoint_info.status do
-          :pve8_only -> version_gte?(pve_version, "8.0")
-          :pve9_only -> version_gte?(pve_version, "9.0")
-          _ -> version_gte?(pve_version, endpoint_info.since)
-        end
-    end
-  end
-
   # Private helper functions
 
   defp get_all_endpoints do
@@ -303,13 +281,5 @@ defmodule MockPveApi.Coverage do
       regex_str = Regex.replace(~r/\{[^}]+\}/, pattern, "[^/]+")
       Regex.match?(~r/^#{regex_str}$/, endpoint_path)
     end
-  end
-
-  defp version_gte?(version_a, version_b) do
-    # Simple version comparison - could be enhanced with proper semver
-    String.to_float(version_a) >= String.to_float(version_b)
-  rescue
-    # Default to true if version parsing fails
-    _ -> true
   end
 end

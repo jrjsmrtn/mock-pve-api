@@ -497,24 +497,6 @@ defmodule MockPveApi.Router do
             Logger.info("Endpoint planned but not implemented: #{endpoint_path}")
             send_planned_error(conn, endpoint_info)
 
-          :pve8_only ->
-            version = State.get_pve_version()
-
-            if version_gte?(version, "8.0") do
-              send_not_implemented_error(conn, endpoint_info)
-            else
-              send_version_error(conn, endpoint_info, "8.0")
-            end
-
-          :pve9_only ->
-            version = State.get_pve_version()
-
-            if version_gte?(version, "9.0") do
-              send_not_implemented_error(conn, endpoint_info)
-            else
-              send_version_error(conn, endpoint_info, "9.0")
-            end
-
           _ ->
             if method in endpoint_info.methods do
               Logger.warning("Endpoint matched but handler missing: #{endpoint_path}")
@@ -655,24 +637,6 @@ defmodule MockPveApi.Router do
           {:not_supported, _} ->
             send_not_supported_error(conn, endpoint_info) |> halt()
 
-          {:pve8_only, _} ->
-            version = State.get_pve_version()
-
-            if version_gte?(version, "8.0") do
-              conn
-            else
-              send_version_error(conn, endpoint_info, "8.0") |> halt()
-            end
-
-          {:pve9_only, _} ->
-            version = State.get_pve_version()
-
-            if version_gte?(version, "9.0") do
-              conn
-            else
-              send_version_error(conn, endpoint_info, "9.0") |> halt()
-            end
-
           {_, false} ->
             send_method_not_allowed_error(conn, endpoint_info) |> halt()
 
@@ -750,43 +714,6 @@ defmodule MockPveApi.Router do
     )
   end
 
-  defp send_version_error(conn, endpoint_info, required_version) do
-    current_version = State.get_pve_version()
-
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(
-      501,
-      Jason.encode!(%{
-        errors: [
-          "Feature not available in PVE #{current_version}",
-          "Endpoint #{endpoint_info.path} requires PVE #{required_version}+"
-        ],
-        coverage_info: %{
-          required_version: required_version,
-          current_version: current_version,
-          capabilities_required: endpoint_info.capabilities_required
-        }
-      })
-    )
-  end
-
-  defp send_not_implemented_error(conn, endpoint_info) do
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(
-      501,
-      Jason.encode!(%{
-        errors: ["Endpoint found but handler not implemented: #{endpoint_info.path}"],
-        coverage_info: %{
-          status: endpoint_info.status,
-          handler_module: endpoint_info.handler_module,
-          notes: endpoint_info.notes
-        }
-      })
-    )
-  end
-
   defp send_handler_missing_error(conn, endpoint_info) do
     conn
     |> put_resp_content_type("application/json")
@@ -816,13 +743,6 @@ defmodule MockPveApi.Router do
         }
       })
     )
-  end
-
-  defp version_gte?(version_a, version_b) do
-    # Simple version comparison - could be enhanced
-    String.to_float(version_a) >= String.to_float(version_b)
-  rescue
-    _ -> true
   end
 
   defp add_cors_headers(conn, _opts) do
