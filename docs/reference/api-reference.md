@@ -56,8 +56,8 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Monitoring | 16 | 9 | 56.3% |
 | Backup | 9 | 9 | 100.0% |
 | Hardware | 7 | 0 | 0.0% |
-| Firewall | 41 | 0 | 0.0% |
-| **TOTAL** | **228** | **118** | **51.8%** |
+| Firewall | 41 | 14 | 34.1% |
+| **TOTAL** | **228** | **132** | **57.9%** |
 
 
 ## Status Legend
@@ -4777,7 +4777,7 @@ List USB devices on node
 
 ## Firewall Management
 
-### `/cluster/firewall/aliases` 📋
+### `/cluster/firewall/aliases` ✅
 
 List/create cluster IP aliases
 
@@ -4795,7 +4795,7 @@ List/create cluster IP aliases
 ```
 
 
-### `/cluster/firewall/aliases/{name}` 📋
+### `/cluster/firewall/aliases/{name}` ✅
 
 Individual alias CRUD
 
@@ -4813,7 +4813,7 @@ Individual alias CRUD
 ```
 
 
-### `/cluster/firewall/groups` 📋
+### `/cluster/firewall/groups` ✅
 
 List/create security groups
 
@@ -4831,7 +4831,7 @@ List/create security groups
 ```
 
 
-### `/cluster/firewall/groups/{group}` 📋
+### `/cluster/firewall/groups/{group}` ✅
 
 Get rules / delete security group
 
@@ -4849,7 +4849,7 @@ Get rules / delete security group
 ```
 
 
-### `/cluster/firewall/groups/{group}/{pos}` 📋
+### `/cluster/firewall/groups/{group}/{pos}` ✅
 
 Security group rule CRUD
 
@@ -4867,7 +4867,7 @@ Security group rule CRUD
 ```
 
 
-### `/cluster/firewall/ipset` 📋
+### `/cluster/firewall/ipset` ✅
 
 List/create IP sets
 
@@ -4885,13 +4885,13 @@ List/create IP sets
 ```
 
 
-### `/cluster/firewall/ipset/{name}` 📋
+### `/cluster/firewall/ipset/{name}` ✅
 
-List entries / delete IP set
+List/add entries, delete IP set
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, DELETE |
+| **Methods** | GET, POST, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -4903,7 +4903,7 @@ List entries / delete IP set
 ```
 
 
-### `/cluster/firewall/ipset/{name}/{cidr}` 📋
+### `/cluster/firewall/ipset/{name}/{cidr}` ✅
 
 IP set entry CRUD
 
@@ -4957,7 +4957,7 @@ List available firewall macros
 ```
 
 
-### `/cluster/firewall/options` 📋
+### `/cluster/firewall/options` ✅
 
 Cluster firewall options
 
@@ -4993,7 +4993,7 @@ List available firewall references
 ```
 
 
-### `/cluster/firewall/rules` 📋
+### `/cluster/firewall/rules` ✅
 
 List/create cluster firewall rules
 
@@ -5011,7 +5011,7 @@ List/create cluster firewall rules
 ```
 
 
-### `/cluster/firewall/rules/{pos}` 📋
+### `/cluster/firewall/rules/{pos}` ✅
 
 Individual cluster rule CRUD
 
@@ -5065,7 +5065,7 @@ Read node firewall log
 ```
 
 
-### `/nodes/{node}/firewall/options` 📋
+### `/nodes/{node}/firewall/options` ✅
 
 Node firewall options
 
@@ -5083,7 +5083,7 @@ Node firewall options
 ```
 
 
-### `/nodes/{node}/firewall/rules` 📋
+### `/nodes/{node}/firewall/rules` ✅
 
 List/create node firewall rules
 
@@ -5101,7 +5101,7 @@ List/create node firewall rules
 ```
 
 
-### `/nodes/{node}/firewall/rules/{pos}` 📋
+### `/nodes/{node}/firewall/rules/{pos}` ✅
 
 Individual node rule CRUD
 

@@ -21,7 +21,8 @@ defmodule MockPveApi.Router do
     Storage,
     Metrics,
     Sdn,
-    Snapshots
+    Snapshots,
+    Firewall
   }
 
   alias MockPveApi.{State, Coverage}
@@ -222,6 +223,35 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/nodes/:node/disks/list" do
     Nodes.list_disks(conn)
+  end
+
+  # Node firewall endpoints
+  get "/api2/json/nodes/:node/firewall/options" do
+    Firewall.get_node_firewall_options(conn)
+  end
+
+  put "/api2/json/nodes/:node/firewall/options" do
+    Firewall.update_node_firewall_options(conn)
+  end
+
+  get "/api2/json/nodes/:node/firewall/rules" do
+    Firewall.list_node_firewall_rules(conn)
+  end
+
+  post "/api2/json/nodes/:node/firewall/rules" do
+    Firewall.create_node_firewall_rule(conn)
+  end
+
+  get "/api2/json/nodes/:node/firewall/rules/:pos" do
+    Firewall.get_node_firewall_rule(conn)
+  end
+
+  put "/api2/json/nodes/:node/firewall/rules/:pos" do
+    Firewall.update_node_firewall_rule(conn)
+  end
+
+  delete "/api2/json/nodes/:node/firewall/rules/:pos" do
+    Firewall.delete_node_firewall_rule(conn)
   end
 
   get "/api2/json/nodes/:node/tasks" do
@@ -672,6 +702,115 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/cluster/replication" do
     Cluster.create_replication_job(conn)
+  end
+
+  # Cluster firewall endpoints
+  get "/api2/json/cluster/firewall/options" do
+    Firewall.get_cluster_firewall_options(conn)
+  end
+
+  put "/api2/json/cluster/firewall/options" do
+    Firewall.update_cluster_firewall_options(conn)
+  end
+
+  get "/api2/json/cluster/firewall/rules" do
+    Firewall.list_cluster_firewall_rules(conn)
+  end
+
+  post "/api2/json/cluster/firewall/rules" do
+    Firewall.create_cluster_firewall_rule(conn)
+  end
+
+  get "/api2/json/cluster/firewall/rules/:pos" do
+    Firewall.get_cluster_firewall_rule(conn)
+  end
+
+  put "/api2/json/cluster/firewall/rules/:pos" do
+    Firewall.update_cluster_firewall_rule(conn)
+  end
+
+  delete "/api2/json/cluster/firewall/rules/:pos" do
+    Firewall.delete_cluster_firewall_rule(conn)
+  end
+
+  get "/api2/json/cluster/firewall/groups" do
+    Firewall.list_security_groups(conn)
+  end
+
+  post "/api2/json/cluster/firewall/groups" do
+    Firewall.create_security_group(conn)
+  end
+
+  get "/api2/json/cluster/firewall/groups/:group/:pos" do
+    Firewall.get_security_group_rule(conn)
+  end
+
+  put "/api2/json/cluster/firewall/groups/:group/:pos" do
+    Firewall.update_security_group_rule(conn)
+  end
+
+  delete "/api2/json/cluster/firewall/groups/:group/:pos" do
+    Firewall.delete_security_group_rule(conn)
+  end
+
+  get "/api2/json/cluster/firewall/groups/:group" do
+    Firewall.get_security_group(conn)
+  end
+
+  delete "/api2/json/cluster/firewall/groups/:group" do
+    Firewall.delete_security_group(conn)
+  end
+
+  get "/api2/json/cluster/firewall/aliases" do
+    Firewall.list_aliases(conn)
+  end
+
+  post "/api2/json/cluster/firewall/aliases" do
+    Firewall.create_alias(conn)
+  end
+
+  get "/api2/json/cluster/firewall/aliases/:name" do
+    Firewall.get_alias(conn)
+  end
+
+  put "/api2/json/cluster/firewall/aliases/:name" do
+    Firewall.update_alias(conn)
+  end
+
+  delete "/api2/json/cluster/firewall/aliases/:name" do
+    Firewall.delete_alias(conn)
+  end
+
+  get "/api2/json/cluster/firewall/ipset" do
+    Firewall.list_ipsets(conn)
+  end
+
+  post "/api2/json/cluster/firewall/ipset" do
+    Firewall.create_ipset(conn)
+  end
+
+  get "/api2/json/cluster/firewall/ipset/:name/:cidr" do
+    Firewall.get_ipset_entry(conn)
+  end
+
+  put "/api2/json/cluster/firewall/ipset/:name/:cidr" do
+    Firewall.update_ipset_entry(conn)
+  end
+
+  delete "/api2/json/cluster/firewall/ipset/:name/:cidr" do
+    Firewall.delete_ipset_entry(conn)
+  end
+
+  get "/api2/json/cluster/firewall/ipset/:name" do
+    Firewall.get_ipset(conn)
+  end
+
+  post "/api2/json/cluster/firewall/ipset/:name" do
+    Firewall.add_ipset_entry(conn)
+  end
+
+  delete "/api2/json/cluster/firewall/ipset/:name" do
+    Firewall.delete_ipset(conn)
   end
 
   # Cluster options

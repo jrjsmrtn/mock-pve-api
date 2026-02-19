@@ -410,7 +410,7 @@ defmodule MockPveApi.CoverageTest do
       assert stats.coverage_percentage > 15.0,
              "Coverage percentage unexpectedly low: #{stats.coverage_percentage}%"
 
-      assert stats.coverage_percentage < 55.0,
+      assert stats.coverage_percentage < 65.0,
              "Coverage percentage unexpectedly high: #{stats.coverage_percentage}% — " <>
                "if many planned endpoints were implemented, update this assertion"
 

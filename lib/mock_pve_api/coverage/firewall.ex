@@ -17,68 +17,87 @@ defmodule MockPveApi.Coverage.Firewall do
 
   @impl true
   def endpoints do
-    planned_endpoints()
+    implemented_endpoints()
+    |> Map.merge(planned_endpoints())
+  end
+
+  defp implemented_endpoints do
+    cluster_firewall_implemented()
+    |> Map.merge(node_firewall_implemented())
   end
 
   defp planned_endpoints do
-    cluster_firewall()
-    |> Map.merge(node_firewall())
+    cluster_firewall_planned()
+    |> Map.merge(node_firewall_planned())
     |> Map.merge(vm_firewall())
     |> Map.merge(container_firewall())
   end
 
-  defp cluster_firewall do
+  # ── Implemented: Cluster Firewall ──
+
+  defp cluster_firewall_implemented do
     %{
-      # Cluster firewall options
       "/api2/json/cluster/firewall/options" =>
-        planned(:get_put, :medium, "6.0", "Cluster firewall options"),
-      # Cluster firewall rules
+        implemented(:get_put, :medium, "6.0", "Cluster firewall options"),
       "/api2/json/cluster/firewall/rules" =>
-        planned(:get_post, :medium, "6.0", "List/create cluster firewall rules"),
+        implemented(:get_post, :medium, "6.0", "List/create cluster firewall rules"),
       "/api2/json/cluster/firewall/rules/{pos}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual cluster rule CRUD"),
-      # Security groups
+        implemented(:get_put_delete, :medium, "6.0", "Individual cluster rule CRUD"),
       "/api2/json/cluster/firewall/groups" =>
-        planned(:get_post, :medium, "6.0", "List/create security groups"),
+        implemented(:get_post, :medium, "6.0", "List/create security groups"),
       "/api2/json/cluster/firewall/groups/{group}" =>
-        planned(:get_delete, :medium, "6.0", "Get rules / delete security group"),
+        implemented(:get_delete, :medium, "6.0", "Get rules / delete security group"),
       "/api2/json/cluster/firewall/groups/{group}/{pos}" =>
-        planned(:get_put_delete, :low, "6.0", "Security group rule CRUD"),
-      # Aliases
+        implemented(:get_put_delete, :low, "6.0", "Security group rule CRUD"),
       "/api2/json/cluster/firewall/aliases" =>
-        planned(:get_post, :medium, "6.0", "List/create cluster IP aliases"),
+        implemented(:get_post, :medium, "6.0", "List/create cluster IP aliases"),
       "/api2/json/cluster/firewall/aliases/{name}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual alias CRUD"),
-      # IP sets
+        implemented(:get_put_delete, :medium, "6.0", "Individual alias CRUD"),
       "/api2/json/cluster/firewall/ipset" =>
-        planned(:get_post, :medium, "6.0", "List/create IP sets"),
+        implemented(:get_post, :medium, "6.0", "List/create IP sets"),
       "/api2/json/cluster/firewall/ipset/{name}" =>
-        planned(:get_delete, :medium, "6.0", "List entries / delete IP set"),
+        implemented(:get_post_delete, :medium, "6.0", "List/add entries, delete IP set"),
       "/api2/json/cluster/firewall/ipset/{name}/{cidr}" =>
-        planned(:get_put_delete, :low, "6.0", "IP set entry CRUD"),
-      # Cluster firewall refs and macros
+        implemented(:get_put_delete, :low, "6.0", "IP set entry CRUD")
+    }
+  end
+
+  # ── Implemented: Node Firewall ──
+
+  defp node_firewall_implemented do
+    %{
+      "/api2/json/nodes/{node}/firewall/options" =>
+        implemented(:get_put, :medium, "6.0", "Node firewall options"),
+      "/api2/json/nodes/{node}/firewall/rules" =>
+        implemented(:get_post, :medium, "6.0", "List/create node firewall rules"),
+      "/api2/json/nodes/{node}/firewall/rules/{pos}" =>
+        implemented(:get_put_delete, :medium, "6.0", "Individual node rule CRUD")
+    }
+  end
+
+  # ── Planned: Remaining Cluster Firewall ──
+
+  defp cluster_firewall_planned do
+    %{
       "/api2/json/cluster/firewall/refs" =>
         planned(:get, :low, "6.0", "List available firewall references"),
       "/api2/json/cluster/firewall/macros" =>
         planned(:get, :low, "6.0", "List available firewall macros"),
-      # Cluster firewall log
       "/api2/json/cluster/firewall/log" => planned(:get, :low, "6.0", "Read cluster firewall log")
     }
   end
 
-  defp node_firewall do
+  # ── Planned: Remaining Node Firewall ──
+
+  defp node_firewall_planned do
     %{
       "/api2/json/nodes/{node}/firewall" => planned(:get, :low, "6.0", "Node firewall index"),
-      "/api2/json/nodes/{node}/firewall/options" =>
-        planned(:get_put, :medium, "6.0", "Node firewall options"),
-      "/api2/json/nodes/{node}/firewall/rules" =>
-        planned(:get_post, :medium, "6.0", "List/create node firewall rules"),
-      "/api2/json/nodes/{node}/firewall/rules/{pos}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual node rule CRUD"),
       "/api2/json/nodes/{node}/firewall/log" =>
         planned(:get, :low, "6.0", "Read node firewall log")
     }
   end
+
+  # ── Planned: VM Firewall ──
 
   defp vm_firewall do
     %{
@@ -107,6 +126,8 @@ defmodule MockPveApi.Coverage.Firewall do
     }
   end
 
+  # ── Planned: Container Firewall ──
+
   defp container_firewall do
     %{
       "/api2/json/nodes/{node}/lxc/{vmid}/firewall" =>
@@ -134,6 +155,23 @@ defmodule MockPveApi.Coverage.Firewall do
     }
   end
 
+  defp implemented(methods_atom, priority, since, description) do
+    %{
+      path: "",
+      methods: methods_for(methods_atom),
+      status: :implemented,
+      priority: priority,
+      since: since,
+      description: description,
+      parameters: [],
+      response_schema: %{data: :object},
+      capabilities_required: [],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Firewall,
+      notes: nil
+    }
+  end
+
   defp planned(methods_atom, priority, since, description) do
     %{
       path: "",
@@ -155,5 +193,6 @@ defmodule MockPveApi.Coverage.Firewall do
   defp methods_for(:get_put), do: [:get, :put]
   defp methods_for(:get_post), do: [:get, :post]
   defp methods_for(:get_delete), do: [:get, :delete]
+  defp methods_for(:get_post_delete), do: [:get, :post, :delete]
   defp methods_for(:get_put_delete), do: [:get, :put, :delete]
 end

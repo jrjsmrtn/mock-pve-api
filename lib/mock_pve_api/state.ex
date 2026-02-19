@@ -158,6 +158,21 @@ defmodule MockPveApi.State do
       },
       node_configs: %{},
       replication_jobs: %{},
+      firewall: %{
+        cluster: %{
+          options: %{
+            enable: 0,
+            policy_in: "DROP",
+            policy_out: "ACCEPT",
+            log_ratelimit: "enable=1,rate=1/second,burst=5"
+          },
+          rules: [],
+          groups: %{},
+          aliases: %{},
+          ipsets: %{}
+        },
+        nodes: %{}
+      },
       pools: %{},
       users: %{
         "root@pam" => %{
@@ -819,6 +834,15 @@ defmodule MockPveApi.State do
 
   def get_replication_job(id) do
     GenServer.call(@name, {:get_replication_job, id})
+  end
+
+  # Firewall operations
+  def get_firewall(scope) do
+    GenServer.call(@name, {:get_firewall, scope})
+  end
+
+  def update_firewall(scope, updates) do
+    GenServer.call(@name, {:update_firewall, scope, updates})
   end
 
   # Version and capability operations
@@ -2771,6 +2795,41 @@ defmodule MockPveApi.State do
       nil -> {:reply, nil, state}
       job -> {:reply, job, state}
     end
+  end
+
+  # Firewall handle_calls
+
+  def handle_call({:get_firewall, :cluster}, _from, state) do
+    {:reply, state.firewall.cluster, state}
+  end
+
+  def handle_call({:get_firewall, {:node, node}}, _from, state) do
+    node_fw =
+      Map.get(state.firewall.nodes, node, %{
+        options: %{enable: 0, log_level_in: "nolog", log_level_out: "nolog"},
+        rules: []
+      })
+
+    {:reply, node_fw, state}
+  end
+
+  def handle_call({:update_firewall, :cluster, updates}, _from, state) do
+    new_cluster_fw = Map.merge(state.firewall.cluster, updates)
+    new_fw = %{state.firewall | cluster: new_cluster_fw}
+    {:reply, :ok, %{state | firewall: new_fw}}
+  end
+
+  def handle_call({:update_firewall, {:node, node}, updates}, _from, state) do
+    current =
+      Map.get(state.firewall.nodes, node, %{
+        options: %{enable: 0, log_level_in: "nolog", log_level_out: "nolog"},
+        rules: []
+      })
+
+    updated = Map.merge(current, updates)
+    new_nodes = Map.put(state.firewall.nodes, node, updated)
+    new_fw = %{state.firewall | nodes: new_nodes}
+    {:reply, :ok, %{state | firewall: new_fw}}
   end
 
   @impl true
