@@ -359,15 +359,27 @@ defmodule MockPveApi.Coverage.Cluster do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Cluster,
         notes: nil
+      },
+      "/api2/json/cluster/replication" => %{
+        path: "/api2/json/cluster/replication",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Replication job management",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: nil
       }
     }
   end
 
   defp planned_endpoints do
     %{
-      # Replication
-      "/api2/json/cluster/replication" =>
-        planned(:get_post, :medium, "6.0", "Replication job management"),
+      # Replication (individual job)
       "/api2/json/cluster/replication/{id}" =>
         planned(:get_put_delete, :medium, "6.0", "Individual replication job operations"),
       # ACME

@@ -1451,4 +1451,187 @@ defmodule MockPveApi.Handlers.Nodes do
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: defaults}))
   end
+
+  @doc """
+  GET /api2/json/nodes/:node/vzdump/extractconfig
+  Extract configuration from vzdump backup archive.
+  """
+  def get_vzdump_extractconfig(conn) do
+    node_name = conn.path_params["node"]
+
+    case State.get_node(node_name) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{node: "Node '#{node_name}' not found"}}))
+
+      _node ->
+        # Return mock extracted config (vzdump archive config section)
+        config = """
+        #qemu server config
+        boot: order=scsi0;net0
+        cores: 2
+        memory: 2048
+        name: restored-vm
+        net0: virtio=AA:BB:CC:DD:EE:FF,bridge=vmbr0
+        scsi0: local-lvm:vm-100-disk-0,size=32G
+        scsihw: virtio-scsi-single
+        smbios1: uuid=12345678-1234-1234-1234-123456789abc
+        vmgenid: 12345678-1234-1234-1234-123456789abc
+        """
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: String.trim(config)}))
+    end
+  end
+
+  @doc """
+  POST /api2/json/nodes/:node/qmrestore
+  Restore VM from vzdump backup archive.
+  """
+  def qmrestore(conn) do
+    node_name = conn.path_params["node"]
+
+    case State.get_node(node_name) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{node: "Node '#{node_name}' not found"}}))
+
+      _node ->
+        upid =
+          "UPID:#{node_name}:#{:rand.uniform(9_999_999) |> Integer.to_string() |> String.pad_leading(8, "0")}:00000000:00000000:qmrestore::root@pam:"
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: upid}))
+    end
+  end
+
+  @doc """
+  POST /api2/json/nodes/:node/vzrestore
+  Restore container from vzdump backup archive.
+  """
+  def vzrestore(conn) do
+    node_name = conn.path_params["node"]
+
+    case State.get_node(node_name) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{node: "Node '#{node_name}' not found"}}))
+
+      _node ->
+        upid =
+          "UPID:#{node_name}:#{:rand.uniform(9_999_999) |> Integer.to_string() |> String.pad_leading(8, "0")}:00000000:00000000:vzrestore::root@pam:"
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: upid}))
+    end
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/qemu/:vmid/pending
+  Get pending VM configuration changes.
+  """
+  def get_vm_pending(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+
+    case State.get_vm(node_name, vmid) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{vmid: "VM '#{vmid}' not found"}}))
+
+      vm ->
+        # Return current config as pending entries (no pending changes in mock)
+        pending =
+          vm
+          |> Map.drop([:vmid, :node, :status, :uptime, :pid, :disk_read, :disk_write])
+          |> Enum.map(fn {key, value} ->
+            %{key: to_string(key), value: value}
+          end)
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: pending}))
+    end
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/lxc/:vmid/pending
+  Get pending container configuration changes.
+  """
+  def get_container_pending(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+
+    case State.get_container(node_name, vmid) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{vmid: "Container '#{vmid}' not found"}}))
+
+      ct ->
+        pending =
+          ct
+          |> Map.drop([:vmid, :node, :status, :uptime, :pid])
+          |> Enum.map(fn {key, value} ->
+            %{key: to_string(key), value: value}
+          end)
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: pending}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/qemu/:vmid/resize
+  Resize a VM disk.
+  """
+  def resize_vm_disk(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+    disk = Map.get(conn.body_params, "disk", "scsi0")
+    size = Map.get(conn.body_params, "size", "+1G")
+
+    case State.resize_vm_disk(node_name, vmid, disk, size) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, :not_found} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{vmid: "VM '#{vmid}' not found"}}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/lxc/:vmid/resize
+  Resize a container disk.
+  """
+  def resize_container_disk(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+    disk = Map.get(conn.body_params, "disk", "rootfs")
+    size = Map.get(conn.body_params, "size", "+1G")
+
+    case State.resize_container_disk(node_name, vmid, disk, size) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, :not_found} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{vmid: "Container '#{vmid}' not found"}}))
+    end
+  end
 end

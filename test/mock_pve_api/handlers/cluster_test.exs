@@ -499,4 +499,53 @@ defmodule MockPveApi.Handlers.ClusterTest do
       assert options["language"] == "de"
     end
   end
+
+  # --- Router integration tests for Sprint 4.9.5 replication endpoints ---
+
+  describe "replication via router" do
+    test "list replication jobs (empty)" do
+      conn = request(:get, "/api2/json/cluster/replication")
+      data = json(conn, 200)["data"]
+      assert data == []
+    end
+
+    test "create and list replication job" do
+      conn =
+        request(:post, "/api2/json/cluster/replication", %{
+          "id" => "100-0",
+          "target" => "pve-node2",
+          "guest" => 100,
+          "schedule" => "*/15"
+        })
+
+      assert conn.status == 200
+
+      conn = request(:get, "/api2/json/cluster/replication")
+      data = json(conn, 200)["data"]
+      assert length(data) == 1
+      job = List.first(data)
+      assert job["id"] == "100-0"
+      assert job["target"] == "pve-node2"
+    end
+
+    test "create duplicate replication job returns 400" do
+      request(:post, "/api2/json/cluster/replication", %{
+        "id" => "101-0",
+        "target" => "pve-node2"
+      })
+
+      conn =
+        request(:post, "/api2/json/cluster/replication", %{
+          "id" => "101-0",
+          "target" => "pve-node2"
+        })
+
+      assert conn.status == 400
+    end
+
+    test "create replication job without ID returns 400" do
+      conn = request(:post, "/api2/json/cluster/replication", %{"target" => "pve-node2"})
+      assert conn.status == 400
+    end
+  end
 end

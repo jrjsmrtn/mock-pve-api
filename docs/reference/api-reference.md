@@ -45,19 +45,19 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Category | Total | Implemented | Coverage |
 |----------|-------|-------------|----------|
 | Version | 1 | 1 | 100.0% |
-| Cluster | 36 | 19 | 52.8% |
+| Cluster | 36 | 20 | 55.6% |
 | Nodes | 28 | 18 | 64.3% |
-| Virtual Machines | 21 | 11 | 52.4% |
-| LXC Containers | 17 | 11 | 64.7% |
+| Virtual Machines | 21 | 13 | 61.9% |
+| LXC Containers | 17 | 13 | 76.5% |
 | Storage | 20 | 9 | 45.0% |
 | Access Control | 17 | 15 | 88.2% |
 | Resource Pools | 2 | 2 | 100.0% |
 | SDN | 13 | 9 | 69.2% |
-| Monitoring | 16 | 7 | 43.8% |
-| Backup | 9 | 6 | 66.7% |
+| Monitoring | 16 | 9 | 56.3% |
+| Backup | 9 | 9 | 100.0% |
 | Hardware | 7 | 0 | 0.0% |
 | Firewall | 41 | 0 | 0.0% |
-| **TOTAL** | **228** | **108** | **47.4%** |
+| **TOTAL** | **228** | **118** | **51.8%** |
 
 
 ## Status Legend
@@ -753,7 +753,7 @@ Cluster-wide datacenter options
 ```
 
 
-### `/cluster/replication` 📋
+### `/cluster/replication` ✅
 
 Replication job management
 
@@ -766,7 +766,7 @@ Replication job management
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
@@ -1802,7 +1802,7 @@ Move VM disk to different storage
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/pending` 📋
+### `/nodes/{node}/qemu/{vmid}/pending` ✅
 
 Get pending VM configuration changes
 
@@ -1811,6 +1811,13 @@ Get pending VM configuration changes
 | **Methods** | GET |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | VM ID | - |
 
 **Example Response**:
 ```json
@@ -1829,7 +1836,7 @@ Get pending VM configuration changes
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/resize` 📋
+### `/nodes/{node}/qemu/{vmid}/resize` ✅
 
 Resize VM disk
 
@@ -1838,6 +1845,13 @@ Resize VM disk
 | **Methods** | PUT |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | VM ID | - |
 
 **Example Response**:
 ```json
@@ -2386,7 +2400,7 @@ Move container volume to different storage
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/pending` 📋
+### `/nodes/{node}/lxc/{vmid}/pending` ✅
 
 Get pending container configuration changes
 
@@ -2395,6 +2409,13 @@ Get pending container configuration changes
 | **Methods** | GET |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | Container ID | - |
 
 **Example Response**:
 ```json
@@ -2412,7 +2433,7 @@ Get pending container configuration changes
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/resize` 📋
+### `/nodes/{node}/lxc/{vmid}/resize` ✅
 
 Resize container disk
 
@@ -2421,6 +2442,13 @@ Resize container disk
 | **Methods** | PUT |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | Container ID | - |
 
 **Example Response**:
 ```json
@@ -4091,7 +4119,7 @@ Read container RRD statistics (returns PNG graph)
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/rrddata` 📋
+### `/nodes/{node}/lxc/{vmid}/rrddata` ✅
 
 Read container RRD statistics (JSON data)
 
@@ -4100,6 +4128,13 @@ Read container RRD statistics (JSON data)
 | **Methods** | GET |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | Container ID | - |
 
 **Example Response**:
 ```json
@@ -4175,7 +4210,7 @@ Read VM RRD statistics (returns PNG graph)
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/rrddata` 📋
+### `/nodes/{node}/qemu/{vmid}/rrddata` ✅
 
 Read VM RRD statistics (JSON data)
 
@@ -4184,6 +4219,13 @@ Read VM RRD statistics (JSON data)
 | **Methods** | GET |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | VM ID | - |
 
 **Example Response**:
 ```json
@@ -4474,7 +4516,7 @@ List volumes included in backup job
 ```
 
 
-### `/nodes/{node}/qmrestore` 📋
+### `/nodes/{node}/qmrestore` ✅
 
 Restore VM from backup
 
@@ -4484,10 +4526,16 @@ Restore VM from backup
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": "OK"
 }
 ```
 
@@ -4545,7 +4593,7 @@ Get vzdump default options
 ```
 
 
-### `/nodes/{node}/vzdump/extractconfig` 📋
+### `/nodes/{node}/vzdump/extractconfig` ✅
 
 Extract configuration from backup archive
 
@@ -4555,15 +4603,21 @@ Extract configuration from backup archive
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": "OK"
 }
 ```
 
 
-### `/nodes/{node}/vzrestore` 📋
+### `/nodes/{node}/vzrestore` ✅
 
 Restore container from backup
 
@@ -4573,10 +4627,16 @@ Restore container from backup
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": "OK"
 }
 ```
 

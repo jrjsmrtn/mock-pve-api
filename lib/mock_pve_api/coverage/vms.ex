@@ -400,18 +400,76 @@ defmodule MockPveApi.Coverage.VMs do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Snapshots,
         notes: nil
+      },
+      "/api2/json/nodes/{node}/qemu/{vmid}/pending" => %{
+        path: "/api2/json/nodes/{node}/qemu/{vmid}/pending",
+        methods: [:get],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Get pending VM configuration changes",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "VM ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :array},
+        capabilities_required: [:basic_virtualization],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/qemu/{vmid}/resize" => %{
+        path: "/api2/json/nodes/{node}/qemu/{vmid}/resize",
+        methods: [:put],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Resize VM disk",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "VM ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:basic_virtualization],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
       }
     }
   end
 
   defp planned_endpoints do
     %{
-      "/api2/json/nodes/{node}/qemu/{vmid}/pending" =>
-        planned(:get, :medium, "6.0", "Get pending VM configuration changes"),
       "/api2/json/nodes/{node}/qemu/{vmid}/feature" =>
         planned(:get, :low, "6.0", "Check VM feature availability"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/resize" =>
-        planned(:put, :medium, "6.0", "Resize VM disk"),
       "/api2/json/nodes/{node}/qemu/{vmid}/agent" =>
         planned(:post, :low, "6.0", "Execute QEMU guest agent commands"),
       "/api2/json/nodes/{node}/qemu/{vmid}/cloudinit/dump" =>

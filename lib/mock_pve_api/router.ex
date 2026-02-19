@@ -244,6 +244,19 @@ defmodule MockPveApi.Router do
     Nodes.get_vzdump_defaults(conn)
   end
 
+  get "/api2/json/nodes/:node/vzdump/extractconfig" do
+    Nodes.get_vzdump_extractconfig(conn)
+  end
+
+  # Restore endpoints
+  post "/api2/json/nodes/:node/qmrestore" do
+    Nodes.qmrestore(conn)
+  end
+
+  post "/api2/json/nodes/:node/vzrestore" do
+    Nodes.vzrestore(conn)
+  end
+
   # VM endpoints
   get "/api2/json/nodes/:node/qemu" do
     Nodes.list_vms(conn)
@@ -259,6 +272,14 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/nodes/:node/qemu/:vmid/config" do
     Nodes.get_vm_config(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/pending" do
+    Nodes.get_vm_pending(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/resize" do
+    Nodes.resize_vm_disk(conn)
   end
 
   get "/api2/json/nodes/:node/qemu/:vmid/status/current" do
@@ -296,6 +317,14 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/nodes/:node/lxc/:vmid/config" do
     Nodes.get_container_config(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/pending" do
+    Nodes.get_container_pending(conn)
+  end
+
+  put "/api2/json/nodes/:node/lxc/:vmid/resize" do
+    Nodes.resize_container_disk(conn)
   end
 
   get "/api2/json/nodes/:node/lxc/:vmid/status/current" do
@@ -431,8 +460,16 @@ defmodule MockPveApi.Router do
     Metrics.get_node_rrd_data(conn)
   end
 
+  get "/api2/json/nodes/:node/qemu/:vmid/rrddata" do
+    Metrics.get_vm_rrd_data(conn)
+  end
+
   get "/api2/json/nodes/:node/qemu/:vmid/rrd" do
     Metrics.get_vm_rrd(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/rrddata" do
+    Metrics.get_container_rrd_data(conn)
   end
 
   get "/api2/json/nodes/:node/lxc/:vmid/rrd" do
@@ -626,6 +663,15 @@ defmodule MockPveApi.Router do
   # Backup info
   get "/api2/json/cluster/backup-info/not-backed-up" do
     Cluster.get_not_backed_up(conn)
+  end
+
+  # Replication
+  get "/api2/json/cluster/replication" do
+    Cluster.list_replication_jobs(conn)
+  end
+
+  post "/api2/json/cluster/replication" do
+    Cluster.create_replication_job(conn)
   end
 
   # Cluster options

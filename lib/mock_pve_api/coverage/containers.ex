@@ -392,18 +392,76 @@ defmodule MockPveApi.Coverage.Containers do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Snapshots,
         notes: nil
+      },
+      "/api2/json/nodes/{node}/lxc/{vmid}/pending" => %{
+        path: "/api2/json/nodes/{node}/lxc/{vmid}/pending",
+        methods: [:get],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Get pending container configuration changes",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "Container ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :array},
+        capabilities_required: [:containers],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/lxc/{vmid}/resize" => %{
+        path: "/api2/json/nodes/{node}/lxc/{vmid}/resize",
+        methods: [:put],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Resize container disk",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "Container ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:containers],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
       }
     }
   end
 
   defp planned_endpoints do
     %{
-      "/api2/json/nodes/{node}/lxc/{vmid}/pending" =>
-        planned(:get, :medium, "6.0", "Get pending container configuration changes"),
       "/api2/json/nodes/{node}/lxc/{vmid}/feature" =>
         planned(:get, :low, "6.0", "Check container feature availability"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/resize" =>
-        planned(:put, :medium, "6.0", "Resize container disk"),
       "/api2/json/nodes/{node}/lxc/{vmid}/template" =>
         planned(:post, :low, "6.0", "Convert container to template"),
       "/api2/json/nodes/{node}/lxc/{vmid}/move_volume" =>

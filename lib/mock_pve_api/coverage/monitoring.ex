@@ -200,6 +200,68 @@ defmodule MockPveApi.Coverage.Monitoring do
         handler_module: MockPveApi.Handlers.Metrics,
         notes: nil
       },
+      "/api2/json/nodes/{node}/qemu/{vmid}/rrddata" => %{
+        path: "/api2/json/nodes/{node}/qemu/{vmid}/rrddata",
+        methods: [:get],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Read VM RRD statistics (JSON data)",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "VM ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :array},
+        capabilities_required: [:basic_virtualization],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Metrics,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/lxc/{vmid}/rrddata" => %{
+        path: "/api2/json/nodes/{node}/lxc/{vmid}/rrddata",
+        methods: [:get],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Read container RRD statistics (JSON data)",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "vmid",
+            type: :integer,
+            required: true,
+            description: "Container ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :array},
+        capabilities_required: [:containers],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Metrics,
+        notes: nil
+      },
       "/api2/json/cluster/metrics/server/{id}" => %{
         path: "/api2/json/cluster/metrics/server/{id}",
         methods: [:get],
@@ -228,11 +290,6 @@ defmodule MockPveApi.Coverage.Monitoring do
 
   defp planned_endpoints do
     %{
-      # VM/Container RRD data (JSON)
-      "/api2/json/nodes/{node}/qemu/{vmid}/rrddata" =>
-        planned(:get, :medium, "6.0", "Read VM RRD statistics (JSON data)"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/rrddata" =>
-        planned(:get, :medium, "6.0", "Read container RRD statistics (JSON data)"),
       # Cluster metrics
       "/api2/json/cluster/metrics" => planned(:get, :low, "7.0", "Cluster metrics index"),
       "/api2/json/cluster/metrics/server" =>

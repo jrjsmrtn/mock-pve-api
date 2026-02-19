@@ -580,4 +580,49 @@ defmodule MockPveApi.Handlers.Cluster do
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: nil}))
   end
+
+  # Replication endpoints
+
+  @doc "GET /api2/json/cluster/replication"
+  def list_replication_jobs(conn) do
+    jobs = State.list_replication_jobs()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: jobs}))
+  end
+
+  @doc "POST /api2/json/cluster/replication"
+  def create_replication_job(conn) do
+    params = conn.body_params
+    id = Map.get(params, "id")
+
+    if is_nil(id) or id == "" do
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(400, Jason.encode!(%{errors: %{id: "Replication job ID is required"}}))
+    else
+      atom_params =
+        params
+        |> Enum.reduce(%{}, fn
+          {"id", _}, acc -> acc
+          {k, v}, acc -> Map.put(acc, String.to_atom(k), v)
+        end)
+
+      case State.create_replication_job(id, atom_params) do
+        {:ok, _job} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: nil}))
+
+        {:error, :already_exists} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(
+            400,
+            Jason.encode!(%{errors: %{id: "Replication job '#{id}' already exists"}})
+          )
+      end
+    end
+  end
 end

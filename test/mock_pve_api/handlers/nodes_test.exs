@@ -1505,4 +1505,177 @@ defmodule MockPveApi.Handlers.NodesTest do
       assert data["storage"] == "local"
     end
   end
+
+  # --- Router integration tests for Sprint 4.9.5 endpoints ---
+
+  describe "vzdump extractconfig" do
+    test "returns mock extracted config" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/vzdump/extractconfig")
+      data = json(conn, 200)["data"]
+      assert is_binary(data)
+      assert String.contains?(data, "cores")
+      assert String.contains?(data, "memory")
+    end
+
+    test "returns 404 for unknown node" do
+      conn = request(:get, "/api2/json/nodes/unknown/vzdump/extractconfig")
+      assert conn.status == 404
+    end
+  end
+
+  describe "qmrestore" do
+    test "returns UPID for VM restore" do
+      conn =
+        request(:post, "/api2/json/nodes/pve-node1/qmrestore", %{
+          "archive" => "local:backup/vzdump-qemu-100.vma.zst",
+          "vmid" => 200
+        })
+
+      data = json(conn, 200)["data"]
+      assert String.starts_with?(data, "UPID:")
+      assert String.contains?(data, "qmrestore")
+    end
+
+    test "returns 404 for unknown node" do
+      conn = request(:post, "/api2/json/nodes/unknown/qmrestore", %{})
+      assert conn.status == 404
+    end
+  end
+
+  describe "vzrestore" do
+    test "returns UPID for container restore" do
+      conn =
+        request(:post, "/api2/json/nodes/pve-node1/vzrestore", %{
+          "archive" => "local:backup/vzdump-lxc-101.tar.zst",
+          "vmid" => 201
+        })
+
+      data = json(conn, 200)["data"]
+      assert String.starts_with?(data, "UPID:")
+      assert String.contains?(data, "vzrestore")
+    end
+
+    test "returns 404 for unknown node" do
+      conn = request(:post, "/api2/json/nodes/unknown/vzrestore", %{})
+      assert conn.status == 404
+    end
+  end
+
+  describe "VM pending config" do
+    test "returns pending config for existing VM" do
+      State.create_vm("pve-node1", 500, %{name: "pending-vm", memory: 2048, cores: 2})
+
+      conn = request(:get, "/api2/json/nodes/pve-node1/qemu/500/pending")
+      data = json(conn, 200)["data"]
+      assert is_list(data)
+      assert Enum.any?(data, fn entry -> entry["key"] == "name" end)
+    end
+
+    test "returns 404 for nonexistent VM" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/qemu/9999/pending")
+      assert conn.status == 404
+    end
+  end
+
+  describe "container pending config" do
+    test "returns pending config for existing container" do
+      State.create_container("pve-node1", 501, %{hostname: "pending-ct", memory: 512, cores: 1})
+
+      conn = request(:get, "/api2/json/nodes/pve-node1/lxc/501/pending")
+      data = json(conn, 200)["data"]
+      assert is_list(data)
+      assert Enum.any?(data, fn entry -> entry["key"] == "hostname" end)
+    end
+
+    test "returns 404 for nonexistent container" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/lxc/9999/pending")
+      assert conn.status == 404
+    end
+  end
+
+  describe "VM disk resize" do
+    test "resizes VM disk" do
+      State.create_vm("pve-node1", 502, %{name: "resize-vm", memory: 2048, cores: 2})
+
+      conn =
+        request(:put, "/api2/json/nodes/pve-node1/qemu/502/resize", %{
+          "disk" => "scsi0",
+          "size" => "+10G"
+        })
+
+      assert conn.status == 200
+    end
+
+    test "returns 404 for nonexistent VM" do
+      conn =
+        request(:put, "/api2/json/nodes/pve-node1/qemu/9999/resize", %{
+          "disk" => "scsi0",
+          "size" => "+10G"
+        })
+
+      assert conn.status == 404
+    end
+  end
+
+  describe "container disk resize" do
+    test "resizes container disk" do
+      State.create_container("pve-node1", 503, %{hostname: "resize-ct", memory: 512, cores: 1})
+
+      conn =
+        request(:put, "/api2/json/nodes/pve-node1/lxc/503/resize", %{
+          "disk" => "rootfs",
+          "size" => "+5G"
+        })
+
+      assert conn.status == 200
+    end
+
+    test "returns 404 for nonexistent container" do
+      conn =
+        request(:put, "/api2/json/nodes/pve-node1/lxc/9999/resize", %{
+          "disk" => "rootfs",
+          "size" => "+5G"
+        })
+
+      assert conn.status == 404
+    end
+  end
+
+  describe "VM rrddata" do
+    test "returns RRD data for existing VM" do
+      State.create_vm("pve-node1", 504, %{name: "rrd-vm", memory: 2048, cores: 2})
+
+      conn = request(:get, "/api2/json/nodes/pve-node1/qemu/504/rrddata")
+      data = json(conn, 200)["data"]
+      assert is_list(data)
+      assert length(data) > 0
+      first = List.first(data)
+      assert Map.has_key?(first, "time")
+      assert Map.has_key?(first, "cpu")
+    end
+
+    test "returns 404 for nonexistent VM" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/qemu/9999/rrddata")
+      assert conn.status == 404
+    end
+  end
+
+  describe "container rrddata" do
+    test "returns RRD data for existing container" do
+      State.create_container("pve-node1", 505, %{hostname: "rrd-ct", memory: 256, cores: 1})
+
+      conn = request(:get, "/api2/json/nodes/pve-node1/lxc/505/rrddata")
+      data = json(conn, 200)["data"]
+      assert is_list(data)
+      assert length(data) > 0
+      first = List.first(data)
+      assert Map.has_key?(first, "time")
+      assert Map.has_key?(first, "cpu")
+    end
+
+    test "returns 404 for nonexistent container" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/lxc/9999/rrddata")
+      assert conn.status == 404
+    end
+  end
 end

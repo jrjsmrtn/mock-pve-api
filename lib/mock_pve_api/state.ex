@@ -157,6 +157,7 @@ defmodule MockPveApi.State do
         }
       },
       node_configs: %{},
+      replication_jobs: %{},
       pools: %{},
       users: %{
         "root@pam" => %{
@@ -796,6 +797,28 @@ defmodule MockPveApi.State do
   # Task delete
   def delete_task(upid) do
     GenServer.call(@name, {:delete_task, upid})
+  end
+
+  # VM/Container resize
+  def resize_vm_disk(node, vmid, disk, size) do
+    GenServer.call(@name, {:resize_vm_disk, node, vmid, disk, size})
+  end
+
+  def resize_container_disk(node, vmid, disk, size) do
+    GenServer.call(@name, {:resize_container_disk, node, vmid, disk, size})
+  end
+
+  # Replication operations
+  def list_replication_jobs do
+    GenServer.call(@name, :list_replication_jobs)
+  end
+
+  def create_replication_job(id, params) do
+    GenServer.call(@name, {:create_replication_job, id, params})
+  end
+
+  def get_replication_job(id) do
+    GenServer.call(@name, {:get_replication_job, id})
   end
 
   # Version and capability operations
@@ -2675,6 +2698,78 @@ defmodule MockPveApi.State do
       _task ->
         new_tasks = Map.delete(state.tasks, upid)
         {:reply, :ok, %{state | tasks: new_tasks}}
+    end
+  end
+
+  # VM/Container resize handle_calls
+
+  def handle_call({:resize_vm_disk, node, vmid, disk, size}, _from, state) do
+    case Map.get(state.vms, vmid) do
+      nil ->
+        {:reply, {:error, :not_found}, state}
+
+      vm when vm.node == node ->
+        updated_vm = Map.put(vm, String.to_atom(disk), size)
+        new_vms = Map.put(state.vms, vmid, updated_vm)
+        {:reply, :ok, %{state | vms: new_vms}}
+
+      _ ->
+        {:reply, {:error, :not_found}, state}
+    end
+  end
+
+  def handle_call({:resize_container_disk, node, vmid, disk, size}, _from, state) do
+    case Map.get(state.containers, vmid) do
+      nil ->
+        {:reply, {:error, :not_found}, state}
+
+      ct when ct.node == node ->
+        updated_ct = Map.put(ct, String.to_atom(disk), size)
+        new_containers = Map.put(state.containers, vmid, updated_ct)
+        {:reply, :ok, %{state | containers: new_containers}}
+
+      _ ->
+        {:reply, {:error, :not_found}, state}
+    end
+  end
+
+  # Replication handle_calls
+
+  def handle_call(:list_replication_jobs, _from, state) do
+    jobs = Map.values(state.replication_jobs)
+    {:reply, jobs, state}
+  end
+
+  def handle_call({:create_replication_job, id, params}, _from, state) do
+    if Map.has_key?(state.replication_jobs, id) do
+      {:reply, {:error, :already_exists}, state}
+    else
+      job =
+        Map.merge(
+          %{
+            id: id,
+            type: "local",
+            source: "",
+            target: "",
+            guest: nil,
+            schedule: "*/15",
+            rate: nil,
+            comment: "",
+            disable: 0,
+            remove_job: "full"
+          },
+          params
+        )
+
+      new_jobs = Map.put(state.replication_jobs, id, job)
+      {:reply, {:ok, job}, %{state | replication_jobs: new_jobs}}
+    end
+  end
+
+  def handle_call({:get_replication_job, id}, _from, state) do
+    case Map.get(state.replication_jobs, id) do
+      nil -> {:reply, nil, state}
+      job -> {:reply, job, state}
     end
   end
 

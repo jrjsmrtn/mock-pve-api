@@ -165,42 +165,80 @@ defmodule MockPveApi.Coverage.Backup do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Nodes,
         notes: nil
+      },
+      "/api2/json/nodes/{node}/vzdump/extractconfig" => %{
+        path: "/api2/json/nodes/{node}/vzdump/extractconfig",
+        methods: [:get],
+        status: :implemented,
+        priority: :low,
+        since: "6.0",
+        description: "Extract configuration from backup archive",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :string},
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/qmrestore" => %{
+        path: "/api2/json/nodes/{node}/qmrestore",
+        methods: [:post],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Restore VM from backup",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :string},
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
+      },
+      "/api2/json/nodes/{node}/vzrestore" => %{
+        path: "/api2/json/nodes/{node}/vzrestore",
+        methods: [:post],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Restore container from backup",
+        parameters: [
+          %{
+            name: "node",
+            type: :string,
+            required: true,
+            description: "Node name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :string},
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Nodes,
+        notes: nil
       }
     }
   end
 
   defp planned_endpoints do
-    %{
-      # Restore endpoints
-      "/api2/json/nodes/{node}/qmrestore" =>
-        planned(:post, :medium, "6.0", "Restore VM from backup"),
-      "/api2/json/nodes/{node}/vzrestore" =>
-        planned(:post, :medium, "6.0", "Restore container from backup"),
-      # Vzdump extractconfig
-      "/api2/json/nodes/{node}/vzdump/extractconfig" =>
-        planned(:get, :low, "6.0", "Extract configuration from backup archive")
-    }
+    %{}
   end
-
-  defp planned(methods_atom, priority, since, description) do
-    %{
-      path: "",
-      methods: methods_for(methods_atom),
-      status: :planned,
-      priority: priority,
-      since: since,
-      description: description,
-      parameters: [],
-      response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
-      notes: nil
-    }
-  end
-
-  defp methods_for(:get), do: [:get]
-  defp methods_for(:post), do: [:post]
-  defp methods_for(:get_post), do: [:get, :post]
-  defp methods_for(:get_put_delete), do: [:get, :put, :delete]
 end

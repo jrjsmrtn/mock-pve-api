@@ -109,6 +109,52 @@ defmodule MockPveApi.Handlers.Metrics do
   end
 
   @doc """
+  GET /api2/json/nodes/:node/qemu/:vmid/rrddata
+  Gets VM RRD data in structured format.
+  """
+  def get_vm_rrd_data(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+    query_params = conn.query_params
+
+    case State.get_vm(node_name, vmid) do
+      nil ->
+        send_not_found(conn, "VM", vmid)
+
+      vm ->
+        timeframe = Map.get(query_params, "timeframe", "hour")
+        points = generate_vm_rrd_data_points(timeframe, vm)
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: points}))
+    end
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/lxc/:vmid/rrddata
+  Gets container RRD data in structured format.
+  """
+  def get_container_rrd_data(conn) do
+    node_name = conn.path_params["node"]
+    vmid = String.to_integer(conn.path_params["vmid"])
+    query_params = conn.query_params
+
+    case State.get_container(node_name, vmid) do
+      nil ->
+        send_not_found(conn, "Container", vmid)
+
+      container ->
+        timeframe = Map.get(query_params, "timeframe", "hour")
+        points = generate_container_rrd_data_points(timeframe, container)
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: points}))
+    end
+  end
+
+  @doc """
   GET /api2/json/cluster/metrics/server/:id
   Gets cluster-wide metrics for a specific server.
   """
@@ -304,6 +350,52 @@ defmodule MockPveApi.Handlers.Metrics do
         network_out: :rand.uniform(3_000_000)
       }
     end
+  end
+
+  defp generate_vm_rrd_data_points(timeframe, vm) do
+    now = :os.system_time(:second)
+    interval = get_interval(timeframe)
+    points = get_point_count(timeframe)
+
+    for i <- 0..(points - 1) do
+      timestamp = now - i * interval
+
+      %{
+        time: timestamp,
+        cpu: Float.round(:rand.uniform() * 0.6, 3),
+        maxcpu: Map.get(vm, :cores, 1),
+        mem: round(:rand.uniform() * Map.get(vm, :memory, 512) * 1024 * 1024),
+        maxmem: Map.get(vm, :memory, 512) * 1024 * 1024,
+        disk: :rand.uniform(10_000_000_000),
+        maxdisk: Map.get(vm, :disk, 32) * 1024 * 1024 * 1024,
+        netin: :rand.uniform(1_000_000),
+        netout: :rand.uniform(800_000)
+      }
+    end
+    |> Enum.reverse()
+  end
+
+  defp generate_container_rrd_data_points(timeframe, container) do
+    now = :os.system_time(:second)
+    interval = get_interval(timeframe)
+    points = get_point_count(timeframe)
+
+    for i <- 0..(points - 1) do
+      timestamp = now - i * interval
+
+      %{
+        time: timestamp,
+        cpu: Float.round(:rand.uniform() * 0.4, 3),
+        maxcpu: Map.get(container, :cores, 1),
+        mem: round(:rand.uniform() * Map.get(container, :memory, 256) * 1024 * 1024),
+        maxmem: Map.get(container, :memory, 256) * 1024 * 1024,
+        disk: :rand.uniform(5_000_000_000),
+        maxdisk: Map.get(container, :rootfs_size, 8) * 1024 * 1024 * 1024,
+        netin: :rand.uniform(500_000),
+        netout: :rand.uniform(400_000)
+      }
+    end
+    |> Enum.reverse()
   end
 
   defp generate_vm_time_series(vm, timeframe) do
