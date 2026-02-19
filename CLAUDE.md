@@ -12,7 +12,7 @@
 - Cross-language client library testing
 - Development environment provisioning
 
-**Current Status:** 0.4.7 (Quality Gates & Compliance)
+**Current Status:** 0.4.8 (pve-openapi Integration & Code Quality)
 **Supported PVE Versions:** 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 9.0
 **Target Elixir Version:** 1.15+
 **Target OTP Version:** 26+
@@ -456,12 +456,19 @@ config :mock_pve_api,
   - [x] Container SBOM generation for published images
 - [x] **Documentation**: Extracted `docs/reference/quality-gates.md` from ADR-0002
 
+### **Phase 4.8: pve-openapi Integration & Code Quality (v0.4.8)** ✅
+- [x] **EndpointMatrix Generation**: `mix mock_pve.gen.endpoint_matrix` generates endpoint availability matrix from pve-openapi specs (658 endpoints, 12 PVE versions)
+- [x] **Version Gating Consolidation**: Removed redundant `:pve8_only`/`:pve9_only` from Coverage and Router; EndpointMatrix is sole authority for version-specific endpoint availability
+- [x] **Coverage Module Refactoring**: Extracted monolithic coverage matrix into 14 category sub-modules with `MockPveApi.Coverage.Category` behaviour
+- [x] **Code Quality**: Dependency upgrades, ADR formatting aligned with pvex-suite convention, broken cross-references fixed
+- [x] **Dead Code Removal**: -150 lines of redundant version gating code
+
 ### **Phase 5: Container Distribution (v0.5.0)** 🎯 **NEXT PRIORITY**
 - [ ] Automated multi-arch builds (amd64, arm64)
 - [ ] Semantic versioning tags synchronized with git releases
 - [ ] Container security scanning and vulnerability assessment
 - [ ] Signed container image provenance
-- [ ] Release v0.4.7 as stable production image
+- [ ] Release v0.4.8 as stable production image
 - [ ] Update container registry documentation
 
 ### **Phase 5.1: Simulation Features (v0.5.1)**
