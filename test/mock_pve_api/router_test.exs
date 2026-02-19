@@ -721,11 +721,14 @@ defmodule MockPveApi.RouterTest do
     end
 
     test "GET /cluster/sdn/zones/:zone returns zone" do
+      State.create_sdn_zone("vlan-zone", %{"type" => "vlan"})
       conn = authed_conn(:get, "/api2/json/cluster/sdn/zones/vlan-zone") |> call()
       assert conn.status in [200, 501]
     end
 
     test "PUT /cluster/sdn/zones/:zone updates zone" do
+      State.create_sdn_zone("vlan-zone", %{"type" => "vlan"})
+
       conn =
         authed_conn(:put, "/api2/json/cluster/sdn/zones/vlan-zone", %{bridge: "vmbr1"})
         |> call()
@@ -734,6 +737,7 @@ defmodule MockPveApi.RouterTest do
     end
 
     test "DELETE /cluster/sdn/zones/:zone deletes zone" do
+      State.create_sdn_zone("vlan-zone", %{"type" => "vlan"})
       conn = authed_conn(:delete, "/api2/json/cluster/sdn/zones/vlan-zone") |> call()
       assert conn.status in [200, 501]
     end
@@ -751,8 +755,9 @@ defmodule MockPveApi.RouterTest do
       assert conn.status in [200, 501]
     end
 
-    test "GET /cluster/sdn/subnets returns subnets" do
-      conn = authed_conn(:get, "/api2/json/cluster/sdn/subnets") |> call()
+    test "GET /cluster/sdn/vnets/:vnet/subnets returns subnets" do
+      State.create_sdn_vnet("vnet100", %{})
+      conn = authed_conn(:get, "/api2/json/cluster/sdn/vnets/vnet100/subnets") |> call()
       assert conn.status in [200, 501]
     end
   end

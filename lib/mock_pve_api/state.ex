@@ -98,6 +98,10 @@ defmodule MockPveApi.State do
         migration_type: "secure",
         ha: %{shutdown_policy: "conditional"}
       },
+      sdn_zones: %{},
+      sdn_vnets: %{},
+      sdn_subnets: %{},
+      sdn_controllers: %{},
       pools: %{},
       users: %{
         "root@pam" => %{
@@ -547,6 +551,134 @@ defmodule MockPveApi.State do
 
   def update_cluster_options(params) do
     GenServer.call(@name, {:update_cluster_options, params})
+  end
+
+  # Domain CRUD operations
+  def get_domain(realm) do
+    GenServer.call(@name, {:get_domain, realm})
+  end
+
+  def create_domain(realm, params \\ %{}) do
+    GenServer.call(@name, {:create_domain, realm, params})
+  end
+
+  def update_domain(realm, params) do
+    GenServer.call(@name, {:update_domain, realm, params})
+  end
+
+  def delete_domain(realm) do
+    GenServer.call(@name, {:delete_domain, realm})
+  end
+
+  # Role CRUD operations
+  def get_role(roleid) do
+    GenServer.call(@name, {:get_role, roleid})
+  end
+
+  def create_role(roleid, privs) do
+    GenServer.call(@name, {:create_role, roleid, privs})
+  end
+
+  def update_role(roleid, privs) do
+    GenServer.call(@name, {:update_role, roleid, privs})
+  end
+
+  def delete_role(roleid) do
+    GenServer.call(@name, {:delete_role, roleid})
+  end
+
+  # Password change
+  def change_password(userid, _password) do
+    GenServer.call(@name, {:change_password, userid})
+  end
+
+  # ACL listing
+  def get_acl do
+    GenServer.call(@name, :get_acl)
+  end
+
+  # SDN zone operations
+  def list_sdn_zones do
+    GenServer.call(@name, :list_sdn_zones)
+  end
+
+  def get_sdn_zone(zone) do
+    GenServer.call(@name, {:get_sdn_zone, zone})
+  end
+
+  def create_sdn_zone(zone, params \\ %{}) do
+    GenServer.call(@name, {:create_sdn_zone, zone, params})
+  end
+
+  def update_sdn_zone(zone, params) do
+    GenServer.call(@name, {:update_sdn_zone, zone, params})
+  end
+
+  def delete_sdn_zone(zone) do
+    GenServer.call(@name, {:delete_sdn_zone, zone})
+  end
+
+  # SDN vnet operations
+  def list_sdn_vnets do
+    GenServer.call(@name, :list_sdn_vnets)
+  end
+
+  def get_sdn_vnet(vnet) do
+    GenServer.call(@name, {:get_sdn_vnet, vnet})
+  end
+
+  def create_sdn_vnet(vnet, params \\ %{}) do
+    GenServer.call(@name, {:create_sdn_vnet, vnet, params})
+  end
+
+  def update_sdn_vnet(vnet, params) do
+    GenServer.call(@name, {:update_sdn_vnet, vnet, params})
+  end
+
+  def delete_sdn_vnet(vnet) do
+    GenServer.call(@name, {:delete_sdn_vnet, vnet})
+  end
+
+  # SDN subnet operations
+  def list_sdn_subnets(vnet) do
+    GenServer.call(@name, {:list_sdn_subnets, vnet})
+  end
+
+  def get_sdn_subnet(vnet, subnet) do
+    GenServer.call(@name, {:get_sdn_subnet, vnet, subnet})
+  end
+
+  def create_sdn_subnet(vnet, subnet, params \\ %{}) do
+    GenServer.call(@name, {:create_sdn_subnet, vnet, subnet, params})
+  end
+
+  def update_sdn_subnet(vnet, subnet, params) do
+    GenServer.call(@name, {:update_sdn_subnet, vnet, subnet, params})
+  end
+
+  def delete_sdn_subnet(vnet, subnet) do
+    GenServer.call(@name, {:delete_sdn_subnet, vnet, subnet})
+  end
+
+  # SDN controller operations
+  def list_sdn_controllers do
+    GenServer.call(@name, :list_sdn_controllers)
+  end
+
+  def get_sdn_controller(controller) do
+    GenServer.call(@name, {:get_sdn_controller, controller})
+  end
+
+  def create_sdn_controller(controller, params \\ %{}) do
+    GenServer.call(@name, {:create_sdn_controller, controller, params})
+  end
+
+  def update_sdn_controller(controller, params) do
+    GenServer.call(@name, {:update_sdn_controller, controller, params})
+  end
+
+  def delete_sdn_controller(controller) do
+    GenServer.call(@name, {:delete_sdn_controller, controller})
   end
 
   # Version and capability operations
@@ -1848,6 +1980,370 @@ defmodule MockPveApi.State do
       end)
 
     {:reply, {:ok, updated}, %{state | cluster_options: updated}}
+  end
+
+  # Domain CRUD callbacks
+  def handle_call({:get_domain, realm}, _from, state) do
+    {:reply, Map.get(state.domains, realm), state}
+  end
+
+  def handle_call({:create_domain, realm, params}, _from, state) do
+    if Map.has_key?(state.domains, realm) do
+      {:reply, {:error, "Domain '#{realm}' already exists"}, state}
+    else
+      domain = %{
+        realm: realm,
+        type: Map.get(params, "type", "pam"),
+        comment: Map.get(params, "comment", ""),
+        default: Map.get(params, "default", 0),
+        tfa: Map.get(params, "tfa", ""),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_domains = Map.put(state.domains, realm, domain)
+      {:reply, {:ok, domain}, %{state | domains: new_domains}}
+    end
+  end
+
+  def handle_call({:update_domain, realm, params}, _from, state) do
+    case Map.get(state.domains, realm) do
+      nil ->
+        {:reply, {:error, "Domain '#{realm}' not found"}, state}
+
+      domain ->
+        updated =
+          Enum.reduce(params, domain, fn
+            {"comment", v}, acc -> Map.put(acc, :comment, v)
+            {"default", v}, acc -> Map.put(acc, :default, v)
+            {"tfa", v}, acc -> Map.put(acc, :tfa, v)
+            _, acc -> acc
+          end)
+
+        new_domains = Map.put(state.domains, realm, updated)
+        {:reply, {:ok, updated}, %{state | domains: new_domains}}
+    end
+  end
+
+  def handle_call({:delete_domain, realm}, _from, state) do
+    case Map.get(state.domains, realm) do
+      nil ->
+        {:reply, {:error, "Domain '#{realm}' not found"}, state}
+
+      _domain ->
+        new_domains = Map.delete(state.domains, realm)
+        {:reply, :ok, %{state | domains: new_domains}}
+    end
+  end
+
+  # Role CRUD callbacks
+  def handle_call({:get_role, roleid}, _from, state) do
+    {:reply, Map.get(state.roles, roleid), state}
+  end
+
+  def handle_call({:create_role, roleid, privs}, _from, state) do
+    if Map.has_key?(state.roles, roleid) do
+      {:reply, {:error, "Role '#{roleid}' already exists"}, state}
+    else
+      new_roles = Map.put(state.roles, roleid, privs)
+      {:reply, {:ok, privs}, %{state | roles: new_roles}}
+    end
+  end
+
+  def handle_call({:update_role, roleid, privs}, _from, state) do
+    case Map.get(state.roles, roleid) do
+      nil ->
+        {:reply, {:error, "Role '#{roleid}' not found"}, state}
+
+      _existing ->
+        new_roles = Map.put(state.roles, roleid, privs)
+        {:reply, {:ok, privs}, %{state | roles: new_roles}}
+    end
+  end
+
+  def handle_call({:delete_role, roleid}, _from, state) do
+    case Map.get(state.roles, roleid) do
+      nil ->
+        {:reply, {:error, "Role '#{roleid}' not found"}, state}
+
+      _role ->
+        new_roles = Map.delete(state.roles, roleid)
+        {:reply, :ok, %{state | roles: new_roles}}
+    end
+  end
+
+  # Password change callback
+  def handle_call({:change_password, userid}, _from, state) do
+    case Map.get(state.users, userid) do
+      nil -> {:reply, {:error, "User '#{userid}' not found"}, state}
+      _user -> {:reply, :ok, state}
+    end
+  end
+
+  # ACL listing callback
+  def handle_call(:get_acl, _from, state) do
+    acl_list =
+      state.permissions
+      |> Enum.flat_map(fn {path, users} ->
+        Enum.map(users, fn {userid, roles} ->
+          %{
+            path: path,
+            ugid: userid,
+            ugid_type: "user",
+            roleid: Enum.join(roles, ","),
+            propagate: 1,
+            type: "user"
+          }
+        end)
+      end)
+
+    {:reply, acl_list, state}
+  end
+
+  # SDN zone callbacks
+  def handle_call(:list_sdn_zones, _from, state) do
+    {:reply, Map.values(state.sdn_zones), state}
+  end
+
+  def handle_call({:get_sdn_zone, zone}, _from, state) do
+    {:reply, Map.get(state.sdn_zones, zone), state}
+  end
+
+  def handle_call({:create_sdn_zone, zone, params}, _from, state) do
+    if Map.has_key?(state.sdn_zones, zone) do
+      {:reply, {:error, "SDN zone '#{zone}' already exists"}, state}
+    else
+      sdn_zone = %{
+        zone: zone,
+        type: Map.get(params, "type", "vxlan"),
+        nodes: Map.get(params, "nodes", ""),
+        peers: Map.get(params, "peers", ""),
+        tag: Map.get(params, "tag"),
+        mtu: Map.get(params, "mtu", 1450),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_zones = Map.put(state.sdn_zones, zone, sdn_zone)
+      {:reply, {:ok, sdn_zone}, %{state | sdn_zones: new_zones}}
+    end
+  end
+
+  def handle_call({:update_sdn_zone, zone, params}, _from, state) do
+    case Map.get(state.sdn_zones, zone) do
+      nil ->
+        {:reply, {:error, "SDN zone '#{zone}' not found"}, state}
+
+      sdn_zone ->
+        updated =
+          Enum.reduce(params, sdn_zone, fn
+            {"type", v}, acc -> Map.put(acc, :type, v)
+            {"nodes", v}, acc -> Map.put(acc, :nodes, v)
+            {"peers", v}, acc -> Map.put(acc, :peers, v)
+            {"tag", v}, acc -> Map.put(acc, :tag, v)
+            {"mtu", v}, acc -> Map.put(acc, :mtu, v)
+            _, acc -> acc
+          end)
+
+        new_zones = Map.put(state.sdn_zones, zone, updated)
+        {:reply, {:ok, updated}, %{state | sdn_zones: new_zones}}
+    end
+  end
+
+  def handle_call({:delete_sdn_zone, zone}, _from, state) do
+    case Map.get(state.sdn_zones, zone) do
+      nil ->
+        {:reply, {:error, "SDN zone '#{zone}' not found"}, state}
+
+      _zone ->
+        new_zones = Map.delete(state.sdn_zones, zone)
+        {:reply, :ok, %{state | sdn_zones: new_zones}}
+    end
+  end
+
+  # SDN vnet callbacks
+  def handle_call(:list_sdn_vnets, _from, state) do
+    {:reply, Map.values(state.sdn_vnets), state}
+  end
+
+  def handle_call({:get_sdn_vnet, vnet}, _from, state) do
+    {:reply, Map.get(state.sdn_vnets, vnet), state}
+  end
+
+  def handle_call({:create_sdn_vnet, vnet, params}, _from, state) do
+    if Map.has_key?(state.sdn_vnets, vnet) do
+      {:reply, {:error, "SDN vnet '#{vnet}' already exists"}, state}
+    else
+      sdn_vnet = %{
+        vnet: vnet,
+        zone: Map.get(params, "zone", ""),
+        tag: Map.get(params, "tag"),
+        alias: Map.get(params, "alias", ""),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_vnets = Map.put(state.sdn_vnets, vnet, sdn_vnet)
+      {:reply, {:ok, sdn_vnet}, %{state | sdn_vnets: new_vnets}}
+    end
+  end
+
+  def handle_call({:update_sdn_vnet, vnet, params}, _from, state) do
+    case Map.get(state.sdn_vnets, vnet) do
+      nil ->
+        {:reply, {:error, "SDN vnet '#{vnet}' not found"}, state}
+
+      sdn_vnet ->
+        updated =
+          Enum.reduce(params, sdn_vnet, fn
+            {"zone", v}, acc -> Map.put(acc, :zone, v)
+            {"tag", v}, acc -> Map.put(acc, :tag, v)
+            {"alias", v}, acc -> Map.put(acc, :alias, v)
+            _, acc -> acc
+          end)
+
+        new_vnets = Map.put(state.sdn_vnets, vnet, updated)
+        {:reply, {:ok, updated}, %{state | sdn_vnets: new_vnets}}
+    end
+  end
+
+  def handle_call({:delete_sdn_vnet, vnet}, _from, state) do
+    case Map.get(state.sdn_vnets, vnet) do
+      nil ->
+        {:reply, {:error, "SDN vnet '#{vnet}' not found"}, state}
+
+      _vnet ->
+        new_vnets = Map.delete(state.sdn_vnets, vnet)
+        # Also delete subnets for this vnet
+        new_subnets =
+          state.sdn_subnets
+          |> Enum.reject(fn {{v, _s}, _} -> v == vnet end)
+          |> Map.new()
+
+        {:reply, :ok, %{state | sdn_vnets: new_vnets, sdn_subnets: new_subnets}}
+    end
+  end
+
+  # SDN subnet callbacks
+  def handle_call({:list_sdn_subnets, vnet}, _from, state) do
+    subnets =
+      state.sdn_subnets
+      |> Enum.filter(fn {{v, _s}, _} -> v == vnet end)
+      |> Enum.map(fn {_key, subnet} -> subnet end)
+
+    {:reply, subnets, state}
+  end
+
+  def handle_call({:get_sdn_subnet, vnet, subnet}, _from, state) do
+    {:reply, Map.get(state.sdn_subnets, {vnet, subnet}), state}
+  end
+
+  def handle_call({:create_sdn_subnet, vnet, subnet, params}, _from, state) do
+    key = {vnet, subnet}
+
+    if Map.has_key?(state.sdn_subnets, key) do
+      {:reply, {:error, "Subnet '#{subnet}' already exists in vnet '#{vnet}'"}, state}
+    else
+      sdn_subnet = %{
+        subnet: subnet,
+        vnet: vnet,
+        type: "subnet",
+        gateway: Map.get(params, "gateway", ""),
+        snat: Map.get(params, "snat", 0),
+        dnszoneprefix: Map.get(params, "dnszoneprefix", ""),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_subnets = Map.put(state.sdn_subnets, key, sdn_subnet)
+      {:reply, {:ok, sdn_subnet}, %{state | sdn_subnets: new_subnets}}
+    end
+  end
+
+  def handle_call({:update_sdn_subnet, vnet, subnet, params}, _from, state) do
+    key = {vnet, subnet}
+
+    case Map.get(state.sdn_subnets, key) do
+      nil ->
+        {:reply, {:error, "Subnet '#{subnet}' not found in vnet '#{vnet}'"}, state}
+
+      sdn_subnet ->
+        updated =
+          Enum.reduce(params, sdn_subnet, fn
+            {"gateway", v}, acc -> Map.put(acc, :gateway, v)
+            {"snat", v}, acc -> Map.put(acc, :snat, v)
+            {"dnszoneprefix", v}, acc -> Map.put(acc, :dnszoneprefix, v)
+            _, acc -> acc
+          end)
+
+        new_subnets = Map.put(state.sdn_subnets, key, updated)
+        {:reply, {:ok, updated}, %{state | sdn_subnets: new_subnets}}
+    end
+  end
+
+  def handle_call({:delete_sdn_subnet, vnet, subnet}, _from, state) do
+    key = {vnet, subnet}
+
+    case Map.get(state.sdn_subnets, key) do
+      nil ->
+        {:reply, {:error, "Subnet '#{subnet}' not found in vnet '#{vnet}'"}, state}
+
+      _subnet ->
+        new_subnets = Map.delete(state.sdn_subnets, key)
+        {:reply, :ok, %{state | sdn_subnets: new_subnets}}
+    end
+  end
+
+  # SDN controller callbacks
+  def handle_call(:list_sdn_controllers, _from, state) do
+    {:reply, Map.values(state.sdn_controllers), state}
+  end
+
+  def handle_call({:get_sdn_controller, controller}, _from, state) do
+    {:reply, Map.get(state.sdn_controllers, controller), state}
+  end
+
+  def handle_call({:create_sdn_controller, controller, params}, _from, state) do
+    if Map.has_key?(state.sdn_controllers, controller) do
+      {:reply, {:error, "SDN controller '#{controller}' already exists"}, state}
+    else
+      sdn_controller = %{
+        controller: controller,
+        type: Map.get(params, "type", "evpn"),
+        asn: Map.get(params, "asn"),
+        peers: Map.get(params, "peers", ""),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_controllers = Map.put(state.sdn_controllers, controller, sdn_controller)
+      {:reply, {:ok, sdn_controller}, %{state | sdn_controllers: new_controllers}}
+    end
+  end
+
+  def handle_call({:update_sdn_controller, controller, params}, _from, state) do
+    case Map.get(state.sdn_controllers, controller) do
+      nil ->
+        {:reply, {:error, "SDN controller '#{controller}' not found"}, state}
+
+      sdn_controller ->
+        updated =
+          Enum.reduce(params, sdn_controller, fn
+            {"type", v}, acc -> Map.put(acc, :type, v)
+            {"asn", v}, acc -> Map.put(acc, :asn, v)
+            {"peers", v}, acc -> Map.put(acc, :peers, v)
+            _, acc -> acc
+          end)
+
+        new_controllers = Map.put(state.sdn_controllers, controller, updated)
+        {:reply, {:ok, updated}, %{state | sdn_controllers: new_controllers}}
+    end
+  end
+
+  def handle_call({:delete_sdn_controller, controller}, _from, state) do
+    case Map.get(state.sdn_controllers, controller) do
+      nil ->
+        {:reply, {:error, "SDN controller '#{controller}' not found"}, state}
+
+      _controller ->
+        new_controllers = Map.delete(state.sdn_controllers, controller)
+        {:reply, :ok, %{state | sdn_controllers: new_controllers}}
+    end
   end
 
   @impl true

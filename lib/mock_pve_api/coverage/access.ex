@@ -189,17 +189,17 @@ defmodule MockPveApi.Coverage.Access do
       },
       "/api2/json/access/domains" => %{
         path: "/api2/json/access/domains",
-        methods: [:get],
+        methods: [:get, :post],
         status: :implemented,
         priority: :medium,
         since: "6.0",
-        description: "Authentication realms/domains listing",
+        description: "Authentication realms/domains management",
         parameters: [],
         response_schema: %{data: :array},
         capabilities_required: [:user_management_basic],
-        test_coverage: false,
+        test_coverage: true,
         handler_module: MockPveApi.Handlers.Access,
-        notes: "Domains/realms listing implemented"
+        notes: nil
       },
       "/api2/json/access/permissions" => %{
         path: "/api2/json/access/permissions",
@@ -225,21 +225,21 @@ defmodule MockPveApi.Coverage.Access do
         parameters: [],
         response_schema: %{data: :array},
         capabilities_required: [:user_management_basic],
-        test_coverage: false,
+        test_coverage: true,
         handler_module: MockPveApi.Handlers.Access,
         notes: nil
       },
       "/api2/json/access/roles" => %{
         path: "/api2/json/access/roles",
-        methods: [:get],
+        methods: [:get, :post],
         status: :implemented,
         priority: :medium,
         since: "6.0",
-        description: "List available roles",
+        description: "Role management",
         parameters: [],
         response_schema: %{data: :array},
         capabilities_required: [:user_management_basic],
-        test_coverage: false,
+        test_coverage: true,
         handler_module: MockPveApi.Handlers.Access,
         notes: nil
       },
@@ -265,20 +265,92 @@ defmodule MockPveApi.Coverage.Access do
         test_coverage: false,
         handler_module: nil,
         notes: "Inline handler in router; realm sync available in PVE 8.0+"
+      },
+      "/api2/json/access/roles/{roleid}" => %{
+        path: "/api2/json/access/roles/{roleid}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Individual role CRUD",
+        parameters: [
+          %{
+            name: "roleid",
+            type: :string,
+            required: true,
+            description: "Role ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
+      },
+      "/api2/json/access/domains/{realm}" => %{
+        path: "/api2/json/access/domains/{realm}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Individual realm/domain CRUD",
+        parameters: [
+          %{
+            name: "realm",
+            type: :string,
+            required: true,
+            description: "Realm name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
+      },
+      "/api2/json/access/password" => %{
+        path: "/api2/json/access/password",
+        methods: [:put],
+        status: :implemented,
+        priority: :medium,
+        since: "6.0",
+        description: "Change user password",
+        parameters: [
+          %{
+            name: "userid",
+            type: :string,
+            required: true,
+            description: "User ID",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "password",
+            type: :string,
+            required: true,
+            description: "New password",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
       }
     }
   end
 
   defp planned_endpoints do
     %{
-      "/api2/json/access/roles/{roleid}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual role CRUD"),
-      "/api2/json/access/domains/{realm}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual realm/domain CRUD"),
       "/api2/json/access/tfa" =>
         planned(:get_post, :low, "7.0", "Two-factor authentication management"),
-      "/api2/json/access/tfa/{userid}" => planned(:get, :low, "7.0", "User TFA configuration"),
-      "/api2/json/access/password" => planned(:put, :medium, "6.0", "Change user password")
+      "/api2/json/access/tfa/{userid}" => planned(:get, :low, "7.0", "User TFA configuration")
     }
   end
 

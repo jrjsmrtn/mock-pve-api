@@ -323,7 +323,9 @@ defmodule MockPveApi.Capabilities do
     # If the endpoint exists in *any* version in the matrix, gate it;
     # otherwise it's a non-API endpoint (e.g. parameterized or custom) — allow it.
     if endpoint_in_matrix?(endpoint_path) do
-      MockPveApi.EndpointMatrix.available?(endpoint_path, :get, base_version)
+      Enum.any?([:get, :post, :put, :delete], fn method ->
+        MockPveApi.EndpointMatrix.available?(endpoint_path, method, base_version)
+      end)
     else
       true
     end

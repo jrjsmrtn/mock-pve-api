@@ -111,8 +111,28 @@ defmodule MockPveApi.Router do
     Access.list_domains(conn)
   end
 
+  post "/api2/json/access/domains" do
+    Access.create_domain(conn)
+  end
+
+  get "/api2/json/access/domains/:realm" do
+    Access.get_domain(conn)
+  end
+
+  put "/api2/json/access/domains/:realm" do
+    Access.update_domain(conn)
+  end
+
+  delete "/api2/json/access/domains/:realm" do
+    Access.delete_domain(conn)
+  end
+
   get "/api2/json/access/permissions" do
     Access.get_permissions(conn)
+  end
+
+  get "/api2/json/access/acl" do
+    Access.get_acl(conn)
   end
 
   put "/api2/json/access/acl" do
@@ -121,6 +141,26 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/access/roles" do
     Access.list_roles(conn)
+  end
+
+  post "/api2/json/access/roles" do
+    Access.create_role(conn)
+  end
+
+  get "/api2/json/access/roles/:roleid" do
+    Access.get_role(conn)
+  end
+
+  put "/api2/json/access/roles/:roleid" do
+    Access.update_role(conn)
+  end
+
+  delete "/api2/json/access/roles/:roleid" do
+    Access.delete_role(conn)
+  end
+
+  put "/api2/json/access/password" do
+    Access.change_password(conn)
   end
 
   # Node endpoints
@@ -539,22 +579,28 @@ defmodule MockPveApi.Router do
   end
 
   # SDN endpoints (PVE 8.0+ only)
+  get "/api2/json/cluster/sdn" do
+    Sdn.get_sdn_index(conn)
+  end
+
   get "/api2/json/cluster/sdn/zones" do
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: []}))
+    Sdn.list_zones(conn)
+  end
+
+  post "/api2/json/cluster/sdn/zones" do
+    Sdn.create_zone(conn)
   end
 
   get "/api2/json/cluster/sdn/zones/:zone" do
-    Sdn.get_sdn_zone(conn)
+    Sdn.get_zone(conn)
   end
 
   put "/api2/json/cluster/sdn/zones/:zone" do
-    Sdn.update_sdn_zone(conn)
+    Sdn.update_zone(conn)
   end
 
   delete "/api2/json/cluster/sdn/zones/:zone" do
-    Sdn.delete_sdn_zone(conn)
+    Sdn.delete_zone(conn)
   end
 
   get "/api2/json/cluster/sdn/vnets" do
@@ -565,10 +611,56 @@ defmodule MockPveApi.Router do
     Sdn.create_vnet(conn)
   end
 
-  get "/api2/json/cluster/sdn/subnets" do
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: []}))
+  get "/api2/json/cluster/sdn/vnets/:vnet/subnets" do
+    Sdn.list_subnets(conn)
+  end
+
+  post "/api2/json/cluster/sdn/vnets/:vnet/subnets" do
+    Sdn.create_subnet(conn)
+  end
+
+  get "/api2/json/cluster/sdn/vnets/:vnet/subnets/:subnet" do
+    Sdn.get_subnet(conn)
+  end
+
+  put "/api2/json/cluster/sdn/vnets/:vnet/subnets/:subnet" do
+    Sdn.update_subnet(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/vnets/:vnet/subnets/:subnet" do
+    Sdn.delete_subnet(conn)
+  end
+
+  get "/api2/json/cluster/sdn/vnets/:vnet" do
+    Sdn.get_vnet(conn)
+  end
+
+  put "/api2/json/cluster/sdn/vnets/:vnet" do
+    Sdn.update_vnet(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/vnets/:vnet" do
+    Sdn.delete_vnet(conn)
+  end
+
+  get "/api2/json/cluster/sdn/controllers" do
+    Sdn.list_controllers(conn)
+  end
+
+  post "/api2/json/cluster/sdn/controllers" do
+    Sdn.create_controller(conn)
+  end
+
+  get "/api2/json/cluster/sdn/controllers/:controller" do
+    Sdn.get_controller(conn)
+  end
+
+  put "/api2/json/cluster/sdn/controllers/:controller" do
+    Sdn.update_controller(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/controllers/:controller" do
+    Sdn.delete_controller(conn)
   end
 
   # Realm sync endpoints (PVE 8.0+ only)

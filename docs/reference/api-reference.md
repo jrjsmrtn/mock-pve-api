@@ -50,14 +50,14 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Virtual Machines | 21 | 11 | 52.4% |
 | LXC Containers | 17 | 11 | 64.7% |
 | Storage | 20 | 6 | 30.0% |
-| Access Control | 17 | 12 | 70.6% |
+| Access Control | 17 | 15 | 88.2% |
 | Resource Pools | 2 | 2 | 100.0% |
-| SDN | 14 | 4 | 28.6% |
+| SDN | 13 | 9 | 69.2% |
 | Monitoring | 16 | 7 | 43.8% |
 | Backup | 9 | 5 | 55.6% |
 | Hardware | 7 | 0 | 0.0% |
 | Firewall | 41 | 0 | 0.0% |
-| **TOTAL** | **229** | **89** | **38.9%** |
+| **TOTAL** | **228** | **97** | **42.5%** |
 
 
 ## Status Legend
@@ -3174,11 +3174,11 @@ Access control list management
 
 ### `/access/domains` ✅
 
-Authentication realms/domains listing
+Authentication realms/domains management
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | GET, POST |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -3195,10 +3195,8 @@ Authentication realms/domains listing
 }
 ```
 
-**Notes**: Domains/realms listing implemented
 
-
-### `/access/domains/{realm}` 📋
+### `/access/domains/{realm}` ✅
 
 Individual realm/domain CRUD
 
@@ -3207,6 +3205,12 @@ Individual realm/domain CRUD
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `realm` | string | Yes | Realm name | - |
 
 **Example Response**:
 ```json
@@ -3299,7 +3303,7 @@ Individual group operations
 **Notes**: Individual group CRUD operations implemented
 
 
-### `/access/password` 📋
+### `/access/password` ✅
 
 Change user password
 
@@ -3308,6 +3312,13 @@ Change user password
 | **Methods** | PUT |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `userid` | string | Yes | User ID | - |
+| `password` | string | Yes | New password | - |
 
 **Example Response**:
 ```json
@@ -3337,11 +3348,11 @@ Get current user permissions
 
 ### `/access/roles` ✅
 
-List available roles
+Role management
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | GET, POST |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -3353,7 +3364,7 @@ List available roles
 ```
 
 
-### `/access/roles/{roleid}` 📋
+### `/access/roles/{roleid}` ✅
 
 Individual role CRUD
 
@@ -3362,6 +3373,12 @@ Individual role CRUD
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `roleid` | string | Yes | Role ID | - |
 
 **Example Response**:
 ```json
@@ -3630,7 +3647,7 @@ Individual pool operations
 
 ## Software-Defined Networking (SDN)
 
-### `/cluster/sdn` 📋 🔴
+### `/cluster/sdn` ✅ 🔴
 
 SDN index
 
@@ -3643,12 +3660,12 @@ SDN index
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/cluster/sdn/controllers` 📋 🔴
+### `/cluster/sdn/controllers` ✅ 🔴
 
 SDN controller management
 
@@ -3661,12 +3678,12 @@ SDN controller management
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/cluster/sdn/controllers/{controller}` 📋 🔴
+### `/cluster/sdn/controllers/{controller}` ✅ 🔴
 
 Individual SDN controller operations
 
@@ -3675,6 +3692,12 @@ Individual SDN controller operations
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 8.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `controller` | string | Yes | Controller identifier | - |
 
 **Example Response**:
 ```json
@@ -3756,26 +3779,6 @@ Individual SDN IPAM plugin operations
 ```
 
 
-### `/cluster/sdn/subnets` ✅ 🔴
-
-List all SDN subnets
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
-| **Priority** | Low |
-| **Since** | PVE 8.0 |
-
-**Example Response**:
-```json
-{
-  "data": []
-}
-```
-
-**Notes**: Inline handler in router
-
-
 ### `/cluster/sdn/vnets` ✅ 🔴
 
 Virtual network management
@@ -3799,10 +3802,8 @@ Virtual network management
 }
 ```
 
-**Notes**: Virtual network management with creation support
 
-
-### `/cluster/sdn/vnets/{vnet}` 📋 🔴
+### `/cluster/sdn/vnets/{vnet}` ✅ 🔴
 
 Individual virtual network operations
 
@@ -3812,6 +3813,12 @@ Individual virtual network operations
 | **Priority** | Medium |
 | **Since** | PVE 8.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `vnet` | string | Yes | VNet identifier | - |
+
 **Example Response**:
 ```json
 {
@@ -3820,7 +3827,7 @@ Individual virtual network operations
 ```
 
 
-### `/cluster/sdn/vnets/{vnet}/subnets` 📋 🔴
+### `/cluster/sdn/vnets/{vnet}/subnets` ✅ 🔴
 
 Subnet management for a virtual network
 
@@ -3830,15 +3837,21 @@ Subnet management for a virtual network
 | **Priority** | Medium |
 | **Since** | PVE 8.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `vnet` | string | Yes | VNet identifier | - |
+
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/cluster/sdn/vnets/{vnet}/subnets/{subnet}` 📋 🔴
+### `/cluster/sdn/vnets/{vnet}/subnets/{subnet}` ✅ 🔴
 
 Individual subnet operations
 
@@ -3847,6 +3860,13 @@ Individual subnet operations
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 8.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `vnet` | string | Yes | VNet identifier | - |
+| `subnet` | string | Yes | Subnet identifier | - |
 
 **Example Response**:
 ```json
@@ -3879,8 +3899,6 @@ Software Defined Networking zone management
 }
 ```
 
-**Notes**: SDN features available in PVE 8.0+ only
-
 
 ### `/cluster/sdn/zones/{zone}` ✅ 🔴
 
@@ -3908,8 +3926,6 @@ Individual SDN zone operations
   }
 }
 ```
-
-**Notes**: Complete CRUD operations for SDN zones
 
 
 ---

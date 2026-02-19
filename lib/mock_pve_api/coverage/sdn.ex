@@ -21,6 +21,20 @@ defmodule MockPveApi.Coverage.Sdn do
 
   defp implemented_endpoints do
     %{
+      "/api2/json/cluster/sdn" => %{
+        path: "/api2/json/cluster/sdn",
+        methods: [:get],
+        status: :implemented,
+        priority: :medium,
+        since: "8.0",
+        description: "SDN index",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
       "/api2/json/cluster/sdn/zones" => %{
         path: "/api2/json/cluster/sdn/zones",
         methods: [:get, :post],
@@ -32,8 +46,8 @@ defmodule MockPveApi.Coverage.Sdn do
         response_schema: %{data: :array},
         capabilities_required: [:sdn_tech_preview],
         test_coverage: true,
-        handler_module: MockPveApi.Handlers.SDN,
-        notes: "SDN features available in PVE 8.0+ only"
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
       },
       "/api2/json/cluster/sdn/zones/{zone}" => %{
         path: "/api2/json/cluster/sdn/zones/{zone}",
@@ -55,8 +69,8 @@ defmodule MockPveApi.Coverage.Sdn do
         response_schema: %{data: :object},
         capabilities_required: [:sdn_tech_preview],
         test_coverage: true,
-        handler_module: "Elixir.MockPveApi.Handlers.Sdn",
-        notes: "Complete CRUD operations for SDN zones"
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
       },
       "/api2/json/cluster/sdn/vnets" => %{
         path: "/api2/json/cluster/sdn/vnets",
@@ -69,39 +83,128 @@ defmodule MockPveApi.Coverage.Sdn do
         response_schema: %{data: :array},
         capabilities_required: [:sdn_tech_preview],
         test_coverage: true,
-        handler_module: "Elixir.MockPveApi.Handlers.Sdn",
-        notes: "Virtual network management with creation support"
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
       },
-      "/api2/json/cluster/sdn/subnets" => %{
-        path: "/api2/json/cluster/sdn/subnets",
-        methods: [:get],
+      "/api2/json/cluster/sdn/vnets/{vnet}" => %{
+        path: "/api2/json/cluster/sdn/vnets/{vnet}",
+        methods: [:get, :put, :delete],
         status: :implemented,
-        priority: :low,
+        priority: :medium,
         since: "8.0",
-        description: "List all SDN subnets",
+        description: "Individual virtual network operations",
+        parameters: [
+          %{
+            name: "vnet",
+            type: :string,
+            required: true,
+            description: "VNet identifier",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/vnets/{vnet}/subnets" => %{
+        path: "/api2/json/cluster/sdn/vnets/{vnet}/subnets",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :medium,
+        since: "8.0",
+        description: "Subnet management for a virtual network",
+        parameters: [
+          %{
+            name: "vnet",
+            type: :string,
+            required: true,
+            description: "VNet identifier",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :array},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/vnets/{vnet}/subnets/{subnet}" => %{
+        path: "/api2/json/cluster/sdn/vnets/{vnet}/subnets/{subnet}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :medium,
+        since: "8.0",
+        description: "Individual subnet operations",
+        parameters: [
+          %{
+            name: "vnet",
+            type: :string,
+            required: true,
+            description: "VNet identifier",
+            values: nil,
+            default: nil
+          },
+          %{
+            name: "subnet",
+            type: :string,
+            required: true,
+            description: "Subnet identifier",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/controllers" => %{
+        path: "/api2/json/cluster/sdn/controllers",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :medium,
+        since: "8.0",
+        description: "SDN controller management",
         parameters: [],
         response_schema: %{data: :array},
         capabilities_required: [:sdn_tech_preview],
-        test_coverage: false,
-        handler_module: nil,
-        notes: "Inline handler in router"
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/controllers/{controller}" => %{
+        path: "/api2/json/cluster/sdn/controllers/{controller}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :medium,
+        since: "8.0",
+        description: "Individual SDN controller operations",
+        parameters: [
+          %{
+            name: "controller",
+            type: :string,
+            required: true,
+            description: "Controller identifier",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
       }
     }
   end
 
   defp planned_endpoints do
     %{
-      "/api2/json/cluster/sdn" => planned(:get, :medium, "8.0", "SDN index"),
-      "/api2/json/cluster/sdn/vnets/{vnet}" =>
-        planned(:get_put_delete, :medium, "8.0", "Individual virtual network operations"),
-      "/api2/json/cluster/sdn/vnets/{vnet}/subnets" =>
-        planned(:get_post, :medium, "8.0", "Subnet management for a virtual network"),
-      "/api2/json/cluster/sdn/vnets/{vnet}/subnets/{subnet}" =>
-        planned(:get_put_delete, :medium, "8.0", "Individual subnet operations"),
-      "/api2/json/cluster/sdn/controllers" =>
-        planned(:get_post, :medium, "8.0", "SDN controller management"),
-      "/api2/json/cluster/sdn/controllers/{controller}" =>
-        planned(:get_put_delete, :medium, "8.0", "Individual SDN controller operations"),
       "/api2/json/cluster/sdn/dns" =>
         planned(:get_post, :low, "8.0", "SDN DNS plugin management"),
       "/api2/json/cluster/sdn/dns/{dns}" =>

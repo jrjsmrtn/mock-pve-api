@@ -494,4 +494,187 @@ defmodule MockPveApi.Handlers.AccessTest do
       assert "pve" in realms
     end
   end
+
+  # Sprint 4.9.3 - Domain CRUD (via router)
+
+  defp request(method, path, body \\ nil) do
+    conn =
+      Plug.Test.conn(method, path, body && Jason.encode!(body))
+      |> Plug.Conn.put_req_header("content-type", "application/json")
+      |> Plug.Conn.put_req_header("authorization", "PVEAPIToken=root@pam!test=secret")
+
+    MockPveApi.Router.call(conn, MockPveApi.Router.init([]))
+  end
+
+  defp json(conn, status) do
+    assert conn.status == status
+    Jason.decode!(conn.resp_body)
+  end
+
+  describe "domain CRUD" do
+    test "create and get domain" do
+      conn = request(:post, "/api2/json/access/domains", %{"realm" => "ldap1", "type" => "ldap"})
+      assert conn.status == 200
+
+      conn = request(:get, "/api2/json/access/domains/ldap1")
+      domain = json(conn, 200)["data"]
+      assert domain["realm"] == "ldap1"
+      assert domain["type"] == "ldap"
+    end
+
+    test "update domain" do
+      conn =
+        request(:put, "/api2/json/access/domains/pam", %{"comment" => "Updated PAM"})
+
+      assert conn.status == 200
+
+      updated = State.get_domain("pam")
+      assert updated.comment == "Updated PAM"
+    end
+
+    test "delete domain" do
+      State.create_domain("test-realm", %{"type" => "pam"})
+
+      conn = request(:delete, "/api2/json/access/domains/test-realm")
+      assert conn.status == 200
+      assert State.get_domain("test-realm") == nil
+    end
+
+    test "create duplicate domain returns 400" do
+      conn = request(:post, "/api2/json/access/domains", %{"realm" => "pam"})
+      assert conn.status == 400
+    end
+
+    test "get nonexistent domain returns 404" do
+      conn = request(:get, "/api2/json/access/domains/nonexistent")
+      assert conn.status == 404
+    end
+
+    test "create domain requires realm" do
+      conn = request(:post, "/api2/json/access/domains", %{"type" => "ldap"})
+      assert conn.status == 400
+    end
+
+    test "domains listed includes new domain" do
+      State.create_domain("ad1", %{"type" => "ad"})
+
+      conn = request(:get, "/api2/json/access/domains")
+      domains = json(conn, 200)["data"]
+      realms = Enum.map(domains, & &1["realm"])
+      assert "ad1" in realms
+    end
+  end
+
+  # Sprint 4.9.3 - Role CRUD
+
+  describe "role CRUD" do
+    test "create and get role" do
+      conn =
+        request(:post, "/api2/json/access/roles", %{
+          "roleid" => "TestRole",
+          "privs" => "VM.Audit,VM.PowerMgmt"
+        })
+
+      assert conn.status == 200
+
+      conn = request(:get, "/api2/json/access/roles/TestRole")
+      role = json(conn, 200)["data"]
+      assert role["roleid"] == "TestRole"
+      assert role["privs"] =~ "VM.Audit"
+    end
+
+    test "get existing Administrator role" do
+      conn = request(:get, "/api2/json/access/roles/Administrator")
+      role = json(conn, 200)["data"]
+      assert role["roleid"] == "Administrator"
+      assert role["privs"] =~ "VM.Allocate"
+    end
+
+    test "update role" do
+      State.create_role("EditRole", ["VM.Audit"])
+
+      conn =
+        request(:put, "/api2/json/access/roles/EditRole", %{"privs" => "VM.Audit,VM.PowerMgmt"})
+
+      assert conn.status == 200
+      updated = State.get_role("EditRole")
+      assert "VM.PowerMgmt" in updated
+    end
+
+    test "delete role" do
+      State.create_role("DelRole", ["VM.Audit"])
+
+      conn = request(:delete, "/api2/json/access/roles/DelRole")
+      assert conn.status == 200
+      assert State.get_role("DelRole") == nil
+    end
+
+    test "create duplicate role returns 400" do
+      conn = request(:post, "/api2/json/access/roles", %{"roleid" => "Administrator"})
+      assert conn.status == 400
+    end
+
+    test "get nonexistent role returns 404" do
+      conn = request(:get, "/api2/json/access/roles/nonexistent")
+      assert conn.status == 404
+    end
+
+    test "create role requires roleid" do
+      conn = request(:post, "/api2/json/access/roles", %{"privs" => "VM.Audit"})
+      assert conn.status == 400
+    end
+
+    test "roles listed includes new role" do
+      State.create_role("ListedRole", ["VM.Audit"])
+
+      conn = request(:get, "/api2/json/access/roles")
+      roles = json(conn, 200)["data"]
+      roleids = Enum.map(roles, & &1["roleid"])
+      assert "ListedRole" in roleids
+    end
+  end
+
+  # Sprint 4.9.3 - Password Change
+
+  describe "password change" do
+    test "change password for existing user" do
+      conn =
+        request(:put, "/api2/json/access/password", %{
+          "userid" => "root@pam",
+          "password" => "newpassword"
+        })
+
+      assert conn.status == 200
+    end
+
+    test "change password for nonexistent user returns 404" do
+      conn =
+        request(:put, "/api2/json/access/password", %{
+          "userid" => "unknown@pam",
+          "password" => "newpassword"
+        })
+
+      assert conn.status == 404
+    end
+
+    test "change password requires userid and password" do
+      conn = request(:put, "/api2/json/access/password", %{"userid" => "root@pam"})
+      assert conn.status == 400
+    end
+  end
+
+  # Sprint 4.9.3 - ACL GET
+
+  describe "ACL GET" do
+    test "get ACL list" do
+      conn = request(:get, "/api2/json/access/acl")
+      acl = json(conn, 200)["data"]
+      assert is_list(acl)
+      # Default state has root@pam with Administrator role on /
+      assert length(acl) >= 1
+      entry = hd(acl)
+      assert entry["path"] == "/"
+      assert entry["ugid"] == "root@pam"
+    end
+  end
 end

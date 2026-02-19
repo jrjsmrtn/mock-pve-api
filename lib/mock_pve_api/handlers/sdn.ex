@@ -9,90 +9,139 @@ defmodule MockPveApi.Handlers.Sdn do
 
   import Plug.Conn
   require Logger
-  # alias MockPveApi.State  # Currently unused
+  alias MockPveApi.State
 
   @doc """
-  GET /api2/json/cluster/sdn/zones/{zone}
-  Gets specific SDN zone information.
+  GET /api2/json/cluster/sdn
+  Returns SDN index (available sub-resources).
   """
-  def get_sdn_zone(conn) do
-    zone_id = conn.path_params["zone"]
-
-    # Mock SDN zone data
-    zone_data = %{
-      type: "vxlan",
-      zone: zone_id,
-      nodes: "pve-node1,pve-node2",
-      peers: "192.168.1.10,192.168.1.11",
-      tag: 100,
-      mtu: 1450,
-      digest: "a1b2c3d4e5f6"
-    }
+  def get_sdn_index(conn) do
+    index = [
+      %{subdir: "zones"},
+      %{subdir: "vnets"},
+      %{subdir: "controllers"},
+      %{subdir: "dns"},
+      %{subdir: "ipams"}
+    ]
 
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: zone_data}))
+    |> send_resp(200, Jason.encode!(%{data: index}))
+  end
+
+  # --- SDN Zones ---
+
+  @doc """
+  GET /api2/json/cluster/sdn/zones
+  Lists SDN zones.
+  """
+  def list_zones(conn) do
+    zones = State.list_sdn_zones()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: zones}))
   end
 
   @doc """
-  PUT /api2/json/cluster/sdn/zones/{zone}
+  POST /api2/json/cluster/sdn/zones
+  Creates an SDN zone.
+  """
+  def create_zone(conn) do
+    params = conn.body_params
+    zone_id = Map.get(params, "zone")
+
+    if zone_id do
+      case State.create_sdn_zone(zone_id, params) do
+        {:ok, zone} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: zone}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{zone: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  @doc """
+  GET /api2/json/cluster/sdn/zones/:zone
+  Gets specific SDN zone information.
+  """
+  def get_zone(conn) do
+    zone_id = conn.path_params["zone"]
+
+    case State.get_sdn_zone(zone_id) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: "Zone '#{zone_id}' not found"}}))
+
+      zone ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: zone}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/cluster/sdn/zones/:zone
   Updates SDN zone configuration.
   """
-  def update_sdn_zone(conn) do
+  def update_zone(conn) do
     zone_id = conn.path_params["zone"]
     params = conn.body_params
 
-    # Mock update - in real implementation this would modify SDN configuration
-    updated_zone = %{
-      type: Map.get(params, "type", "vxlan"),
-      zone: zone_id,
-      nodes: Map.get(params, "nodes", "pve-node1,pve-node2"),
-      peers: Map.get(params, "peers", "192.168.1.10,192.168.1.11"),
-      tag: get_int_param(params, "tag") || 100,
-      mtu: get_int_param(params, "mtu") || 1450,
-      digest: "updated_digest"
-    }
+    case State.update_sdn_zone(zone_id, params) do
+      {:ok, zone} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: zone}))
 
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: updated_zone}))
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
   end
 
   @doc """
-  DELETE /api2/json/cluster/sdn/zones/{zone}
+  DELETE /api2/json/cluster/sdn/zones/:zone
   Deletes an SDN zone.
   """
-  def delete_sdn_zone(conn) do
-    _zone_id = conn.path_params["zone"]
+  def delete_zone(conn) do
+    zone_id = conn.path_params["zone"]
 
-    # Mock deletion - return success
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: nil}))
+    case State.delete_sdn_zone(zone_id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
   end
+
+  # --- SDN VNets ---
 
   @doc """
   GET /api2/json/cluster/sdn/vnets
   Lists virtual networks.
   """
   def list_vnets(conn) do
-    # Mock virtual networks data
-    vnets = [
-      %{
-        vnet: "vnet100",
-        zone: "localnetwork",
-        tag: 100,
-        alias: "Production Network",
-        digest: "vnet1digest"
-      },
-      %{
-        vnet: "vnet200",
-        zone: "localnetwork",
-        tag: 200,
-        alias: "Development Network",
-        digest: "vnet2digest"
-      }
-    ]
+    vnets = State.list_sdn_vnets()
 
     conn
     |> put_resp_content_type("application/json")
@@ -108,47 +157,306 @@ defmodule MockPveApi.Handlers.Sdn do
     vnet_id = Map.get(params, "vnet")
 
     if vnet_id do
-      # Mock creation - return success
-      new_vnet = %{
-        vnet: vnet_id,
-        zone: Map.get(params, "zone", "localnetwork"),
-        tag: get_int_param(params, "tag"),
-        alias: Map.get(params, "alias", ""),
-        digest: "new_vnet_digest"
-      }
+      case State.create_sdn_vnet(vnet_id, params) do
+        {:ok, vnet} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: vnet}))
 
-      conn
-      |> put_resp_content_type("application/json")
-      |> send_resp(200, Jason.encode!(%{data: new_vnet}))
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
     else
       conn
       |> put_resp_content_type("application/json")
       |> send_resp(
         400,
-        Jason.encode!(%{
-          errors: %{vnet: "property is missing and it is not optional"}
-        })
+        Jason.encode!(%{errors: %{vnet: "property is missing and it is not optional"}})
       )
     end
   end
 
-  # Helper functions
-  defp get_int_param(params, key) do
-    case Map.get(params, key) do
+  @doc """
+  GET /api2/json/cluster/sdn/vnets/:vnet
+  Gets specific virtual network information.
+  """
+  def get_vnet(conn) do
+    vnet_id = conn.path_params["vnet"]
+
+    case State.get_sdn_vnet(vnet_id) do
       nil ->
-        nil
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: "VNet '#{vnet_id}' not found"}}))
 
-      val when is_integer(val) ->
-        val
+      vnet ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: vnet}))
+    end
+  end
 
-      val when is_binary(val) ->
-        case Integer.parse(val) do
-          {int, ""} -> int
-          _ -> nil
-        end
+  @doc """
+  PUT /api2/json/cluster/sdn/vnets/:vnet
+  Updates virtual network configuration.
+  """
+  def update_vnet(conn) do
+    vnet_id = conn.path_params["vnet"]
+    params = conn.body_params
 
-      _ ->
-        nil
+    case State.update_sdn_vnet(vnet_id, params) do
+      {:ok, vnet} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: vnet}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  DELETE /api2/json/cluster/sdn/vnets/:vnet
+  Deletes a virtual network.
+  """
+  def delete_vnet(conn) do
+    vnet_id = conn.path_params["vnet"]
+
+    case State.delete_sdn_vnet(vnet_id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  # --- SDN Subnets ---
+
+  @doc """
+  GET /api2/json/cluster/sdn/vnets/:vnet/subnets
+  Lists subnets for a virtual network.
+  """
+  def list_subnets(conn) do
+    vnet_id = conn.path_params["vnet"]
+    subnets = State.list_sdn_subnets(vnet_id)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: subnets}))
+  end
+
+  @doc """
+  POST /api2/json/cluster/sdn/vnets/:vnet/subnets
+  Creates a subnet in a virtual network.
+  """
+  def create_subnet(conn) do
+    vnet_id = conn.path_params["vnet"]
+    params = conn.body_params
+    subnet_id = Map.get(params, "subnet")
+
+    if subnet_id do
+      case State.create_sdn_subnet(vnet_id, subnet_id, params) do
+        {:ok, subnet} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: subnet}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{subnet: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  @doc """
+  GET /api2/json/cluster/sdn/vnets/:vnet/subnets/:subnet
+  Gets specific subnet information.
+  """
+  def get_subnet(conn) do
+    vnet_id = conn.path_params["vnet"]
+    subnet_id = conn.path_params["subnet"]
+
+    case State.get_sdn_subnet(vnet_id, subnet_id) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "Subnet '#{subnet_id}' not found"}})
+        )
+
+      subnet ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: subnet}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/cluster/sdn/vnets/:vnet/subnets/:subnet
+  Updates subnet configuration.
+  """
+  def update_subnet(conn) do
+    vnet_id = conn.path_params["vnet"]
+    subnet_id = conn.path_params["subnet"]
+    params = conn.body_params
+
+    case State.update_sdn_subnet(vnet_id, subnet_id, params) do
+      {:ok, subnet} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: subnet}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  DELETE /api2/json/cluster/sdn/vnets/:vnet/subnets/:subnet
+  Deletes a subnet.
+  """
+  def delete_subnet(conn) do
+    vnet_id = conn.path_params["vnet"]
+    subnet_id = conn.path_params["subnet"]
+
+    case State.delete_sdn_subnet(vnet_id, subnet_id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  # --- SDN Controllers ---
+
+  @doc """
+  GET /api2/json/cluster/sdn/controllers
+  Lists SDN controllers.
+  """
+  def list_controllers(conn) do
+    controllers = State.list_sdn_controllers()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: controllers}))
+  end
+
+  @doc """
+  POST /api2/json/cluster/sdn/controllers
+  Creates an SDN controller.
+  """
+  def create_controller(conn) do
+    params = conn.body_params
+    controller_id = Map.get(params, "controller")
+
+    if controller_id do
+      case State.create_sdn_controller(controller_id, params) do
+        {:ok, controller} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: controller}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{controller: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  @doc """
+  GET /api2/json/cluster/sdn/controllers/:controller
+  Gets specific SDN controller information.
+  """
+  def get_controller(conn) do
+    controller_id = conn.path_params["controller"]
+
+    case State.get_sdn_controller(controller_id) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "Controller '#{controller_id}' not found"}})
+        )
+
+      controller ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: controller}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/cluster/sdn/controllers/:controller
+  Updates SDN controller configuration.
+  """
+  def update_controller(conn) do
+    controller_id = conn.path_params["controller"]
+    params = conn.body_params
+
+    case State.update_sdn_controller(controller_id, params) do
+      {:ok, controller} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: controller}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  DELETE /api2/json/cluster/sdn/controllers/:controller
+  Deletes an SDN controller.
+  """
+  def delete_controller(conn) do
+    controller_id = conn.path_params["controller"]
+
+    case State.delete_sdn_controller(controller_id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
     end
   end
 end

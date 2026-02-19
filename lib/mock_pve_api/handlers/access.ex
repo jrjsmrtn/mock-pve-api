@@ -381,6 +381,243 @@ defmodule MockPveApi.Handlers.Access do
   end
 
   @doc """
+  POST /api2/json/access/domains
+  Creates a new authentication realm/domain.
+  """
+  def create_domain(conn) do
+    params = conn.body_params
+    realm = Map.get(params, "realm")
+
+    if realm do
+      case State.create_domain(realm, params) do
+        {:ok, domain} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: domain}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{realm: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  @doc """
+  GET /api2/json/access/domains/:realm
+  Gets specific domain/realm information.
+  """
+  def get_domain(conn) do
+    realm = conn.path_params["realm"]
+
+    case State.get_domain(realm) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: "Domain '#{realm}' not found"}}))
+
+      domain ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: Map.put(domain, :realm, realm)}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/access/domains/:realm
+  Updates an existing domain/realm.
+  """
+  def update_domain(conn) do
+    realm = conn.path_params["realm"]
+    params = conn.body_params
+
+    case State.update_domain(realm, params) do
+      {:ok, domain} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: domain}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  DELETE /api2/json/access/domains/:realm
+  Deletes an authentication realm/domain.
+  """
+  def delete_domain(conn) do
+    realm = conn.path_params["realm"]
+
+    case State.delete_domain(realm) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  GET /api2/json/access/roles/:roleid
+  Gets specific role information.
+  """
+  def get_role(conn) do
+    roleid = conn.path_params["roleid"]
+
+    case State.get_role(roleid) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: "Role '#{roleid}' not found"}}))
+
+      privs ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: %{roleid: roleid, privs: Enum.join(privs, ",")}}))
+    end
+  end
+
+  @doc """
+  POST /api2/json/access/roles
+  Creates a new role.
+  """
+  def create_role(conn) do
+    params = conn.body_params
+    roleid = Map.get(params, "roleid")
+
+    if roleid do
+      privs_str = Map.get(params, "privs", "")
+
+      privs =
+        privs_str
+        |> String.split(",")
+        |> Enum.map(&String.trim/1)
+        |> Enum.reject(&(&1 == ""))
+
+      case State.create_role(roleid, privs) do
+        {:ok, _} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: nil}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{roleid: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  @doc """
+  PUT /api2/json/access/roles/:roleid
+  Updates an existing role.
+  """
+  def update_role(conn) do
+    roleid = conn.path_params["roleid"]
+    params = conn.body_params
+    privs_str = Map.get(params, "privs", "")
+
+    privs =
+      privs_str
+      |> String.split(",")
+      |> Enum.map(&String.trim/1)
+      |> Enum.reject(&(&1 == ""))
+
+    case State.update_role(roleid, privs) do
+      {:ok, _} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  DELETE /api2/json/access/roles/:roleid
+  Deletes a role.
+  """
+  def delete_role(conn) do
+    roleid = conn.path_params["roleid"]
+
+    case State.delete_role(roleid) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/access/password
+  Changes user password.
+  """
+  def change_password(conn) do
+    params = conn.body_params
+    userid = Map.get(params, "userid")
+    password = Map.get(params, "password")
+
+    if userid && password do
+      case State.change_password(userid, password) do
+        :ok ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: nil}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(400, Jason.encode!(%{errors: %{message: "Missing required parameters"}}))
+    end
+  end
+
+  @doc """
+  GET /api2/json/access/acl
+  Gets access control list.
+  """
+  def get_acl(conn) do
+    acl = State.get_acl()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: acl}))
+  end
+
+  @doc """
   DELETE /api2/json/access/users/:userid/token/:tokenid
   Deletes an API token for a user.
   """

@@ -330,7 +330,8 @@ defmodule MockPveApi.CoverageTest do
         # If PUT is present, GET should also be present
         # Exception: action-only endpoints (password change, ACL update)
         put_only_actions = [
-          "/api2/json/access/acl"
+          "/api2/json/access/acl",
+          "/api2/json/access/password"
         ]
 
         if :put in methods and endpoint.path not in put_only_actions do
