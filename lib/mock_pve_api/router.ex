@@ -20,7 +20,8 @@ defmodule MockPveApi.Router do
     Pools,
     Storage,
     Metrics,
-    Sdn
+    Sdn,
+    Snapshots
   }
 
   alias MockPveApi.{State, Coverage}
@@ -238,8 +239,62 @@ defmodule MockPveApi.Router do
     Nodes.migrate_container(conn)
   end
 
+  # VM snapshot endpoints
+  get "/api2/json/nodes/:node/qemu/:vmid/snapshot" do
+    Snapshots.list_snapshots(conn)
+  end
+
   post "/api2/json/nodes/:node/qemu/:vmid/snapshot" do
-    Nodes.create_vm_snapshot(conn)
+    Snapshots.create_snapshot(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/snapshot/:snapname" do
+    Snapshots.get_snapshot(conn)
+  end
+
+  delete "/api2/json/nodes/:node/qemu/:vmid/snapshot/:snapname" do
+    Snapshots.delete_snapshot(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/snapshot/:snapname/config" do
+    Snapshots.get_snapshot_config(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/snapshot/:snapname/config" do
+    Snapshots.update_snapshot_config(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/snapshot/:snapname/rollback" do
+    Snapshots.rollback_snapshot(conn)
+  end
+
+  # Container snapshot endpoints
+  get "/api2/json/nodes/:node/lxc/:vmid/snapshot" do
+    Snapshots.list_snapshots(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/snapshot" do
+    Snapshots.create_snapshot(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/snapshot/:snapname" do
+    Snapshots.get_snapshot(conn)
+  end
+
+  delete "/api2/json/nodes/:node/lxc/:vmid/snapshot/:snapname" do
+    Snapshots.delete_snapshot(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/snapshot/:snapname/config" do
+    Snapshots.get_snapshot_config(conn)
+  end
+
+  put "/api2/json/nodes/:node/lxc/:vmid/snapshot/:snapname/config" do
+    Snapshots.update_snapshot_config(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/snapshot/:snapname/rollback" do
+    Snapshots.rollback_snapshot(conn)
   end
 
   post "/api2/json/nodes/:node/qemu/:vmid/clone" do

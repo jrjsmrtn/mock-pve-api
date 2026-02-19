@@ -47,8 +47,8 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Version | 1 | 1 | 100.0% |
 | Cluster | 35 | 12 | 34.3% |
 | Nodes | 28 | 11 | 39.3% |
-| Virtual Machines | 21 | 8 | 38.1% |
-| LXC Containers | 16 | 7 | 43.8% |
+| Virtual Machines | 21 | 11 | 52.4% |
+| LXC Containers | 17 | 11 | 64.7% |
 | Storage | 20 | 6 | 30.0% |
 | Access Control | 17 | 12 | 70.6% |
 | Resource Pools | 2 | 2 | 100.0% |
@@ -57,7 +57,7 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Backup | 9 | 1 | 11.1% |
 | Hardware | 7 | 0 | 0.0% |
 | Firewall | 41 | 0 | 0.0% |
-| **TOTAL** | **227** | **71** | **31.3%** |
+| **TOTAL** | **228** | **78** | **34.2%** |
 
 
 ## Status Legend
@@ -1834,16 +1834,26 @@ List snapshots / create snapshot
 }
 ```
 
+**Notes**: Full snapshot CRUD with state management
 
-### `/nodes/{node}/qemu/{vmid}/snapshot/{snapname}` 📋
 
-Get snapshot config / delete snapshot
+### `/nodes/{node}/qemu/{vmid}/snapshot/{snapname}` ✅
+
+Get snapshot info / delete snapshot
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, DELETE |
-| **Priority** | Medium |
+| **Priority** | High |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | VM ID | - |
+| `snapname` | string | Yes | Snapshot name | - |
 
 **Example Response**:
 ```json
@@ -1862,9 +1872,9 @@ Get snapshot config / delete snapshot
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/snapshot/{snapname}/config` 📋
+### `/nodes/{node}/qemu/{vmid}/snapshot/{snapname}/config` ✅
 
-Get or update snapshot config
+Get or update snapshot configuration
 
 | Property | Value |
 |----------|-------|
@@ -1872,6 +1882,14 @@ Get or update snapshot config
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | VM ID | - |
+| `snapname` | string | Yes | Snapshot name | - |
+
 **Example Response**:
 ```json
 {
@@ -1889,15 +1907,23 @@ Get or update snapshot config
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/snapshot/{snapname}/rollback` 📋
+### `/nodes/{node}/qemu/{vmid}/snapshot/{snapname}/rollback` ✅
 
 Rollback VM to snapshot
 
 | Property | Value |
 |----------|-------|
 | **Methods** | POST |
-| **Priority** | Medium |
+| **Priority** | High |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | VM ID | - |
+| `snapname` | string | Yes | Snapshot name | - |
 
 **Example Response**:
 ```json
@@ -2330,15 +2356,22 @@ Resize container disk
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/snapshot` 📋
+### `/nodes/{node}/lxc/{vmid}/snapshot` ✅
 
 List snapshots / create snapshot
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, POST |
-| **Priority** | Medium |
+| **Priority** | High |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | Container ID | - |
 
 **Example Response**:
 ```json
@@ -2355,16 +2388,26 @@ List snapshots / create snapshot
 }
 ```
 
+**Notes**: Full snapshot CRUD with state management
 
-### `/nodes/{node}/lxc/{vmid}/snapshot/{snapname}` 📋
 
-Get snapshot config / delete snapshot
+### `/nodes/{node}/lxc/{vmid}/snapshot/{snapname}` ✅
+
+Get snapshot info / delete snapshot
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, DELETE |
-| **Priority** | Medium |
+| **Priority** | High |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | Container ID | - |
+| `snapname` | string | Yes | Snapshot name | - |
 
 **Example Response**:
 ```json
@@ -2382,15 +2425,57 @@ Get snapshot config / delete snapshot
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/snapshot/{snapname}/rollback` 📋
+### `/nodes/{node}/lxc/{vmid}/snapshot/{snapname}/config` ✅
+
+Get or update snapshot configuration
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | Container ID | - |
+| `snapname` | string | Yes | Snapshot name | - |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/snapshot/{snapname}/rollback` ✅
 
 Rollback container to snapshot
 
 | Property | Value |
 |----------|-------|
 | **Methods** | POST |
-| **Priority** | Medium |
+| **Priority** | High |
 | **Since** | PVE 6.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `node` | string | Yes | Node name | - |
+| `vmid` | integer | Yes | Container ID | - |
+| `snapname` | string | Yes | Snapshot name | - |
 
 **Example Response**:
 ```json

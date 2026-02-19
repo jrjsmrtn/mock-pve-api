@@ -201,6 +201,7 @@ defmodule MockPveApi.SimpleEndpointTest do
     |> String.replace("{groupid}", "test-group")
     |> String.replace("{tokenid}", "test-token")
     |> String.replace("{zone}", "test-zone")
+    |> String.replace("{snapname}", "test-snap")
     |> String.replace("{command}", "start")
     |> String.replace("{action}", "start")
     |> String.replace("{realm}", "pam")

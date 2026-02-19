@@ -296,8 +296,14 @@ defmodule MockPveApi.CoverageTest do
         "/api2/json/nodes/{node}/qemu/{vmid}/migrate",
         # Container migration - POST only
         "/api2/json/nodes/{node}/lxc/{vmid}/migrate",
-        # VM snapshot - POST only
+        # VM snapshot - POST only (list+create)
         "/api2/json/nodes/{node}/qemu/{vmid}/snapshot",
+        # VM snapshot rollback - POST only (action)
+        "/api2/json/nodes/{node}/qemu/{vmid}/snapshot/{snapname}/rollback",
+        # Container snapshot - POST only (list+create)
+        "/api2/json/nodes/{node}/lxc/{vmid}/snapshot",
+        # Container snapshot rollback - POST only (action)
+        "/api2/json/nodes/{node}/lxc/{vmid}/snapshot/{snapname}/rollback",
         # Node execute - POST only
         "/api2/json/nodes/{node}/execute",
         # Container status action - POST only

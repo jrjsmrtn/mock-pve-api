@@ -39,8 +39,8 @@ logs/
 # Docker
 .dockerignore
 
-# Coverage
-coverage/
+# Coverage reports (root-level only, not lib/mock_pve_api/coverage/)
+/coverage/
 excoveralls/
 
 # Hex

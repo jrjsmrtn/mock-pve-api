@@ -12,7 +12,7 @@
 - Cross-language client library testing
 - Development environment provisioning
 
-**Current Status:** 0.4.8 (pve-openapi Integration & Code Quality)
+**Current Status:** 0.4.9 (Consumer-Driven API Coverage Expansion)
 **Supported PVE Versions:** 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 9.0
 **Target Elixir Version:** 1.15+
 **Target OTP Version:** 26+
@@ -232,7 +232,7 @@ MockPveApi.Capabilities.supports?(version, :ha_affinity)        # true for 9.0+
 - **Error Handling**: HTTP status codes validated for various scenarios
 
 #### **Test Results Summary**
-- ✅ **37/37 endpoints accessible** (100% success rate)
+- ✅ **78 endpoints accessible** (100% success rate)
 - ✅ **HTTP method validation** passed for all core endpoints
 - ✅ **Response format consistency** validated across all endpoints
 - ✅ **Version-specific behavior** correctly implemented (PVE 8.0 tested)
@@ -366,7 +366,7 @@ config :mock_pve_api,
 - [x] Complete resource pool management with PUT operations
 - [x] Complete compiler warning cleanup (20+ unused variables, function ordering)
 - [x] Code quality improvements and Elixir best practices
-- [x] **MILESTONE ACHIEVED: 100% coverage** (37/37 endpoints implemented)
+- [x] **MILESTONE ACHIEVED: 100% coverage** (78 endpoints implemented)
 - [x] **QUALITY MILESTONE: Zero compiler warnings** - Clean, maintainable codebase
 - [x] **VALIDATION MILESTONE: 100% endpoint validation** - All 37 endpoints systematically tested and verified working
 
@@ -463,7 +463,39 @@ config :mock_pve_api,
 - [x] **Code Quality**: Dependency upgrades, ADR formatting aligned with pvex-suite convention, broken cross-references fixed
 - [x] **Dead Code Removal**: -150 lines of redundant version gating code
 
-### **Phase 5: Container Distribution (v0.5.0)** 🎯 **NEXT PRIORITY**
+### **Phase 4.9: Consumer-Driven API Coverage Expansion (v0.4.9+)** 🎯 **IN PROGRESS**
+Closing highest-impact coverage gaps based on pvex usage patterns. Target: 71 -> ~138 endpoints.
+
+#### Sprint 4.9.1: VM & Container Snapshots (v0.4.9) ✅
+- [x] Snapshot state management with parent chain tracking
+- [x] New `MockPveApi.Handlers.Snapshots` module (QEMU + LXC)
+- [x] Full CRUD: list, create, get, delete, config get/update, rollback
+- [x] 14 new routes, 8 new endpoint paths, 23 new tests
+- [x] **78 implemented endpoints** (71 -> 78)
+
+#### Sprint 4.9.2: HA Resources & Backup Jobs (planned)
+- [ ] HA resources, groups, affinity CRUD
+- [ ] Backup job CRUD, included_volumes, not-backed-up
+- [ ] Cluster options
+
+#### Sprint 4.9.3: Access Control & SDN Completion (planned)
+- [ ] Roles CRUD, domains CRUD, password, ACL
+- [ ] SDN vnets/subnets/controllers CRUD, zones POST
+
+#### Sprint 4.9.4: Storage & Node Advanced (planned)
+- [ ] Cluster-level storage CRUD, volume operations
+- [ ] Node DNS, APT, network interfaces, disks, config
+
+#### Sprint 4.9.5: Restore, Monitoring & Misc (planned)
+- [ ] Backup restore, vzdump extractconfig
+- [ ] VM/container RRD data, pending config, disk resize
+- [ ] Cluster replication
+
+#### Sprint 4.9.6: Cluster & Node Firewall (planned)
+- [ ] Cluster firewall: options, rules, groups, aliases, ipsets
+- [ ] Node firewall: options, rules
+
+### **Phase 5: Container Distribution (v0.5.0)**
 - [ ] Automated multi-arch builds (amd64, arm64)
 - [ ] Semantic versioning tags synchronized with git releases
 - [ ] Container security scanning and vulnerability assessment

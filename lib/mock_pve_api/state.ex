@@ -83,6 +83,7 @@ defmodule MockPveApi.State do
           enabled: 1
         }
       },
+      snapshots: %{},
       pools: %{},
       users: %{
         "root@pam" => %{
@@ -244,7 +245,36 @@ defmodule MockPveApi.State do
     GenServer.cast(@name, {:delete_container, node, vmid})
   end
 
-  # Storage operations  
+  # Snapshot operations
+  def list_snapshots(vmid) do
+    GenServer.call(@name, {:list_snapshots, vmid})
+  end
+
+  def get_snapshot(vmid, snapname) do
+    GenServer.call(@name, {:get_snapshot, vmid, snapname})
+  end
+
+  def create_snapshot(vmid, snapname, params \\ %{}) do
+    GenServer.call(@name, {:create_snapshot, vmid, snapname, params})
+  end
+
+  def get_snapshot_config(vmid, snapname) do
+    GenServer.call(@name, {:get_snapshot_config, vmid, snapname})
+  end
+
+  def update_snapshot_config(vmid, snapname, params) do
+    GenServer.call(@name, {:update_snapshot_config, vmid, snapname, params})
+  end
+
+  def delete_snapshot(vmid, snapname) do
+    GenServer.call(@name, {:delete_snapshot, vmid, snapname})
+  end
+
+  def rollback_snapshot(vmid, snapname) do
+    GenServer.call(@name, {:rollback_snapshot, vmid, snapname})
+  end
+
+  # Storage operations
   def get_storage do
     GenServer.call(@name, :get_storage)
   end
@@ -570,6 +600,125 @@ defmodule MockPveApi.State do
 
       _ ->
         {:reply, {:error, "Container #{vmid} not found on node #{node}"}, state}
+    end
+  end
+
+  # Snapshot callbacks
+  def handle_call({:list_snapshots, vmid}, _from, state) do
+    snapshots =
+      state.snapshots
+      |> Enum.filter(fn {{vid, _snapname}, _snap} -> vid == vmid end)
+      |> Enum.map(fn {_key, snap} -> snap end)
+
+    # PVE always includes a "current" pseudo-snapshot
+    current = %{name: "current", description: "You are here!", snaptime: 0, parent: nil}
+    {:reply, [current | snapshots], state}
+  end
+
+  def handle_call({:get_snapshot, vmid, snapname}, _from, state) do
+    snapshot = Map.get(state.snapshots, {vmid, snapname})
+    {:reply, snapshot, state}
+  end
+
+  def handle_call({:create_snapshot, vmid, snapname, params}, _from, state) do
+    key = {vmid, snapname}
+
+    if Map.has_key?(state.snapshots, key) do
+      {:reply, {:error, "Snapshot '#{snapname}' already exists"}, state}
+    else
+      # Find parent (most recent snapshot or nil)
+      parent =
+        state.snapshots
+        |> Enum.filter(fn {{vid, _}, _} -> vid == vmid end)
+        |> Enum.sort_by(fn {_, snap} -> snap.snap_order end, :desc)
+        |> case do
+          [{_, latest} | _] -> latest.name
+          [] -> nil
+        end
+
+      snapshot = %{
+        name: snapname,
+        description: Map.get(params, :description, Map.get(params, "description", "")),
+        snaptime: System.system_time(:second),
+        # Monotonic counter for reliable ordering in tests
+        snap_order: System.monotonic_time(),
+        vmstate: Map.get(params, :vmstate, Map.get(params, "vmstate", 0)),
+        parent: parent
+      }
+
+      new_snapshots = Map.put(state.snapshots, key, snapshot)
+      {:reply, {:ok, snapshot}, %{state | snapshots: new_snapshots}}
+    end
+  end
+
+  def handle_call({:get_snapshot_config, vmid, snapname}, _from, state) do
+    case Map.get(state.snapshots, {vmid, snapname}) do
+      nil -> {:reply, {:error, "Snapshot '#{snapname}' not found"}, state}
+      snapshot -> {:reply, {:ok, snapshot}, state}
+    end
+  end
+
+  def handle_call({:update_snapshot_config, vmid, snapname, params}, _from, state) do
+    key = {vmid, snapname}
+
+    case Map.get(state.snapshots, key) do
+      nil ->
+        {:reply, {:error, "Snapshot '#{snapname}' not found"}, state}
+
+      snapshot ->
+        description =
+          Map.get(params, :description, Map.get(params, "description", snapshot.description))
+
+        updated = %{snapshot | description: description}
+        new_snapshots = Map.put(state.snapshots, key, updated)
+        {:reply, {:ok, updated}, %{state | snapshots: new_snapshots}}
+    end
+  end
+
+  def handle_call({:delete_snapshot, vmid, snapname}, _from, state) do
+    key = {vmid, snapname}
+
+    case Map.get(state.snapshots, key) do
+      nil ->
+        {:reply, {:error, "Snapshot '#{snapname}' not found"}, state}
+
+      deleted_snap ->
+        # Update children's parent pointers
+        new_snapshots =
+          state.snapshots
+          |> Map.delete(key)
+          |> Enum.map(fn {k, snap} ->
+            {vid, _sn} = k
+
+            if vid == vmid && snap.parent == snapname do
+              {k, %{snap | parent: deleted_snap.parent}}
+            else
+              {k, snap}
+            end
+          end)
+          |> Map.new()
+
+        {:reply, :ok, %{state | snapshots: new_snapshots}}
+    end
+  end
+
+  def handle_call({:rollback_snapshot, vmid, snapname}, _from, state) do
+    key = {vmid, snapname}
+
+    case Map.get(state.snapshots, key) do
+      nil ->
+        {:reply, {:error, "Snapshot '#{snapname}' not found"}, state}
+
+      target_snap ->
+        # Remove all snapshots newer than the target (using monotonic order)
+        new_snapshots =
+          state.snapshots
+          |> Enum.reject(fn {{vid, _sn}, snap} ->
+            vid == vmid && snap.snap_order > target_snap.snap_order
+          end)
+          |> Map.new()
+
+        {:reply, :ok, %{state | snapshots: new_snapshots}}
     end
   end
 
