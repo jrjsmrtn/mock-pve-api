@@ -5,87 +5,57 @@ defmodule MockPveApi.Handlers.Firewall do
   @moduledoc """
   Handler for PVE Firewall endpoints.
 
-  Covers cluster-level and node-level firewall management:
-  options, rules, security groups, aliases, and IP sets.
+  Covers cluster-level, node-level, VM-level, and container-level firewall
+  management: options, rules, security groups (cluster-only), aliases, and
+  IP sets.
+
+  Internally, most operations delegate to shared scope-based helpers
+  (`do_get_options/2`, `do_list_rules/2`, etc.) so that cluster, node, VM,
+  and container scopes share the same logic.
   """
 
   import Plug.Conn
   require Logger
   alias MockPveApi.State
 
-  # ── Cluster Firewall Options ──
+  # ────────────────────────────────────────────────
+  # Scope helpers — extract scope from conn
+  # ────────────────────────────────────────────────
 
-  def get_cluster_firewall_options(conn) do
-    fw = State.get_firewall(:cluster)
-    json_resp(conn, 200, fw.options)
-  end
+  defp vm_scope(conn), do: {:vm, conn.path_params["vmid"]}
+  defp ct_scope(conn), do: {:container, conn.path_params["vmid"]}
 
-  def update_cluster_firewall_options(conn) do
-    params = conn.body_params |> atomize_keys()
-    fw = State.get_firewall(:cluster)
-    new_options = Map.merge(fw.options, params)
-    State.update_firewall(:cluster, %{options: new_options})
-    json_resp(conn, 200, nil)
-  end
+  # ────────────────────────────────────────────────
+  # Cluster Firewall — public API (thin wrappers)
+  # ────────────────────────────────────────────────
 
-  # ── Cluster Firewall Rules ──
+  def get_cluster_firewall_options(conn), do: do_get_options(conn, :cluster)
+  def update_cluster_firewall_options(conn), do: do_update_options(conn, :cluster)
+  def list_cluster_firewall_rules(conn), do: do_list_rules(conn, :cluster)
+  def create_cluster_firewall_rule(conn), do: do_create_rule(conn, :cluster)
+  def get_cluster_firewall_rule(conn), do: do_get_rule(conn, :cluster)
+  def update_cluster_firewall_rule(conn), do: do_update_rule(conn, :cluster)
+  def delete_cluster_firewall_rule(conn), do: do_delete_rule(conn, :cluster)
 
-  def list_cluster_firewall_rules(conn) do
-    fw = State.get_firewall(:cluster)
-    rules = rules_with_pos(fw.rules)
-    json_resp(conn, 200, rules)
-  end
+  # Cluster aliases & ipsets (also scope-based)
+  def list_aliases(conn), do: do_list_aliases(conn, :cluster)
+  def create_alias(conn), do: do_create_alias(conn, :cluster)
+  def get_alias(conn), do: do_get_alias(conn, :cluster)
+  def update_alias(conn), do: do_update_alias(conn, :cluster)
+  def delete_alias(conn), do: do_delete_alias(conn, :cluster)
 
-  def create_cluster_firewall_rule(conn) do
-    params = conn.body_params
-    rule = build_rule(params)
-    fw = State.get_firewall(:cluster)
-    new_rules = fw.rules ++ [rule]
-    State.update_firewall(:cluster, %{rules: new_rules})
-    json_resp(conn, 200, nil)
-  end
+  def list_ipsets(conn), do: do_list_ipsets(conn, :cluster)
+  def create_ipset(conn), do: do_create_ipset(conn, :cluster)
+  def get_ipset(conn), do: do_get_ipset(conn, :cluster)
+  def delete_ipset(conn), do: do_delete_ipset(conn, :cluster)
+  def get_ipset_entry(conn), do: do_get_ipset_entry(conn, :cluster)
+  def update_ipset_entry(conn), do: do_update_ipset_entry(conn, :cluster)
+  def delete_ipset_entry(conn), do: do_delete_ipset_entry(conn, :cluster)
+  def add_ipset_entry(conn), do: do_add_ipset_entry(conn, :cluster)
 
-  def get_cluster_firewall_rule(conn) do
-    pos = parse_pos(conn.path_params["pos"])
-    fw = State.get_firewall(:cluster)
-
-    case Enum.at(fw.rules, pos) do
-      nil -> json_error(conn, 400, "no rule at position #{pos}")
-      rule -> json_resp(conn, 200, Map.put(rule, :pos, pos))
-    end
-  end
-
-  def update_cluster_firewall_rule(conn) do
-    pos = parse_pos(conn.path_params["pos"])
-    params = conn.body_params
-    fw = State.get_firewall(:cluster)
-
-    case Enum.at(fw.rules, pos) do
-      nil ->
-        json_error(conn, 400, "no rule at position #{pos}")
-
-      rule ->
-        updated = Map.merge(rule, build_rule(params))
-        new_rules = List.replace_at(fw.rules, pos, updated)
-        State.update_firewall(:cluster, %{rules: new_rules})
-        json_resp(conn, 200, nil)
-    end
-  end
-
-  def delete_cluster_firewall_rule(conn) do
-    pos = parse_pos(conn.path_params["pos"])
-    fw = State.get_firewall(:cluster)
-
-    if pos < length(fw.rules) do
-      new_rules = List.delete_at(fw.rules, pos)
-      State.update_firewall(:cluster, %{rules: new_rules})
-      json_resp(conn, 200, nil)
-    else
-      json_error(conn, 400, "no rule at position #{pos}")
-    end
-  end
-
-  # ── Security Groups ──
+  # ────────────────────────────────────────────────
+  # Security Groups — cluster-only (no shared scope)
+  # ────────────────────────────────────────────────
 
   def list_security_groups(conn) do
     fw = State.get_firewall(:cluster)
@@ -206,10 +176,175 @@ defmodule MockPveApi.Handlers.Firewall do
     end
   end
 
-  # ── Cluster Aliases ──
+  # ────────────────────────────────────────────────
+  # Node Firewall — public API (thin wrappers)
+  # ────────────────────────────────────────────────
 
-  def list_aliases(conn) do
-    fw = State.get_firewall(:cluster)
+  def get_node_firewall_options(conn) do
+    do_get_options(conn, {:node, conn.path_params["node"]})
+  end
+
+  def update_node_firewall_options(conn) do
+    do_update_options(conn, {:node, conn.path_params["node"]})
+  end
+
+  def list_node_firewall_rules(conn) do
+    do_list_rules(conn, {:node, conn.path_params["node"]})
+  end
+
+  def create_node_firewall_rule(conn) do
+    do_create_rule(conn, {:node, conn.path_params["node"]})
+  end
+
+  def get_node_firewall_rule(conn) do
+    do_get_rule(conn, {:node, conn.path_params["node"]})
+  end
+
+  def update_node_firewall_rule(conn) do
+    do_update_rule(conn, {:node, conn.path_params["node"]})
+  end
+
+  def delete_node_firewall_rule(conn) do
+    do_delete_rule(conn, {:node, conn.path_params["node"]})
+  end
+
+  # ────────────────────────────────────────────────
+  # VM Firewall — public API (thin wrappers)
+  # ────────────────────────────────────────────────
+
+  def get_vm_firewall_index(conn), do: do_get_firewall_index(conn)
+  def get_vm_firewall_options(conn), do: do_get_options(conn, vm_scope(conn))
+  def update_vm_firewall_options(conn), do: do_update_options(conn, vm_scope(conn))
+  def list_vm_firewall_rules(conn), do: do_list_rules(conn, vm_scope(conn))
+  def create_vm_firewall_rule(conn), do: do_create_rule(conn, vm_scope(conn))
+  def get_vm_firewall_rule(conn), do: do_get_rule(conn, vm_scope(conn))
+  def update_vm_firewall_rule(conn), do: do_update_rule(conn, vm_scope(conn))
+  def delete_vm_firewall_rule(conn), do: do_delete_rule(conn, vm_scope(conn))
+  def list_vm_firewall_aliases(conn), do: do_list_aliases(conn, vm_scope(conn))
+  def create_vm_firewall_alias(conn), do: do_create_alias(conn, vm_scope(conn))
+  def get_vm_firewall_alias(conn), do: do_get_alias(conn, vm_scope(conn))
+  def update_vm_firewall_alias(conn), do: do_update_alias(conn, vm_scope(conn))
+  def delete_vm_firewall_alias(conn), do: do_delete_alias(conn, vm_scope(conn))
+  def list_vm_firewall_ipsets(conn), do: do_list_ipsets(conn, vm_scope(conn))
+  def create_vm_firewall_ipset(conn), do: do_create_ipset(conn, vm_scope(conn))
+  def get_vm_firewall_ipset(conn), do: do_get_ipset(conn, vm_scope(conn))
+  def delete_vm_firewall_ipset(conn), do: do_delete_ipset(conn, vm_scope(conn))
+  def add_vm_firewall_ipset_entry(conn), do: do_add_ipset_entry(conn, vm_scope(conn))
+  def get_vm_firewall_ipset_entry(conn), do: do_get_ipset_entry(conn, vm_scope(conn))
+  def update_vm_firewall_ipset_entry(conn), do: do_update_ipset_entry(conn, vm_scope(conn))
+  def delete_vm_firewall_ipset_entry(conn), do: do_delete_ipset_entry(conn, vm_scope(conn))
+  def get_vm_firewall_refs(conn), do: do_get_refs(conn)
+  def get_vm_firewall_log(conn), do: do_get_log(conn)
+
+  # ────────────────────────────────────────────────
+  # Container Firewall — public API (thin wrappers)
+  # ────────────────────────────────────────────────
+
+  def get_ct_firewall_index(conn), do: do_get_firewall_index(conn)
+  def get_ct_firewall_options(conn), do: do_get_options(conn, ct_scope(conn))
+  def update_ct_firewall_options(conn), do: do_update_options(conn, ct_scope(conn))
+  def list_ct_firewall_rules(conn), do: do_list_rules(conn, ct_scope(conn))
+  def create_ct_firewall_rule(conn), do: do_create_rule(conn, ct_scope(conn))
+  def get_ct_firewall_rule(conn), do: do_get_rule(conn, ct_scope(conn))
+  def update_ct_firewall_rule(conn), do: do_update_rule(conn, ct_scope(conn))
+  def delete_ct_firewall_rule(conn), do: do_delete_rule(conn, ct_scope(conn))
+  def list_ct_firewall_aliases(conn), do: do_list_aliases(conn, ct_scope(conn))
+  def create_ct_firewall_alias(conn), do: do_create_alias(conn, ct_scope(conn))
+  def get_ct_firewall_alias(conn), do: do_get_alias(conn, ct_scope(conn))
+  def update_ct_firewall_alias(conn), do: do_update_alias(conn, ct_scope(conn))
+  def delete_ct_firewall_alias(conn), do: do_delete_alias(conn, ct_scope(conn))
+  def list_ct_firewall_ipsets(conn), do: do_list_ipsets(conn, ct_scope(conn))
+  def create_ct_firewall_ipset(conn), do: do_create_ipset(conn, ct_scope(conn))
+  def get_ct_firewall_ipset(conn), do: do_get_ipset(conn, ct_scope(conn))
+  def delete_ct_firewall_ipset(conn), do: do_delete_ipset(conn, ct_scope(conn))
+  def add_ct_firewall_ipset_entry(conn), do: do_add_ipset_entry(conn, ct_scope(conn))
+  def get_ct_firewall_ipset_entry(conn), do: do_get_ipset_entry(conn, ct_scope(conn))
+  def update_ct_firewall_ipset_entry(conn), do: do_update_ipset_entry(conn, ct_scope(conn))
+  def delete_ct_firewall_ipset_entry(conn), do: do_delete_ipset_entry(conn, ct_scope(conn))
+  def get_ct_firewall_refs(conn), do: do_get_refs(conn)
+  def get_ct_firewall_log(conn), do: do_get_log(conn)
+
+  # ────────────────────────────────────────────────
+  # Shared internals — Options
+  # ────────────────────────────────────────────────
+
+  defp do_get_options(conn, scope) do
+    fw = State.get_firewall(scope)
+    json_resp(conn, 200, fw.options)
+  end
+
+  defp do_update_options(conn, scope) do
+    params = conn.body_params |> atomize_keys()
+    fw = State.get_firewall(scope)
+    new_options = Map.merge(fw.options, params)
+    State.update_firewall(scope, %{options: new_options})
+    json_resp(conn, 200, nil)
+  end
+
+  # ────────────────────────────────────────────────
+  # Shared internals — Rules
+  # ────────────────────────────────────────────────
+
+  defp do_list_rules(conn, scope) do
+    fw = State.get_firewall(scope)
+    json_resp(conn, 200, rules_with_pos(fw.rules))
+  end
+
+  defp do_create_rule(conn, scope) do
+    params = conn.body_params
+    rule = build_rule(params)
+    fw = State.get_firewall(scope)
+    new_rules = fw.rules ++ [rule]
+    State.update_firewall(scope, %{rules: new_rules})
+    json_resp(conn, 200, nil)
+  end
+
+  defp do_get_rule(conn, scope) do
+    pos = parse_pos(conn.path_params["pos"])
+    fw = State.get_firewall(scope)
+
+    case Enum.at(fw.rules, pos) do
+      nil -> json_error(conn, 400, "no rule at position #{pos}")
+      rule -> json_resp(conn, 200, Map.put(rule, :pos, pos))
+    end
+  end
+
+  defp do_update_rule(conn, scope) do
+    pos = parse_pos(conn.path_params["pos"])
+    params = conn.body_params
+    fw = State.get_firewall(scope)
+
+    case Enum.at(fw.rules, pos) do
+      nil ->
+        json_error(conn, 400, "no rule at position #{pos}")
+
+      rule ->
+        updated = Map.merge(rule, build_rule(params))
+        new_rules = List.replace_at(fw.rules, pos, updated)
+        State.update_firewall(scope, %{rules: new_rules})
+        json_resp(conn, 200, nil)
+    end
+  end
+
+  defp do_delete_rule(conn, scope) do
+    pos = parse_pos(conn.path_params["pos"])
+    fw = State.get_firewall(scope)
+
+    if pos < length(fw.rules) do
+      new_rules = List.delete_at(fw.rules, pos)
+      State.update_firewall(scope, %{rules: new_rules})
+      json_resp(conn, 200, nil)
+    else
+      json_error(conn, 400, "no rule at position #{pos}")
+    end
+  end
+
+  # ────────────────────────────────────────────────
+  # Shared internals — Aliases
+  # ────────────────────────────────────────────────
+
+  defp do_list_aliases(conn, scope) do
+    fw = State.get_firewall(scope)
 
     aliases =
       Enum.map(fw.aliases, fn {name, alias_entry} ->
@@ -219,12 +354,12 @@ defmodule MockPveApi.Handlers.Firewall do
     json_resp(conn, 200, aliases)
   end
 
-  def create_alias(conn) do
+  defp do_create_alias(conn, scope) do
     params = conn.body_params
     name = Map.get(params, "name")
 
     if name do
-      fw = State.get_firewall(:cluster)
+      fw = State.get_firewall(scope)
 
       if Map.has_key?(fw.aliases, name) do
         json_error(conn, 400, "alias '#{name}' already exists")
@@ -235,7 +370,7 @@ defmodule MockPveApi.Handlers.Firewall do
         }
 
         new_aliases = Map.put(fw.aliases, name, alias_entry)
-        State.update_firewall(:cluster, %{aliases: new_aliases})
+        State.update_firewall(scope, %{aliases: new_aliases})
         json_resp(conn, 200, nil)
       end
     else
@@ -243,9 +378,9 @@ defmodule MockPveApi.Handlers.Firewall do
     end
   end
 
-  def get_alias(conn) do
+  defp do_get_alias(conn, scope) do
     name = conn.path_params["name"]
-    fw = State.get_firewall(:cluster)
+    fw = State.get_firewall(scope)
 
     case Map.get(fw.aliases, name) do
       nil -> json_error(conn, 404, "no such alias '#{name}'")
@@ -253,10 +388,10 @@ defmodule MockPveApi.Handlers.Firewall do
     end
   end
 
-  def update_alias(conn) do
+  defp do_update_alias(conn, scope) do
     name = conn.path_params["name"]
     params = conn.body_params
-    fw = State.get_firewall(:cluster)
+    fw = State.get_firewall(scope)
 
     case Map.get(fw.aliases, name) do
       nil ->
@@ -269,28 +404,30 @@ defmodule MockPveApi.Handlers.Firewall do
           |> maybe_put(:comment, Map.get(params, "comment"))
 
         new_aliases = Map.put(fw.aliases, name, updated)
-        State.update_firewall(:cluster, %{aliases: new_aliases})
+        State.update_firewall(scope, %{aliases: new_aliases})
         json_resp(conn, 200, nil)
     end
   end
 
-  def delete_alias(conn) do
+  defp do_delete_alias(conn, scope) do
     name = conn.path_params["name"]
-    fw = State.get_firewall(:cluster)
+    fw = State.get_firewall(scope)
 
     if Map.has_key?(fw.aliases, name) do
       new_aliases = Map.delete(fw.aliases, name)
-      State.update_firewall(:cluster, %{aliases: new_aliases})
+      State.update_firewall(scope, %{aliases: new_aliases})
       json_resp(conn, 200, nil)
     else
       json_error(conn, 404, "no such alias '#{name}'")
     end
   end
 
-  # ── Cluster IP Sets ──
+  # ────────────────────────────────────────────────
+  # Shared internals — IP Sets
+  # ────────────────────────────────────────────────
 
-  def list_ipsets(conn) do
-    fw = State.get_firewall(:cluster)
+  defp do_list_ipsets(conn, scope) do
+    fw = State.get_firewall(scope)
 
     ipsets =
       Enum.map(fw.ipsets, fn {name, ipset} ->
@@ -300,19 +437,19 @@ defmodule MockPveApi.Handlers.Firewall do
     json_resp(conn, 200, ipsets)
   end
 
-  def create_ipset(conn) do
+  defp do_create_ipset(conn, scope) do
     params = conn.body_params
     name = Map.get(params, "name")
 
     if name do
-      fw = State.get_firewall(:cluster)
+      fw = State.get_firewall(scope)
 
       if Map.has_key?(fw.ipsets, name) do
         json_error(conn, 400, "IP set '#{name}' already exists")
       else
         ipset = %{comment: Map.get(params, "comment", ""), entries: []}
         new_ipsets = Map.put(fw.ipsets, name, ipset)
-        State.update_firewall(:cluster, %{ipsets: new_ipsets})
+        State.update_firewall(scope, %{ipsets: new_ipsets})
         json_resp(conn, 200, nil)
       end
     else
@@ -320,9 +457,9 @@ defmodule MockPveApi.Handlers.Firewall do
     end
   end
 
-  def get_ipset(conn) do
+  defp do_get_ipset(conn, scope) do
     name = conn.path_params["name"]
-    fw = State.get_firewall(:cluster)
+    fw = State.get_firewall(scope)
 
     case Map.get(fw.ipsets, name) do
       nil -> json_error(conn, 404, "no such IP set '#{name}'")
@@ -330,23 +467,23 @@ defmodule MockPveApi.Handlers.Firewall do
     end
   end
 
-  def delete_ipset(conn) do
+  defp do_delete_ipset(conn, scope) do
     name = conn.path_params["name"]
-    fw = State.get_firewall(:cluster)
+    fw = State.get_firewall(scope)
 
     if Map.has_key?(fw.ipsets, name) do
       new_ipsets = Map.delete(fw.ipsets, name)
-      State.update_firewall(:cluster, %{ipsets: new_ipsets})
+      State.update_firewall(scope, %{ipsets: new_ipsets})
       json_resp(conn, 200, nil)
     else
       json_error(conn, 404, "no such IP set '#{name}'")
     end
   end
 
-  def get_ipset_entry(conn) do
+  defp do_get_ipset_entry(conn, scope) do
     name = conn.path_params["name"]
     cidr = cidr_from_path(conn.path_params["cidr"])
-    fw = State.get_firewall(:cluster)
+    fw = State.get_firewall(scope)
 
     case Map.get(fw.ipsets, name) do
       nil ->
@@ -360,11 +497,11 @@ defmodule MockPveApi.Handlers.Firewall do
     end
   end
 
-  def update_ipset_entry(conn) do
+  defp do_update_ipset_entry(conn, scope) do
     name = conn.path_params["name"]
     cidr = cidr_from_path(conn.path_params["cidr"])
     params = conn.body_params
-    fw = State.get_firewall(:cluster)
+    fw = State.get_firewall(scope)
 
     case Map.get(fw.ipsets, name) do
       nil ->
@@ -386,16 +523,16 @@ defmodule MockPveApi.Handlers.Firewall do
             new_entries = List.replace_at(ipset.entries, idx, updated)
             new_ipset = %{ipset | entries: new_entries}
             new_ipsets = Map.put(fw.ipsets, name, new_ipset)
-            State.update_firewall(:cluster, %{ipsets: new_ipsets})
+            State.update_firewall(scope, %{ipsets: new_ipsets})
             json_resp(conn, 200, nil)
         end
     end
   end
 
-  def delete_ipset_entry(conn) do
+  defp do_delete_ipset_entry(conn, scope) do
     name = conn.path_params["name"]
     cidr = cidr_from_path(conn.path_params["cidr"])
-    fw = State.get_firewall(:cluster)
+    fw = State.get_firewall(scope)
 
     case Map.get(fw.ipsets, name) do
       nil ->
@@ -409,22 +546,19 @@ defmodule MockPveApi.Handlers.Firewall do
         else
           new_ipset = %{ipset | entries: new_entries}
           new_ipsets = Map.put(fw.ipsets, name, new_ipset)
-          State.update_firewall(:cluster, %{ipsets: new_ipsets})
+          State.update_firewall(scope, %{ipsets: new_ipsets})
           json_resp(conn, 200, nil)
         end
     end
   end
 
-  # To add CIDR entries to an ipset, use POST on the ipset name endpoint
-  # with a "cidr" param. PVE API re-uses GET /{name} to list entries and
-  # POST /{name} isn't in the plan, but we handle it for completeness.
-  def add_ipset_entry(conn) do
+  defp do_add_ipset_entry(conn, scope) do
     name = conn.path_params["name"]
     params = conn.body_params
     cidr = Map.get(params, "cidr")
 
     if cidr do
-      fw = State.get_firewall(:cluster)
+      fw = State.get_firewall(scope)
 
       case Map.get(fw.ipsets, name) do
         nil ->
@@ -442,7 +576,7 @@ defmodule MockPveApi.Handlers.Firewall do
 
             new_ipset = %{ipset | entries: ipset.entries ++ [entry]}
             new_ipsets = Map.put(fw.ipsets, name, new_ipset)
-            State.update_firewall(:cluster, %{ipsets: new_ipsets})
+            State.update_firewall(scope, %{ipsets: new_ipsets})
             json_resp(conn, 200, nil)
           end
       end
@@ -451,85 +585,40 @@ defmodule MockPveApi.Handlers.Firewall do
     end
   end
 
-  # ── Node Firewall Options ──
+  # ────────────────────────────────────────────────
+  # Static endpoints — index, refs, log
+  # ────────────────────────────────────────────────
 
-  def get_node_firewall_options(conn) do
-    node = conn.path_params["node"]
-    fw = State.get_firewall({:node, node})
-    json_resp(conn, 200, fw.options)
+  defp do_get_firewall_index(conn) do
+    data = [
+      %{name: "aliases"},
+      %{name: "ipset"},
+      %{name: "options"},
+      %{name: "rules"},
+      %{name: "refs"},
+      %{name: "log"}
+    ]
+
+    json_resp(conn, 200, data)
   end
 
-  def update_node_firewall_options(conn) do
-    node = conn.path_params["node"]
-    params = conn.body_params |> atomize_keys()
-    fw = State.get_firewall({:node, node})
-    new_options = Map.merge(fw.options, params)
-    State.update_firewall({:node, node}, %{options: new_options})
-    json_resp(conn, 200, nil)
+  defp do_get_refs(conn) do
+    data = [
+      %{type: "alias", comment: "IP alias"},
+      %{type: "ipset", comment: "IP set"},
+      %{type: "+ipset", comment: "IP set (nomatch)"}
+    ]
+
+    json_resp(conn, 200, data)
   end
 
-  # ── Node Firewall Rules ──
-
-  def list_node_firewall_rules(conn) do
-    node = conn.path_params["node"]
-    fw = State.get_firewall({:node, node})
-    json_resp(conn, 200, rules_with_pos(fw.rules))
+  defp do_get_log(conn) do
+    json_resp(conn, 200, [])
   end
 
-  def create_node_firewall_rule(conn) do
-    node = conn.path_params["node"]
-    params = conn.body_params
-    rule = build_rule(params)
-    fw = State.get_firewall({:node, node})
-    new_rules = fw.rules ++ [rule]
-    State.update_firewall({:node, node}, %{rules: new_rules})
-    json_resp(conn, 200, nil)
-  end
-
-  def get_node_firewall_rule(conn) do
-    node = conn.path_params["node"]
-    pos = parse_pos(conn.path_params["pos"])
-    fw = State.get_firewall({:node, node})
-
-    case Enum.at(fw.rules, pos) do
-      nil -> json_error(conn, 400, "no rule at position #{pos}")
-      rule -> json_resp(conn, 200, Map.put(rule, :pos, pos))
-    end
-  end
-
-  def update_node_firewall_rule(conn) do
-    node = conn.path_params["node"]
-    pos = parse_pos(conn.path_params["pos"])
-    params = conn.body_params
-    fw = State.get_firewall({:node, node})
-
-    case Enum.at(fw.rules, pos) do
-      nil ->
-        json_error(conn, 400, "no rule at position #{pos}")
-
-      rule ->
-        updated = Map.merge(rule, build_rule(params))
-        new_rules = List.replace_at(fw.rules, pos, updated)
-        State.update_firewall({:node, node}, %{rules: new_rules})
-        json_resp(conn, 200, nil)
-    end
-  end
-
-  def delete_node_firewall_rule(conn) do
-    node = conn.path_params["node"]
-    pos = parse_pos(conn.path_params["pos"])
-    fw = State.get_firewall({:node, node})
-
-    if pos < length(fw.rules) do
-      new_rules = List.delete_at(fw.rules, pos)
-      State.update_firewall({:node, node}, %{rules: new_rules})
-      json_resp(conn, 200, nil)
-    else
-      json_error(conn, 400, "no rule at position #{pos}")
-    end
-  end
-
-  # ── Private Helpers ──
+  # ────────────────────────────────────────────────
+  # Private Helpers
+  # ────────────────────────────────────────────────
 
   defp json_resp(conn, status, data) do
     conn

@@ -406,11 +406,11 @@ defmodule MockPveApi.CoverageTest do
     test "coverage percentage reflects planned endpoint catalog" do
       stats = Coverage.get_coverage_stats()
 
-      # With ~300 total endpoints and ~68 implemented, coverage is ~22-35%
+      # With ~230 total endpoints and ~154 implemented, coverage is ~55-70%
       assert stats.coverage_percentage > 15.0,
              "Coverage percentage unexpectedly low: #{stats.coverage_percentage}%"
 
-      assert stats.coverage_percentage < 65.0,
+      assert stats.coverage_percentage < 80.0,
              "Coverage percentage unexpectedly high: #{stats.coverage_percentage}% — " <>
                "if many planned endpoints were implemented, update this assertion"
 

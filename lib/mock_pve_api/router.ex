@@ -312,6 +312,99 @@ defmodule MockPveApi.Router do
     Nodes.resize_vm_disk(conn)
   end
 
+  # VM firewall endpoints
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/options" do
+    Firewall.get_vm_firewall_options(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/firewall/options" do
+    Firewall.update_vm_firewall_options(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/rules/:pos" do
+    Firewall.get_vm_firewall_rule(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/firewall/rules/:pos" do
+    Firewall.update_vm_firewall_rule(conn)
+  end
+
+  delete "/api2/json/nodes/:node/qemu/:vmid/firewall/rules/:pos" do
+    Firewall.delete_vm_firewall_rule(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/rules" do
+    Firewall.list_vm_firewall_rules(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/firewall/rules" do
+    Firewall.create_vm_firewall_rule(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/aliases/:name" do
+    Firewall.get_vm_firewall_alias(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/firewall/aliases/:name" do
+    Firewall.update_vm_firewall_alias(conn)
+  end
+
+  delete "/api2/json/nodes/:node/qemu/:vmid/firewall/aliases/:name" do
+    Firewall.delete_vm_firewall_alias(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/aliases" do
+    Firewall.list_vm_firewall_aliases(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/firewall/aliases" do
+    Firewall.create_vm_firewall_alias(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.get_vm_firewall_ipset_entry(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.update_vm_firewall_ipset_entry(conn)
+  end
+
+  delete "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.delete_vm_firewall_ipset_entry(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name" do
+    Firewall.get_vm_firewall_ipset(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name" do
+    Firewall.add_vm_firewall_ipset_entry(conn)
+  end
+
+  delete "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name" do
+    Firewall.delete_vm_firewall_ipset(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset" do
+    Firewall.list_vm_firewall_ipsets(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset" do
+    Firewall.create_vm_firewall_ipset(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/refs" do
+    Firewall.get_vm_firewall_refs(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/log" do
+    Firewall.get_vm_firewall_log(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall" do
+    Firewall.get_vm_firewall_index(conn)
+  end
+
   get "/api2/json/nodes/:node/qemu/:vmid/status/current" do
     Nodes.get_vm_status(conn)
   end
@@ -355,6 +448,99 @@ defmodule MockPveApi.Router do
 
   put "/api2/json/nodes/:node/lxc/:vmid/resize" do
     Nodes.resize_container_disk(conn)
+  end
+
+  # Container firewall endpoints
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/options" do
+    Firewall.get_ct_firewall_options(conn)
+  end
+
+  put "/api2/json/nodes/:node/lxc/:vmid/firewall/options" do
+    Firewall.update_ct_firewall_options(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/rules/:pos" do
+    Firewall.get_ct_firewall_rule(conn)
+  end
+
+  put "/api2/json/nodes/:node/lxc/:vmid/firewall/rules/:pos" do
+    Firewall.update_ct_firewall_rule(conn)
+  end
+
+  delete "/api2/json/nodes/:node/lxc/:vmid/firewall/rules/:pos" do
+    Firewall.delete_ct_firewall_rule(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/rules" do
+    Firewall.list_ct_firewall_rules(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/firewall/rules" do
+    Firewall.create_ct_firewall_rule(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/aliases/:name" do
+    Firewall.get_ct_firewall_alias(conn)
+  end
+
+  put "/api2/json/nodes/:node/lxc/:vmid/firewall/aliases/:name" do
+    Firewall.update_ct_firewall_alias(conn)
+  end
+
+  delete "/api2/json/nodes/:node/lxc/:vmid/firewall/aliases/:name" do
+    Firewall.delete_ct_firewall_alias(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/aliases" do
+    Firewall.list_ct_firewall_aliases(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/firewall/aliases" do
+    Firewall.create_ct_firewall_alias(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.get_ct_firewall_ipset_entry(conn)
+  end
+
+  put "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.update_ct_firewall_ipset_entry(conn)
+  end
+
+  delete "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.delete_ct_firewall_ipset_entry(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name" do
+    Firewall.get_ct_firewall_ipset(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name" do
+    Firewall.add_ct_firewall_ipset_entry(conn)
+  end
+
+  delete "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name" do
+    Firewall.delete_ct_firewall_ipset(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset" do
+    Firewall.list_ct_firewall_ipsets(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset" do
+    Firewall.create_ct_firewall_ipset(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/refs" do
+    Firewall.get_ct_firewall_refs(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/log" do
+    Firewall.get_ct_firewall_log(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall" do
+    Firewall.get_ct_firewall_index(conn)
   end
 
   get "/api2/json/nodes/:node/lxc/:vmid/status/current" do

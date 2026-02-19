@@ -3,8 +3,9 @@
 
 defmodule MockPveApi.Handlers.FirewallTest do
   @moduledoc """
-  Tests for firewall handler endpoints including cluster-level and node-level
-  options, rules, security groups, aliases, and IP sets.
+  Tests for firewall handler endpoints including cluster-level, node-level,
+  VM-level, and container-level options, rules, security groups, aliases,
+  and IP sets.
   """
 
   use ExUnit.Case, async: false
@@ -163,14 +164,7 @@ defmodule MockPveApi.Handlers.FirewallTest do
     end
 
     test "CRUD lifecycle for group rules" do
-      # Add rule to group (using cluster rules POST won't work - need to use state directly)
-      # Actually, PVE API uses POST on the group endpoint to add rules.
-      # Our implementation: the group endpoint GET returns rules, POST on groups creates groups.
-      # Group rules are managed via /{group}/{pos} CRUD endpoints.
-      # To add a rule, we need to update state directly for now since
-      # the plan only has CRUD on existing positions.
-
-      # Let's add a rule via state manipulation and then test the CRUD
+      # Add a rule via state manipulation and then test the CRUD
       fw = State.get_firewall(:cluster)
 
       group = Map.get(fw.groups, "testgrp")
@@ -466,6 +460,377 @@ defmodule MockPveApi.Handlers.FirewallTest do
 
       assert hd(resp1["data"])["action"] == "ACCEPT"
       assert hd(resp2["data"])["action"] == "DROP"
+    end
+  end
+
+  # ── VM Firewall Options ──
+
+  describe "VM firewall options" do
+    test "GET returns default options" do
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/options")
+        |> json(200)
+
+      assert resp["data"]["enable"] == 0
+      assert resp["data"]["policy_in"] == "DROP"
+      assert resp["data"]["macfilter"] == 1
+    end
+
+    test "PUT updates options" do
+      request(:put, "/api2/json/nodes/pve-node1/qemu/100/firewall/options", %{enable: 1})
+      |> json(200)
+
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/options")
+        |> json(200)
+
+      assert resp["data"]["enable"] == 1
+      # Other defaults remain
+      assert resp["data"]["macfilter"] == 1
+    end
+  end
+
+  # ── VM Firewall Rules ──
+
+  describe "VM firewall rules" do
+    test "GET returns empty rules initially" do
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules")
+        |> json(200)
+
+      assert resp["data"] == []
+    end
+
+    test "CRUD lifecycle" do
+      # Create
+      request(:post, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules", %{
+        action: "ACCEPT",
+        type: "in",
+        proto: "tcp",
+        dport: "80",
+        comment: "HTTP"
+      })
+      |> json(200)
+
+      request(:post, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules", %{
+        action: "DROP",
+        comment: "block all"
+      })
+      |> json(200)
+
+      # List
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules")
+        |> json(200)
+
+      assert length(resp["data"]) == 2
+      assert hd(resp["data"])["action"] == "ACCEPT"
+
+      # GET individual
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules/1")
+        |> json(200)
+
+      assert resp["data"]["action"] == "DROP"
+      assert resp["data"]["pos"] == 1
+
+      # PUT update
+      request(:put, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules/1", %{action: "REJECT"})
+      |> json(200)
+
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules/1")
+        |> json(200)
+
+      assert resp["data"]["action"] == "REJECT"
+
+      # DELETE
+      request(:delete, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules/0")
+      |> json(200)
+
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules")
+        |> json(200)
+
+      assert length(resp["data"]) == 1
+      assert hd(resp["data"])["action"] == "REJECT"
+    end
+
+    test "GET non-existent position returns 400" do
+      request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules/99") |> json(400)
+    end
+  end
+
+  # ── VM Firewall Aliases ──
+
+  describe "VM firewall aliases" do
+    @base "/api2/json/nodes/pve-node1/qemu/100/firewall/aliases"
+
+    test "CRUD lifecycle" do
+      # Empty initially
+      resp = request(:get, @base) |> json(200)
+      assert resp["data"] == []
+
+      # Create
+      request(:post, @base, %{name: "webserver", cidr: "10.0.0.5/32", comment: "web"})
+      |> json(200)
+
+      # List
+      resp = request(:get, @base) |> json(200)
+      assert length(resp["data"]) == 1
+      assert hd(resp["data"])["name"] == "webserver"
+
+      # Get individual
+      resp = request(:get, "#{@base}/webserver") |> json(200)
+      assert resp["data"]["cidr"] == "10.0.0.5/32"
+
+      # Update
+      request(:put, "#{@base}/webserver", %{cidr: "10.0.0.10/32"}) |> json(200)
+      resp = request(:get, "#{@base}/webserver") |> json(200)
+      assert resp["data"]["cidr"] == "10.0.0.10/32"
+
+      # Delete
+      request(:delete, "#{@base}/webserver") |> json(200)
+      resp = request(:get, @base) |> json(200)
+      assert resp["data"] == []
+    end
+
+    test "POST duplicate alias returns 400" do
+      request(:post, @base, %{name: "dup", cidr: "1.2.3.4"})
+      request(:post, @base, %{name: "dup", cidr: "5.6.7.8"}) |> json(400)
+    end
+
+    test "GET non-existent alias returns 404" do
+      request(:get, "#{@base}/nosuch") |> json(404)
+    end
+  end
+
+  # ── VM Firewall IP Sets ──
+
+  describe "VM firewall IP sets" do
+    @base "/api2/json/nodes/pve-node1/qemu/100/firewall/ipset"
+
+    test "CRUD lifecycle for ipsets and entries" do
+      # Empty initially
+      resp = request(:get, @base) |> json(200)
+      assert resp["data"] == []
+
+      # Create ipset
+      request(:post, @base, %{name: "allowed", comment: "Allowed IPs"}) |> json(200)
+
+      # List
+      resp = request(:get, @base) |> json(200)
+      assert length(resp["data"]) == 1
+      assert hd(resp["data"])["name"] == "allowed"
+      assert hd(resp["data"])["count"] == 0
+
+      # Add entry
+      request(:post, "#{@base}/allowed", %{cidr: "192.168.1.0/24", comment: "LAN"})
+      |> json(200)
+
+      # List entries
+      resp = request(:get, "#{@base}/allowed") |> json(200)
+      assert length(resp["data"]) == 1
+      assert hd(resp["data"])["cidr"] == "192.168.1.0/24"
+
+      # Get individual entry
+      resp = request(:get, "#{@base}/allowed/192.168.1.0-24") |> json(200)
+      assert resp["data"]["cidr"] == "192.168.1.0/24"
+
+      # Update entry
+      request(:put, "#{@base}/allowed/192.168.1.0-24", %{comment: "updated LAN"})
+      |> json(200)
+
+      resp = request(:get, "#{@base}/allowed/192.168.1.0-24") |> json(200)
+      assert resp["data"]["comment"] == "updated LAN"
+
+      # Delete entry
+      request(:delete, "#{@base}/allowed/192.168.1.0-24") |> json(200)
+      resp = request(:get, "#{@base}/allowed") |> json(200)
+      assert resp["data"] == []
+
+      # Delete ipset
+      request(:delete, "#{@base}/allowed") |> json(200)
+      resp = request(:get, @base) |> json(200)
+      assert resp["data"] == []
+    end
+  end
+
+  # ── VM Firewall Refs and Log ──
+
+  describe "VM firewall refs and log" do
+    test "GET refs returns reference types" do
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/refs")
+        |> json(200)
+
+      assert is_list(resp["data"])
+      types = Enum.map(resp["data"], & &1["type"])
+      assert "alias" in types
+      assert "ipset" in types
+    end
+
+    test "GET log returns empty list" do
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/log")
+        |> json(200)
+
+      assert resp["data"] == []
+    end
+
+    test "GET firewall index returns sub-resource list" do
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall")
+        |> json(200)
+
+      names = Enum.map(resp["data"], & &1["name"])
+      assert "options" in names
+      assert "rules" in names
+      assert "aliases" in names
+      assert "ipset" in names
+      assert "refs" in names
+      assert "log" in names
+    end
+  end
+
+  # ── Container Firewall ──
+
+  describe "container firewall" do
+    test "options GET returns defaults" do
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/lxc/200/firewall/options")
+        |> json(200)
+
+      assert resp["data"]["enable"] == 0
+      assert resp["data"]["policy_in"] == "DROP"
+    end
+
+    test "options PUT updates" do
+      request(:put, "/api2/json/nodes/pve-node1/lxc/200/firewall/options", %{enable: 1})
+      |> json(200)
+
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/lxc/200/firewall/options")
+        |> json(200)
+
+      assert resp["data"]["enable"] == 1
+    end
+
+    test "rules CRUD lifecycle" do
+      base = "/api2/json/nodes/pve-node1/lxc/200/firewall/rules"
+
+      # Empty initially
+      resp = request(:get, base) |> json(200)
+      assert resp["data"] == []
+
+      # Create
+      request(:post, base, %{action: "ACCEPT", type: "in", dport: "443"}) |> json(200)
+
+      # List
+      resp = request(:get, base) |> json(200)
+      assert length(resp["data"]) == 1
+      assert hd(resp["data"])["action"] == "ACCEPT"
+
+      # GET individual
+      resp = request(:get, "#{base}/0") |> json(200)
+      assert resp["data"]["dport"] == "443"
+
+      # PUT
+      request(:put, "#{base}/0", %{action: "DROP"}) |> json(200)
+      resp = request(:get, "#{base}/0") |> json(200)
+      assert resp["data"]["action"] == "DROP"
+
+      # DELETE
+      request(:delete, "#{base}/0") |> json(200)
+      resp = request(:get, base) |> json(200)
+      assert resp["data"] == []
+    end
+
+    test "firewall index returns sub-resources" do
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/lxc/200/firewall")
+        |> json(200)
+
+      names = Enum.map(resp["data"], & &1["name"])
+      assert "options" in names
+      assert "rules" in names
+    end
+
+    test "refs and log static endpoints" do
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/lxc/200/firewall/refs")
+        |> json(200)
+
+      assert is_list(resp["data"])
+
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/lxc/200/firewall/log")
+        |> json(200)
+
+      assert resp["data"] == []
+    end
+  end
+
+  # ── VM/CT Isolation ──
+
+  describe "VM/CT firewall isolation" do
+    test "different VMIDs have independent state" do
+      # Create rule on VM 100
+      request(:post, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules", %{
+        action: "ACCEPT",
+        comment: "vm100"
+      })
+      |> json(200)
+
+      # Create rule on VM 101
+      request(:post, "/api2/json/nodes/pve-node1/qemu/101/firewall/rules", %{
+        action: "DROP",
+        comment: "vm101"
+      })
+      |> json(200)
+
+      # Verify isolation
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/rules")
+        |> json(200)
+
+      assert length(resp["data"]) == 1
+      assert hd(resp["data"])["action"] == "ACCEPT"
+
+      resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/101/firewall/rules")
+        |> json(200)
+
+      assert length(resp["data"]) == 1
+      assert hd(resp["data"])["action"] == "DROP"
+    end
+
+    test "VM and container firewalls are independent" do
+      # Create alias on VM 100
+      request(:post, "/api2/json/nodes/pve-node1/qemu/100/firewall/aliases", %{
+        name: "shared_name",
+        cidr: "10.0.0.1/32"
+      })
+      |> json(200)
+
+      # Create alias with same name on CT 100
+      request(:post, "/api2/json/nodes/pve-node1/lxc/100/firewall/aliases", %{
+        name: "shared_name",
+        cidr: "10.0.0.2/32"
+      })
+      |> json(200)
+
+      # Verify they are independent
+      vm_resp =
+        request(:get, "/api2/json/nodes/pve-node1/qemu/100/firewall/aliases/shared_name")
+        |> json(200)
+
+      ct_resp =
+        request(:get, "/api2/json/nodes/pve-node1/lxc/100/firewall/aliases/shared_name")
+        |> json(200)
+
+      assert vm_resp["data"]["cidr"] == "10.0.0.1/32"
+      assert ct_resp["data"]["cidr"] == "10.0.0.2/32"
     end
   end
 end

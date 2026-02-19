@@ -56,8 +56,8 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Monitoring | 16 | 9 | 56.3% |
 | Backup | 9 | 9 | 100.0% |
 | Hardware | 7 | 0 | 0.0% |
-| Firewall | 41 | 14 | 34.1% |
-| **TOTAL** | **228** | **132** | **57.9%** |
+| Firewall | 41 | 36 | 87.8% |
+| **TOTAL** | **228** | **154** | **67.5%** |
 
 
 ## Status Legend
@@ -5119,7 +5119,7 @@ Individual node rule CRUD
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall` ✅
 
 Container firewall index
 
@@ -5145,7 +5145,7 @@ Container firewall index
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/aliases` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/aliases` ✅
 
 Container-level IP aliases
 
@@ -5171,7 +5171,7 @@ Container-level IP aliases
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/aliases/{name}` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/aliases/{name}` ✅
 
 Container alias CRUD
 
@@ -5197,7 +5197,7 @@ Container alias CRUD
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/ipset` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/ipset` ✅
 
 Container-level IP sets
 
@@ -5223,13 +5223,13 @@ Container-level IP sets
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}` ✅
 
-Container IP set entries / delete
+Container IP set entries / add / delete
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, DELETE |
+| **Methods** | GET, POST, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -5249,7 +5249,7 @@ Container IP set entries / delete
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}/{cidr}` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}/{cidr}` ✅
 
 Container IP set entry CRUD
 
@@ -5275,7 +5275,7 @@ Container IP set entry CRUD
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/log` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/log` ✅
 
 Read container firewall log
 
@@ -5301,7 +5301,7 @@ Read container firewall log
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/options` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/options` ✅
 
 Container firewall options
 
@@ -5327,7 +5327,7 @@ Container firewall options
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/refs` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/refs` ✅
 
 Container firewall references
 
@@ -5353,7 +5353,7 @@ Container firewall references
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/rules` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/rules` ✅
 
 List/create container firewall rules
 
@@ -5379,7 +5379,7 @@ List/create container firewall rules
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/rules/{pos}` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/rules/{pos}` ✅
 
 Individual container rule CRUD
 
@@ -5405,7 +5405,7 @@ Individual container rule CRUD
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall` ✅
 
 VM firewall index
 
@@ -5432,7 +5432,7 @@ VM firewall index
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/aliases` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/aliases` ✅
 
 VM-level IP aliases
 
@@ -5459,7 +5459,7 @@ VM-level IP aliases
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/aliases/{name}` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/aliases/{name}` ✅
 
 VM alias CRUD
 
@@ -5486,7 +5486,7 @@ VM alias CRUD
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/ipset` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/ipset` ✅
 
 VM-level IP sets
 
@@ -5513,13 +5513,13 @@ VM-level IP sets
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}` ✅
 
-VM IP set entries / delete
+VM IP set entries / add / delete
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, DELETE |
+| **Methods** | GET, POST, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -5540,7 +5540,7 @@ VM IP set entries / delete
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}/{cidr}` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}/{cidr}` ✅
 
 VM IP set entry CRUD
 
@@ -5567,7 +5567,7 @@ VM IP set entry CRUD
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/log` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/log` ✅
 
 Read VM firewall log
 
@@ -5594,7 +5594,7 @@ Read VM firewall log
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/options` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/options` ✅
 
 VM firewall options
 
@@ -5621,7 +5621,7 @@ VM firewall options
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/refs` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/refs` ✅
 
 VM firewall references
 
@@ -5648,7 +5648,7 @@ VM firewall references
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/rules` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/rules` ✅
 
 List/create VM firewall rules
 
@@ -5675,7 +5675,7 @@ List/create VM firewall rules
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/rules/{pos}` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/rules/{pos}` ✅
 
 Individual VM rule CRUD
 

@@ -171,7 +171,9 @@ defmodule MockPveApi.State do
           aliases: %{},
           ipsets: %{}
         },
-        nodes: %{}
+        nodes: %{},
+        vms: %{},
+        containers: %{}
       },
       pools: %{},
       users: %{
@@ -2832,6 +2834,32 @@ defmodule MockPveApi.State do
     {:reply, :ok, %{state | firewall: new_fw}}
   end
 
+  def handle_call({:get_firewall, {:vm, vmid}}, _from, state) do
+    vm_fw = Map.get(state.firewall.vms, vmid, default_vm_ct_firewall())
+    {:reply, vm_fw, state}
+  end
+
+  def handle_call({:get_firewall, {:container, vmid}}, _from, state) do
+    ct_fw = Map.get(state.firewall.containers, vmid, default_vm_ct_firewall())
+    {:reply, ct_fw, state}
+  end
+
+  def handle_call({:update_firewall, {:vm, vmid}, updates}, _from, state) do
+    current = Map.get(state.firewall.vms, vmid, default_vm_ct_firewall())
+    updated = Map.merge(current, updates)
+    new_vms = Map.put(state.firewall.vms, vmid, updated)
+    new_fw = %{state.firewall | vms: new_vms}
+    {:reply, :ok, %{state | firewall: new_fw}}
+  end
+
+  def handle_call({:update_firewall, {:container, vmid}, updates}, _from, state) do
+    current = Map.get(state.firewall.containers, vmid, default_vm_ct_firewall())
+    updated = Map.merge(current, updates)
+    new_cts = Map.put(state.firewall.containers, vmid, updated)
+    new_fw = %{state.firewall | containers: new_cts}
+    {:reply, :ok, %{state | firewall: new_fw}}
+  end
+
   @impl true
   def handle_call(:reset, _from, _state) do
     Logger.info("Mock PVE Server state reset")
@@ -2908,5 +2936,25 @@ defmodule MockPveApi.State do
       ["ct", _] -> "ct"
       _ -> "vm"
     end
+  end
+
+  defp default_vm_ct_firewall do
+    %{
+      options: %{
+        enable: 0,
+        dhcp: 0,
+        ipfilter: 0,
+        log_level_in: "nolog",
+        log_level_out: "nolog",
+        macfilter: 1,
+        ndp: 1,
+        policy_in: "DROP",
+        policy_out: "ACCEPT",
+        radv: 0
+      },
+      rules: [],
+      aliases: %{},
+      ipsets: %{}
+    }
   end
 end

@@ -24,13 +24,13 @@ defmodule MockPveApi.Coverage.Firewall do
   defp implemented_endpoints do
     cluster_firewall_implemented()
     |> Map.merge(node_firewall_implemented())
+    |> Map.merge(vm_firewall_implemented())
+    |> Map.merge(container_firewall_implemented())
   end
 
   defp planned_endpoints do
     cluster_firewall_planned()
     |> Map.merge(node_firewall_planned())
-    |> Map.merge(vm_firewall())
-    |> Map.merge(container_firewall())
   end
 
   # ── Implemented: Cluster Firewall ──
@@ -75,6 +75,64 @@ defmodule MockPveApi.Coverage.Firewall do
     }
   end
 
+  # ── Implemented: VM Firewall ──
+
+  defp vm_firewall_implemented do
+    %{
+      "/api2/json/nodes/{node}/qemu/{vmid}/firewall" =>
+        implemented(:get, :low, "6.0", "VM firewall index"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/options" =>
+        implemented(:get_put, :medium, "6.0", "VM firewall options"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/rules" =>
+        implemented(:get_post, :medium, "6.0", "List/create VM firewall rules"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/rules/{pos}" =>
+        implemented(:get_put_delete, :medium, "6.0", "Individual VM rule CRUD"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/aliases" =>
+        implemented(:get_post, :low, "6.0", "VM-level IP aliases"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/aliases/{name}" =>
+        implemented(:get_put_delete, :low, "6.0", "VM alias CRUD"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/ipset" =>
+        implemented(:get_post, :low, "6.0", "VM-level IP sets"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}" =>
+        implemented(:get_post_delete, :low, "6.0", "VM IP set entries / add / delete"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}/{cidr}" =>
+        implemented(:get_put_delete, :low, "6.0", "VM IP set entry CRUD"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/refs" =>
+        implemented(:get, :low, "6.0", "VM firewall references"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/log" =>
+        implemented(:get, :low, "6.0", "Read VM firewall log")
+    }
+  end
+
+  # ── Implemented: Container Firewall ──
+
+  defp container_firewall_implemented do
+    %{
+      "/api2/json/nodes/{node}/lxc/{vmid}/firewall" =>
+        implemented(:get, :low, "6.0", "Container firewall index"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/options" =>
+        implemented(:get_put, :medium, "6.0", "Container firewall options"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/rules" =>
+        implemented(:get_post, :medium, "6.0", "List/create container firewall rules"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/rules/{pos}" =>
+        implemented(:get_put_delete, :medium, "6.0", "Individual container rule CRUD"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/aliases" =>
+        implemented(:get_post, :low, "6.0", "Container-level IP aliases"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/aliases/{name}" =>
+        implemented(:get_put_delete, :low, "6.0", "Container alias CRUD"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/ipset" =>
+        implemented(:get_post, :low, "6.0", "Container-level IP sets"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}" =>
+        implemented(:get_post_delete, :low, "6.0", "Container IP set entries / add / delete"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}/{cidr}" =>
+        implemented(:get_put_delete, :low, "6.0", "Container IP set entry CRUD"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/refs" =>
+        implemented(:get, :low, "6.0", "Container firewall references"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/log" =>
+        implemented(:get, :low, "6.0", "Read container firewall log")
+    }
+  end
+
   # ── Planned: Remaining Cluster Firewall ──
 
   defp cluster_firewall_planned do
@@ -94,64 +152,6 @@ defmodule MockPveApi.Coverage.Firewall do
       "/api2/json/nodes/{node}/firewall" => planned(:get, :low, "6.0", "Node firewall index"),
       "/api2/json/nodes/{node}/firewall/log" =>
         planned(:get, :low, "6.0", "Read node firewall log")
-    }
-  end
-
-  # ── Planned: VM Firewall ──
-
-  defp vm_firewall do
-    %{
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall" =>
-        planned(:get, :low, "6.0", "VM firewall index"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/options" =>
-        planned(:get_put, :medium, "6.0", "VM firewall options"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/rules" =>
-        planned(:get_post, :medium, "6.0", "List/create VM firewall rules"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/rules/{pos}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual VM rule CRUD"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/aliases" =>
-        planned(:get_post, :low, "6.0", "VM-level IP aliases"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/aliases/{name}" =>
-        planned(:get_put_delete, :low, "6.0", "VM alias CRUD"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/ipset" =>
-        planned(:get_post, :low, "6.0", "VM-level IP sets"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}" =>
-        planned(:get_delete, :low, "6.0", "VM IP set entries / delete"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}/{cidr}" =>
-        planned(:get_put_delete, :low, "6.0", "VM IP set entry CRUD"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/refs" =>
-        planned(:get, :low, "6.0", "VM firewall references"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall/log" =>
-        planned(:get, :low, "6.0", "Read VM firewall log")
-    }
-  end
-
-  # ── Planned: Container Firewall ──
-
-  defp container_firewall do
-    %{
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall" =>
-        planned(:get, :low, "6.0", "Container firewall index"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/options" =>
-        planned(:get_put, :medium, "6.0", "Container firewall options"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/rules" =>
-        planned(:get_post, :medium, "6.0", "List/create container firewall rules"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/rules/{pos}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual container rule CRUD"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/aliases" =>
-        planned(:get_post, :low, "6.0", "Container-level IP aliases"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/aliases/{name}" =>
-        planned(:get_put_delete, :low, "6.0", "Container alias CRUD"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/ipset" =>
-        planned(:get_post, :low, "6.0", "Container-level IP sets"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}" =>
-        planned(:get_delete, :low, "6.0", "Container IP set entries / delete"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}/{cidr}" =>
-        planned(:get_put_delete, :low, "6.0", "Container IP set entry CRUD"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/refs" =>
-        planned(:get, :low, "6.0", "Container firewall references"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall/log" =>
-        planned(:get, :low, "6.0", "Read container firewall log")
     }
   end
 
