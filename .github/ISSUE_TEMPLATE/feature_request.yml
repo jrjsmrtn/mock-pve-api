@@ -1,0 +1,101 @@
+name: Feature Request
+description: Suggest an idea for Mock PVE API
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide details about what you'd like to see added.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What type of feature is this?
+      options:
+        - API Endpoint Coverage
+        - PVE Version Support
+        - Configuration Options
+        - Docker/Container Improvements
+        - Documentation
+        - Testing/CI
+        - Performance
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: I'm always frustrated when...
+    validations:
+      required: false
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like
+      placeholder: I would like to see...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe alternatives you've considered
+    validations:
+      required: false
+
+  - type: dropdown
+    id: pve-version
+    attributes:
+      label: Target PVE Version
+      description: If this is version-specific, which PVE versions should support it?
+      multiple: true
+      options:
+        - "7.0"
+        - "7.1"
+        - "7.2" 
+        - "7.3"
+        - "7.4"
+        - "8.0"
+        - "8.1"
+        - "8.2"
+        - "8.3"
+        - "9.0"
+        - "All versions"
+        - "Not version-specific"
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - "Nice to have"
+        - "Would be helpful"
+        - "Important for my use case"
+        - "Blocking my project"
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Describe your specific use case for this feature
+      placeholder: I need this feature because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, examples, or links about the feature request

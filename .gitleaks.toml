@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
+# Gitleaks configuration — https://github.com/gitleaks/gitleaks
+# Allowlists for known false positives in a mock API server.
+
+[allowlist]
+  description = "mock-pve-api false positives"
+
+  paths = [
+    # Self-signed test certificates (generated, not real credentials)
+    '''certs/''',
+  ]
+
+  regexTarget = "match"
+  regexes = [
+    # Mock MAC addresses used in PVE API fixtures
+    '''(aa:bb:cc:dd:ee:ff|00:11:22:33:44:55|66:77:88:99:aa:bb)''',
+    # Example API URL in documentation
+    '''dependency-track\.example\.com''',
+  ]

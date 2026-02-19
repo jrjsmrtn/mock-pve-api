@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: 2025 Georges Martin
+# SPDX-License-Identifier: MIT
+
+# Development Dockerfile for Mock PVE API Server
+FROM elixir:1.15-alpine
+
+# Install dependencies for development
+RUN apk add --no-cache \
+    build-base \
+    git \
+    curl \
+    inotify-tools
+
+# Set working directory
+WORKDIR /app
+
+# Install hex and rebar
+RUN mix local.hex --force && \
+    mix local.rebar --force
+
+# Copy mix files
+COPY mix.exs mix.lock ./
+
+# Install dependencies
+RUN mix deps.get
+
+# Expose PVE API port
+EXPOSE 8006
+
+# Set development environment
+ENV MIX_ENV=dev
+ENV MOCK_PVE_PORT=8006
+ENV MOCK_PVE_HOST=0.0.0.0
+ENV MOCK_PVE_VERSION=8.3
+
+# Start with iex for development
+CMD ["iex", "-S", "mix", "run", "--no-halt"]

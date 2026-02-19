@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Default PVE 8.3 instance
+  mock-pve-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8006:8006"
+    environment:
+      - MOCK_PVE_VERSION=8.3
+      - MOCK_PVE_PORT=8006
+      - MOCK_PVE_HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8006/api2/json/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PVE 7.4 for compatibility testing
+  mock-pve-7:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8007:8006"
+    environment:
+      - MOCK_PVE_VERSION=7.4
+      - MOCK_PVE_PORT=8006
+      - MOCK_PVE_HOST=0.0.0.0
+
+  # PVE 8.0 for SDN testing
+  mock-pve-8:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8008:8006"
+    environment:
+      - MOCK_PVE_VERSION=8.0
+      - MOCK_PVE_PORT=8006
+      - MOCK_PVE_HOST=0.0.0.0
+
+  # PVE 9.0 for latest features
+  mock-pve-9:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8009:8006"
+    environment:
+      - MOCK_PVE_VERSION=9.0
+      - MOCK_PVE_PORT=8006
+      - MOCK_PVE_HOST=0.0.0.0
+
+  # Development environment
+  mock-pve-dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dev
+    ports:
+      - "8010:8006"
+    environment:
+      - MIX_ENV=dev
+      - MOCK_PVE_VERSION=8.3
+    volumes:
+      - .:/app
+      - elixir_deps:/app/deps
+      - elixir_build:/app/_build
+    stdin_open: true
+    tty: true
+
+volumes:
+  elixir_deps:
+  elixir_build:
