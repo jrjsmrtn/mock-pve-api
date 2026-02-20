@@ -262,6 +262,10 @@ defmodule MockPveApi.Coverage.Monitoring do
         handler_module: MockPveApi.Handlers.Metrics,
         notes: nil
       },
+      "/api2/json/nodes/{node}/storage/{storage}/rrd" =>
+        implemented(:get, :low, "6.0", "Storage RRD statistics (graph)"),
+      "/api2/json/nodes/{node}/storage/{storage}/rrddata" =>
+        implemented(:get, :low, "6.0", "Storage RRD statistics (data)"),
       "/api2/json/cluster/metrics" => implemented(:get, :low, "7.0", "Cluster metrics index"),
       "/api2/json/cluster/metrics/server" =>
         implemented(:get, :low, "7.0", "List configured external metric servers"),
@@ -298,13 +302,7 @@ defmodule MockPveApi.Coverage.Monitoring do
   end
 
   defp planned_endpoints do
-    %{
-      # Storage RRD (remaining planned)
-      "/api2/json/nodes/{node}/storage/{storage}/rrd" =>
-        planned(:get, :low, "6.0", "Storage RRD statistics (graph)"),
-      "/api2/json/nodes/{node}/storage/{storage}/rrddata" =>
-        planned(:get, :low, "6.0", "Storage RRD statistics (data)")
-    }
+    %{}
   end
 
   defp implemented(methods_atom, priority, since, description) do
@@ -320,23 +318,6 @@ defmodule MockPveApi.Coverage.Monitoring do
       capabilities_required: [],
       test_coverage: true,
       handler_module: MockPveApi.Handlers.Metrics,
-      notes: nil
-    }
-  end
-
-  defp planned(methods_atom, priority, since, description) do
-    %{
-      path: "",
-      methods: methods_for(methods_atom),
-      status: :planned,
-      priority: priority,
-      since: since,
-      description: description,
-      parameters: [],
-      response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
       notes: nil
     }
   end

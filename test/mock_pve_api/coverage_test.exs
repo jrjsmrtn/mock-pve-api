@@ -323,7 +323,11 @@ defmodule MockPveApi.CoverageTest do
         "/api2/json/nodes/{node}/qemu/{vmid}/agent",
         # VM/CT move operations - POST only (returns UPID)
         "/api2/json/nodes/{node}/qemu/{vmid}/move_disk",
-        "/api2/json/nodes/{node}/lxc/{vmid}/move_volume"
+        "/api2/json/nodes/{node}/lxc/{vmid}/move_volume",
+        # ACME certificate - POST=order, PUT=renew, DELETE=revoke (no GET)
+        "/api2/json/nodes/{node}/certificates/acme/certificate",
+        # Disk initialization - POST only
+        "/api2/json/nodes/{node}/disks/initgpt"
       ]
 
       # Only validate method combinations on implemented endpoints —
@@ -349,7 +353,9 @@ defmodule MockPveApi.CoverageTest do
           "/api2/json/nodes/{node}/qemu/{vmid}/resize",
           "/api2/json/nodes/{node}/lxc/{vmid}/resize",
           "/api2/json/nodes/{node}/qemu/{vmid}/unlink",
-          "/api2/json/nodes/{node}/services/{service}/state"
+          "/api2/json/nodes/{node}/services/{service}/state",
+          "/api2/json/nodes/{node}/certificates/acme/certificate",
+          "/api2/json/nodes/{node}/qemu/{vmid}/sendkey"
         ]
 
         if :put in methods and endpoint.path not in put_only_actions do
@@ -420,13 +426,13 @@ defmodule MockPveApi.CoverageTest do
     test "coverage percentage reflects planned endpoint catalog" do
       stats = Coverage.get_coverage_stats()
 
-      # With ~230 total endpoints and ~197 implemented, coverage is ~85-90%
+      # With all planned endpoints implemented, coverage should be ~99-100%
       assert stats.coverage_percentage > 15.0,
              "Coverage percentage unexpectedly low: #{stats.coverage_percentage}%"
 
-      assert stats.coverage_percentage < 95.0,
-             "Coverage percentage unexpectedly high: #{stats.coverage_percentage}% — " <>
-               "if many planned endpoints were implemented, update this assertion"
+      assert stats.coverage_percentage >= 98.0,
+             "Coverage percentage unexpectedly low: #{stats.coverage_percentage}% — " <>
+               "expected ~100% after completing all planned endpoints"
 
       # Should have some critical endpoints implemented
       critical_endpoints = Coverage.get_endpoints_by_priority(:critical)

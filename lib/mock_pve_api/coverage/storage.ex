@@ -251,6 +251,12 @@ defmodule MockPveApi.Coverage.Storage do
         handler_module: MockPveApi.Handlers.Storage,
         notes: nil
       },
+      "/api2/json/nodes/{node}/storage/{storage}/prunebackups" =>
+        implemented(:get_delete, :low, "6.0", "Prune old backups"),
+      "/api2/json/nodes/{node}/storage/{storage}/file-restore/list" =>
+        implemented(:get, :low, "7.0", "List files in a backup for single-file restore"),
+      "/api2/json/nodes/{node}/storage/{storage}/file-restore/download" =>
+        implemented(:get, :low, "7.0", "Download files from a backup"),
       "/api2/json/nodes/{node}/storage/{storage}/upload" => %{
         path: "/api2/json/nodes/{node}/storage/{storage}/upload",
         methods: [:post],
@@ -286,42 +292,22 @@ defmodule MockPveApi.Coverage.Storage do
   end
 
   defp planned_endpoints do
-    %{
-      "/api2/json/nodes/{node}/storage/{storage}/prunebackups" =>
-        planned(:get_delete, :low, "6.0", "Prune old backups"),
-      # Storage RRD endpoints live in monitoring.ex
-      "/api2/json/nodes/{node}/storage/{storage}/file-restore/list" =>
-        planned(:get, :low, "7.0", "List files in a backup for single-file restore"),
-      "/api2/json/nodes/{node}/storage/{storage}/file-restore/download" =>
-        planned(:get, :low, "7.0", "Download files from a backup"),
-      # Ceph (node-level)
-      "/api2/json/nodes/{node}/ceph/status" => planned(:get, :low, "7.0", "Ceph status on node"),
-      "/api2/json/nodes/{node}/ceph/osd" =>
-        planned(:get_post, :low, "7.0", "Ceph OSD management"),
-      "/api2/json/nodes/{node}/ceph/pools" =>
-        planned(:get_post, :low, "7.0", "Ceph pool management"),
-      "/api2/json/nodes/{node}/disks/zfs" =>
-        planned(:get_post, :low, "6.0", "ZFS pool management on node"),
-      "/api2/json/nodes/{node}/disks/lvm" =>
-        planned(:get_post, :low, "6.0", "LVM management on node"),
-      "/api2/json/nodes/{node}/disks/lvmthin" =>
-        planned(:get_post, :low, "6.0", "LVM thin pool management on node")
-    }
+    %{}
   end
 
-  defp planned(methods_atom, priority, since, description) do
+  defp implemented(methods_atom, priority, since, description) do
     %{
       path: "",
       methods: methods_for(methods_atom),
-      status: :planned,
+      status: :implemented,
       priority: priority,
       since: since,
       description: description,
       parameters: [],
       response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
+      capabilities_required: [:storage_basic],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Storage,
       notes: nil
     }
   end

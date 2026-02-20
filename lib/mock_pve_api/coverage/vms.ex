@@ -474,15 +474,14 @@ defmodule MockPveApi.Coverage.VMs do
       "/api2/json/nodes/{node}/qemu/{vmid}/unlink" =>
         implemented(:put, :low, "6.0", "Unlink/delete disk images"),
       "/api2/json/nodes/{node}/qemu/{vmid}/move_disk" =>
-        implemented(:post, :medium, "6.0", "Move VM disk to different storage")
+        implemented(:post, :medium, "6.0", "Move VM disk to different storage"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/sendkey" =>
+        implemented(:put, :low, "6.0", "Send key event to VM")
     }
   end
 
   defp planned_endpoints do
-    %{
-      "/api2/json/nodes/{node}/qemu/{vmid}/sendkey" =>
-        planned(:put, :low, "6.0", "Send key event to VM")
-    }
+    %{}
   end
 
   defp implemented(methods_atom, priority, since, description) do
@@ -498,23 +497,6 @@ defmodule MockPveApi.Coverage.VMs do
       capabilities_required: [:basic_virtualization],
       test_coverage: true,
       handler_module: MockPveApi.Handlers.Nodes,
-      notes: nil
-    }
-  end
-
-  defp planned(methods_atom, priority, since, description) do
-    %{
-      path: "",
-      methods: methods_for(methods_atom),
-      status: :planned,
-      priority: priority,
-      since: since,
-      description: description,
-      parameters: [],
-      response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
       notes: nil
     }
   end

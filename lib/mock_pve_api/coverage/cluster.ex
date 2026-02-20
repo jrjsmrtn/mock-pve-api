@@ -373,58 +373,54 @@ defmodule MockPveApi.Coverage.Cluster do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Cluster,
         notes: nil
-      }
+      },
+      "/api2/json/cluster/replication/{id}" =>
+        implemented(:get_put_delete, :medium, "6.0", "Individual replication job operations"),
+      "/api2/json/cluster/acme/account" =>
+        implemented(:get_post, :low, "6.0", "ACME account management"),
+      "/api2/json/cluster/acme/plugins" =>
+        implemented(:get_post, :low, "6.0", "ACME plugin management"),
+      "/api2/json/cluster/ceph/metadata" =>
+        implemented(:get, :low, "7.0", "Ceph cluster metadata"),
+      "/api2/json/cluster/ceph/status" => implemented(:get, :low, "7.0", "Ceph cluster status"),
+      "/api2/json/cluster/ceph/flags" => implemented(:get_put, :low, "7.0", "Ceph global flags"),
+      "/api2/json/cluster/notifications/matchers" =>
+        implemented(:get_post, :low, "8.1", "Notification matchers management"),
+      "/api2/json/cluster/notifications/matchers/{name}" =>
+        implemented(:get_put_delete, :low, "8.1", "Individual notification matcher operations"),
+      "/api2/json/cluster/notifications/endpoints/sendmail" =>
+        implemented(:get_post, :low, "8.1", "Sendmail notification endpoints"),
+      "/api2/json/cluster/notifications/endpoints/sendmail/{name}" =>
+        implemented(:get_put_delete, :low, "8.1", "Individual sendmail endpoint operations"),
+      "/api2/json/cluster/notifications/endpoints/gotify" =>
+        implemented(:get_post, :low, "8.1", "Gotify notification endpoints"),
+      "/api2/json/cluster/notifications/endpoints/gotify/{name}" =>
+        implemented(:get_put_delete, :low, "8.1", "Individual gotify endpoint operations")
     }
   end
 
   defp planned_endpoints do
-    %{
-      # Replication (individual job)
-      "/api2/json/cluster/replication/{id}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual replication job operations"),
-      # ACME
-      "/api2/json/cluster/acme/account" =>
-        planned(:get_post, :low, "6.0", "ACME account management"),
-      "/api2/json/cluster/acme/plugins" =>
-        planned(:get_post, :low, "6.0", "ACME plugin management"),
-      # Ceph
-      "/api2/json/cluster/ceph/metadata" => planned(:get, :low, "7.0", "Ceph cluster metadata"),
-      "/api2/json/cluster/ceph/status" => planned(:get, :low, "7.0", "Ceph cluster status"),
-      "/api2/json/cluster/ceph/flags" => planned(:get_put, :low, "7.0", "Ceph global flags"),
-      # Notifications (extended)
-      "/api2/json/cluster/notifications/matchers" =>
-        planned(:get_post, :low, "8.1", "Notification matchers management"),
-      "/api2/json/cluster/notifications/matchers/{name}" =>
-        planned(:get_put_delete, :low, "8.1", "Individual notification matcher operations"),
-      "/api2/json/cluster/notifications/endpoints/sendmail" =>
-        planned(:get_post, :low, "8.1", "Sendmail notification endpoints"),
-      "/api2/json/cluster/notifications/endpoints/sendmail/{name}" =>
-        planned(:get_put_delete, :low, "8.1", "Individual sendmail endpoint operations"),
-      "/api2/json/cluster/notifications/endpoints/gotify" =>
-        planned(:get_post, :low, "8.1", "Gotify notification endpoints"),
-      "/api2/json/cluster/notifications/endpoints/gotify/{name}" =>
-        planned(:get_put_delete, :low, "8.1", "Individual gotify endpoint operations")
-    }
+    %{}
   end
 
-  # Helpers for concise planned endpoint definitions
-
-  defp planned(methods_atom, priority, since, description) do
+  defp implemented(methods_atom, priority, since, description) do
     %{
       path: "",
       methods: methods_for(methods_atom),
-      status: :planned,
+      status: :implemented,
       priority: priority,
       since: since,
       description: description,
       parameters: [],
       response_schema: %{data: :object},
       capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Cluster,
       notes: nil
     }
   end
+
+  # Helpers for concise planned endpoint definitions
 
   defp methods_for(:get), do: [:get]
   defp methods_for(:get_post), do: [:get, :post]

@@ -273,6 +273,65 @@ defmodule MockPveApi.Handlers.Storage do
     end
   end
 
+  @doc """
+  GET /api2/json/nodes/:node/storage/:storage/file-restore/list
+  Lists files in a backup for single-file restore.
+  """
+  def list_file_restore(conn) do
+    data = [
+      %{filepath: "/", type: "d", text: "/", leaf: 0},
+      %{filepath: "/etc", type: "d", text: "etc", leaf: 0},
+      %{filepath: "/var", type: "d", text: "var", leaf: 0}
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/storage/:storage/file-restore/download
+  Downloads files from a backup for single-file restore.
+  """
+  def download_file_restore(conn) do
+    conn
+    |> put_resp_content_type("application/octet-stream")
+    |> send_resp(200, "mock-file-content")
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/storage/:storage/prunebackups
+  Get prune information for backups.
+  """
+  def list_prunebackups(conn) do
+    data = [
+      %{
+        volid: "local:backup/vzdump-qemu-100-2024_01_01-00_00_00.vma.zst",
+        ctime: 1_704_067_200,
+        mark: "keep",
+        type: "qemu"
+      }
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc """
+  DELETE /api2/json/nodes/:node/storage/:storage/prunebackups
+  Prune old backups. Returns a task UPID.
+  """
+  def delete_prunebackups(conn) do
+    node_name = conn.path_params["node"]
+    storage_id = conn.path_params["storage"]
+    upid = "UPID:#{node_name}:00000001:00000000:00000000:prunebackups:#{storage_id}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
   # Helper function to determine format from filename
   defp get_format_from_filename(filename) do
     case Path.extname(filename) do

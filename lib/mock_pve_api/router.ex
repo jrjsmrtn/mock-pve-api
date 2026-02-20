@@ -23,7 +23,8 @@ defmodule MockPveApi.Router do
     Sdn,
     Snapshots,
     Firewall,
-    Hardware
+    Hardware,
+    Notifications
   }
 
   alias MockPveApi.{State, Coverage}
@@ -237,6 +238,68 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/nodes/:node/disks/list" do
     Nodes.list_disks(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/lvm" do
+    Nodes.list_disks_lvm(conn)
+  end
+
+  post "/api2/json/nodes/:node/disks/lvm" do
+    Nodes.create_disk_lvm(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/lvmthin" do
+    Nodes.list_disks_lvmthin(conn)
+  end
+
+  post "/api2/json/nodes/:node/disks/lvmthin" do
+    Nodes.create_disk_lvmthin(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/zfs" do
+    Nodes.list_disks_zfs(conn)
+  end
+
+  post "/api2/json/nodes/:node/disks/zfs" do
+    Nodes.create_disk_zfs(conn)
+  end
+
+  post "/api2/json/nodes/:node/disks/initgpt" do
+    Nodes.init_disk_gpt(conn)
+  end
+
+  # Node Ceph endpoints
+  get "/api2/json/nodes/:node/ceph/status" do
+    Nodes.get_node_ceph_status(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/osd" do
+    Nodes.list_node_ceph_osd(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/osd" do
+    Nodes.create_node_ceph_osd(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/pools" do
+    Nodes.list_node_ceph_pools(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/pools" do
+    Nodes.create_node_ceph_pool(conn)
+  end
+
+  # ACME certificate endpoints
+  post "/api2/json/nodes/:node/certificates/acme/certificate" do
+    Nodes.acme_certificate_new(conn)
+  end
+
+  put "/api2/json/nodes/:node/certificates/acme/certificate" do
+    Nodes.acme_certificate_renew(conn)
+  end
+
+  delete "/api2/json/nodes/:node/certificates/acme/certificate" do
+    Nodes.acme_certificate_delete(conn)
   end
 
   # Node firewall static endpoints
@@ -706,6 +769,10 @@ defmodule MockPveApi.Router do
     Nodes.convert_vm_to_template(conn)
   end
 
+  put "/api2/json/nodes/:node/qemu/:vmid/sendkey" do
+    Nodes.vm_sendkey(conn)
+  end
+
   post "/api2/json/nodes/:node/qemu/:vmid/agent" do
     Nodes.vm_agent(conn)
   end
@@ -861,6 +928,32 @@ defmodule MockPveApi.Router do
 
   delete "/api2/json/storage/:storage" do
     Storage.delete_storage(conn)
+  end
+
+  # Storage file-restore endpoints
+  get "/api2/json/nodes/:node/storage/:storage/file-restore/list" do
+    Storage.list_file_restore(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage/file-restore/download" do
+    Storage.download_file_restore(conn)
+  end
+
+  # Storage prunebackups
+  get "/api2/json/nodes/:node/storage/:storage/prunebackups" do
+    Storage.list_prunebackups(conn)
+  end
+
+  delete "/api2/json/nodes/:node/storage/:storage/prunebackups" do
+    Storage.delete_prunebackups(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage/rrd" do
+    Metrics.get_storage_rrd(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage/rrddata" do
+    Metrics.get_storage_rrd_data(conn)
   end
 
   get "/api2/json/nodes/:node/storage/:storage/content/:volume" do
@@ -1067,6 +1160,52 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/cluster/replication" do
     Cluster.create_replication_job(conn)
+  end
+
+  get "/api2/json/cluster/replication/:id" do
+    Cluster.get_replication_job(conn)
+  end
+
+  put "/api2/json/cluster/replication/:id" do
+    Cluster.update_replication_job(conn)
+  end
+
+  delete "/api2/json/cluster/replication/:id" do
+    Cluster.delete_replication_job(conn)
+  end
+
+  # Cluster Ceph endpoints
+  get "/api2/json/cluster/ceph/flags" do
+    Cluster.get_ceph_flags(conn)
+  end
+
+  put "/api2/json/cluster/ceph/flags" do
+    Cluster.set_ceph_flags(conn)
+  end
+
+  get "/api2/json/cluster/ceph/metadata" do
+    Cluster.get_ceph_metadata(conn)
+  end
+
+  get "/api2/json/cluster/ceph/status" do
+    Cluster.get_ceph_status(conn)
+  end
+
+  # Cluster ACME endpoints
+  get "/api2/json/cluster/acme/account" do
+    Cluster.list_acme_accounts(conn)
+  end
+
+  post "/api2/json/cluster/acme/account" do
+    Cluster.create_acme_account(conn)
+  end
+
+  get "/api2/json/cluster/acme/plugins" do
+    Cluster.list_acme_plugins(conn)
+  end
+
+  post "/api2/json/cluster/acme/plugins" do
+    Cluster.create_acme_plugin(conn)
   end
 
   # Cluster firewall static endpoints
@@ -1356,6 +1495,66 @@ defmodule MockPveApi.Router do
   end
 
   # Notification endpoints (PVE 8.1+ only)
+  get "/api2/json/cluster/notifications/endpoints/gotify/:name" do
+    Notifications.get_gotify(conn)
+  end
+
+  put "/api2/json/cluster/notifications/endpoints/gotify/:name" do
+    Notifications.update_gotify(conn)
+  end
+
+  delete "/api2/json/cluster/notifications/endpoints/gotify/:name" do
+    Notifications.delete_gotify(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/gotify" do
+    Notifications.list_gotify(conn)
+  end
+
+  post "/api2/json/cluster/notifications/endpoints/gotify" do
+    Notifications.create_gotify(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/sendmail/:name" do
+    Notifications.get_sendmail(conn)
+  end
+
+  put "/api2/json/cluster/notifications/endpoints/sendmail/:name" do
+    Notifications.update_sendmail(conn)
+  end
+
+  delete "/api2/json/cluster/notifications/endpoints/sendmail/:name" do
+    Notifications.delete_sendmail(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/sendmail" do
+    Notifications.list_sendmail(conn)
+  end
+
+  post "/api2/json/cluster/notifications/endpoints/sendmail" do
+    Notifications.create_sendmail(conn)
+  end
+
+  get "/api2/json/cluster/notifications/matchers/:name" do
+    Notifications.get_matcher(conn)
+  end
+
+  put "/api2/json/cluster/notifications/matchers/:name" do
+    Notifications.update_matcher(conn)
+  end
+
+  delete "/api2/json/cluster/notifications/matchers/:name" do
+    Notifications.delete_matcher(conn)
+  end
+
+  get "/api2/json/cluster/notifications/matchers" do
+    Notifications.list_matchers(conn)
+  end
+
+  post "/api2/json/cluster/notifications/matchers" do
+    Notifications.create_matcher(conn)
+  end
+
   get "/api2/json/cluster/notifications/endpoints" do
     conn
     |> put_resp_content_type("application/json")

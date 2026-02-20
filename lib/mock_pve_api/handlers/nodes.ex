@@ -1374,6 +1374,165 @@ defmodule MockPveApi.Handlers.Nodes do
     |> send_resp(200, Jason.encode!(%{data: disks}))
   end
 
+  # Disk management endpoints
+
+  @doc "GET /api2/json/nodes/:node/disks/lvm"
+  def list_disks_lvm(conn) do
+    data = [
+      %{name: "pve", size: 500_107_862_016, free: 100_000_000_000, pvs: "/dev/sda3"}
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/disks/lvm"
+  def create_disk_lvm(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:lvmcreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "GET /api2/json/nodes/:node/disks/lvmthin"
+  def list_disks_lvmthin(conn) do
+    data = [
+      %{lv: "data", vg: "pve", lv_size: 400_000_000_000, metadata_size: 1_073_741_824, used: 0.25}
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/disks/lvmthin"
+  def create_disk_lvmthin(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:lvmthincreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "GET /api2/json/nodes/:node/disks/zfs"
+  def list_disks_zfs(conn) do
+    data = [
+      %{
+        name: "rpool",
+        size: 500_107_862_016,
+        alloc: 50_000_000_000,
+        free: 450_000_000_000,
+        health: "ONLINE"
+      }
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/disks/zfs"
+  def create_disk_zfs(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:zfscreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/disks/initgpt"
+  def init_disk_gpt(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:initgpt::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node Ceph endpoints
+
+  @doc "GET /api2/json/nodes/:node/ceph/status"
+  def get_node_ceph_status(conn) do
+    status = %{
+      health: %{status: "HEALTH_OK"},
+      pgmap: %{pgs_by_state: [], num_pgs: 0},
+      osdmap: %{num_osds: 0, num_up_osds: 0, num_in_osds: 0}
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: status}))
+  end
+
+  @doc "GET /api2/json/nodes/:node/ceph/osd"
+  def list_node_ceph_osd(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{root: %{children: []}}}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/ceph/osd"
+  def create_node_ceph_osd(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:osdcreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "GET /api2/json/nodes/:node/ceph/pools"
+  def list_node_ceph_pools(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/ceph/pools"
+  def create_node_ceph_pool(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephcreatepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # ACME certificate endpoints
+
+  @doc "POST /api2/json/nodes/:node/certificates/acme/certificate"
+  def acme_certificate_new(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:acmenewcert::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "PUT /api2/json/nodes/:node/certificates/acme/certificate"
+  def acme_certificate_renew(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:acmerenew::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "DELETE /api2/json/nodes/:node/certificates/acme/certificate"
+  def acme_certificate_delete(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
   # Task delete
 
   @doc """
@@ -1782,6 +1941,15 @@ defmodule MockPveApi.Handlers.Nodes do
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM Sendkey ---
+
+  @doc "PUT /api2/json/nodes/:node/qemu/:vmid/sendkey"
+  def vm_sendkey(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
   end
 
   # --- VM Cloud-Init ---

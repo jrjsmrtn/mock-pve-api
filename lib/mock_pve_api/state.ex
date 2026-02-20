@@ -162,6 +162,11 @@ defmodule MockPveApi.State do
       },
       node_configs: %{},
       replication_jobs: %{},
+      acme_accounts: %{},
+      acme_plugins: %{},
+      notification_gotify: %{},
+      notification_sendmail: %{},
+      notification_matchers: %{},
       firewall: %{
         cluster: %{
           options: %{
@@ -902,6 +907,97 @@ defmodule MockPveApi.State do
 
   def get_replication_job(id) do
     GenServer.call(@name, {:get_replication_job, id})
+  end
+
+  def update_replication_job(id, params) do
+    GenServer.call(@name, {:update_replication_job, id, params})
+  end
+
+  def delete_replication_job(id) do
+    GenServer.call(@name, {:delete_replication_job, id})
+  end
+
+  # ACME account operations
+  def list_acme_accounts do
+    GenServer.call(@name, :list_acme_accounts)
+  end
+
+  def get_acme_account(name) do
+    GenServer.call(@name, {:get_acme_account, name})
+  end
+
+  def create_acme_account(name, params \\ %{}) do
+    GenServer.call(@name, {:create_acme_account, name, params})
+  end
+
+  def update_acme_account(name, params) do
+    GenServer.call(@name, {:update_acme_account, name, params})
+  end
+
+  def delete_acme_account(name) do
+    GenServer.call(@name, {:delete_acme_account, name})
+  end
+
+  # ACME plugin operations
+  def list_acme_plugins do
+    GenServer.call(@name, :list_acme_plugins)
+  end
+
+  def get_acme_plugin(id) do
+    GenServer.call(@name, {:get_acme_plugin, id})
+  end
+
+  def create_acme_plugin(id, params \\ %{}) do
+    GenServer.call(@name, {:create_acme_plugin, id, params})
+  end
+
+  def update_acme_plugin(id, params) do
+    GenServer.call(@name, {:update_acme_plugin, id, params})
+  end
+
+  def delete_acme_plugin(id) do
+    GenServer.call(@name, {:delete_acme_plugin, id})
+  end
+
+  # Notification operations
+  def list_notification_endpoints(type) do
+    GenServer.call(@name, {:list_notification_endpoints, type})
+  end
+
+  def get_notification_endpoint(type, name) do
+    GenServer.call(@name, {:get_notification_endpoint, type, name})
+  end
+
+  def create_notification_endpoint(type, name, params \\ %{}) do
+    GenServer.call(@name, {:create_notification_endpoint, type, name, params})
+  end
+
+  def update_notification_endpoint(type, name, params) do
+    GenServer.call(@name, {:update_notification_endpoint, type, name, params})
+  end
+
+  def delete_notification_endpoint(type, name) do
+    GenServer.call(@name, {:delete_notification_endpoint, type, name})
+  end
+
+  def list_notification_matchers do
+    GenServer.call(@name, :list_notification_matchers)
+  end
+
+  def get_notification_matcher(name) do
+    GenServer.call(@name, {:get_notification_matcher, name})
+  end
+
+  def create_notification_matcher(name, params \\ %{}) do
+    GenServer.call(@name, {:create_notification_matcher, name, params})
+  end
+
+  def update_notification_matcher(name, params) do
+    GenServer.call(@name, {:update_notification_matcher, name, params})
+  end
+
+  def delete_notification_matcher(name) do
+    GenServer.call(@name, {:delete_notification_matcher, name})
   end
 
   # Firewall operations
@@ -3095,6 +3191,209 @@ defmodule MockPveApi.State do
     end
   end
 
+  def handle_call({:update_replication_job, id, params}, _from, state) do
+    case Map.get(state.replication_jobs, id) do
+      nil ->
+        {:reply, {:error, "Replication job '#{id}' not found"}, state}
+
+      job ->
+        updated = Map.merge(job, params)
+        new_jobs = Map.put(state.replication_jobs, id, updated)
+        {:reply, {:ok, updated}, %{state | replication_jobs: new_jobs}}
+    end
+  end
+
+  def handle_call({:delete_replication_job, id}, _from, state) do
+    if Map.has_key?(state.replication_jobs, id) do
+      new_jobs = Map.delete(state.replication_jobs, id)
+      {:reply, :ok, %{state | replication_jobs: new_jobs}}
+    else
+      {:reply, {:error, "Replication job '#{id}' not found"}, state}
+    end
+  end
+
+  # ACME account handle_calls
+
+  def handle_call(:list_acme_accounts, _from, state) do
+    {:reply, Map.values(state.acme_accounts), state}
+  end
+
+  def handle_call({:get_acme_account, name}, _from, state) do
+    {:reply, Map.get(state.acme_accounts, name), state}
+  end
+
+  def handle_call({:create_acme_account, name, params}, _from, state) do
+    if Map.has_key?(state.acme_accounts, name) do
+      {:reply, {:error, :already_exists}, state}
+    else
+      account =
+        Map.merge(
+          %{
+            name: name,
+            contact: "",
+            directory: "https://acme-v02.api.letsencrypt.org/directory",
+            tos: ""
+          },
+          params
+        )
+
+      new_accounts = Map.put(state.acme_accounts, name, account)
+      {:reply, {:ok, account}, %{state | acme_accounts: new_accounts}}
+    end
+  end
+
+  def handle_call({:update_acme_account, name, params}, _from, state) do
+    case Map.get(state.acme_accounts, name) do
+      nil ->
+        {:reply, {:error, "ACME account '#{name}' not found"}, state}
+
+      account ->
+        updated = Map.merge(account, params)
+        new_accounts = Map.put(state.acme_accounts, name, updated)
+        {:reply, {:ok, updated}, %{state | acme_accounts: new_accounts}}
+    end
+  end
+
+  def handle_call({:delete_acme_account, name}, _from, state) do
+    if Map.has_key?(state.acme_accounts, name) do
+      {:reply, :ok, %{state | acme_accounts: Map.delete(state.acme_accounts, name)}}
+    else
+      {:reply, {:error, "ACME account '#{name}' not found"}, state}
+    end
+  end
+
+  # ACME plugin handle_calls
+
+  def handle_call(:list_acme_plugins, _from, state) do
+    {:reply, Map.values(state.acme_plugins), state}
+  end
+
+  def handle_call({:get_acme_plugin, id}, _from, state) do
+    {:reply, Map.get(state.acme_plugins, id), state}
+  end
+
+  def handle_call({:create_acme_plugin, id, params}, _from, state) do
+    if Map.has_key?(state.acme_plugins, id) do
+      {:reply, {:error, :already_exists}, state}
+    else
+      plugin = Map.merge(%{plugin: id, type: "standalone", api: nil}, params)
+      new_plugins = Map.put(state.acme_plugins, id, plugin)
+      {:reply, {:ok, plugin}, %{state | acme_plugins: new_plugins}}
+    end
+  end
+
+  def handle_call({:update_acme_plugin, id, params}, _from, state) do
+    case Map.get(state.acme_plugins, id) do
+      nil ->
+        {:reply, {:error, "ACME plugin '#{id}' not found"}, state}
+
+      plugin ->
+        updated = Map.merge(plugin, params)
+        new_plugins = Map.put(state.acme_plugins, id, updated)
+        {:reply, {:ok, updated}, %{state | acme_plugins: new_plugins}}
+    end
+  end
+
+  def handle_call({:delete_acme_plugin, id}, _from, state) do
+    if Map.has_key?(state.acme_plugins, id) do
+      {:reply, :ok, %{state | acme_plugins: Map.delete(state.acme_plugins, id)}}
+    else
+      {:reply, {:error, "ACME plugin '#{id}' not found"}, state}
+    end
+  end
+
+  # Notification handle_calls
+
+  def handle_call({:list_notification_endpoints, type}, _from, state) do
+    key = notification_key(type)
+    {:reply, Map.values(Map.get(state, key, %{})), state}
+  end
+
+  def handle_call({:get_notification_endpoint, type, name}, _from, state) do
+    key = notification_key(type)
+    {:reply, Map.get(Map.get(state, key, %{}), name), state}
+  end
+
+  def handle_call({:create_notification_endpoint, type, name, params}, _from, state) do
+    key = notification_key(type)
+    store = Map.get(state, key, %{})
+
+    if Map.has_key?(store, name) do
+      {:reply, {:error, :already_exists}, state}
+    else
+      endpoint = Map.merge(%{name: name, type: to_string(type)}, params)
+      new_store = Map.put(store, name, endpoint)
+      {:reply, {:ok, endpoint}, Map.put(state, key, new_store)}
+    end
+  end
+
+  def handle_call({:update_notification_endpoint, type, name, params}, _from, state) do
+    key = notification_key(type)
+    store = Map.get(state, key, %{})
+
+    case Map.get(store, name) do
+      nil ->
+        {:reply, {:error, "Notification endpoint '#{name}' not found"}, state}
+
+      endpoint ->
+        updated = Map.merge(endpoint, params)
+        new_store = Map.put(store, name, updated)
+        {:reply, {:ok, updated}, Map.put(state, key, new_store)}
+    end
+  end
+
+  def handle_call({:delete_notification_endpoint, type, name}, _from, state) do
+    key = notification_key(type)
+    store = Map.get(state, key, %{})
+
+    if Map.has_key?(store, name) do
+      {:reply, :ok, Map.put(state, key, Map.delete(store, name))}
+    else
+      {:reply, {:error, "Notification endpoint '#{name}' not found"}, state}
+    end
+  end
+
+  def handle_call(:list_notification_matchers, _from, state) do
+    {:reply, Map.values(state.notification_matchers), state}
+  end
+
+  def handle_call({:get_notification_matcher, name}, _from, state) do
+    {:reply, Map.get(state.notification_matchers, name), state}
+  end
+
+  def handle_call({:create_notification_matcher, name, params}, _from, state) do
+    if Map.has_key?(state.notification_matchers, name) do
+      {:reply, {:error, :already_exists}, state}
+    else
+      matcher =
+        Map.merge(%{name: name, match_severity: nil, match_field: nil, target: nil}, params)
+
+      new_matchers = Map.put(state.notification_matchers, name, matcher)
+      {:reply, {:ok, matcher}, %{state | notification_matchers: new_matchers}}
+    end
+  end
+
+  def handle_call({:update_notification_matcher, name, params}, _from, state) do
+    case Map.get(state.notification_matchers, name) do
+      nil ->
+        {:reply, {:error, "Notification matcher '#{name}' not found"}, state}
+
+      matcher ->
+        updated = Map.merge(matcher, params)
+        new_matchers = Map.put(state.notification_matchers, name, updated)
+        {:reply, {:ok, updated}, %{state | notification_matchers: new_matchers}}
+    end
+  end
+
+  def handle_call({:delete_notification_matcher, name}, _from, state) do
+    if Map.has_key?(state.notification_matchers, name) do
+      {:reply, :ok,
+       %{state | notification_matchers: Map.delete(state.notification_matchers, name)}}
+    else
+      {:reply, {:error, "Notification matcher '#{name}' not found"}, state}
+    end
+  end
+
   # Firewall handle_calls
 
   def handle_call({:get_firewall, :cluster}, _from, state) do
@@ -3233,6 +3532,11 @@ defmodule MockPveApi.State do
       _ -> "vm"
     end
   end
+
+  defp notification_key(:gotify), do: :notification_gotify
+  defp notification_key(:sendmail), do: :notification_sendmail
+  defp notification_key("gotify"), do: :notification_gotify
+  defp notification_key("sendmail"), do: :notification_sendmail
 
   defp default_vm_ct_firewall do
     %{

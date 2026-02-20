@@ -592,6 +592,205 @@ defmodule MockPveApi.Handlers.Cluster do
     |> send_resp(200, Jason.encode!(%{data: jobs}))
   end
 
+  @doc "GET /api2/json/cluster/replication/:id"
+  def get_replication_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.get_replication_job(id) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "Replication job '#{id}' not found"}})
+        )
+
+      job ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: job}))
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/replication/:id"
+  def update_replication_job(conn) do
+    id = conn.path_params["id"]
+    params = conn.body_params
+
+    atom_params =
+      params
+      |> Enum.reduce(%{}, fn
+        {"id", _}, acc -> acc
+        {k, v}, acc -> Map.put(acc, String.to_atom(k), v)
+      end)
+
+    case State.update_replication_job(id, atom_params) do
+      {:ok, _job} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/replication/:id"
+  def delete_replication_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.delete_replication_job(id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  # Ceph endpoints
+
+  @doc "GET /api2/json/cluster/ceph/flags"
+  def get_ceph_flags(conn) do
+    flags = %{
+      nobackfill: false,
+      nodeep_scrub: false,
+      nodown: false,
+      noin: false,
+      noout: false,
+      norebalance: false,
+      norecover: false,
+      noscrub: false,
+      notieragent: false,
+      noup: false,
+      pause: false
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: flags}))
+  end
+
+  @doc "PUT /api2/json/cluster/ceph/flags"
+  def set_ceph_flags(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  @doc "GET /api2/json/cluster/ceph/metadata"
+  def get_ceph_metadata(conn) do
+    metadata = %{
+      mgr: %{},
+      mon: %{},
+      mds: %{},
+      osd: %{},
+      node: %{}
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: metadata}))
+  end
+
+  @doc "GET /api2/json/cluster/ceph/status"
+  def get_ceph_status(conn) do
+    status = %{
+      health: %{status: "HEALTH_OK", checks: %{}},
+      pgmap: %{pgs_by_state: [], num_pgs: 0},
+      osdmap: %{num_osds: 0, num_up_osds: 0, num_in_osds: 0}
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: status}))
+  end
+
+  # ACME endpoints
+
+  @doc "GET /api2/json/cluster/acme/account"
+  def list_acme_accounts(conn) do
+    accounts = State.list_acme_accounts()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: accounts}))
+  end
+
+  @doc "POST /api2/json/cluster/acme/account"
+  def create_acme_account(conn) do
+    params = conn.body_params
+    name = Map.get(params, "name", "default")
+
+    atom_params =
+      params
+      |> Enum.reduce(%{}, fn
+        {"name", _}, acc -> acc
+        {k, v}, acc -> Map.put(acc, String.to_atom(k), v)
+      end)
+
+    case State.create_acme_account(name, atom_params) do
+      {:ok, _account} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: name}))
+
+      {:error, :already_exists} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          400,
+          Jason.encode!(%{errors: %{name: "ACME account '#{name}' already exists"}})
+        )
+    end
+  end
+
+  @doc "GET /api2/json/cluster/acme/plugins"
+  def list_acme_plugins(conn) do
+    plugins = State.list_acme_plugins()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: plugins}))
+  end
+
+  @doc "POST /api2/json/cluster/acme/plugins"
+  def create_acme_plugin(conn) do
+    params = conn.body_params
+    id = Map.get(params, "id")
+
+    if is_nil(id) or id == "" do
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(400, Jason.encode!(%{errors: %{id: "ACME plugin ID is required"}}))
+    else
+      atom_params =
+        params
+        |> Enum.reduce(%{}, fn
+          {"id", _}, acc -> acc
+          {k, v}, acc -> Map.put(acc, String.to_atom(k), v)
+        end)
+
+      case State.create_acme_plugin(id, atom_params) do
+        {:ok, _plugin} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: nil}))
+
+        {:error, :already_exists} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{id: "ACME plugin '#{id}' already exists"}}))
+      end
+    end
+  end
+
   @doc "POST /api2/json/cluster/replication"
   def create_replication_job(conn) do
     params = conn.body_params

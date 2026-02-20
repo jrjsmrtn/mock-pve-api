@@ -45,19 +45,19 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Category | Total | Implemented | Coverage |
 |----------|-------|-------------|----------|
 | Version | 1 | 1 | 100.0% |
-| Cluster | 32 | 20 | 62.5% |
-| Nodes | 28 | 26 | 92.9% |
-| Virtual Machines | 20 | 19 | 95.0% |
+| Cluster | 32 | 32 | 100.0% |
+| Nodes | 34 | 34 | 100.0% |
+| Virtual Machines | 20 | 20 | 100.0% |
 | LXC Containers | 16 | 16 | 100.0% |
-| Storage | 18 | 9 | 50.0% |
+| Storage | 12 | 12 | 100.0% |
 | Access Control | 17 | 17 | 100.0% |
 | Resource Pools | 2 | 2 | 100.0% |
 | SDN | 13 | 13 | 100.0% |
-| Monitoring | 16 | 14 | 87.5% |
+| Monitoring | 16 | 16 | 100.0% |
 | Backup | 9 | 9 | 100.0% |
 | Hardware | 7 | 7 | 100.0% |
 | Firewall | 41 | 41 | 100.0% |
-| **TOTAL** | **220** | **194** | **88.2%** |
+| **TOTAL** | **220** | **220** | **100.0%** |
 
 
 ## Status Legend
@@ -111,7 +111,7 @@ Get PVE version information and server details
 
 ## Cluster Management
 
-### `/cluster/acme/account` 📋
+### `/cluster/acme/account` ✅
 
 ACME account management
 
@@ -129,7 +129,7 @@ ACME account management
 ```
 
 
-### `/cluster/acme/plugins` 📋
+### `/cluster/acme/plugins` ✅
 
 ACME plugin management
 
@@ -193,7 +193,7 @@ List backup providers (alternate path)
 **Notes**: Inline handler in router; alternate path for backup provider listing
 
 
-### `/cluster/ceph/flags` 📋
+### `/cluster/ceph/flags` ✅
 
 Ceph global flags
 
@@ -211,7 +211,7 @@ Ceph global flags
 ```
 
 
-### `/cluster/ceph/metadata` 📋
+### `/cluster/ceph/metadata` ✅
 
 Ceph cluster metadata
 
@@ -229,7 +229,7 @@ Ceph cluster metadata
 ```
 
 
-### `/cluster/ceph/status` 📋
+### `/cluster/ceph/status` ✅
 
 Ceph cluster status
 
@@ -535,7 +535,7 @@ List notification endpoints
 **Notes**: Inline handler in router; notification system introduced in PVE 8.1
 
 
-### `/cluster/notifications/endpoints/gotify` 📋 🔴
+### `/cluster/notifications/endpoints/gotify` ✅ 🔴
 
 Gotify notification endpoints
 
@@ -553,7 +553,7 @@ Gotify notification endpoints
 ```
 
 
-### `/cluster/notifications/endpoints/gotify/{name}` 📋 🔴
+### `/cluster/notifications/endpoints/gotify/{name}` ✅ 🔴
 
 Individual gotify endpoint operations
 
@@ -571,7 +571,7 @@ Individual gotify endpoint operations
 ```
 
 
-### `/cluster/notifications/endpoints/sendmail` 📋 🔴
+### `/cluster/notifications/endpoints/sendmail` ✅ 🔴
 
 Sendmail notification endpoints
 
@@ -589,7 +589,7 @@ Sendmail notification endpoints
 ```
 
 
-### `/cluster/notifications/endpoints/sendmail/{name}` 📋 🔴
+### `/cluster/notifications/endpoints/sendmail/{name}` ✅ 🔴
 
 Individual sendmail endpoint operations
 
@@ -627,7 +627,7 @@ List notification filters
 **Notes**: Inline handler in router; notification system introduced in PVE 8.1
 
 
-### `/cluster/notifications/matchers` 📋 🔴
+### `/cluster/notifications/matchers` ✅ 🔴
 
 Notification matchers management
 
@@ -645,7 +645,7 @@ Notification matchers management
 ```
 
 
-### `/cluster/notifications/matchers/{name}` 📋 🔴
+### `/cluster/notifications/matchers/{name}` ✅ 🔴
 
 Individual notification matcher operations
 
@@ -699,7 +699,7 @@ Replication job management
 ```
 
 
-### `/cluster/replication/{id}` 📋
+### `/cluster/replication/{id}` ✅
 
 Individual replication job operations
 
@@ -896,7 +896,61 @@ Get package version information
 ```
 
 
-### `/nodes/{node}/certificates/acme/certificate` 📋
+### `/nodes/{node}/ceph/osd` ✅
+
+Ceph OSD management
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/pools` ✅
+
+Ceph pool management
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/status` ✅
+
+Ceph status on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/certificates/acme/certificate` ✅
 
 ACME certificate management
 
@@ -956,7 +1010,7 @@ Node configuration options
 ```
 
 
-### `/nodes/{node}/disks/initgpt` 📋
+### `/nodes/{node}/disks/initgpt` ✅
 
 Initialize disk with GPT
 
@@ -998,6 +1052,42 @@ List local disks
 ```
 
 
+### `/nodes/{node}/disks/lvm` ✅
+
+LVM management on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/lvmthin` ✅
+
+LVM thin pool management on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/disks/smart` ✅
 
 Get SMART health data for disks
@@ -1005,6 +1095,24 @@ Get SMART health data for disks
 | Property | Value |
 |----------|-------|
 | **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/zfs` ✅
+
+ZFS pool management on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -1771,7 +1879,7 @@ Resize VM disk
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/sendkey` 📋
+### `/nodes/{node}/qemu/{vmid}/sendkey` ✅
 
 Send key event to VM
 
@@ -2578,114 +2686,6 @@ Convert container to template
 
 ## Storage Management
 
-### `/nodes/{node}/ceph/osd` 📋
-
-Ceph OSD management
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 7.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/nodes/{node}/ceph/pools` 📋
-
-Ceph pool management
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 7.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/nodes/{node}/ceph/status` 📋
-
-Ceph status on node
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
-| **Priority** | Low |
-| **Since** | PVE 7.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/nodes/{node}/disks/lvm` 📋
-
-LVM management on node
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/nodes/{node}/disks/lvmthin` 📋
-
-LVM thin pool management on node
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/nodes/{node}/disks/zfs` 📋
-
-ZFS pool management on node
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
 ### `/nodes/{node}/storage` ✅
 
 List storage configured for node
@@ -2821,7 +2821,7 @@ Individual storage volume operations
 ```
 
 
-### `/nodes/{node}/storage/{storage}/file-restore/download` 📋
+### `/nodes/{node}/storage/{storage}/file-restore/download` ✅
 
 Download files from a backup
 
@@ -2848,7 +2848,7 @@ Download files from a backup
 ```
 
 
-### `/nodes/{node}/storage/{storage}/file-restore/list` 📋
+### `/nodes/{node}/storage/{storage}/file-restore/list` ✅
 
 List files in a backup for single-file restore
 
@@ -2911,7 +2911,7 @@ Import content into storage (e.g., VMware import)
 **Notes**: Inline handler in router; VMware import introduced in PVE 8.2
 
 
-### `/nodes/{node}/storage/{storage}/prunebackups` 📋
+### `/nodes/{node}/storage/{storage}/prunebackups` ✅
 
 Prune old backups
 
@@ -4212,7 +4212,7 @@ Control service (start/stop/restart)
 ```
 
 
-### `/nodes/{node}/storage/{storage}/rrd` 📋
+### `/nodes/{node}/storage/{storage}/rrd` ✅
 
 Storage RRD statistics (graph)
 
@@ -4239,7 +4239,7 @@ Storage RRD statistics (graph)
 ```
 
 
-### `/nodes/{node}/storage/{storage}/rrddata` 📋
+### `/nodes/{node}/storage/{storage}/rrddata` ✅
 
 Storage RRD statistics (data)
 

@@ -547,5 +547,107 @@ defmodule MockPveApi.Handlers.ClusterTest do
       conn = request(:post, "/api2/json/cluster/replication", %{"target" => "pve-node2"})
       assert conn.status == 400
     end
+
+    test "CRUD individual replication job" do
+      # Create
+      conn =
+        request(:post, "/api2/json/cluster/replication", %{
+          "id" => "100-0",
+          "target" => "pve-node2"
+        })
+
+      json(conn, 200)
+
+      # Get
+      conn = request(:get, "/api2/json/cluster/replication/100-0")
+      body = json(conn, 200)
+      assert body["data"]["id"] == "100-0"
+
+      # Update
+      conn = request(:put, "/api2/json/cluster/replication/100-0", %{"schedule" => "*/30"})
+      json(conn, 200)
+
+      # Delete
+      conn = request(:delete, "/api2/json/cluster/replication/100-0")
+      json(conn, 200)
+
+      # Verify gone
+      conn = request(:get, "/api2/json/cluster/replication/100-0")
+      json(conn, 404)
+    end
+  end
+
+  describe "Ceph endpoints" do
+    test "get ceph flags" do
+      conn = build_conn(:get, "/api2/json/cluster/ceph/flags")
+      conn = Cluster.get_ceph_flags(conn)
+      body = json(conn, 200)
+      assert is_map(body["data"])
+    end
+
+    test "set ceph flags" do
+      conn = build_conn(:put, "/api2/json/cluster/ceph/flags", %{"noout" => true})
+      conn = Cluster.set_ceph_flags(conn)
+      json(conn, 200)
+    end
+
+    test "get ceph metadata" do
+      conn = build_conn(:get, "/api2/json/cluster/ceph/metadata")
+      conn = Cluster.get_ceph_metadata(conn)
+      body = json(conn, 200)
+      assert is_map(body["data"]["mon"])
+    end
+
+    test "get ceph status" do
+      conn = build_conn(:get, "/api2/json/cluster/ceph/status")
+      conn = Cluster.get_ceph_status(conn)
+      body = json(conn, 200)
+      assert body["data"]["health"]["status"] == "HEALTH_OK"
+    end
+  end
+
+  describe "ACME endpoints" do
+    test "list and create ACME accounts" do
+      conn = build_conn(:get, "/api2/json/cluster/acme/account")
+      conn = Cluster.list_acme_accounts(conn)
+      body = json(conn, 200)
+      assert body["data"] == []
+
+      conn =
+        build_conn(:post, "/api2/json/cluster/acme/account", %{
+          "name" => "default",
+          "contact" => "admin@test.com"
+        })
+
+      conn = Cluster.create_acme_account(conn)
+      body = json(conn, 200)
+      assert body["data"] == "default"
+
+      conn = build_conn(:get, "/api2/json/cluster/acme/account")
+      conn = Cluster.list_acme_accounts(conn)
+      body = json(conn, 200)
+      assert length(body["data"]) == 1
+    end
+
+    test "list and create ACME plugins" do
+      conn = build_conn(:get, "/api2/json/cluster/acme/plugins")
+      conn = Cluster.list_acme_plugins(conn)
+      body = json(conn, 200)
+      assert body["data"] == []
+
+      conn =
+        build_conn(:post, "/api2/json/cluster/acme/plugins", %{
+          "id" => "dns-plugin",
+          "type" => "dns"
+        })
+
+      conn = Cluster.create_acme_plugin(conn)
+      json(conn, 200)
+
+      conn = build_conn(:get, "/api2/json/cluster/acme/plugins")
+      conn = Cluster.list_acme_plugins(conn)
+      body = json(conn, 200)
+      assert length(body["data"]) == 1
+    end
   end
 end

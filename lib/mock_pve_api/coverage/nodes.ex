@@ -481,17 +481,28 @@ defmodule MockPveApi.Coverage.Nodes do
       "/api2/json/nodes/{node}/certificates/info" =>
         implemented(:get, :low, "6.0", "Get node TLS certificate info"),
       "/api2/json/nodes/{node}/disks/smart" =>
-        implemented(:get, :low, "6.0", "Get SMART health data for disks")
+        implemented(:get, :low, "6.0", "Get SMART health data for disks"),
+      "/api2/json/nodes/{node}/certificates/acme/certificate" =>
+        implemented(:post_put_delete, :low, "6.0", "ACME certificate management"),
+      "/api2/json/nodes/{node}/disks/initgpt" =>
+        implemented(:post, :low, "6.0", "Initialize disk with GPT"),
+      "/api2/json/nodes/{node}/disks/lvm" =>
+        implemented(:get_post, :low, "6.0", "LVM management on node"),
+      "/api2/json/nodes/{node}/disks/lvmthin" =>
+        implemented(:get_post, :low, "6.0", "LVM thin pool management on node"),
+      "/api2/json/nodes/{node}/disks/zfs" =>
+        implemented(:get_post, :low, "6.0", "ZFS pool management on node"),
+      "/api2/json/nodes/{node}/ceph/status" =>
+        implemented(:get, :low, "7.0", "Ceph status on node"),
+      "/api2/json/nodes/{node}/ceph/osd" =>
+        implemented(:get_post, :low, "7.0", "Ceph OSD management"),
+      "/api2/json/nodes/{node}/ceph/pools" =>
+        implemented(:get_post, :low, "7.0", "Ceph pool management")
     }
   end
 
   defp planned_endpoints do
-    %{
-      "/api2/json/nodes/{node}/certificates/acme/certificate" =>
-        planned(:post_put_delete, :low, "6.0", "ACME certificate management"),
-      "/api2/json/nodes/{node}/disks/initgpt" =>
-        planned(:post, :low, "6.0", "Initialize disk with GPT")
-    }
+    %{}
   end
 
   defp implemented(methods_atom, priority, since, description) do
@@ -507,23 +518,6 @@ defmodule MockPveApi.Coverage.Nodes do
       capabilities_required: [:cluster_basic],
       test_coverage: true,
       handler_module: MockPveApi.Handlers.Nodes,
-      notes: nil
-    }
-  end
-
-  defp planned(methods_atom, priority, since, description) do
-    %{
-      path: "",
-      methods: methods_for(methods_atom),
-      status: :planned,
-      priority: priority,
-      since: since,
-      description: description,
-      parameters: [],
-      response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
       notes: nil
     }
   end

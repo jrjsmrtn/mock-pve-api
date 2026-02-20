@@ -155,6 +155,54 @@ defmodule MockPveApi.Handlers.Metrics do
   end
 
   @doc """
+  GET /api2/json/nodes/:node/storage/:storage/rrd
+  Gets storage RRD statistics (graph image data).
+  """
+  def get_storage_rrd(conn) do
+    _node_name = conn.path_params["node"]
+    storage_id = conn.path_params["storage"]
+    query_params = conn.query_params
+    timeframe = Map.get(query_params, "timeframe", "hour")
+    cf = Map.get(query_params, "cf", "AVERAGE")
+
+    data = %{
+      filename: "storage_#{storage_id}_#{timeframe}_#{String.downcase(cf)}.png",
+      image: "FAKE_PNG_DATA"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/storage/:storage/rrddata
+  Gets storage RRD statistics in structured data format.
+  """
+  def get_storage_rrd_data(conn) do
+    _node_name = conn.path_params["node"]
+    _storage_id = conn.path_params["storage"]
+    query_params = conn.query_params
+    timeframe = Map.get(query_params, "timeframe", "hour")
+
+    now = System.os_time(:second)
+    interval = if timeframe == "hour", do: 60, else: 3600
+
+    points =
+      for i <- 0..9 do
+        %{
+          time: now - (9 - i) * interval,
+          used: 10_737_418_240 + :rand.uniform(1_073_741_824),
+          total: 53_687_091_200
+        }
+      end
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: points}))
+  end
+
+  @doc """
   GET /api2/json/cluster/metrics/server/:id
   Gets cluster-wide metrics for a specific server.
   """

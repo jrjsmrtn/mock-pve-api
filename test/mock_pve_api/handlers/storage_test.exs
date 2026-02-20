@@ -254,6 +254,38 @@ defmodule MockPveApi.Handlers.StorageTest do
     end
   end
 
+  describe "file-restore endpoints via router" do
+    test "list file-restore returns directory listing" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/storage/local/file-restore/list")
+      data = json(conn, 200)["data"]
+      assert is_list(data)
+      assert Enum.any?(data, &(&1["filepath"] == "/"))
+      assert Enum.any?(data, &(&1["type"] == "d"))
+    end
+
+    test "download file-restore returns binary content" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/storage/local/file-restore/download")
+      assert conn.status == 200
+      assert conn.resp_body == "mock-file-content"
+    end
+  end
+
+  describe "prunebackups endpoints via router" do
+    test "list prunebackups returns prune info" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/storage/local/prunebackups")
+      data = json(conn, 200)["data"]
+      assert is_list(data)
+      assert hd(data)["mark"] == "keep"
+    end
+
+    test "delete prunebackups returns UPID" do
+      conn = request(:delete, "/api2/json/nodes/pve-node1/storage/local/prunebackups")
+      data = json(conn, 200)["data"]
+      assert String.starts_with?(data, "UPID:")
+      assert String.contains?(data, "prunebackups")
+    end
+  end
+
   describe "storage upload via router" do
     test "upload returns UPID" do
       conn =

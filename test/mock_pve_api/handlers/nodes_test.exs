@@ -1858,4 +1858,182 @@ defmodule MockPveApi.Handlers.NodesTest do
       assert String.contains?(data, "move_volume")
     end
   end
+
+  # --- VM Sendkey ---
+
+  describe "vm_sendkey/1" do
+    test "sends key event to VM" do
+      conn =
+        build_conn(
+          :put,
+          "/api2/json/nodes/pve-node1/qemu/100/sendkey",
+          %{"key" => "ctrl-alt-delete"},
+          %{"node" => "pve-node1", "vmid" => "100"}
+        )
+
+      conn = Nodes.vm_sendkey(conn)
+      assert conn.status == 200
+    end
+  end
+
+  # --- Disk Management ---
+
+  describe "disk management" do
+    test "list LVM volumes" do
+      conn =
+        build_conn(:get, "/api2/json/nodes/pve-node1/disks/lvm", %{}, %{"node" => "pve-node1"})
+
+      conn = Nodes.list_disks_lvm(conn)
+      body = json(conn, 200)
+      assert is_list(body["data"])
+    end
+
+    test "create LVM volume" do
+      conn =
+        build_conn(:post, "/api2/json/nodes/pve-node1/disks/lvm", %{"device" => "/dev/sdb"}, %{
+          "node" => "pve-node1"
+        })
+
+      conn = Nodes.create_disk_lvm(conn)
+      body = json(conn, 200)
+      assert String.starts_with?(body["data"], "UPID:")
+    end
+
+    test "list LVM thin pools" do
+      conn =
+        build_conn(:get, "/api2/json/nodes/pve-node1/disks/lvmthin", %{}, %{"node" => "pve-node1"})
+
+      conn = Nodes.list_disks_lvmthin(conn)
+      body = json(conn, 200)
+      assert is_list(body["data"])
+    end
+
+    test "create LVM thin pool" do
+      conn =
+        build_conn(:post, "/api2/json/nodes/pve-node1/disks/lvmthin", %{}, %{
+          "node" => "pve-node1"
+        })
+
+      conn = Nodes.create_disk_lvmthin(conn)
+      body = json(conn, 200)
+      assert String.starts_with?(body["data"], "UPID:")
+    end
+
+    test "list ZFS pools" do
+      conn =
+        build_conn(:get, "/api2/json/nodes/pve-node1/disks/zfs", %{}, %{"node" => "pve-node1"})
+
+      conn = Nodes.list_disks_zfs(conn)
+      body = json(conn, 200)
+      assert is_list(body["data"])
+    end
+
+    test "create ZFS pool" do
+      conn =
+        build_conn(:post, "/api2/json/nodes/pve-node1/disks/zfs", %{}, %{"node" => "pve-node1"})
+
+      conn = Nodes.create_disk_zfs(conn)
+      body = json(conn, 200)
+      assert String.starts_with?(body["data"], "UPID:")
+    end
+
+    test "initialize GPT disk" do
+      conn =
+        build_conn(:post, "/api2/json/nodes/pve-node1/disks/initgpt", %{"disk" => "/dev/sdb"}, %{
+          "node" => "pve-node1"
+        })
+
+      conn = Nodes.init_disk_gpt(conn)
+      body = json(conn, 200)
+      assert String.starts_with?(body["data"], "UPID:")
+    end
+  end
+
+  # --- Node Ceph ---
+
+  describe "node Ceph" do
+    test "get Ceph status" do
+      conn =
+        build_conn(:get, "/api2/json/nodes/pve-node1/ceph/status", %{}, %{"node" => "pve-node1"})
+
+      conn = Nodes.get_node_ceph_status(conn)
+      body = json(conn, 200)
+      assert body["data"]["health"]["status"] == "HEALTH_OK"
+    end
+
+    test "list Ceph OSDs" do
+      conn =
+        build_conn(:get, "/api2/json/nodes/pve-node1/ceph/osd", %{}, %{"node" => "pve-node1"})
+
+      conn = Nodes.list_node_ceph_osd(conn)
+      json(conn, 200)
+    end
+
+    test "create Ceph OSD" do
+      conn =
+        build_conn(:post, "/api2/json/nodes/pve-node1/ceph/osd", %{"dev" => "/dev/sdc"}, %{
+          "node" => "pve-node1"
+        })
+
+      conn = Nodes.create_node_ceph_osd(conn)
+      body = json(conn, 200)
+      assert String.starts_with?(body["data"], "UPID:")
+    end
+
+    test "list Ceph pools" do
+      conn =
+        build_conn(:get, "/api2/json/nodes/pve-node1/ceph/pools", %{}, %{"node" => "pve-node1"})
+
+      conn = Nodes.list_node_ceph_pools(conn)
+      body = json(conn, 200)
+      assert is_list(body["data"])
+    end
+
+    test "create Ceph pool" do
+      conn =
+        build_conn(:post, "/api2/json/nodes/pve-node1/ceph/pools", %{"name" => "rbd"}, %{
+          "node" => "pve-node1"
+        })
+
+      conn = Nodes.create_node_ceph_pool(conn)
+      body = json(conn, 200)
+      assert String.starts_with?(body["data"], "UPID:")
+    end
+  end
+
+  # --- ACME Certificate ---
+
+  describe "ACME certificate" do
+    test "order new certificate" do
+      conn =
+        build_conn(:post, "/api2/json/nodes/pve-node1/certificates/acme/certificate", %{}, %{
+          "node" => "pve-node1"
+        })
+
+      conn = Nodes.acme_certificate_new(conn)
+      body = json(conn, 200)
+      assert String.starts_with?(body["data"], "UPID:")
+    end
+
+    test "renew certificate" do
+      conn =
+        build_conn(:put, "/api2/json/nodes/pve-node1/certificates/acme/certificate", %{}, %{
+          "node" => "pve-node1"
+        })
+
+      conn = Nodes.acme_certificate_renew(conn)
+      body = json(conn, 200)
+      assert String.starts_with?(body["data"], "UPID:")
+    end
+
+    test "delete certificate" do
+      conn =
+        build_conn(:delete, "/api2/json/nodes/pve-node1/certificates/acme/certificate", %{}, %{
+          "node" => "pve-node1"
+        })
+
+      conn = Nodes.acme_certificate_delete(conn)
+      json(conn, 200)
+    end
+  end
 end
