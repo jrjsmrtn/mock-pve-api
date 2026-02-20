@@ -506,4 +506,127 @@ defmodule MockPveApi.Handlers.Metrics do
       })
     )
   end
+
+  # --- Cluster Metrics ---
+
+  @doc """
+  GET /api2/json/cluster/metrics
+  Returns cluster metrics index (available sub-resources).
+  """
+  def get_metrics_index(conn) do
+    index = [
+      %{subdir: "server"}
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: index}))
+  end
+
+  @doc """
+  GET /api2/json/cluster/metrics/server
+  Lists configured external metric servers.
+  """
+  def list_metrics_servers(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  # --- Node Services ---
+
+  @doc """
+  GET /api2/json/nodes/:node/services
+  Lists system services on node.
+  """
+  def list_services(conn) do
+    services = [
+      %{service: "chrony", name: "chrony", desc: "chrony NTP daemon", state: "running"},
+      %{service: "corosync", name: "corosync", desc: "Corosync Cluster Engine", state: "running"},
+      %{
+        service: "cron",
+        name: "cron",
+        desc: "Regular background program processing daemon",
+        state: "running"
+      },
+      %{
+        service: "ksmtuned",
+        name: "ksmtuned",
+        desc: "Kernel Samepage Merging tuning",
+        state: "stopped"
+      },
+      %{
+        service: "postfix",
+        name: "postfix",
+        desc: "Postfix Mail Transport Agent",
+        state: "running"
+      },
+      %{
+        service: "pve-cluster",
+        name: "pve-cluster",
+        desc: "The Proxmox VE cluster file system",
+        state: "running"
+      },
+      %{
+        service: "pve-firewall",
+        name: "pve-firewall",
+        desc: "Proxmox VE firewall",
+        state: "running"
+      },
+      %{
+        service: "pve-ha-crm",
+        name: "pve-ha-crm",
+        desc: "PVE HA Cluster Resource Manager",
+        state: "running"
+      },
+      %{
+        service: "pve-ha-lrm",
+        name: "pve-ha-lrm",
+        desc: "PVE HA Local Resource Manager",
+        state: "running"
+      },
+      %{service: "pvedaemon", name: "pvedaemon", desc: "PVE API Daemon", state: "running"},
+      %{service: "pveproxy", name: "pveproxy", desc: "PVE API Proxy Server", state: "running"},
+      %{service: "pvestatd", name: "pvestatd", desc: "PVE Status Daemon", state: "running"},
+      %{service: "spiceproxy", name: "spiceproxy", desc: "SPICE Proxy Server", state: "running"},
+      %{service: "sshd", name: "sshd", desc: "OpenBSD Secure Shell server", state: "running"},
+      %{service: "syslog", name: "syslog", desc: "System Logging Service", state: "running"}
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: services}))
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/services/:service
+  Gets individual service status.
+  """
+  def get_service(conn) do
+    service_name = conn.path_params["service"]
+
+    status = %{
+      service: service_name,
+      name: service_name,
+      desc: "#{service_name} service",
+      state: "running",
+      "active-state": "active",
+      "sub-state": "running",
+      "unit-file-state": "enabled"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: status}))
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/services/:service/state
+  Controls service state (start/stop/restart).
+  """
+  def set_service_state(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
 end

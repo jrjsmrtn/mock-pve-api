@@ -199,41 +199,85 @@ defmodule MockPveApi.Coverage.Sdn do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Sdn,
         notes: nil
+      },
+      "/api2/json/cluster/sdn/dns" => %{
+        path: "/api2/json/cluster/sdn/dns",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :low,
+        since: "8.0",
+        description: "SDN DNS plugin management",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/dns/{dns}" => %{
+        path: "/api2/json/cluster/sdn/dns/{dns}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "8.0",
+        description: "Individual SDN DNS plugin operations",
+        parameters: [
+          %{
+            name: "dns",
+            type: :string,
+            required: true,
+            description: "DNS plugin identifier",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/ipams" => %{
+        path: "/api2/json/cluster/sdn/ipams",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :low,
+        since: "8.0",
+        description: "SDN IPAM plugin management",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/ipams/{ipam}" => %{
+        path: "/api2/json/cluster/sdn/ipams/{ipam}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "8.0",
+        description: "Individual SDN IPAM plugin operations",
+        parameters: [
+          %{
+            name: "ipam",
+            type: :string,
+            required: true,
+            description: "IPAM identifier",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
       }
     }
   end
 
   defp planned_endpoints do
-    %{
-      "/api2/json/cluster/sdn/dns" =>
-        planned(:get_post, :low, "8.0", "SDN DNS plugin management"),
-      "/api2/json/cluster/sdn/dns/{dns}" =>
-        planned(:get_put_delete, :low, "8.0", "Individual SDN DNS plugin operations"),
-      "/api2/json/cluster/sdn/ipams" =>
-        planned(:get_post, :low, "8.0", "SDN IPAM plugin management"),
-      "/api2/json/cluster/sdn/ipams/{ipam}" =>
-        planned(:get_put_delete, :low, "8.0", "Individual SDN IPAM plugin operations")
-    }
+    %{}
   end
-
-  defp planned(methods_atom, priority, since, description) do
-    %{
-      path: "",
-      methods: methods_for(methods_atom),
-      status: :planned,
-      priority: priority,
-      since: since,
-      description: description,
-      parameters: [],
-      response_schema: %{data: :object},
-      capabilities_required: [:sdn_tech_preview],
-      test_coverage: false,
-      handler_module: nil,
-      notes: nil
-    }
-  end
-
-  defp methods_for(:get), do: [:get]
-  defp methods_for(:get_post), do: [:get, :post]
-  defp methods_for(:get_put_delete), do: [:get, :put, :delete]
 end

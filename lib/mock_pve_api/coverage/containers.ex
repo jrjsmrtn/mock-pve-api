@@ -454,36 +454,33 @@ defmodule MockPveApi.Coverage.Containers do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Nodes,
         notes: nil
-      }
+      },
+      "/api2/json/nodes/{node}/lxc/{vmid}/feature" =>
+        implemented(:get, :low, "6.0", "Check container feature availability"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/template" =>
+        implemented(:post, :low, "6.0", "Convert container to template"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/move_volume" =>
+        implemented(:post, :medium, "6.0", "Move container volume to different storage")
     }
   end
 
   defp planned_endpoints do
-    %{
-      "/api2/json/nodes/{node}/lxc/{vmid}/feature" =>
-        planned(:get, :low, "6.0", "Check container feature availability"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/template" =>
-        planned(:post, :low, "6.0", "Convert container to template"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/move_volume" =>
-        planned(:post, :medium, "6.0", "Move container volume to different storage"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall" =>
-        planned(:get, :low, "6.0", "Container firewall index")
-    }
+    %{}
   end
 
-  defp planned(methods_atom, priority, since, description) do
+  defp implemented(methods_atom, priority, since, description) do
     %{
       path: "",
       methods: methods_for(methods_atom),
-      status: :planned,
+      status: :implemented,
       priority: priority,
       since: since,
       description: description,
       parameters: [],
       response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
+      capabilities_required: [:containers],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Nodes,
       notes: nil
     }
   end

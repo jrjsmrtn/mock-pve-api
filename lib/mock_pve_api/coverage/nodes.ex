@@ -466,31 +466,48 @@ defmodule MockPveApi.Coverage.Nodes do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Nodes,
         notes: nil
-      }
+      },
+      "/api2/json/nodes/{node}/hosts" =>
+        implemented(:get_post, :low, "6.0", "Node /etc/hosts management"),
+      "/api2/json/nodes/{node}/subscription" =>
+        implemented(:get_post, :low, "6.0", "Node subscription information"),
+      "/api2/json/nodes/{node}/startall" =>
+        implemented(:post, :low, "6.0", "Start all VMs and containers on node"),
+      "/api2/json/nodes/{node}/stopall" =>
+        implemented(:post, :low, "6.0", "Stop all VMs and containers on node"),
+      "/api2/json/nodes/{node}/migrateall" =>
+        implemented(:post, :low, "6.0", "Migrate all VMs and containers to another node"),
+      "/api2/json/nodes/{node}/journal" => implemented(:get, :low, "7.0", "Read systemd journal"),
+      "/api2/json/nodes/{node}/certificates/info" =>
+        implemented(:get, :low, "6.0", "Get node TLS certificate info"),
+      "/api2/json/nodes/{node}/disks/smart" =>
+        implemented(:get, :low, "6.0", "Get SMART health data for disks")
     }
   end
 
   defp planned_endpoints do
     %{
-      "/api2/json/nodes/{node}/certificates/info" =>
-        planned(:get, :low, "6.0", "Get node TLS certificate info"),
       "/api2/json/nodes/{node}/certificates/acme/certificate" =>
         planned(:post_put_delete, :low, "6.0", "ACME certificate management"),
-      "/api2/json/nodes/{node}/disks/smart" =>
-        planned(:get, :low, "6.0", "Get SMART health data for disks"),
       "/api2/json/nodes/{node}/disks/initgpt" =>
-        planned(:post, :low, "6.0", "Initialize disk with GPT"),
-      "/api2/json/nodes/{node}/hosts" =>
-        planned(:get_post, :low, "6.0", "Node /etc/hosts management"),
-      "/api2/json/nodes/{node}/subscription" =>
-        planned(:get_post, :low, "6.0", "Node subscription information"),
-      "/api2/json/nodes/{node}/startall" =>
-        planned(:post, :low, "6.0", "Start all VMs and containers on node"),
-      "/api2/json/nodes/{node}/stopall" =>
-        planned(:post, :low, "6.0", "Stop all VMs and containers on node"),
-      "/api2/json/nodes/{node}/migrateall" =>
-        planned(:post, :low, "6.0", "Migrate all VMs and containers to another node"),
-      "/api2/json/nodes/{node}/journal" => planned(:get, :low, "7.0", "Read systemd journal")
+        planned(:post, :low, "6.0", "Initialize disk with GPT")
+    }
+  end
+
+  defp implemented(methods_atom, priority, since, description) do
+    %{
+      path: "",
+      methods: methods_for(methods_atom),
+      status: :implemented,
+      priority: priority,
+      since: since,
+      description: description,
+      parameters: [],
+      response_schema: %{data: :object},
+      capabilities_required: [:cluster_basic],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Nodes,
+      notes: nil
     }
   end
 

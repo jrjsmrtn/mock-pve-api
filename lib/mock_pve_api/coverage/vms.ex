@@ -462,28 +462,43 @@ defmodule MockPveApi.Coverage.VMs do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Nodes,
         notes: nil
-      }
+      },
+      "/api2/json/nodes/{node}/qemu/{vmid}/feature" =>
+        implemented(:get, :low, "6.0", "Check VM feature availability"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/template" =>
+        implemented(:post, :low, "6.0", "Convert VM to template"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent" =>
+        implemented(:post, :medium, "6.0", "Execute QEMU guest agent command"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/cloudinit/dump" =>
+        implemented(:get, :low, "6.0", "Get cloud-init configuration dump"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/unlink" =>
+        implemented(:put, :low, "6.0", "Unlink/delete disk images"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/move_disk" =>
+        implemented(:post, :medium, "6.0", "Move VM disk to different storage")
     }
   end
 
   defp planned_endpoints do
     %{
-      "/api2/json/nodes/{node}/qemu/{vmid}/feature" =>
-        planned(:get, :low, "6.0", "Check VM feature availability"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/agent" =>
-        planned(:post, :low, "6.0", "Execute QEMU guest agent commands"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/cloudinit/dump" =>
-        planned(:get, :low, "7.0", "Get cloud-init generated config"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/template" =>
-        planned(:post, :low, "6.0", "Convert VM to template"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/unlink" =>
-        planned(:put, :low, "6.0", "Unlink/delete disk images"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/move_disk" =>
-        planned(:post, :medium, "6.0", "Move VM disk to different storage"),
       "/api2/json/nodes/{node}/qemu/{vmid}/sendkey" =>
-        planned(:put, :low, "6.0", "Send key event to VM"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall" =>
-        planned(:get, :low, "6.0", "VM firewall index")
+        planned(:put, :low, "6.0", "Send key event to VM")
+    }
+  end
+
+  defp implemented(methods_atom, priority, since, description) do
+    %{
+      path: "",
+      methods: methods_for(methods_atom),
+      status: :implemented,
+      priority: priority,
+      since: since,
+      description: description,
+      parameters: [],
+      response_schema: %{data: :object},
+      capabilities_required: [:basic_virtualization],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Nodes,
+      notes: nil
     }
   end
 

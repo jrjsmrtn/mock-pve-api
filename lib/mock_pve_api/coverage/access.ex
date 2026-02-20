@@ -342,37 +342,48 @@ defmodule MockPveApi.Coverage.Access do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Access,
         notes: nil
+      },
+      "/api2/json/access/tfa" => %{
+        path: "/api2/json/access/tfa",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "Two-factor authentication management",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
+      },
+      "/api2/json/access/tfa/{userid}" => %{
+        path: "/api2/json/access/tfa/{userid}",
+        methods: [:get],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "User TFA configuration",
+        parameters: [
+          %{
+            name: "userid",
+            type: :string,
+            required: true,
+            description: "User ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
       }
     }
   end
 
   defp planned_endpoints do
-    %{
-      "/api2/json/access/tfa" =>
-        planned(:get_post, :low, "7.0", "Two-factor authentication management"),
-      "/api2/json/access/tfa/{userid}" => planned(:get, :low, "7.0", "User TFA configuration")
-    }
+    %{}
   end
-
-  defp planned(methods_atom, priority, since, description) do
-    %{
-      path: "",
-      methods: methods_for(methods_atom),
-      status: :planned,
-      priority: priority,
-      since: since,
-      description: description,
-      parameters: [],
-      response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
-      notes: nil
-    }
-  end
-
-  defp methods_for(:get), do: [:get]
-  defp methods_for(:put), do: [:put]
-  defp methods_for(:get_post), do: [:get, :post]
-  defp methods_for(:get_put_delete), do: [:get, :put, :delete]
 end

@@ -690,4 +690,57 @@ defmodule MockPveApi.Handlers.Access do
         |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
     end
   end
+
+  # --- TFA ---
+
+  @doc """
+  GET /api2/json/access/tfa
+  Lists TFA configurations for all users.
+  """
+  def list_tfa(conn) do
+    users = State.get_state().users
+
+    tfa_entries =
+      Enum.map(users, fn {userid, _user} ->
+        %{userid: userid, entries: []}
+      end)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: tfa_entries}))
+  end
+
+  @doc """
+  POST /api2/json/access/tfa
+  Add TFA entry for the current user (mock: returns success with a recovery key).
+  """
+  def add_tfa(conn) do
+    result = %{
+      recovery:
+        Enum.map(1..8, fn _ ->
+          :crypto.strong_rand_bytes(4) |> Base.encode16(case: :lower)
+        end)
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: result}))
+  end
+
+  @doc """
+  GET /api2/json/access/tfa/:userid
+  Get TFA configuration for a specific user.
+  """
+  def get_user_tfa(conn) do
+    userid = conn.path_params["userid"]
+
+    tfa_data = %{
+      userid: userid,
+      entries: []
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: tfa_data}))
+  end
 end

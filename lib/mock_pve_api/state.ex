@@ -102,6 +102,10 @@ defmodule MockPveApi.State do
       sdn_vnets: %{},
       sdn_subnets: %{},
       sdn_controllers: %{},
+      sdn_dns: %{},
+      sdn_ipams: %{},
+      pci_mappings: %{},
+      usb_mappings: %{},
       storage_content: %{},
       node_dns: %{},
       node_network_interfaces: %{
@@ -753,6 +757,68 @@ defmodule MockPveApi.State do
   def delete_sdn_controller(controller) do
     GenServer.call(@name, {:delete_sdn_controller, controller})
   end
+
+  # SDN DNS CRUD operations
+  def list_sdn_dns do
+    GenServer.call(@name, :list_sdn_dns)
+  end
+
+  def get_sdn_dns(dns) do
+    GenServer.call(@name, {:get_sdn_dns, dns})
+  end
+
+  def create_sdn_dns(dns, params \\ %{}) do
+    GenServer.call(@name, {:create_sdn_dns, dns, params})
+  end
+
+  def update_sdn_dns(dns, params) do
+    GenServer.call(@name, {:update_sdn_dns, dns, params})
+  end
+
+  def delete_sdn_dns(dns) do
+    GenServer.call(@name, {:delete_sdn_dns, dns})
+  end
+
+  # SDN IPAM CRUD operations
+  def list_sdn_ipams do
+    GenServer.call(@name, :list_sdn_ipams)
+  end
+
+  def get_sdn_ipam(ipam) do
+    GenServer.call(@name, {:get_sdn_ipam, ipam})
+  end
+
+  def create_sdn_ipam(ipam, params \\ %{}) do
+    GenServer.call(@name, {:create_sdn_ipam, ipam, params})
+  end
+
+  def update_sdn_ipam(ipam, params) do
+    GenServer.call(@name, {:update_sdn_ipam, ipam, params})
+  end
+
+  def delete_sdn_ipam(ipam) do
+    GenServer.call(@name, {:delete_sdn_ipam, ipam})
+  end
+
+  # PCI mapping CRUD operations
+  def list_pci_mappings, do: GenServer.call(@name, :list_pci_mappings)
+  def get_pci_mapping(id), do: GenServer.call(@name, {:get_pci_mapping, id})
+
+  def create_pci_mapping(id, params \\ %{}),
+    do: GenServer.call(@name, {:create_pci_mapping, id, params})
+
+  def update_pci_mapping(id, params), do: GenServer.call(@name, {:update_pci_mapping, id, params})
+  def delete_pci_mapping(id), do: GenServer.call(@name, {:delete_pci_mapping, id})
+
+  # USB mapping CRUD operations
+  def list_usb_mappings, do: GenServer.call(@name, :list_usb_mappings)
+  def get_usb_mapping(id), do: GenServer.call(@name, {:get_usb_mapping, id})
+
+  def create_usb_mapping(id, params \\ %{}),
+    do: GenServer.call(@name, {:create_usb_mapping, id, params})
+
+  def update_usb_mapping(id, params), do: GenServer.call(@name, {:update_usb_mapping, id, params})
+  def delete_usb_mapping(id), do: GenServer.call(@name, {:delete_usb_mapping, id})
 
   # Storage CRUD operations
   def get_storage_by_id(storage_id) do
@@ -2509,6 +2575,236 @@ defmodule MockPveApi.State do
       _controller ->
         new_controllers = Map.delete(state.sdn_controllers, controller)
         {:reply, :ok, %{state | sdn_controllers: new_controllers}}
+    end
+  end
+
+  # SDN DNS handle_calls
+
+  def handle_call(:list_sdn_dns, _from, state) do
+    {:reply, Map.values(state.sdn_dns), state}
+  end
+
+  def handle_call({:get_sdn_dns, dns}, _from, state) do
+    {:reply, Map.get(state.sdn_dns, dns), state}
+  end
+
+  def handle_call({:create_sdn_dns, dns, params}, _from, state) do
+    if Map.has_key?(state.sdn_dns, dns) do
+      {:reply, {:error, "SDN DNS plugin '#{dns}' already exists"}, state}
+    else
+      sdn_dns = %{
+        dns: dns,
+        type: Map.get(params, "type", "powerdns"),
+        url: Map.get(params, "url", ""),
+        key: Map.get(params, "key"),
+        reversev6mask: Map.get(params, "reversev6mask"),
+        ttl: Map.get(params, "ttl"),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_dns = Map.put(state.sdn_dns, dns, sdn_dns)
+      {:reply, {:ok, sdn_dns}, %{state | sdn_dns: new_dns}}
+    end
+  end
+
+  def handle_call({:update_sdn_dns, dns, params}, _from, state) do
+    case Map.get(state.sdn_dns, dns) do
+      nil ->
+        {:reply, {:error, "SDN DNS plugin '#{dns}' not found"}, state}
+
+      sdn_dns ->
+        updated =
+          Enum.reduce(params, sdn_dns, fn
+            {"type", v}, acc -> Map.put(acc, :type, v)
+            {"url", v}, acc -> Map.put(acc, :url, v)
+            {"key", v}, acc -> Map.put(acc, :key, v)
+            {"reversev6mask", v}, acc -> Map.put(acc, :reversev6mask, v)
+            {"ttl", v}, acc -> Map.put(acc, :ttl, v)
+            _, acc -> acc
+          end)
+
+        new_dns = Map.put(state.sdn_dns, dns, updated)
+        {:reply, {:ok, updated}, %{state | sdn_dns: new_dns}}
+    end
+  end
+
+  def handle_call({:delete_sdn_dns, dns}, _from, state) do
+    case Map.get(state.sdn_dns, dns) do
+      nil ->
+        {:reply, {:error, "SDN DNS plugin '#{dns}' not found"}, state}
+
+      _dns ->
+        new_dns = Map.delete(state.sdn_dns, dns)
+        {:reply, :ok, %{state | sdn_dns: new_dns}}
+    end
+  end
+
+  # SDN IPAM handle_calls
+
+  def handle_call(:list_sdn_ipams, _from, state) do
+    {:reply, Map.values(state.sdn_ipams), state}
+  end
+
+  def handle_call({:get_sdn_ipam, ipam}, _from, state) do
+    {:reply, Map.get(state.sdn_ipams, ipam), state}
+  end
+
+  def handle_call({:create_sdn_ipam, ipam, params}, _from, state) do
+    if Map.has_key?(state.sdn_ipams, ipam) do
+      {:reply, {:error, "SDN IPAM '#{ipam}' already exists"}, state}
+    else
+      sdn_ipam = %{
+        ipam: ipam,
+        type: Map.get(params, "type", "pve"),
+        url: Map.get(params, "url"),
+        token: Map.get(params, "token"),
+        section: Map.get(params, "section"),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_ipams = Map.put(state.sdn_ipams, ipam, sdn_ipam)
+      {:reply, {:ok, sdn_ipam}, %{state | sdn_ipams: new_ipams}}
+    end
+  end
+
+  def handle_call({:update_sdn_ipam, ipam, params}, _from, state) do
+    case Map.get(state.sdn_ipams, ipam) do
+      nil ->
+        {:reply, {:error, "SDN IPAM '#{ipam}' not found"}, state}
+
+      sdn_ipam ->
+        updated =
+          Enum.reduce(params, sdn_ipam, fn
+            {"type", v}, acc -> Map.put(acc, :type, v)
+            {"url", v}, acc -> Map.put(acc, :url, v)
+            {"token", v}, acc -> Map.put(acc, :token, v)
+            {"section", v}, acc -> Map.put(acc, :section, v)
+            _, acc -> acc
+          end)
+
+        new_ipams = Map.put(state.sdn_ipams, ipam, updated)
+        {:reply, {:ok, updated}, %{state | sdn_ipams: new_ipams}}
+    end
+  end
+
+  def handle_call({:delete_sdn_ipam, ipam}, _from, state) do
+    case Map.get(state.sdn_ipams, ipam) do
+      nil ->
+        {:reply, {:error, "SDN IPAM '#{ipam}' not found"}, state}
+
+      _ipam ->
+        new_ipams = Map.delete(state.sdn_ipams, ipam)
+        {:reply, :ok, %{state | sdn_ipams: new_ipams}}
+    end
+  end
+
+  # PCI mapping handle_calls
+
+  def handle_call(:list_pci_mappings, _from, state) do
+    {:reply, Map.values(state.pci_mappings), state}
+  end
+
+  def handle_call({:get_pci_mapping, id}, _from, state) do
+    {:reply, Map.get(state.pci_mappings, id), state}
+  end
+
+  def handle_call({:create_pci_mapping, id, params}, _from, state) do
+    if Map.has_key?(state.pci_mappings, id) do
+      {:reply, {:error, "PCI mapping '#{id}' already exists"}, state}
+    else
+      mapping = %{
+        id: id,
+        description: Map.get(params, "description", ""),
+        map: Map.get(params, "map", []),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new = Map.put(state.pci_mappings, id, mapping)
+      {:reply, {:ok, mapping}, %{state | pci_mappings: new}}
+    end
+  end
+
+  def handle_call({:update_pci_mapping, id, params}, _from, state) do
+    case Map.get(state.pci_mappings, id) do
+      nil ->
+        {:reply, {:error, "PCI mapping '#{id}' not found"}, state}
+
+      mapping ->
+        updated =
+          Enum.reduce(params, mapping, fn
+            {"description", v}, acc -> Map.put(acc, :description, v)
+            {"map", v}, acc -> Map.put(acc, :map, v)
+            _, acc -> acc
+          end)
+
+        new = Map.put(state.pci_mappings, id, updated)
+        {:reply, {:ok, updated}, %{state | pci_mappings: new}}
+    end
+  end
+
+  def handle_call({:delete_pci_mapping, id}, _from, state) do
+    case Map.get(state.pci_mappings, id) do
+      nil ->
+        {:reply, {:error, "PCI mapping '#{id}' not found"}, state}
+
+      _ ->
+        new = Map.delete(state.pci_mappings, id)
+        {:reply, :ok, %{state | pci_mappings: new}}
+    end
+  end
+
+  # USB mapping handle_calls
+
+  def handle_call(:list_usb_mappings, _from, state) do
+    {:reply, Map.values(state.usb_mappings), state}
+  end
+
+  def handle_call({:get_usb_mapping, id}, _from, state) do
+    {:reply, Map.get(state.usb_mappings, id), state}
+  end
+
+  def handle_call({:create_usb_mapping, id, params}, _from, state) do
+    if Map.has_key?(state.usb_mappings, id) do
+      {:reply, {:error, "USB mapping '#{id}' already exists"}, state}
+    else
+      mapping = %{
+        id: id,
+        description: Map.get(params, "description", ""),
+        map: Map.get(params, "map", []),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new = Map.put(state.usb_mappings, id, mapping)
+      {:reply, {:ok, mapping}, %{state | usb_mappings: new}}
+    end
+  end
+
+  def handle_call({:update_usb_mapping, id, params}, _from, state) do
+    case Map.get(state.usb_mappings, id) do
+      nil ->
+        {:reply, {:error, "USB mapping '#{id}' not found"}, state}
+
+      mapping ->
+        updated =
+          Enum.reduce(params, mapping, fn
+            {"description", v}, acc -> Map.put(acc, :description, v)
+            {"map", v}, acc -> Map.put(acc, :map, v)
+            _, acc -> acc
+          end)
+
+        new = Map.put(state.usb_mappings, id, updated)
+        {:reply, {:ok, updated}, %{state | usb_mappings: new}}
+    end
+  end
+
+  def handle_call({:delete_usb_mapping, id}, _from, state) do
+    case Map.get(state.usb_mappings, id) do
+      nil ->
+        {:reply, {:error, "USB mapping '#{id}' not found"}, state}
+
+      _ ->
+        new = Map.delete(state.usb_mappings, id)
+        {:reply, :ok, %{state | usb_mappings: new}}
     end
   end
 

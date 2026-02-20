@@ -177,8 +177,19 @@ defmodule MockPveApi.Handlers.Firewall do
   end
 
   # ────────────────────────────────────────────────
+  # Cluster Firewall — static endpoints
+  # ────────────────────────────────────────────────
+
+  def get_cluster_firewall_refs(conn), do: do_get_refs(conn)
+  def get_cluster_firewall_macros(conn), do: do_get_macros(conn)
+  def get_cluster_firewall_log(conn), do: do_get_log(conn)
+
+  # ────────────────────────────────────────────────
   # Node Firewall — public API (thin wrappers)
   # ────────────────────────────────────────────────
+
+  def get_node_firewall_index(conn), do: do_get_firewall_index(conn)
+  def get_node_firewall_log(conn), do: do_get_log(conn)
 
   def get_node_firewall_options(conn) do
     do_get_options(conn, {:node, conn.path_params["node"]})
@@ -607,6 +618,27 @@ defmodule MockPveApi.Handlers.Firewall do
       %{type: "alias", comment: "IP alias"},
       %{type: "ipset", comment: "IP set"},
       %{type: "+ipset", comment: "IP set (nomatch)"}
+    ]
+
+    json_resp(conn, 200, data)
+  end
+
+  defp do_get_macros(conn) do
+    data = [
+      %{macro: "Apache", descr: "Web server (HTTP/HTTPS)"},
+      %{macro: "DNS", descr: "Domain Name System traffic"},
+      %{macro: "FTP", descr: "File Transfer Protocol"},
+      %{macro: "HTTP", descr: "Hypertext Transfer Protocol (WWW)"},
+      %{macro: "HTTPS", descr: "Hypertext Transfer Protocol (WWW) over SSL"},
+      %{macro: "IMAP", descr: "Internet Message Access Protocol"},
+      %{macro: "NTP", descr: "Network Time Protocol"},
+      %{macro: "Ping", descr: "ICMP echo request"},
+      %{macro: "SSH", descr: "Secure Shell"},
+      %{macro: "SMB", descr: "Samba (Windows file/printer sharing)"},
+      %{macro: "SMTP", descr: "Simple Mail Transfer Protocol"},
+      %{macro: "SNMP", descr: "Simple Network Management Protocol"},
+      %{macro: "Syslog", descr: "Syslog protocol"},
+      %{macro: "Telnet", descr: "Telnet protocol"}
     ]
 
     json_resp(conn, 200, data)

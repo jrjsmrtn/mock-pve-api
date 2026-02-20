@@ -40,6 +40,8 @@ defmodule MockPveApi.Handlers.SdnTest do
       assert "zones" in subdirs
       assert "vnets" in subdirs
       assert "controllers" in subdirs
+      assert "dns" in subdirs
+      assert "ipams" in subdirs
     end
   end
 
@@ -290,6 +292,122 @@ defmodule MockPveApi.Handlers.SdnTest do
 
     test "create controller requires controller name" do
       conn = request(:post, "/api2/json/cluster/sdn/controllers", %{"type" => "evpn"})
+      assert conn.status == 400
+    end
+  end
+
+  # SDN DNS
+
+  describe "SDN DNS" do
+    test "list empty DNS plugins" do
+      conn = request(:get, "/api2/json/cluster/sdn/dns")
+      assert json(conn, 200)["data"] == []
+    end
+
+    test "CRUD lifecycle for DNS plugin" do
+      # Create
+      conn =
+        request(:post, "/api2/json/cluster/sdn/dns", %{
+          "dns" => "powerdns1",
+          "type" => "powerdns",
+          "url" => "http://dns.local:8081"
+        })
+
+      assert conn.status == 200
+
+      # Get
+      conn = request(:get, "/api2/json/cluster/sdn/dns/powerdns1")
+      dns = json(conn, 200)["data"]
+      assert dns["dns"] == "powerdns1"
+      assert dns["type"] == "powerdns"
+      assert dns["url"] == "http://dns.local:8081"
+
+      # Update
+      conn =
+        request(:put, "/api2/json/cluster/sdn/dns/powerdns1", %{
+          "url" => "http://dns2.local:8081"
+        })
+
+      assert conn.status == 200
+      updated = State.get_sdn_dns("powerdns1")
+      assert updated.url == "http://dns2.local:8081"
+
+      # Delete
+      conn = request(:delete, "/api2/json/cluster/sdn/dns/powerdns1")
+      assert conn.status == 200
+      assert State.get_sdn_dns("powerdns1") == nil
+    end
+
+    test "create duplicate DNS plugin returns 400" do
+      State.create_sdn_dns("dup-dns", %{})
+      conn = request(:post, "/api2/json/cluster/sdn/dns", %{"dns" => "dup-dns"})
+      assert conn.status == 400
+    end
+
+    test "get nonexistent DNS plugin returns 404" do
+      conn = request(:get, "/api2/json/cluster/sdn/dns/nonexistent")
+      assert conn.status == 404
+    end
+
+    test "create DNS plugin requires dns name" do
+      conn = request(:post, "/api2/json/cluster/sdn/dns", %{"type" => "powerdns"})
+      assert conn.status == 400
+    end
+  end
+
+  # SDN IPAM
+
+  describe "SDN IPAM" do
+    test "list empty IPAMs" do
+      conn = request(:get, "/api2/json/cluster/sdn/ipams")
+      assert json(conn, 200)["data"] == []
+    end
+
+    test "CRUD lifecycle for IPAM" do
+      # Create
+      conn =
+        request(:post, "/api2/json/cluster/sdn/ipams", %{
+          "ipam" => "pve-ipam",
+          "type" => "pve"
+        })
+
+      assert conn.status == 200
+
+      # Get
+      conn = request(:get, "/api2/json/cluster/sdn/ipams/pve-ipam")
+      ipam = json(conn, 200)["data"]
+      assert ipam["ipam"] == "pve-ipam"
+      assert ipam["type"] == "pve"
+
+      # Update
+      conn =
+        request(:put, "/api2/json/cluster/sdn/ipams/pve-ipam", %{
+          "type" => "netbox"
+        })
+
+      assert conn.status == 200
+      updated = State.get_sdn_ipam("pve-ipam")
+      assert updated.type == "netbox"
+
+      # Delete
+      conn = request(:delete, "/api2/json/cluster/sdn/ipams/pve-ipam")
+      assert conn.status == 200
+      assert State.get_sdn_ipam("pve-ipam") == nil
+    end
+
+    test "create duplicate IPAM returns 400" do
+      State.create_sdn_ipam("dup-ipam", %{})
+      conn = request(:post, "/api2/json/cluster/sdn/ipams", %{"ipam" => "dup-ipam"})
+      assert conn.status == 400
+    end
+
+    test "get nonexistent IPAM returns 404" do
+      conn = request(:get, "/api2/json/cluster/sdn/ipams/nonexistent")
+      assert conn.status == 404
+    end
+
+    test "create IPAM requires ipam name" do
+      conn = request(:post, "/api2/json/cluster/sdn/ipams", %{"type" => "pve"})
       assert conn.status == 400
     end
   end

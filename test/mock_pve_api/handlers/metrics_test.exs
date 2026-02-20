@@ -390,4 +390,59 @@ defmodule MockPveApi.Handlers.MetricsTest do
       assert body["data"]["cf"] == "MAX"
     end
   end
+
+  # ── Cluster Metrics (via router) ──
+
+  defp request(method, path, body \\ nil) do
+    conn =
+      Plug.Test.conn(method, path, body && Jason.encode!(body))
+      |> Plug.Conn.put_req_header("content-type", "application/json")
+      |> Plug.Conn.put_req_header("authorization", "PVEAPIToken=root@pam!test=secret")
+
+    MockPveApi.Router.call(conn, MockPveApi.Router.init([]))
+  end
+
+  defp json(conn, status) do
+    assert conn.status == status
+    Jason.decode!(conn.resp_body)
+  end
+
+  describe "cluster metrics index" do
+    test "GET returns sub-resource list" do
+      resp = request(:get, "/api2/json/cluster/metrics") |> json(200)
+      subdirs = Enum.map(resp["data"], & &1["subdir"])
+      assert "server" in subdirs
+    end
+  end
+
+  describe "cluster metrics server list" do
+    test "GET returns empty server list" do
+      resp = request(:get, "/api2/json/cluster/metrics/server") |> json(200)
+      assert resp["data"] == []
+    end
+  end
+
+  describe "node services" do
+    test "GET returns list of services" do
+      resp = request(:get, "/api2/json/nodes/pve-node1/services") |> json(200)
+      assert is_list(resp["data"])
+      names = Enum.map(resp["data"], & &1["service"])
+      assert "pvedaemon" in names
+      assert "sshd" in names
+    end
+
+    test "GET individual service returns status" do
+      resp = request(:get, "/api2/json/nodes/pve-node1/services/pvedaemon") |> json(200)
+      assert resp["data"]["service"] == "pvedaemon"
+      assert resp["data"]["state"] == "running"
+    end
+
+    test "PUT service state returns success" do
+      resp =
+        request(:put, "/api2/json/nodes/pve-node1/services/pvedaemon/state", %{command: "restart"})
+        |> json(200)
+
+      assert resp["data"] == nil
+    end
+  end
 end

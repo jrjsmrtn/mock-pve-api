@@ -1634,4 +1634,215 @@ defmodule MockPveApi.Handlers.Nodes do
         |> send_resp(404, Jason.encode!(%{errors: %{vmid: "Container '#{vmid}' not found"}}))
     end
   end
+
+  # --- Hosts ---
+
+  def get_hosts(conn) do
+    data = %{
+      digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower),
+      data: "127.0.0.1 localhost\n::1 localhost ip6-localhost ip6-loopback\n"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  def set_hosts(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Subscription ---
+
+  def get_subscription(conn) do
+    now = System.system_time(:second)
+
+    data = %{
+      status: "notfound",
+      message: "There is no subscription key",
+      serverid: "MOCK000000000000",
+      checktime: now,
+      key: ""
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  def set_subscription(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Bulk Operations ---
+
+  def startall(conn) do
+    node = conn.path_params["node"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:0000AAAA:00000001:#{now}:startall:#{node}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def stopall(conn) do
+    node = conn.path_params["node"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:0000BBBB:00000001:#{now}:stopall:#{node}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def migrateall(conn) do
+    node = conn.path_params["node"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:0000CCCC:00000001:#{now}:migrateall:#{node}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # --- Journal ---
+
+  def get_journal(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  # --- Certificates ---
+
+  def get_certificates_info(conn) do
+    now = System.system_time(:second)
+
+    data = [
+      %{
+        filename: "/etc/pve/local/pve-ssl.pem",
+        fingerprint: "AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD",
+        issuer: "CN=Proxmox Virtual Environment, O=PVE",
+        notafter: now + 365 * 24 * 3600,
+        notbefore: now - 365 * 24 * 3600,
+        subject: "CN=mock-pve-node, O=PVE",
+        "public-key-type": "rsaEncryption",
+        "public-key-bits": 2048
+      }
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- Disks SMART ---
+
+  def get_disks_smart(conn) do
+    data = %{
+      health: "PASSED",
+      type: "text",
+      text:
+        "=== START OF INFORMATION SECTION ===\nModel Family:     Mock SSD\nSerial Number:    MOCK1234567890\n"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM Feature Check ---
+
+  def get_vm_feature(conn) do
+    data = %{hasFeature: true}
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM Template ---
+
+  def convert_vm_to_template(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- VM Agent ---
+
+  def vm_agent(conn) do
+    data = %{result: ""}
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM Cloud-Init ---
+
+  def get_vm_cloudinit_dump(conn) do
+    data = "# cloud-init config\nnetwork:\n  version: 2\n"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM Unlink ---
+
+  def vm_unlink(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- VM Move Disk ---
+
+  def vm_move_disk(conn) do
+    node = conn.path_params["node"]
+    vmid = conn.path_params["vmid"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:0000DDDD:00000001:#{now}:move_disk:#{vmid}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # --- Container Feature Check ---
+
+  def get_ct_feature(conn) do
+    data = %{hasFeature: true}
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- Container Template ---
+
+  def convert_ct_to_template(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Container Move Volume ---
+
+  def ct_move_volume(conn) do
+    node = conn.path_params["node"]
+    vmid = conn.path_params["vmid"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:0000EEEE:00000001:#{now}:move_volume:#{vmid}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
 end

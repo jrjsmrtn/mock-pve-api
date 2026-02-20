@@ -262,6 +262,15 @@ defmodule MockPveApi.Coverage.Monitoring do
         handler_module: MockPveApi.Handlers.Metrics,
         notes: nil
       },
+      "/api2/json/cluster/metrics" => implemented(:get, :low, "7.0", "Cluster metrics index"),
+      "/api2/json/cluster/metrics/server" =>
+        implemented(:get, :low, "7.0", "List configured external metric servers"),
+      "/api2/json/nodes/{node}/services" =>
+        implemented(:get, :low, "6.0", "List system services on node"),
+      "/api2/json/nodes/{node}/services/{service}" =>
+        implemented(:get, :low, "6.0", "Get service status"),
+      "/api2/json/nodes/{node}/services/{service}/state" =>
+        implemented(:put, :low, "6.0", "Control service (start/stop/restart)"),
       "/api2/json/cluster/metrics/server/{id}" => %{
         path: "/api2/json/cluster/metrics/server/{id}",
         methods: [:get],
@@ -290,24 +299,28 @@ defmodule MockPveApi.Coverage.Monitoring do
 
   defp planned_endpoints do
     %{
-      # Cluster metrics
-      "/api2/json/cluster/metrics" => planned(:get, :low, "7.0", "Cluster metrics index"),
-      "/api2/json/cluster/metrics/server" =>
-        planned(:get, :low, "7.0", "List configured external metric servers"),
-      # Note: GET /cluster/metrics/server/{id} is in implemented_endpoints;
-      # POST/PUT/DELETE are planned but share the same path key.
-      # Node services
-      "/api2/json/nodes/{node}/services" =>
-        planned(:get, :low, "6.0", "List system services on node"),
-      "/api2/json/nodes/{node}/services/{service}" =>
-        planned(:get, :low, "6.0", "Get service status"),
-      "/api2/json/nodes/{node}/services/{service}/state" =>
-        planned(:put, :low, "6.0", "Control service (start/stop/restart)"),
-      # Storage RRD
+      # Storage RRD (remaining planned)
       "/api2/json/nodes/{node}/storage/{storage}/rrd" =>
         planned(:get, :low, "6.0", "Storage RRD statistics (graph)"),
       "/api2/json/nodes/{node}/storage/{storage}/rrddata" =>
         planned(:get, :low, "6.0", "Storage RRD statistics (data)")
+    }
+  end
+
+  defp implemented(methods_atom, priority, since, description) do
+    %{
+      path: "",
+      methods: methods_for(methods_atom),
+      status: :implemented,
+      priority: priority,
+      since: since,
+      description: description,
+      parameters: [],
+      response_schema: %{data: :object},
+      capabilities_required: [],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Metrics,
+      notes: nil
     }
   end
 
@@ -330,5 +343,4 @@ defmodule MockPveApi.Coverage.Monitoring do
 
   defp methods_for(:get), do: [:get]
   defp methods_for(:put), do: [:put]
-  defp methods_for(:get_post_put_delete), do: [:get, :post, :put, :delete]
 end

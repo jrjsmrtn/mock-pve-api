@@ -22,7 +22,8 @@ defmodule MockPveApi.Router do
     Metrics,
     Sdn,
     Snapshots,
-    Firewall
+    Firewall,
+    Hardware
   }
 
   alias MockPveApi.{State, Coverage}
@@ -164,6 +165,19 @@ defmodule MockPveApi.Router do
     Access.change_password(conn)
   end
 
+  # TFA endpoints
+  get "/api2/json/access/tfa" do
+    Access.list_tfa(conn)
+  end
+
+  post "/api2/json/access/tfa" do
+    Access.add_tfa(conn)
+  end
+
+  get "/api2/json/access/tfa/:userid" do
+    Access.get_user_tfa(conn)
+  end
+
   # Node endpoints
   get "/api2/json/nodes" do
     Nodes.list_nodes(conn)
@@ -223,6 +237,15 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/nodes/:node/disks/list" do
     Nodes.list_disks(conn)
+  end
+
+  # Node firewall static endpoints
+  get "/api2/json/nodes/:node/firewall/log" do
+    Firewall.get_node_firewall_log(conn)
+  end
+
+  get "/api2/json/nodes/:node/firewall" do
+    Firewall.get_node_firewall_index(conn)
   end
 
   # Node firewall endpoints
@@ -285,6 +308,47 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/nodes/:node/vzrestore" do
     Nodes.vzrestore(conn)
+  end
+
+  # Node hosts, subscription, bulk ops, journal, certificates, disks/smart
+  get "/api2/json/nodes/:node/hosts" do
+    Nodes.get_hosts(conn)
+  end
+
+  post "/api2/json/nodes/:node/hosts" do
+    Nodes.set_hosts(conn)
+  end
+
+  get "/api2/json/nodes/:node/subscription" do
+    Nodes.get_subscription(conn)
+  end
+
+  post "/api2/json/nodes/:node/subscription" do
+    Nodes.set_subscription(conn)
+  end
+
+  post "/api2/json/nodes/:node/startall" do
+    Nodes.startall(conn)
+  end
+
+  post "/api2/json/nodes/:node/stopall" do
+    Nodes.stopall(conn)
+  end
+
+  post "/api2/json/nodes/:node/migrateall" do
+    Nodes.migrateall(conn)
+  end
+
+  get "/api2/json/nodes/:node/journal" do
+    Nodes.get_journal(conn)
+  end
+
+  get "/api2/json/nodes/:node/certificates/info" do
+    Nodes.get_certificates_info(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/smart" do
+    Nodes.get_disks_smart(conn)
   end
 
   # VM endpoints
@@ -634,8 +698,44 @@ defmodule MockPveApi.Router do
     Nodes.clone_vm(conn)
   end
 
+  get "/api2/json/nodes/:node/qemu/:vmid/feature" do
+    Nodes.get_vm_feature(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/template" do
+    Nodes.convert_vm_to_template(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/agent" do
+    Nodes.vm_agent(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/cloudinit/dump" do
+    Nodes.get_vm_cloudinit_dump(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/unlink" do
+    Nodes.vm_unlink(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/move_disk" do
+    Nodes.vm_move_disk(conn)
+  end
+
   post "/api2/json/nodes/:node/lxc/:vmid/clone" do
     Nodes.clone_container(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/feature" do
+    Nodes.get_ct_feature(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/template" do
+    Nodes.convert_ct_to_template(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/move_volume" do
+    Nodes.ct_move_volume(conn)
   end
 
   post "/api2/json/nodes/:node/vzdump" do
@@ -665,6 +765,19 @@ defmodule MockPveApi.Router do
 
   put "/api2/json/nodes/:node/time" do
     Nodes.set_node_time(conn)
+  end
+
+  # Node hardware detection endpoints
+  get "/api2/json/nodes/:node/hardware/pci/:pciid" do
+    Hardware.get_pci(conn)
+  end
+
+  get "/api2/json/nodes/:node/hardware/pci" do
+    Hardware.list_pci(conn)
+  end
+
+  get "/api2/json/nodes/:node/hardware/usb" do
+    Hardware.list_usb(conn)
   end
 
   # Metrics and statistics endpoints
@@ -702,6 +815,31 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/cluster/metrics/server/:id" do
     Metrics.get_cluster_metrics(conn)
+  end
+
+  get "/api2/json/cluster/metrics/server" do
+    Metrics.list_metrics_servers(conn)
+  end
+
+  get "/api2/json/cluster/metrics" do
+    Metrics.get_metrics_index(conn)
+  end
+
+  # Node services endpoints
+  get "/api2/json/nodes/:node/services/:service/state" do
+    Metrics.get_service(conn)
+  end
+
+  put "/api2/json/nodes/:node/services/:service/state" do
+    Metrics.set_service_state(conn)
+  end
+
+  get "/api2/json/nodes/:node/services/:service" do
+    Metrics.get_service(conn)
+  end
+
+  get "/api2/json/nodes/:node/services" do
+    Metrics.list_services(conn)
   end
 
   # Storage endpoints
@@ -851,6 +989,47 @@ defmodule MockPveApi.Router do
     Cluster.delete_ha_affinity_rule(conn)
   end
 
+  # Cluster resource mapping endpoints (PCI/USB passthrough)
+  get "/api2/json/cluster/mapping/pci" do
+    Hardware.list_pci_mappings(conn)
+  end
+
+  post "/api2/json/cluster/mapping/pci" do
+    Hardware.create_pci_mapping(conn)
+  end
+
+  get "/api2/json/cluster/mapping/pci/:id" do
+    Hardware.get_pci_mapping(conn)
+  end
+
+  put "/api2/json/cluster/mapping/pci/:id" do
+    Hardware.update_pci_mapping(conn)
+  end
+
+  delete "/api2/json/cluster/mapping/pci/:id" do
+    Hardware.delete_pci_mapping(conn)
+  end
+
+  get "/api2/json/cluster/mapping/usb" do
+    Hardware.list_usb_mappings(conn)
+  end
+
+  post "/api2/json/cluster/mapping/usb" do
+    Hardware.create_usb_mapping(conn)
+  end
+
+  get "/api2/json/cluster/mapping/usb/:id" do
+    Hardware.get_usb_mapping(conn)
+  end
+
+  put "/api2/json/cluster/mapping/usb/:id" do
+    Hardware.update_usb_mapping(conn)
+  end
+
+  delete "/api2/json/cluster/mapping/usb/:id" do
+    Hardware.delete_usb_mapping(conn)
+  end
+
   # Backup job endpoints
   get "/api2/json/cluster/backup" do
     Cluster.list_backup_jobs(conn)
@@ -888,6 +1067,19 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/cluster/replication" do
     Cluster.create_replication_job(conn)
+  end
+
+  # Cluster firewall static endpoints
+  get "/api2/json/cluster/firewall/refs" do
+    Firewall.get_cluster_firewall_refs(conn)
+  end
+
+  get "/api2/json/cluster/firewall/macros" do
+    Firewall.get_cluster_firewall_macros(conn)
+  end
+
+  get "/api2/json/cluster/firewall/log" do
+    Firewall.get_cluster_firewall_log(conn)
   end
 
   # Cluster firewall endpoints
@@ -1112,6 +1304,48 @@ defmodule MockPveApi.Router do
 
   delete "/api2/json/cluster/sdn/controllers/:controller" do
     Sdn.delete_controller(conn)
+  end
+
+  # SDN DNS endpoints
+  get "/api2/json/cluster/sdn/dns" do
+    Sdn.list_dns(conn)
+  end
+
+  post "/api2/json/cluster/sdn/dns" do
+    Sdn.create_dns(conn)
+  end
+
+  get "/api2/json/cluster/sdn/dns/:dns" do
+    Sdn.get_dns(conn)
+  end
+
+  put "/api2/json/cluster/sdn/dns/:dns" do
+    Sdn.update_dns(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/dns/:dns" do
+    Sdn.delete_dns(conn)
+  end
+
+  # SDN IPAM endpoints
+  get "/api2/json/cluster/sdn/ipams" do
+    Sdn.list_ipams(conn)
+  end
+
+  post "/api2/json/cluster/sdn/ipams" do
+    Sdn.create_ipam(conn)
+  end
+
+  get "/api2/json/cluster/sdn/ipams/:ipam" do
+    Sdn.get_ipam(conn)
+  end
+
+  put "/api2/json/cluster/sdn/ipams/:ipam" do
+    Sdn.update_ipam(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/ipams/:ipam" do
+    Sdn.delete_ipam(conn)
   end
 
   # Realm sync endpoints (PVE 8.0+ only)

@@ -29,8 +29,7 @@ defmodule MockPveApi.Coverage.Firewall do
   end
 
   defp planned_endpoints do
-    cluster_firewall_planned()
-    |> Map.merge(node_firewall_planned())
+    %{}
   end
 
   # ── Implemented: Cluster Firewall ──
@@ -58,7 +57,13 @@ defmodule MockPveApi.Coverage.Firewall do
       "/api2/json/cluster/firewall/ipset/{name}" =>
         implemented(:get_post_delete, :medium, "6.0", "List/add entries, delete IP set"),
       "/api2/json/cluster/firewall/ipset/{name}/{cidr}" =>
-        implemented(:get_put_delete, :low, "6.0", "IP set entry CRUD")
+        implemented(:get_put_delete, :low, "6.0", "IP set entry CRUD"),
+      "/api2/json/cluster/firewall/refs" =>
+        implemented(:get, :low, "6.0", "List available firewall references"),
+      "/api2/json/cluster/firewall/macros" =>
+        implemented(:get, :low, "6.0", "List available firewall macros"),
+      "/api2/json/cluster/firewall/log" =>
+        implemented(:get, :low, "6.0", "Read cluster firewall log")
     }
   end
 
@@ -71,7 +76,10 @@ defmodule MockPveApi.Coverage.Firewall do
       "/api2/json/nodes/{node}/firewall/rules" =>
         implemented(:get_post, :medium, "6.0", "List/create node firewall rules"),
       "/api2/json/nodes/{node}/firewall/rules/{pos}" =>
-        implemented(:get_put_delete, :medium, "6.0", "Individual node rule CRUD")
+        implemented(:get_put_delete, :medium, "6.0", "Individual node rule CRUD"),
+      "/api2/json/nodes/{node}/firewall" => implemented(:get, :low, "6.0", "Node firewall index"),
+      "/api2/json/nodes/{node}/firewall/log" =>
+        implemented(:get, :low, "6.0", "Read node firewall log")
     }
   end
 
@@ -133,27 +141,7 @@ defmodule MockPveApi.Coverage.Firewall do
     }
   end
 
-  # ── Planned: Remaining Cluster Firewall ──
-
-  defp cluster_firewall_planned do
-    %{
-      "/api2/json/cluster/firewall/refs" =>
-        planned(:get, :low, "6.0", "List available firewall references"),
-      "/api2/json/cluster/firewall/macros" =>
-        planned(:get, :low, "6.0", "List available firewall macros"),
-      "/api2/json/cluster/firewall/log" => planned(:get, :low, "6.0", "Read cluster firewall log")
-    }
-  end
-
-  # ── Planned: Remaining Node Firewall ──
-
-  defp node_firewall_planned do
-    %{
-      "/api2/json/nodes/{node}/firewall" => planned(:get, :low, "6.0", "Node firewall index"),
-      "/api2/json/nodes/{node}/firewall/log" =>
-        planned(:get, :low, "6.0", "Read node firewall log")
-    }
-  end
+  # (No more planned endpoints — firewall category is 100% implemented)
 
   defp implemented(methods_atom, priority, since, description) do
     %{
@@ -168,23 +156,6 @@ defmodule MockPveApi.Coverage.Firewall do
       capabilities_required: [],
       test_coverage: true,
       handler_module: MockPveApi.Handlers.Firewall,
-      notes: nil
-    }
-  end
-
-  defp planned(methods_atom, priority, since, description) do
-    %{
-      path: "",
-      methods: methods_for(methods_atom),
-      status: :planned,
-      priority: priority,
-      since: since,
-      description: description,
-      parameters: [],
-      response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
       notes: nil
     }
   end

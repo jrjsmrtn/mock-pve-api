@@ -45,19 +45,19 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Category | Total | Implemented | Coverage |
 |----------|-------|-------------|----------|
 | Version | 1 | 1 | 100.0% |
-| Cluster | 36 | 20 | 55.6% |
-| Nodes | 28 | 18 | 64.3% |
-| Virtual Machines | 21 | 13 | 61.9% |
-| LXC Containers | 17 | 13 | 76.5% |
+| Cluster | 32 | 20 | 62.5% |
+| Nodes | 28 | 26 | 92.9% |
+| Virtual Machines | 20 | 19 | 95.0% |
+| LXC Containers | 16 | 16 | 100.0% |
 | Storage | 20 | 9 | 45.0% |
-| Access Control | 17 | 15 | 88.2% |
+| Access Control | 17 | 17 | 100.0% |
 | Resource Pools | 2 | 2 | 100.0% |
-| SDN | 13 | 9 | 69.2% |
-| Monitoring | 16 | 9 | 56.3% |
+| SDN | 13 | 13 | 100.0% |
+| Monitoring | 16 | 14 | 87.5% |
 | Backup | 9 | 9 | 100.0% |
-| Hardware | 7 | 0 | 0.0% |
-| Firewall | 41 | 36 | 87.8% |
-| **TOTAL** | **228** | **154** | **67.5%** |
+| Hardware | 7 | 7 | 100.0% |
+| Firewall | 41 | 41 | 100.0% |
+| **TOTAL** | **222** | **194** | **87.4%** |
 
 
 ## Status Legend
@@ -504,78 +504,6 @@ Current HA manager and resource status
 ```
 
 
-### `/cluster/mapping/pci` 📋 🔴
-
-PCI device resource mappings
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 8.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/mapping/pci/{id}` 📋 🔴
-
-Individual PCI mapping operations
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, PUT, DELETE |
-| **Priority** | Low |
-| **Since** | PVE 8.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/mapping/usb` 📋 🔴
-
-USB device resource mappings
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 8.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/mapping/usb/{id}` 📋 🔴
-
-Individual USB mapping operations
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, PUT, DELETE |
-| **Priority** | Low |
-| **Since** | PVE 8.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
 ### `/cluster/nextid` ✅
 
 Get next free VMID
@@ -986,7 +914,7 @@ ACME certificate management
 ```
 
 
-### `/nodes/{node}/certificates/info` 📋
+### `/nodes/{node}/certificates/info` ✅
 
 Get node TLS certificate info
 
@@ -1070,7 +998,7 @@ List local disks
 ```
 
 
-### `/nodes/{node}/disks/smart` 📋
+### `/nodes/{node}/disks/smart` ✅
 
 Get SMART health data for disks
 
@@ -1136,7 +1064,7 @@ Execute a command on a node (API call, not shell)
 ```
 
 
-### `/nodes/{node}/hosts` 📋
+### `/nodes/{node}/hosts` ✅
 
 Node /etc/hosts management
 
@@ -1154,7 +1082,7 @@ Node /etc/hosts management
 ```
 
 
-### `/nodes/{node}/journal` 📋
+### `/nodes/{node}/journal` ✅
 
 Read systemd journal
 
@@ -1172,7 +1100,7 @@ Read systemd journal
 ```
 
 
-### `/nodes/{node}/migrateall` 📋
+### `/nodes/{node}/migrateall` ✅
 
 Migrate all VMs and containers to another node
 
@@ -1239,7 +1167,7 @@ Individual network interface management
 ```
 
 
-### `/nodes/{node}/startall` 📋
+### `/nodes/{node}/startall` ✅
 
 Start all VMs and containers on node
 
@@ -1282,7 +1210,7 @@ Node status and control operations
 ```
 
 
-### `/nodes/{node}/stopall` 📋
+### `/nodes/{node}/stopall` ✅
 
 Stop all VMs and containers on node
 
@@ -1300,7 +1228,7 @@ Stop all VMs and containers on node
 ```
 
 
-### `/nodes/{node}/subscription` 📋
+### `/nodes/{node}/subscription` ✅
 
 Node subscription information
 
@@ -1571,14 +1499,14 @@ Individual VM configuration and management
 **Notes**: Complete VM configuration and management with comprehensive status info
 
 
-### `/nodes/{node}/qemu/{vmid}/agent` 📋
+### `/nodes/{node}/qemu/{vmid}/agent` ✅
 
-Execute QEMU guest agent commands
+Execute QEMU guest agent command
 
 | Property | Value |
 |----------|-------|
 | **Methods** | POST |
-| **Priority** | Low |
+| **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
 **Example Response**:
@@ -1626,15 +1554,15 @@ Clone virtual machine
 **Notes**: VM cloning operations implemented
 
 
-### `/nodes/{node}/qemu/{vmid}/cloudinit/dump` 📋
+### `/nodes/{node}/qemu/{vmid}/cloudinit/dump` ✅
 
-Get cloud-init generated config
+Get cloud-init configuration dump
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1687,36 +1615,9 @@ VM configuration (get current or update)
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/feature` 📋
+### `/nodes/{node}/qemu/{vmid}/feature` ✅
 
 Check VM feature availability
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": {
-    "cpu": 0.25,
-    "name": "test-vm",
-    "status": "running",
-    "mem": 1073741824,
-    "uptime": 3600,
-    "maxmem": 2147483648,
-    "vmid": 100,
-    "cpus": 2
-  }
-}
-```
-
-
-### `/nodes/{node}/qemu/{vmid}/firewall` 📋
-
-VM firewall index
 
 | Property | Value |
 |----------|-------|
@@ -1775,7 +1676,7 @@ Migrate VM to another node
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/move_disk` 📋
+### `/nodes/{node}/qemu/{vmid}/move_disk` ✅
 
 Move VM disk to different storage
 
@@ -2100,7 +2001,7 @@ VM control operations (start, stop, reset, etc.)
 **Notes**: VM lifecycle operations fully supported
 
 
-### `/nodes/{node}/qemu/{vmid}/template` 📋
+### `/nodes/{node}/qemu/{vmid}/template` ✅
 
 Convert VM to template
 
@@ -2127,7 +2028,7 @@ Convert VM to template
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/unlink` 📋
+### `/nodes/{node}/qemu/{vmid}/unlink` ✅
 
 Unlink/delete disk images
 
@@ -2289,35 +2190,9 @@ Container configuration (get current or update)
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/feature` 📋
+### `/nodes/{node}/lxc/{vmid}/feature` ✅
 
 Check container feature availability
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": {
-    "cpu": 0.1,
-    "name": "test-container",
-    "status": "running",
-    "mem": 536870912,
-    "maxmem": 1073741824,
-    "vmid": 200,
-    "cpus": 1
-  }
-}
-```
-
-
-### `/nodes/{node}/lxc/{vmid}/firewall` 📋
-
-Container firewall index
 
 | Property | Value |
 |----------|-------|
@@ -2374,7 +2249,7 @@ Migrate container to another node
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/move_volume` 📋
+### `/nodes/{node}/lxc/{vmid}/move_volume` ✅
 
 Move container volume to different storage
 
@@ -2672,7 +2547,7 @@ Container control operations (start, stop, shutdown, etc.)
 **Notes**: Container lifecycle operations
 
 
-### `/nodes/{node}/lxc/{vmid}/template` 📋
+### `/nodes/{node}/lxc/{vmid}/template` ✅
 
 Convert container to template
 
@@ -3481,7 +3356,7 @@ Individual role CRUD
 ```
 
 
-### `/access/tfa` 📋
+### `/access/tfa` ✅
 
 Two-factor authentication management
 
@@ -3494,12 +3369,12 @@ Two-factor authentication management
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/access/tfa/{userid}` 📋
+### `/access/tfa/{userid}` ✅
 
 User TFA configuration
 
@@ -3508,6 +3383,12 @@ User TFA configuration
 | **Methods** | GET |
 | **Priority** | Low |
 | **Since** | PVE 7.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `userid` | string | Yes | User ID | - |
 
 **Example Response**:
 ```json
@@ -3800,7 +3681,7 @@ Individual SDN controller operations
 ```
 
 
-### `/cluster/sdn/dns` 📋 🔴
+### `/cluster/sdn/dns` ✅ 🔴
 
 SDN DNS plugin management
 
@@ -3813,12 +3694,12 @@ SDN DNS plugin management
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/cluster/sdn/dns/{dns}` 📋 🔴
+### `/cluster/sdn/dns/{dns}` ✅ 🔴
 
 Individual SDN DNS plugin operations
 
@@ -3828,6 +3709,12 @@ Individual SDN DNS plugin operations
 | **Priority** | Low |
 | **Since** | PVE 8.0 |
 
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `dns` | string | Yes | DNS plugin identifier | - |
+
 **Example Response**:
 ```json
 {
@@ -3836,7 +3723,7 @@ Individual SDN DNS plugin operations
 ```
 
 
-### `/cluster/sdn/ipams` 📋 🔴
+### `/cluster/sdn/ipams` ✅ 🔴
 
 SDN IPAM plugin management
 
@@ -3849,12 +3736,12 @@ SDN IPAM plugin management
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/cluster/sdn/ipams/{ipam}` 📋 🔴
+### `/cluster/sdn/ipams/{ipam}` ✅ 🔴
 
 Individual SDN IPAM plugin operations
 
@@ -3863,6 +3750,12 @@ Individual SDN IPAM plugin operations
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 8.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `ipam` | string | Yes | IPAM identifier | - |
 
 **Example Response**:
 ```json
@@ -4026,7 +3919,7 @@ Individual SDN zone operations
 
 ## Monitoring & Metrics
 
-### `/cluster/metrics` 📋
+### `/cluster/metrics` ✅
 
 Cluster metrics index
 
@@ -4044,7 +3937,7 @@ Cluster metrics index
 ```
 
 
-### `/cluster/metrics/server` 📋
+### `/cluster/metrics/server` ✅
 
 List configured external metric servers
 
@@ -4319,7 +4212,7 @@ Read node RRD statistics (returns JSON data)
 ```
 
 
-### `/nodes/{node}/services` 📋
+### `/nodes/{node}/services` ✅
 
 List system services on node
 
@@ -4337,7 +4230,7 @@ List system services on node
 ```
 
 
-### `/nodes/{node}/services/{service}` 📋
+### `/nodes/{node}/services/{service}` ✅
 
 Get service status
 
@@ -4355,7 +4248,7 @@ Get service status
 ```
 
 
-### `/nodes/{node}/services/{service}/state` 📋
+### `/nodes/{node}/services/{service}/state` ✅
 
 Control service (start/stop/restart)
 
@@ -4646,7 +4539,7 @@ Restore container from backup
 
 ## Hardware Detection & Passthrough
 
-### `/cluster/mapping/pci` 📋 🔴
+### `/cluster/mapping/pci` ✅ 🔴
 
 PCI resource mapping management
 
@@ -4664,7 +4557,7 @@ PCI resource mapping management
 ```
 
 
-### `/cluster/mapping/pci/{id}` 📋 🔴
+### `/cluster/mapping/pci/{id}` ✅ 🔴
 
 Individual PCI mapping CRUD
 
@@ -4682,7 +4575,7 @@ Individual PCI mapping CRUD
 ```
 
 
-### `/cluster/mapping/usb` 📋 🔴
+### `/cluster/mapping/usb` ✅ 🔴
 
 USB resource mapping management
 
@@ -4700,7 +4593,7 @@ USB resource mapping management
 ```
 
 
-### `/cluster/mapping/usb/{id}` 📋 🔴
+### `/cluster/mapping/usb/{id}` ✅ 🔴
 
 Individual USB mapping CRUD
 
@@ -4718,7 +4611,7 @@ Individual USB mapping CRUD
 ```
 
 
-### `/nodes/{node}/hardware/pci` 📋
+### `/nodes/{node}/hardware/pci` ✅
 
 List PCI devices on node
 
@@ -4736,7 +4629,7 @@ List PCI devices on node
 ```
 
 
-### `/nodes/{node}/hardware/pci/{pciid}` 📋
+### `/nodes/{node}/hardware/pci/{pciid}` ✅
 
 Get PCI device details
 
@@ -4754,7 +4647,7 @@ Get PCI device details
 ```
 
 
-### `/nodes/{node}/hardware/usb` 📋
+### `/nodes/{node}/hardware/usb` ✅
 
 List USB devices on node
 
@@ -4921,7 +4814,7 @@ IP set entry CRUD
 ```
 
 
-### `/cluster/firewall/log` 📋
+### `/cluster/firewall/log` ✅
 
 Read cluster firewall log
 
@@ -4939,7 +4832,7 @@ Read cluster firewall log
 ```
 
 
-### `/cluster/firewall/macros` 📋
+### `/cluster/firewall/macros` ✅
 
 List available firewall macros
 
@@ -4975,7 +4868,7 @@ Cluster firewall options
 ```
 
 
-### `/cluster/firewall/refs` 📋
+### `/cluster/firewall/refs` ✅
 
 List available firewall references
 
@@ -5029,7 +4922,7 @@ Individual cluster rule CRUD
 ```
 
 
-### `/nodes/{node}/firewall` 📋
+### `/nodes/{node}/firewall` ✅
 
 Node firewall index
 
@@ -5047,7 +4940,7 @@ Node firewall index
 ```
 
 
-### `/nodes/{node}/firewall/log` 📋
+### `/nodes/{node}/firewall/log` ✅
 
 Read node firewall log
 

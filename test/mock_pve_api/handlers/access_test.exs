@@ -677,4 +677,28 @@ defmodule MockPveApi.Handlers.AccessTest do
       assert entry["ugid"] == "root@pam"
     end
   end
+
+  # --- TFA ---
+
+  describe "TFA endpoints" do
+    test "GET /access/tfa returns list of users with TFA entries" do
+      resp = request(:get, "/api2/json/access/tfa") |> json(200)
+      assert is_list(resp["data"])
+      # Default state has root@pam user
+      userids = Enum.map(resp["data"], & &1["userid"])
+      assert "root@pam" in userids
+    end
+
+    test "POST /access/tfa returns recovery keys" do
+      resp = request(:post, "/api2/json/access/tfa", %{type: "totp"}) |> json(200)
+      assert is_list(resp["data"]["recovery"])
+      assert length(resp["data"]["recovery"]) == 8
+    end
+
+    test "GET /access/tfa/:userid returns user TFA config" do
+      resp = request(:get, "/api2/json/access/tfa/root@pam") |> json(200)
+      assert resp["data"]["userid"] == "root@pam"
+      assert resp["data"]["entries"] == []
+    end
+  end
 end

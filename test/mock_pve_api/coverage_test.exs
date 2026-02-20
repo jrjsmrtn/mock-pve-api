@@ -311,7 +311,19 @@ defmodule MockPveApi.CoverageTest do
         # Storage import - POST only
         "/api2/json/nodes/{node}/storage/{storage}/import",
         # Storage upload - POST only (returns UPID)
-        "/api2/json/nodes/{node}/storage/{storage}/upload"
+        "/api2/json/nodes/{node}/storage/{storage}/upload",
+        # Bulk node operations - POST only (returns UPID)
+        "/api2/json/nodes/{node}/startall",
+        "/api2/json/nodes/{node}/stopall",
+        "/api2/json/nodes/{node}/migrateall",
+        # VM/CT template conversion - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/template",
+        "/api2/json/nodes/{node}/lxc/{vmid}/template",
+        # VM agent - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent",
+        # VM/CT move operations - POST only (returns UPID)
+        "/api2/json/nodes/{node}/qemu/{vmid}/move_disk",
+        "/api2/json/nodes/{node}/lxc/{vmid}/move_volume"
       ]
 
       # Only validate method combinations on implemented endpoints —
@@ -335,7 +347,9 @@ defmodule MockPveApi.CoverageTest do
           "/api2/json/access/acl",
           "/api2/json/access/password",
           "/api2/json/nodes/{node}/qemu/{vmid}/resize",
-          "/api2/json/nodes/{node}/lxc/{vmid}/resize"
+          "/api2/json/nodes/{node}/lxc/{vmid}/resize",
+          "/api2/json/nodes/{node}/qemu/{vmid}/unlink",
+          "/api2/json/nodes/{node}/services/{service}/state"
         ]
 
         if :put in methods and endpoint.path not in put_only_actions do
@@ -406,11 +420,11 @@ defmodule MockPveApi.CoverageTest do
     test "coverage percentage reflects planned endpoint catalog" do
       stats = Coverage.get_coverage_stats()
 
-      # With ~230 total endpoints and ~154 implemented, coverage is ~55-70%
+      # With ~230 total endpoints and ~197 implemented, coverage is ~85-90%
       assert stats.coverage_percentage > 15.0,
              "Coverage percentage unexpectedly low: #{stats.coverage_percentage}%"
 
-      assert stats.coverage_percentage < 80.0,
+      assert stats.coverage_percentage < 95.0,
              "Coverage percentage unexpectedly high: #{stats.coverage_percentage}% — " <>
                "if many planned endpoints were implemented, update this assertion"
 

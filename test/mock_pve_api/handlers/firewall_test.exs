@@ -771,6 +771,56 @@ defmodule MockPveApi.Handlers.FirewallTest do
     end
   end
 
+  # ── Cluster Firewall Refs, Macros, Log ──
+
+  describe "cluster firewall refs" do
+    test "GET returns reference types" do
+      resp = request(:get, "/api2/json/cluster/firewall/refs") |> json(200)
+      assert is_list(resp["data"])
+      types = Enum.map(resp["data"], & &1["type"])
+      assert "alias" in types
+      assert "ipset" in types
+    end
+  end
+
+  describe "cluster firewall macros" do
+    test "GET returns list of macros" do
+      resp = request(:get, "/api2/json/cluster/firewall/macros") |> json(200)
+      assert is_list(resp["data"])
+      names = Enum.map(resp["data"], & &1["macro"])
+      assert "SSH" in names
+      assert "HTTP" in names
+      assert "DNS" in names
+      assert "Ping" in names
+    end
+  end
+
+  describe "cluster firewall log" do
+    test "GET returns empty log" do
+      resp = request(:get, "/api2/json/cluster/firewall/log") |> json(200)
+      assert resp["data"] == []
+    end
+  end
+
+  # ── Node Firewall Index & Log ──
+
+  describe "node firewall index" do
+    test "GET returns sub-resource list" do
+      resp = request(:get, "/api2/json/nodes/pve-node1/firewall") |> json(200)
+      names = Enum.map(resp["data"], & &1["name"])
+      assert "options" in names
+      assert "rules" in names
+      assert "log" in names
+    end
+  end
+
+  describe "node firewall log" do
+    test "GET returns empty log" do
+      resp = request(:get, "/api2/json/nodes/pve-node1/firewall/log") |> json(200)
+      assert resp["data"] == []
+    end
+  end
+
   # ── VM/CT Isolation ──
 
   describe "VM/CT firewall isolation" do

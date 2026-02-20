@@ -403,16 +403,7 @@ defmodule MockPveApi.Coverage.Cluster do
       "/api2/json/cluster/notifications/endpoints/gotify" =>
         planned(:get_post, :low, "8.1", "Gotify notification endpoints"),
       "/api2/json/cluster/notifications/endpoints/gotify/{name}" =>
-        planned(:get_put_delete, :low, "8.1", "Individual gotify endpoint operations"),
-      # Mapping (resource mappings for PCI/USB passthrough)
-      "/api2/json/cluster/mapping/pci" =>
-        planned(:get_post, :low, "8.0", "PCI device resource mappings"),
-      "/api2/json/cluster/mapping/pci/{id}" =>
-        planned(:get_put_delete, :low, "8.0", "Individual PCI mapping operations"),
-      "/api2/json/cluster/mapping/usb" =>
-        planned(:get_post, :low, "8.0", "USB device resource mappings"),
-      "/api2/json/cluster/mapping/usb/{id}" =>
-        planned(:get_put_delete, :low, "8.0", "Individual USB mapping operations")
+        planned(:get_put_delete, :low, "8.1", "Individual gotify endpoint operations")
     }
   end
 
