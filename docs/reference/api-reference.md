@@ -49,7 +49,7 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Nodes | 28 | 26 | 92.9% |
 | Virtual Machines | 20 | 19 | 95.0% |
 | LXC Containers | 16 | 16 | 100.0% |
-| Storage | 20 | 9 | 45.0% |
+| Storage | 18 | 9 | 50.0% |
 | Access Control | 17 | 17 | 100.0% |
 | Resource Pools | 2 | 2 | 100.0% |
 | SDN | 13 | 13 | 100.0% |
@@ -57,7 +57,7 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Backup | 9 | 9 | 100.0% |
 | Hardware | 7 | 7 | 100.0% |
 | Firewall | 41 | 41 | 100.0% |
-| **TOTAL** | **222** | **194** | **87.4%** |
+| **TOTAL** | **220** | **194** | **88.2%** |
 
 
 ## Status Legend
@@ -2918,60 +2918,6 @@ Prune old backups
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, DELETE |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": [
-    {
-      "active": 1,
-      "enabled": 1,
-      "total": 107374182400,
-      "type": "dir",
-      "used": 21474836480,
-      "storage": "local"
-    }
-  ]
-}
-```
-
-
-### `/nodes/{node}/storage/{storage}/rrd` 📋
-
-Storage RRD statistics
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": [
-    {
-      "active": 1,
-      "enabled": 1,
-      "total": 107374182400,
-      "type": "dir",
-      "used": 21474836480,
-      "storage": "local"
-    }
-  ]
-}
-```
-
-
-### `/nodes/{node}/storage/{storage}/rrddata` 📋
-
-Storage RRD data
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 

@@ -289,10 +289,7 @@ defmodule MockPveApi.Coverage.Storage do
     %{
       "/api2/json/nodes/{node}/storage/{storage}/prunebackups" =>
         planned(:get_delete, :low, "6.0", "Prune old backups"),
-      "/api2/json/nodes/{node}/storage/{storage}/rrd" =>
-        planned(:get, :low, "6.0", "Storage RRD statistics"),
-      "/api2/json/nodes/{node}/storage/{storage}/rrddata" =>
-        planned(:get, :low, "6.0", "Storage RRD data"),
+      # Storage RRD endpoints live in monitoring.ex
       "/api2/json/nodes/{node}/storage/{storage}/file-restore/list" =>
         planned(:get, :low, "7.0", "List files in a backup for single-file restore"),
       "/api2/json/nodes/{node}/storage/{storage}/file-restore/download" =>
