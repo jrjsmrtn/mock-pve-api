@@ -427,7 +427,28 @@ defmodule MockPveApi.Coverage.Cluster do
       "/api2/json/cluster/jobs/realm-sync" =>
         implemented(:get, :low, "7.1", "List realm sync jobs"),
       "/api2/json/cluster/jobs/realm-sync/{id}" =>
-        implemented(:get_post_put_delete, :low, "7.1", "Realm sync job CRUD")
+        implemented(:get_post_put_delete, :low, "7.1", "Realm sync job CRUD"),
+      "/api2/json/cluster/tasks" => implemented(:get, :medium, "4.0", "List cluster-wide tasks"),
+      "/api2/json/cluster/ha/manager_status" =>
+        implemented(:get, :medium, "4.0", "HA manager status"),
+      "/api2/json/cluster/ha/resources/{sid}/migrate" =>
+        implemented(:post, :medium, "4.0", "Migrate HA resource to different node"),
+      "/api2/json/cluster/ha/resources/{sid}/relocate" =>
+        implemented(:post, :medium, "4.0", "Relocate HA resource to different node"),
+      "/api2/json/cluster/metrics/export" =>
+        implemented(:get, :low, "7.0", "Export cluster metrics"),
+      "/api2/json/cluster/sdn/vnets/{vnet}/ips" =>
+        implemented(:post_put_delete, :low, "8.0", "Create, update and delete vnet IPs"),
+      "/api2/json/cluster/bulk-action/guest" =>
+        implemented(:get, :low, "9.0", "Bulk action guest overview"),
+      "/api2/json/cluster/bulk-action/guest/start" =>
+        implemented(:post, :low, "9.0", "Bulk start guests"),
+      "/api2/json/cluster/bulk-action/guest/shutdown" =>
+        implemented(:post, :low, "9.0", "Bulk shutdown guests"),
+      "/api2/json/cluster/bulk-action/guest/suspend" =>
+        implemented(:post, :low, "9.0", "Bulk suspend guests"),
+      "/api2/json/cluster/bulk-action/guest/migrate" =>
+        implemented(:post, :low, "9.0", "Bulk migrate guests")
     }
   end
 
@@ -455,6 +476,9 @@ defmodule MockPveApi.Coverage.Cluster do
   # Helpers for concise planned endpoint definitions
 
   defp methods_for(:get), do: [:get]
+  defp methods_for(:post), do: [:post]
+  defp methods_for(:delete), do: [:delete]
+  defp methods_for(:post_put_delete), do: [:post, :put, :delete]
   defp methods_for(:get_post), do: [:get, :post]
   defp methods_for(:get_put), do: [:get, :put]
   defp methods_for(:get_put_delete), do: [:get, :put, :delete]

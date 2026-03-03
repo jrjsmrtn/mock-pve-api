@@ -497,7 +497,29 @@ defmodule MockPveApi.Coverage.Nodes do
       "/api2/json/nodes/{node}/ceph/osd" =>
         implemented(:get_post, :low, "7.0", "Ceph OSD management"),
       "/api2/json/nodes/{node}/ceph/pools" =>
-        implemented(:get_post, :low, "7.0", "Ceph pool management")
+        implemented(:get_post, :low, "7.0", "Ceph pool management"),
+      "/api2/json/nodes/{node}/scan" =>
+        implemented(:get, :low, "6.0", "List available scan types"),
+      "/api2/json/nodes/{node}/scan/{type}" =>
+        implemented(:get, :low, "6.0", "Scan for resources of a specific type"),
+      "/api2/json/nodes/{node}/replication" =>
+        implemented(:get, :low, "5.0", "List replication jobs for node"),
+      "/api2/json/nodes/{node}/replication/{id}" =>
+        implemented(:get, :low, "5.0", "Get replication job status on node"),
+      "/api2/json/nodes/{node}/replication/{id}/log" =>
+        implemented(:get, :low, "5.0", "Get replication job log on node"),
+      "/api2/json/nodes/{node}/replication/{id}/schedule_now" =>
+        implemented(:post, :low, "5.0", "Schedule replication job immediately"),
+      "/api2/json/nodes/{node}/replication/{id}/status" =>
+        implemented(:get, :low, "5.0", "Get replication job detailed status on node"),
+      "/api2/json/nodes/{node}/services/{service}/reload" =>
+        implemented(:post, :low, "6.0", "Reload a system service"),
+      "/api2/json/nodes/{node}/services/{service}/restart" =>
+        implemented(:post, :low, "6.0", "Restart a system service"),
+      "/api2/json/nodes/{node}/services/{service}/start" =>
+        implemented(:post, :low, "6.0", "Start a system service"),
+      "/api2/json/nodes/{node}/services/{service}/stop" =>
+        implemented(:post, :low, "6.0", "Stop a system service")
     }
   end
 

@@ -105,6 +105,8 @@ defmodule MockPveApi.Coverage.Containers do
         handler_module: MockPveApi.Handlers.Nodes,
         notes: nil
       },
+      "/api2/json/nodes/{node}/lxc/{vmid}/status" =>
+        implemented(:get, :medium, "4.0", "Container status index"),
       "/api2/json/nodes/{node}/lxc/{vmid}/status/current" => %{
         path: "/api2/json/nodes/{node}/lxc/{vmid}/status/current",
         methods: [:get],
@@ -460,7 +462,23 @@ defmodule MockPveApi.Coverage.Containers do
       "/api2/json/nodes/{node}/lxc/{vmid}/template" =>
         implemented(:post, :low, "6.0", "Convert container to template"),
       "/api2/json/nodes/{node}/lxc/{vmid}/move_volume" =>
-        implemented(:post, :medium, "6.0", "Move container volume to different storage")
+        implemented(:post, :medium, "6.0", "Move container volume to different storage"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/vncproxy" =>
+        implemented(:post, :low, "4.0", "Create VNC proxy for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/termproxy" =>
+        implemented(:post, :low, "4.0", "Create terminal proxy for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/spiceproxy" =>
+        implemented(:post, :low, "4.0", "Create SPICE proxy for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/vncwebsocket" =>
+        implemented(:get, :low, "4.0", "VNC WebSocket endpoint for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/mtunnel" =>
+        implemented(:post, :low, "7.0", "Create migration tunnel for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/mtunnelwebsocket" =>
+        implemented(:get, :low, "7.0", "Migration tunnel WebSocket for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/remote_migrate" =>
+        implemented(:post, :medium, "7.0", "Migrate container to remote cluster"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/interfaces" =>
+        implemented(:get, :low, "4.0", "Get container network interfaces")
     }
   end
 

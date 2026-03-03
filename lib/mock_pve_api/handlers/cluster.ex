@@ -1080,4 +1080,47 @@ defmodule MockPveApi.Handlers.Cluster do
       end
     end
   end
+
+  # Cluster tasks
+
+  @doc "GET /api2/json/cluster/tasks"
+  def get_cluster_tasks(conn), do: json_ok(conn, [])
+
+  # HA manager status
+
+  @doc "GET /api2/json/cluster/ha/status/manager_status"
+  def get_ha_manager_status(conn) do
+    json_ok(conn, %{
+      manager_status: "active",
+      quorum: %{quorate: 1, total_votes: 2, expected_votes: 2}
+    })
+  end
+
+  # HA resources migrate/relocate
+
+  @doc "POST /api2/json/cluster/ha/resources/:sid/migrate"
+  def ha_resource_migrate(conn), do: json_ok(conn, nil)
+
+  @doc "POST /api2/json/cluster/ha/resources/:sid/relocate"
+  def ha_resource_relocate(conn), do: json_ok(conn, nil)
+
+  # Cluster metrics export
+
+  @doc "GET /api2/json/cluster/metrics/export"
+  def get_metrics_export(conn), do: json_ok(conn, [])
+
+  # SDN vnet IPs
+
+  @doc "POST/PUT/DELETE /api2/json/cluster/sdn/vnets/:vnet/ips"
+  def sdn_vnet_ips(conn), do: json_ok(conn, nil)
+
+  # Bulk-action guest
+
+  @doc "GET /api2/json/cluster/bulk-action/guest"
+  def get_bulk_action_guest(conn) do
+    json_ok(conn, Enum.map(~w(migrate shutdown start suspend), &%{subdir: &1}))
+  end
+
+  @doc "POST /api2/json/cluster/bulk-action/guest/:action"
+  def bulk_action_guest(conn), do: json_ok(conn, nil)
 end

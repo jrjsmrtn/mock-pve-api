@@ -113,6 +113,8 @@ defmodule MockPveApi.Coverage.VMs do
         handler_module: MockPveApi.Handlers.Nodes,
         notes: nil
       },
+      "/api2/json/nodes/{node}/qemu/{vmid}/status" =>
+        implemented(:get, :medium, "6.0", "VM status index"),
       "/api2/json/nodes/{node}/qemu/{vmid}/status/current" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}/status/current",
         methods: [:get],
@@ -521,6 +523,24 @@ defmodule MockPveApi.Coverage.VMs do
         implemented(:post, :low, "7.0", "Suspend guest to RAM"),
       "/api2/json/nodes/{node}/qemu/{vmid}/cloudinit/dump" =>
         implemented(:get, :low, "6.0", "Get cloud-init configuration dump"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/cloudinit" =>
+        implemented(:get_put, :low, "6.0", "Cloud-init configuration get/update"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/vncproxy" =>
+        implemented(:post, :low, "6.0", "Create VNC proxy for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/termproxy" =>
+        implemented(:post, :low, "6.0", "Create terminal proxy for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/spiceproxy" =>
+        implemented(:post, :low, "6.0", "Create SPICE proxy for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/vncwebsocket" =>
+        implemented(:get, :low, "6.0", "VNC WebSocket endpoint for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/mtunnel" =>
+        implemented(:post, :low, "7.0", "Create migration tunnel for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/mtunnelwebsocket" =>
+        implemented(:get, :low, "7.0", "Migration tunnel WebSocket for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/remote_migrate" =>
+        implemented(:post, :medium, "7.0", "Migrate VM to remote cluster"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/monitor" =>
+        implemented(:post, :low, "6.0", "Send QEMU monitor command"),
       "/api2/json/nodes/{node}/qemu/{vmid}/unlink" =>
         implemented(:put, :low, "6.0", "Unlink/delete disk images"),
       "/api2/json/nodes/{node}/qemu/{vmid}/move_disk" =>

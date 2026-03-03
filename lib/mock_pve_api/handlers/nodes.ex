@@ -2188,4 +2188,194 @@ defmodule MockPveApi.Handlers.Nodes do
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: summary}))
   end
+
+  # --- VM status index ---
+
+  def get_vm_status_index(conn) do
+    data = Enum.map(~w(current start stop reset shutdown suspend resume reboot), &%{subdir: &1})
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- LXC status index ---
+
+  def get_container_status_index(conn) do
+    data = Enum.map(~w(current start stop shutdown suspend resume reboot), &%{subdir: &1})
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM/LXC console stubs ---
+
+  def vm_vncproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900, ticket: "stub-ticket", cert: ""}}))
+  end
+
+  def vm_termproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900, ticket: "stub-ticket", user: "root"}}))
+  end
+
+  def vm_spiceproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{type: "spice", host: "localhost", port: 61000}}))
+  end
+
+  def vm_vncwebsocket(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900}}))
+  end
+
+  def vm_mtunnel(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def vm_mtunnelwebsocket(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def vm_remote_migrate(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def vm_monitor(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ""}))
+  end
+
+  # --- VM cloudinit ---
+
+  def get_vm_cloudinit(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def update_vm_cloudinit(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- LXC console stubs ---
+
+  def container_vncproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900, ticket: "stub-ticket", cert: ""}}))
+  end
+
+  def container_termproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900, ticket: "stub-ticket", user: "root"}}))
+  end
+
+  def container_spiceproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{type: "spice", host: "localhost", port: 61001}}))
+  end
+
+  def container_vncwebsocket(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900}}))
+  end
+
+  def container_mtunnel(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def container_mtunnelwebsocket(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def container_remote_migrate(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def container_interfaces(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  # --- Node scan stubs ---
+
+  def get_scan_index(conn) do
+    subdirs = ~w(cifs glusterfs iscsi lvm lvmthin nfs pbs zfs)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: Enum.map(subdirs, &%{method: &1})}))
+  end
+
+  def scan_stub(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  # --- Node services actions ---
+
+  def node_service_action(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Node replication stubs ---
+
+  def list_node_replication(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_replication_job(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_replication_log(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def node_replication_schedule_now(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def get_node_replication_status(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
 end

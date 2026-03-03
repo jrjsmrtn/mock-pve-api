@@ -341,7 +341,37 @@ defmodule MockPveApi.CoverageTest do
         # ACME certificate - POST=order, PUT=renew, DELETE=revoke (no GET)
         "/api2/json/nodes/{node}/certificates/acme/certificate",
         # Disk initialization - POST only
-        "/api2/json/nodes/{node}/disks/initgpt"
+        "/api2/json/nodes/{node}/disks/initgpt",
+        # VM console/remote stubs - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/vncproxy",
+        "/api2/json/nodes/{node}/qemu/{vmid}/termproxy",
+        "/api2/json/nodes/{node}/qemu/{vmid}/spiceproxy",
+        "/api2/json/nodes/{node}/qemu/{vmid}/mtunnel",
+        "/api2/json/nodes/{node}/qemu/{vmid}/remote_migrate",
+        "/api2/json/nodes/{node}/qemu/{vmid}/monitor",
+        # Container console/remote stubs - POST only
+        "/api2/json/nodes/{node}/lxc/{vmid}/vncproxy",
+        "/api2/json/nodes/{node}/lxc/{vmid}/termproxy",
+        "/api2/json/nodes/{node}/lxc/{vmid}/spiceproxy",
+        "/api2/json/nodes/{node}/lxc/{vmid}/mtunnel",
+        "/api2/json/nodes/{node}/lxc/{vmid}/remote_migrate",
+        # HA resource actions - POST only
+        "/api2/json/cluster/ha/resources/{sid}/migrate",
+        "/api2/json/cluster/ha/resources/{sid}/relocate",
+        # Cluster bulk-action guest - POST only
+        "/api2/json/cluster/bulk-action/guest/start",
+        "/api2/json/cluster/bulk-action/guest/shutdown",
+        "/api2/json/cluster/bulk-action/guest/suspend",
+        "/api2/json/cluster/bulk-action/guest/migrate",
+        # Node replication schedule - POST only
+        "/api2/json/nodes/{node}/replication/{id}/schedule_now",
+        # Node service actions - POST only
+        "/api2/json/nodes/{node}/services/{service}/reload",
+        "/api2/json/nodes/{node}/services/{service}/restart",
+        "/api2/json/nodes/{node}/services/{service}/start",
+        "/api2/json/nodes/{node}/services/{service}/stop",
+        # SDN vnet IPs - POST/PUT/DELETE only (no GET)
+        "/api2/json/cluster/sdn/vnets/{vnet}/ips"
       ]
 
       # Only validate method combinations on implemented endpoints —
@@ -369,7 +399,9 @@ defmodule MockPveApi.CoverageTest do
           "/api2/json/nodes/{node}/qemu/{vmid}/unlink",
           "/api2/json/nodes/{node}/services/{service}/state",
           "/api2/json/nodes/{node}/certificates/acme/certificate",
-          "/api2/json/nodes/{node}/qemu/{vmid}/sendkey"
+          "/api2/json/nodes/{node}/qemu/{vmid}/sendkey",
+          # SDN vnet IPs - POST/PUT/DELETE only (no GET)
+          "/api2/json/cluster/sdn/vnets/{vnet}/ips"
         ]
 
         if :put in methods and endpoint.path not in put_only_actions do

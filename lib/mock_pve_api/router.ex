@@ -236,6 +236,15 @@ defmodule MockPveApi.Router do
     Nodes.get_apt_versions(conn)
   end
 
+  # Node scan endpoints
+  get "/api2/json/nodes/:node/scan" do
+    Nodes.get_scan_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/scan/:type" do
+    Nodes.scan_stub(conn)
+  end
+
   get "/api2/json/nodes/:node/network/:iface" do
     Nodes.get_node_network_iface(conn)
   end
@@ -568,6 +577,50 @@ defmodule MockPveApi.Router do
     Nodes.get_vm_status(conn)
   end
 
+  get "/api2/json/nodes/:node/qemu/:vmid/status" do
+    Nodes.get_vm_status_index(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/vncproxy" do
+    Nodes.vm_vncproxy(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/termproxy" do
+    Nodes.vm_termproxy(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/spiceproxy" do
+    Nodes.vm_spiceproxy(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/vncwebsocket" do
+    Nodes.vm_vncwebsocket(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/mtunnel" do
+    Nodes.vm_mtunnel(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/mtunnelwebsocket" do
+    Nodes.vm_mtunnelwebsocket(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/remote_migrate" do
+    Nodes.vm_remote_migrate(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/monitor" do
+    Nodes.vm_monitor(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/cloudinit" do
+    Nodes.get_vm_cloudinit(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/cloudinit" do
+    Nodes.update_vm_cloudinit(conn)
+  end
+
   post "/api2/json/nodes/:node/qemu" do
     Nodes.create_vm(conn)
   end
@@ -708,6 +761,42 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/nodes/:node/lxc/:vmid/status/current" do
     Nodes.get_container_status(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/status" do
+    Nodes.get_container_status_index(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/vncproxy" do
+    Nodes.container_vncproxy(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/termproxy" do
+    Nodes.container_termproxy(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/spiceproxy" do
+    Nodes.container_spiceproxy(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/vncwebsocket" do
+    Nodes.container_vncwebsocket(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/mtunnel" do
+    Nodes.container_mtunnel(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/mtunnelwebsocket" do
+    Nodes.container_mtunnelwebsocket(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/remote_migrate" do
+    Nodes.container_remote_migrate(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/interfaces" do
+    Nodes.container_interfaces(conn)
   end
 
   post "/api2/json/nodes/:node/lxc" do
@@ -960,8 +1049,33 @@ defmodule MockPveApi.Router do
     Metrics.list_metrics_servers(conn)
   end
 
+  get "/api2/json/cluster/metrics/export" do
+    Cluster.get_metrics_export(conn)
+  end
+
   get "/api2/json/cluster/metrics" do
     Metrics.get_metrics_index(conn)
+  end
+
+  # Node replication endpoints
+  get "/api2/json/nodes/:node/replication" do
+    Nodes.list_node_replication(conn)
+  end
+
+  get "/api2/json/nodes/:node/replication/:id/log" do
+    Nodes.get_node_replication_log(conn)
+  end
+
+  post "/api2/json/nodes/:node/replication/:id/schedule_now" do
+    Nodes.node_replication_schedule_now(conn)
+  end
+
+  get "/api2/json/nodes/:node/replication/:id/status" do
+    Nodes.get_node_replication_status(conn)
+  end
+
+  get "/api2/json/nodes/:node/replication/:id" do
+    Nodes.get_node_replication_job(conn)
   end
 
   # Node services endpoints
@@ -971,6 +1085,22 @@ defmodule MockPveApi.Router do
 
   put "/api2/json/nodes/:node/services/:service/state" do
     Metrics.set_service_state(conn)
+  end
+
+  post "/api2/json/nodes/:node/services/:service/reload" do
+    Nodes.node_service_action(conn)
+  end
+
+  post "/api2/json/nodes/:node/services/:service/restart" do
+    Nodes.node_service_action(conn)
+  end
+
+  post "/api2/json/nodes/:node/services/:service/start" do
+    Nodes.node_service_action(conn)
+  end
+
+  post "/api2/json/nodes/:node/services/:service/stop" do
+    Nodes.node_service_action(conn)
   end
 
   get "/api2/json/nodes/:node/services/:service" do
@@ -1115,8 +1245,32 @@ defmodule MockPveApi.Router do
     Cluster.get_backup_info_index(conn)
   end
 
+  get "/api2/json/cluster/bulk-action/guest" do
+    Cluster.get_bulk_action_guest(conn)
+  end
+
+  post "/api2/json/cluster/bulk-action/guest/start" do
+    Cluster.bulk_action_guest(conn)
+  end
+
+  post "/api2/json/cluster/bulk-action/guest/shutdown" do
+    Cluster.bulk_action_guest(conn)
+  end
+
+  post "/api2/json/cluster/bulk-action/guest/suspend" do
+    Cluster.bulk_action_guest(conn)
+  end
+
+  post "/api2/json/cluster/bulk-action/guest/migrate" do
+    Cluster.bulk_action_guest(conn)
+  end
+
   get "/api2/json/cluster/bulk-action" do
     Cluster.get_bulk_action_index(conn)
+  end
+
+  get "/api2/json/cluster/tasks" do
+    Cluster.get_cluster_tasks(conn)
   end
 
   get "/api2/json/cluster/ceph" do
@@ -1189,6 +1343,14 @@ defmodule MockPveApi.Router do
     Cluster.update_ha_resource(conn)
   end
 
+  post "/api2/json/cluster/ha/resources/:sid/migrate" do
+    Cluster.ha_resource_migrate(conn)
+  end
+
+  post "/api2/json/cluster/ha/resources/:sid/relocate" do
+    Cluster.ha_resource_relocate(conn)
+  end
+
   delete "/api2/json/cluster/ha/resources/:sid" do
     Cluster.delete_ha_resource(conn)
   end
@@ -1196,6 +1358,10 @@ defmodule MockPveApi.Router do
   # HA status
   get "/api2/json/cluster/ha/status/current" do
     Cluster.get_ha_status(conn)
+  end
+
+  get "/api2/json/cluster/ha/manager_status" do
+    Cluster.get_ha_manager_status(conn)
   end
 
   # HA group endpoints
@@ -1649,6 +1815,18 @@ defmodule MockPveApi.Router do
 
   delete "/api2/json/cluster/sdn/vnets/:vnet/subnets/:subnet" do
     Sdn.delete_subnet(conn)
+  end
+
+  post "/api2/json/cluster/sdn/vnets/:vnet/ips" do
+    Cluster.sdn_vnet_ips(conn)
+  end
+
+  put "/api2/json/cluster/sdn/vnets/:vnet/ips" do
+    Cluster.sdn_vnet_ips(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/vnets/:vnet/ips" do
+    Cluster.sdn_vnet_ips(conn)
   end
 
   get "/api2/json/cluster/sdn/vnets/:vnet" do
