@@ -3134,7 +3134,7 @@ Individual realm/domain CRUD
 ```
 
 
-### `/access/domains/{realm}/sync` ✅ 🔴
+### `/access/domains/{realm}/sync` ✅
 
 Sync realm/domain from external source
 
@@ -3142,7 +3142,7 @@ Sync realm/domain from external source
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3567,7 +3567,7 @@ Individual pool operations
 
 ## Software-Defined Networking (SDN)
 
-### `/cluster/sdn` ✅ 🔴
+### `/cluster/sdn` ✅
 
 SDN index
 
@@ -3575,7 +3575,7 @@ SDN index
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -3585,7 +3585,7 @@ SDN index
 ```
 
 
-### `/cluster/sdn/controllers` ✅ 🔴
+### `/cluster/sdn/controllers` ✅
 
 SDN controller management
 
@@ -3593,7 +3593,7 @@ SDN controller management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -3603,7 +3603,7 @@ SDN controller management
 ```
 
 
-### `/cluster/sdn/controllers/{controller}` ✅ 🔴
+### `/cluster/sdn/controllers/{controller}` ✅
 
 Individual SDN controller operations
 
@@ -3611,7 +3611,7 @@ Individual SDN controller operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3627,7 +3627,7 @@ Individual SDN controller operations
 ```
 
 
-### `/cluster/sdn/dns` ✅ 🔴
+### `/cluster/sdn/dns` ✅
 
 SDN DNS plugin management
 
@@ -3635,7 +3635,7 @@ SDN DNS plugin management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -3645,7 +3645,7 @@ SDN DNS plugin management
 ```
 
 
-### `/cluster/sdn/dns/{dns}` ✅ 🔴
+### `/cluster/sdn/dns/{dns}` ✅
 
 Individual SDN DNS plugin operations
 
@@ -3653,7 +3653,7 @@ Individual SDN DNS plugin operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3669,7 +3669,7 @@ Individual SDN DNS plugin operations
 ```
 
 
-### `/cluster/sdn/ipams` ✅ 🔴
+### `/cluster/sdn/ipams` ✅
 
 SDN IPAM plugin management
 
@@ -3677,7 +3677,7 @@ SDN IPAM plugin management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -3687,7 +3687,7 @@ SDN IPAM plugin management
 ```
 
 
-### `/cluster/sdn/ipams/{ipam}` ✅ 🔴
+### `/cluster/sdn/ipams/{ipam}` ✅
 
 Individual SDN IPAM plugin operations
 
@@ -3695,7 +3695,7 @@ Individual SDN IPAM plugin operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3711,7 +3711,7 @@ Individual SDN IPAM plugin operations
 ```
 
 
-### `/cluster/sdn/vnets` ✅ 🔴
+### `/cluster/sdn/vnets` ✅
 
 Virtual network management
 
@@ -3719,7 +3719,7 @@ Virtual network management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -3735,7 +3735,7 @@ Virtual network management
 ```
 
 
-### `/cluster/sdn/vnets/{vnet}` ✅ 🔴
+### `/cluster/sdn/vnets/{vnet}` ✅
 
 Individual virtual network operations
 
@@ -3743,7 +3743,7 @@ Individual virtual network operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3759,7 +3759,7 @@ Individual virtual network operations
 ```
 
 
-### `/cluster/sdn/vnets/{vnet}/subnets` ✅ 🔴
+### `/cluster/sdn/vnets/{vnet}/subnets` ✅
 
 Subnet management for a virtual network
 
@@ -3767,7 +3767,7 @@ Subnet management for a virtual network
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3783,7 +3783,7 @@ Subnet management for a virtual network
 ```
 
 
-### `/cluster/sdn/vnets/{vnet}/subnets/{subnet}` ✅ 🔴
+### `/cluster/sdn/vnets/{vnet}/subnets/{subnet}` ✅
 
 Individual subnet operations
 
@@ -3791,7 +3791,7 @@ Individual subnet operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3808,7 +3808,7 @@ Individual subnet operations
 ```
 
 
-### `/cluster/sdn/zones` ✅ 🔴
+### `/cluster/sdn/zones` ✅
 
 Software Defined Networking zone management
 
@@ -3816,7 +3816,7 @@ Software Defined Networking zone management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -3832,7 +3832,7 @@ Software Defined Networking zone management
 ```
 
 
-### `/cluster/sdn/zones/{zone}` ✅ 🔴
+### `/cluster/sdn/zones/{zone}` ✅
 
 Individual SDN zone operations
 
@@ -3840,7 +3840,7 @@ Individual SDN zone operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 

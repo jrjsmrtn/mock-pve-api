@@ -6,7 +6,7 @@ defmodule MockPveApi.Coverage.Sdn do
   PVE API coverage: Software Defined Networking (SDN) endpoints.
 
   Covers `/cluster/sdn/*` in the PVE API Viewer.
-  SDN is available in PVE 7.0+ (tech preview) and production-ready in PVE 8.0+.
+  SDN endpoints exist in the PVE API since 7.0 (tech preview), production-ready in 8.0+.
   """
 
   @behaviour MockPveApi.Coverage.Category
@@ -26,7 +26,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "SDN index",
         parameters: [],
         response_schema: %{data: :array},
@@ -40,7 +40,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Software Defined Networking zone management",
         parameters: [],
         response_schema: %{data: :array},
@@ -54,7 +54,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Individual SDN zone operations",
         parameters: [
           %{
@@ -77,7 +77,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Virtual network management",
         parameters: [],
         response_schema: %{data: :array},
@@ -91,7 +91,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Individual virtual network operations",
         parameters: [
           %{
@@ -114,7 +114,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Subnet management for a virtual network",
         parameters: [
           %{
@@ -137,7 +137,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Individual subnet operations",
         parameters: [
           %{
@@ -168,7 +168,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "SDN controller management",
         parameters: [],
         response_schema: %{data: :array},
@@ -182,7 +182,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Individual SDN controller operations",
         parameters: [
           %{
@@ -205,7 +205,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :post],
         status: :implemented,
         priority: :low,
-        since: "8.0",
+        since: "7.0",
         description: "SDN DNS plugin management",
         parameters: [],
         response_schema: %{data: :array},
@@ -219,7 +219,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :low,
-        since: "8.0",
+        since: "7.0",
         description: "Individual SDN DNS plugin operations",
         parameters: [
           %{
@@ -242,7 +242,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :post],
         status: :implemented,
         priority: :low,
-        since: "8.0",
+        since: "7.0",
         description: "SDN IPAM plugin management",
         parameters: [],
         response_schema: %{data: :array},
@@ -256,7 +256,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :low,
-        since: "8.0",
+        since: "7.0",
         description: "Individual SDN IPAM plugin operations",
         parameters: [
           %{

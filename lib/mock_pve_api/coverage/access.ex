@@ -248,7 +248,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:post],
         status: :implemented,
         priority: :low,
-        since: "8.0",
+        since: "7.0",
         description: "Sync realm/domain from external source",
         parameters: [
           %{
