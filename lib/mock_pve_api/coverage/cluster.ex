@@ -431,6 +431,8 @@ defmodule MockPveApi.Coverage.Cluster do
       "/api2/json/cluster/tasks" => implemented(:get, :medium, "4.0", "List cluster-wide tasks"),
       "/api2/json/cluster/ha/manager_status" =>
         implemented(:get, :medium, "4.0", "HA manager status"),
+      "/api2/json/cluster/ha/status/manager_status" =>
+        implemented(:get, :medium, "7.0", "HA manager status (canonical path)"),
       "/api2/json/cluster/ha/resources/{sid}/migrate" =>
         implemented(:post, :medium, "4.0", "Migrate HA resource to different node"),
       "/api2/json/cluster/ha/resources/{sid}/relocate" =>

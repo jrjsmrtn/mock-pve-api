@@ -94,6 +94,14 @@ defmodule MockPveApi.Router do
     Access.delete_api_token(conn)
   end
 
+  get "/api2/json/access/users/:userid/tfa" do
+    Access.get_user_tfa_methods(conn)
+  end
+
+  put "/api2/json/access/users/:userid/unlock-tfa" do
+    Access.unlock_user_tfa(conn)
+  end
+
   get "/api2/json/access/groups" do
     Access.list_groups(conn)
   end
@@ -191,6 +199,19 @@ defmodule MockPveApi.Router do
     Access.create_tfa_entry(conn)
   end
 
+  # TFA per-entry endpoints
+  get "/api2/json/access/tfa/:userid/:id" do
+    Access.get_tfa_entry(conn)
+  end
+
+  put "/api2/json/access/tfa/:userid/:id" do
+    Access.update_tfa_entry(conn)
+  end
+
+  delete "/api2/json/access/tfa/:userid/:id" do
+    Access.delete_tfa_entry(conn)
+  end
+
   # Node endpoints
   get "/api2/json/nodes" do
     Nodes.list_nodes(conn)
@@ -224,6 +245,26 @@ defmodule MockPveApi.Router do
     Nodes.update_node_dns(conn)
   end
 
+  get "/api2/json/nodes/:node/apt" do
+    Nodes.get_apt_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/apt/changelog" do
+    Nodes.get_apt_changelog(conn)
+  end
+
+  get "/api2/json/nodes/:node/apt/repositories" do
+    Nodes.get_apt_repositories(conn)
+  end
+
+  post "/api2/json/nodes/:node/apt/repositories" do
+    Nodes.post_apt_repositories(conn)
+  end
+
+  put "/api2/json/nodes/:node/apt/repositories" do
+    Nodes.update_apt_repositories(conn)
+  end
+
   get "/api2/json/nodes/:node/apt/update" do
     Nodes.get_apt_updates(conn)
   end
@@ -234,6 +275,31 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/nodes/:node/apt/versions" do
     Nodes.get_apt_versions(conn)
+  end
+
+  # Node capabilities endpoints
+  get "/api2/json/nodes/:node/capabilities" do
+    Nodes.get_capabilities_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/capabilities/qemu" do
+    Nodes.get_qemu_capabilities(conn)
+  end
+
+  get "/api2/json/nodes/:node/capabilities/qemu/cpu" do
+    Nodes.get_qemu_cpu_capabilities(conn)
+  end
+
+  get "/api2/json/nodes/:node/capabilities/qemu/cpu-flags" do
+    Nodes.get_qemu_cpu_flags(conn)
+  end
+
+  get "/api2/json/nodes/:node/capabilities/qemu/machines" do
+    Nodes.get_qemu_machine_capabilities(conn)
+  end
+
+  get "/api2/json/nodes/:node/capabilities/qemu/migration" do
+    Nodes.get_qemu_migration_capabilities(conn)
   end
 
   # Node scan endpoints
@@ -289,6 +355,18 @@ defmodule MockPveApi.Router do
     Nodes.init_disk_gpt(conn)
   end
 
+  get "/api2/json/nodes/:node/disks/directory" do
+    Nodes.get_disks_directory(conn)
+  end
+
+  post "/api2/json/nodes/:node/disks/directory" do
+    Nodes.create_disks_directory(conn)
+  end
+
+  delete "/api2/json/nodes/:node/disks/directory/:name" do
+    Nodes.delete_disks_directory(conn)
+  end
+
   # Node Ceph endpoints
   get "/api2/json/nodes/:node/ceph/status" do
     Nodes.get_node_ceph_status(conn)
@@ -308,6 +386,23 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/nodes/:node/ceph/pools" do
     Nodes.create_node_ceph_pool(conn)
+  end
+
+  # Node certificates index and sub-resources
+  get "/api2/json/nodes/:node/certificates" do
+    Nodes.get_certificates_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/certificates/acme" do
+    Nodes.get_acme_cert_index(conn)
+  end
+
+  post "/api2/json/nodes/:node/certificates/custom" do
+    Nodes.manage_custom_certificate(conn)
+  end
+
+  delete "/api2/json/nodes/:node/certificates/custom" do
+    Nodes.manage_custom_certificate(conn)
   end
 
   # ACME certificate endpoints
@@ -1111,6 +1206,27 @@ defmodule MockPveApi.Router do
     Metrics.list_services(conn)
   end
 
+  # Node console and power management endpoints
+  post "/api2/json/nodes/:node/termproxy" do
+    Nodes.node_console_stub(conn)
+  end
+
+  get "/api2/json/nodes/:node/vncwebsocket" do
+    Nodes.get_node_vncwebsocket(conn)
+  end
+
+  post "/api2/json/nodes/:node/spiceshell" do
+    Nodes.node_console_stub(conn)
+  end
+
+  post "/api2/json/nodes/:node/wakeonlan" do
+    Nodes.node_wakeonlan(conn)
+  end
+
+  post "/api2/json/nodes/:node/suspendall" do
+    Nodes.node_suspendall(conn)
+  end
+
   # Storage endpoints
   get "/api2/json/storage" do
     Storage.list_storage(conn)
@@ -1361,6 +1477,10 @@ defmodule MockPveApi.Router do
   end
 
   get "/api2/json/cluster/ha/manager_status" do
+    Cluster.get_ha_manager_status(conn)
+  end
+
+  get "/api2/json/cluster/ha/status/manager_status" do
     Cluster.get_ha_manager_status(conn)
   end
 
@@ -1827,6 +1947,39 @@ defmodule MockPveApi.Router do
 
   delete "/api2/json/cluster/sdn/vnets/:vnet/ips" do
     Cluster.sdn_vnet_ips(conn)
+  end
+
+  # SDN vnet firewall endpoints (8.3+)
+  get "/api2/json/cluster/sdn/vnets/:vnet/firewall" do
+    Firewall.get_sdn_vnet_firewall_index(conn)
+  end
+
+  get "/api2/json/cluster/sdn/vnets/:vnet/firewall/options" do
+    Firewall.get_sdn_vnet_firewall_options(conn)
+  end
+
+  put "/api2/json/cluster/sdn/vnets/:vnet/firewall/options" do
+    Firewall.update_sdn_vnet_firewall_options(conn)
+  end
+
+  get "/api2/json/cluster/sdn/vnets/:vnet/firewall/rules" do
+    Firewall.list_sdn_vnet_firewall_rules(conn)
+  end
+
+  post "/api2/json/cluster/sdn/vnets/:vnet/firewall/rules" do
+    Firewall.create_sdn_vnet_firewall_rule(conn)
+  end
+
+  get "/api2/json/cluster/sdn/vnets/:vnet/firewall/rules/:pos" do
+    Firewall.get_sdn_vnet_firewall_rule(conn)
+  end
+
+  put "/api2/json/cluster/sdn/vnets/:vnet/firewall/rules/:pos" do
+    Firewall.update_sdn_vnet_firewall_rule(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/vnets/:vnet/firewall/rules/:pos" do
+    Firewall.delete_sdn_vnet_firewall_rule(conn)
   end
 
   get "/api2/json/cluster/sdn/vnets/:vnet" do

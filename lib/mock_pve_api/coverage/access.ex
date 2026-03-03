@@ -379,6 +379,48 @@ defmodule MockPveApi.Coverage.Access do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Access,
         notes: nil
+      },
+      "/api2/json/access/tfa/{userid}/{id}" => %{
+        path: "/api2/json/access/tfa/{userid}/{id}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "7.1",
+        description: "TFA entry CRUD",
+        parameters: [],
+        response_schema: %{data: :object},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
+      },
+      "/api2/json/access/users/{userid}/tfa" => %{
+        path: "/api2/json/access/users/{userid}/tfa",
+        methods: [:get],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "List available TFA methods for user",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
+      },
+      "/api2/json/access/users/{userid}/unlock-tfa" => %{
+        path: "/api2/json/access/users/{userid}/unlock-tfa",
+        methods: [:put],
+        status: :implemented,
+        priority: :low,
+        since: "8.0",
+        description: "Unlock locked TFA for user",
+        parameters: [],
+        response_schema: %{data: :object},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
       }
     }
   end

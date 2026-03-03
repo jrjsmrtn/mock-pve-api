@@ -107,6 +107,18 @@ defmodule MockPveApi.Coverage.Containers do
       },
       "/api2/json/nodes/{node}/lxc/{vmid}/status" =>
         implemented(:get, :medium, "4.0", "Container status index"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/start" =>
+        implemented(:post, :high, "4.0", "Start container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/stop" =>
+        implemented(:post, :high, "4.0", "Stop container (immediate)"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/reboot" =>
+        implemented(:post, :medium, "4.0", "Reboot container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/shutdown" =>
+        implemented(:post, :medium, "4.0", "Shutdown container (graceful)"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/resume" =>
+        implemented(:post, :medium, "4.0", "Resume suspended container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/suspend" =>
+        implemented(:post, :medium, "4.0", "Suspend container"),
       "/api2/json/nodes/{node}/lxc/{vmid}/status/current" => %{
         path: "/api2/json/nodes/{node}/lxc/{vmid}/status/current",
         methods: [:get],

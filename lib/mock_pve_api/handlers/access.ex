@@ -787,4 +787,34 @@ defmodule MockPveApi.Handlers.Access do
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: tfa_data}))
   end
+
+  def get_tfa_entry(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def update_tfa_entry(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def delete_tfa_entry(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def get_user_tfa_methods(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def unlock_user_tfa(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
 end

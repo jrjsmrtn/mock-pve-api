@@ -45,20 +45,20 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Category | Total | Implemented | Coverage |
 |----------|-------|-------------|----------|
 | Version | 1 | 1 | 100.0% |
-| Cluster | 55 | 55 | 100.0% |
-| Nodes | 45 | 45 | 100.0% |
-| Virtual Machines | 55 | 55 | 100.0% |
-| LXC Containers | 25 | 25 | 100.0% |
+| Cluster | 56 | 56 | 100.0% |
+| Nodes | 72 | 72 | 100.0% |
+| Virtual Machines | 62 | 62 | 100.0% |
+| LXC Containers | 31 | 31 | 100.0% |
 | Storage | 12 | 12 | 100.0% |
-| Access Control | 17 | 17 | 100.0% |
+| Access Control | 20 | 20 | 100.0% |
 | Resource Pools | 2 | 2 | 100.0% |
-| SDN | 13 | 13 | 100.0% |
+| SDN | 17 | 17 | 100.0% |
 | Monitoring | 16 | 16 | 100.0% |
 | Backup | 9 | 9 | 100.0% |
 | Hardware | 9 | 9 | 100.0% |
 | Firewall | 41 | 41 | 100.0% |
 | Notifications | 16 | 16 | 100.0% |
-| **TOTAL** | **316** | **316** | **100.0%** |
+| **TOTAL** | **364** | **364** | **100.0%** |
 
 
 ## Status Legend
@@ -913,6 +913,24 @@ Current HA manager and resource status
 ```
 
 
+### `/cluster/ha/status/manager_status` ✅
+
+HA manager status (canonical path)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Medium |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/jobs` ✅
 
 Scheduled jobs index
@@ -1271,6 +1289,60 @@ Node index — lists available sub-resources
 ```
 
 
+### `/nodes/{node}/apt` ✅
+
+Node APT index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/apt/changelog` ✅
+
+Get APT package changelog
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/apt/repositories` ✅
+
+APT repository configuration
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST, PUT |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/apt/update` ✅
 
 APT package update management
@@ -1315,6 +1387,164 @@ Get package version information
 ```json
 {
   "data": []
+}
+```
+
+
+### `/nodes/{node}/capabilities` ✅
+
+Node capabilities index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/capabilities/qemu` ✅
+
+QEMU capabilities
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "cpu": 0.25,
+      "name": "test-vm",
+      "status": "running",
+      "mem": 1073741824,
+      "maxcpu": 2,
+      "maxmem": 2147483648,
+      "vmid": 100
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/capabilities/qemu/cpu` ✅
+
+QEMU CPU capabilities
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "cpu": 0.25,
+      "name": "test-vm",
+      "status": "running",
+      "mem": 1073741824,
+      "maxcpu": 2,
+      "maxmem": 2147483648,
+      "vmid": 100
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/capabilities/qemu/cpu-flags` ✅ 🟠
+
+QEMU CPU flag capabilities
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "cpu": 0.25,
+      "name": "test-vm",
+      "status": "running",
+      "mem": 1073741824,
+      "maxcpu": 2,
+      "maxmem": 2147483648,
+      "vmid": 100
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/capabilities/qemu/machines` ✅
+
+QEMU machine type capabilities
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "cpu": 0.25,
+      "name": "test-vm",
+      "status": "running",
+      "mem": 1073741824,
+      "maxcpu": 2,
+      "maxmem": 2147483648,
+      "vmid": 100
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/capabilities/qemu/migration` ✅ 🟠
+
+QEMU migration capabilities
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "cpu": 0.25,
+      "name": "test-vm",
+      "status": "running",
+      "mem": 1073741824,
+      "maxcpu": 2,
+      "maxmem": 2147483648,
+      "vmid": 100
+    }
+  ]
 }
 ```
 
@@ -1373,6 +1603,42 @@ Ceph status on node
 ```
 
 
+### `/nodes/{node}/certificates` ✅
+
+Node certificates index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/certificates/acme` ✅
+
+ACME certificate index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/certificates/acme/certificate` ✅
 
 ACME certificate management
@@ -1382,6 +1648,24 @@ ACME certificate management
 | **Methods** | POST, PUT, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/certificates/custom` ✅
+
+Upload or remove custom certificate
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -1424,6 +1708,42 @@ Node configuration options
 | Name | Type | Required | Description | Values |
 |------|------|----------|-------------|--------|
 | `node` | string | Yes | Node name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/directory` ✅
+
+Directory storage management
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/directory/{name}` ✅
+
+Remove directory storage
+
+| Property | Value |
+|----------|-------|
+| **Methods** | DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.1 |
 
 **Example Response**:
 ```json
@@ -1806,6 +2126,150 @@ List available scan types
 ```
 
 
+### `/nodes/{node}/scan/cifs` ✅
+
+Scan for CIFS shares
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/glusterfs` ✅
+
+Scan for GlusterFS volumes
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/iscsi` ✅
+
+Scan for iSCSI targets
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/lvm` ✅
+
+Scan for LVM volumes
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/lvmthin` ✅
+
+Scan for LVM thin pools
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/nfs` ✅
+
+Scan for NFS shares
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/pbs` ✅
+
+Scan for Proxmox Backup Servers
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/zfs` ✅
+
+Scan for ZFS pools
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/scan/{type}` ✅
 
 Scan for resources of a specific type
@@ -1896,6 +2360,24 @@ Stop a system service
 ```
 
 
+### `/nodes/{node}/spiceshell` ✅
+
+Create node SPICE shell
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/startall` ✅
 
 Start all VMs and containers on node
@@ -1966,6 +2448,24 @@ Node subscription information
 | **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/suspendall` ✅ 🔴
+
+Suspend all VMs on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 8.1 |
 
 **Example Response**:
 ```json
@@ -2098,6 +2598,24 @@ Get task status by UPID
 ```
 
 
+### `/nodes/{node}/termproxy` ✅
+
+Create node terminal proxy
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/time` ✅
 
 Node time configuration
@@ -2143,6 +2661,42 @@ Node-specific version information
 | Name | Type | Required | Description | Values |
 |------|------|----------|-------------|--------|
 | `node` | string | Yes | Node name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/vncwebsocket` ✅
+
+Node VNC websocket
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/wakeonlan` ✅
+
+Wake node via WoL
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -3566,6 +4120,195 @@ Current VM status and statistics
 ```
 
 
+### `/nodes/{node}/qemu/{vmid}/status/reboot` ✅
+
+Reboot VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/reset` ✅
+
+Reset VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/resume` ✅
+
+Resume suspended VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/shutdown` ✅
+
+Shutdown VM (graceful)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/start` ✅
+
+Start VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | High |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/stop` ✅
+
+Stop VM (immediate)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | High |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/suspend` ✅
+
+Suspend VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
 ### `/nodes/{node}/qemu/{vmid}/status/{command}` ✅
 
 VM control operations (start, stop, reset, etc.)
@@ -4324,6 +5067,162 @@ Current container status and statistics
 |------|------|----------|-------------|--------|
 | `node` | string | Yes | Node name | - |
 | `vmid` | integer | Yes | Container ID | - |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/reboot` ✅
+
+Reboot container
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/resume` ✅
+
+Resume suspended container
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/shutdown` ✅
+
+Shutdown container (graceful)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/start` ✅
+
+Start container
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | High |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/stop` ✅
+
+Stop container (immediate)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | High |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/suspend` ✅
+
+Suspend container
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
 
 **Example Response**:
 ```json
@@ -5144,6 +6043,24 @@ User TFA configuration
 ```
 
 
+### `/access/tfa/{userid}/{id}` ✅
+
+TFA entry CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/access/ticket` ✅
 
 Authentication ticket creation
@@ -5237,6 +6154,31 @@ Individual user account operations
 **Notes**: Individual user CRUD operations implemented
 
 
+### `/access/users/{userid}/tfa` ✅
+
+List available TFA methods for user
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "enable": 1,
+    "groups": [
+      "developers"
+    ],
+    "userid": "testuser@pve",
+    "email": "test@example.com"
+  }
+}
+```
+
+
 ### `/access/users/{userid}/token` ✅
 
 List API tokens for user
@@ -5296,6 +6238,31 @@ Individual API token operations
 ```
 
 **Notes**: API token CRUD operations implemented
+
+
+### `/access/users/{userid}/unlock-tfa` ✅ 🔴
+
+Unlock locked TFA for user
+
+| Property | Value |
+|----------|-------|
+| **Methods** | PUT |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "enable": 1,
+    "groups": [
+      "developers"
+    ],
+    "userid": "testuser@pve",
+    "email": "test@example.com"
+  }
+}
+```
 
 
 ---
@@ -5550,6 +6517,78 @@ Individual virtual network operations
 | Name | Type | Required | Description | Values |
 |------|------|----------|-------------|--------|
 | `vnet` | string | Yes | VNet identifier | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/vnets/{vnet}/firewall` ✅ 🔴
+
+SDN vnet firewall index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.3 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/sdn/vnets/{vnet}/firewall/options` ✅ 🔴
+
+SDN vnet firewall options
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT |
+| **Priority** | Low |
+| **Since** | PVE 8.3 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/vnets/{vnet}/firewall/rules` ✅ 🔴
+
+SDN vnet firewall rules list and create
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 8.3 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/sdn/vnets/{vnet}/firewall/rules/{pos}` ✅ 🔴
+
+SDN vnet firewall rule CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 8.3 |
 
 **Example Response**:
 ```json

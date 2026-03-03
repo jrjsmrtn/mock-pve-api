@@ -115,6 +115,20 @@ defmodule MockPveApi.Coverage.VMs do
       },
       "/api2/json/nodes/{node}/qemu/{vmid}/status" =>
         implemented(:get, :medium, "6.0", "VM status index"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/start" =>
+        implemented(:post, :high, "6.0", "Start VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/stop" =>
+        implemented(:post, :high, "6.0", "Stop VM (immediate)"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/reset" =>
+        implemented(:post, :medium, "6.0", "Reset VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/reboot" =>
+        implemented(:post, :medium, "6.0", "Reboot VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/shutdown" =>
+        implemented(:post, :medium, "6.0", "Shutdown VM (graceful)"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/resume" =>
+        implemented(:post, :medium, "6.0", "Resume suspended VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/suspend" =>
+        implemented(:post, :medium, "6.0", "Suspend VM"),
       "/api2/json/nodes/{node}/qemu/{vmid}/status/current" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}/status/current",
         methods: [:get],

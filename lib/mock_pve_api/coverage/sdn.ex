@@ -273,6 +273,62 @@ defmodule MockPveApi.Coverage.Sdn do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Sdn,
         notes: nil
+      },
+      "/api2/json/cluster/sdn/vnets/{vnet}/firewall" => %{
+        path: "/api2/json/cluster/sdn/vnets/{vnet}/firewall",
+        methods: [:get],
+        status: :implemented,
+        priority: :low,
+        since: "8.3",
+        description: "SDN vnet firewall index",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Firewall,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/vnets/{vnet}/firewall/options" => %{
+        path: "/api2/json/cluster/sdn/vnets/{vnet}/firewall/options",
+        methods: [:get, :put],
+        status: :implemented,
+        priority: :low,
+        since: "8.3",
+        description: "SDN vnet firewall options",
+        parameters: [],
+        response_schema: %{data: :object},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Firewall,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/vnets/{vnet}/firewall/rules" => %{
+        path: "/api2/json/cluster/sdn/vnets/{vnet}/firewall/rules",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :low,
+        since: "8.3",
+        description: "SDN vnet firewall rules list and create",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Firewall,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/vnets/{vnet}/firewall/rules/{pos}" => %{
+        path: "/api2/json/cluster/sdn/vnets/{vnet}/firewall/rules/{pos}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "8.3",
+        description: "SDN vnet firewall rule CRUD",
+        parameters: [],
+        response_schema: %{data: :object},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Firewall,
+        notes: nil
       }
     }
   end

@@ -502,6 +502,20 @@ defmodule MockPveApi.Coverage.Nodes do
         implemented(:get, :low, "6.0", "List available scan types"),
       "/api2/json/nodes/{node}/scan/{type}" =>
         implemented(:get, :low, "6.0", "Scan for resources of a specific type"),
+      "/api2/json/nodes/{node}/scan/nfs" => implemented(:get, :low, "6.0", "Scan for NFS shares"),
+      "/api2/json/nodes/{node}/scan/cifs" =>
+        implemented(:get, :low, "6.0", "Scan for CIFS shares"),
+      "/api2/json/nodes/{node}/scan/lvm" =>
+        implemented(:get, :low, "6.0", "Scan for LVM volumes"),
+      "/api2/json/nodes/{node}/scan/lvmthin" =>
+        implemented(:get, :low, "6.0", "Scan for LVM thin pools"),
+      "/api2/json/nodes/{node}/scan/pbs" =>
+        implemented(:get, :low, "7.0", "Scan for Proxmox Backup Servers"),
+      "/api2/json/nodes/{node}/scan/zfs" => implemented(:get, :low, "6.0", "Scan for ZFS pools"),
+      "/api2/json/nodes/{node}/scan/glusterfs" =>
+        implemented(:get, :low, "6.0", "Scan for GlusterFS volumes"),
+      "/api2/json/nodes/{node}/scan/iscsi" =>
+        implemented(:get, :low, "6.0", "Scan for iSCSI targets"),
       "/api2/json/nodes/{node}/replication" =>
         implemented(:get, :low, "5.0", "List replication jobs for node"),
       "/api2/json/nodes/{node}/replication/{id}" =>
@@ -519,7 +533,43 @@ defmodule MockPveApi.Coverage.Nodes do
       "/api2/json/nodes/{node}/services/{service}/start" =>
         implemented(:post, :low, "6.0", "Start a system service"),
       "/api2/json/nodes/{node}/services/{service}/stop" =>
-        implemented(:post, :low, "6.0", "Stop a system service")
+        implemented(:post, :low, "6.0", "Stop a system service"),
+      "/api2/json/nodes/{node}/apt" => implemented(:get, :low, "7.0", "Node APT index"),
+      "/api2/json/nodes/{node}/apt/changelog" =>
+        implemented(:get, :low, "7.0", "Get APT package changelog"),
+      "/api2/json/nodes/{node}/apt/repositories" =>
+        implemented(:get_post_put, :low, "7.0", "APT repository configuration"),
+      "/api2/json/nodes/{node}/capabilities" =>
+        implemented(:get, :low, "7.0", "Node capabilities index"),
+      "/api2/json/nodes/{node}/capabilities/qemu" =>
+        implemented(:get, :low, "7.0", "QEMU capabilities"),
+      "/api2/json/nodes/{node}/capabilities/qemu/cpu" =>
+        implemented(:get, :low, "7.0", "QEMU CPU capabilities"),
+      "/api2/json/nodes/{node}/capabilities/qemu/cpu-flags" =>
+        implemented(:get, :low, "9.0", "QEMU CPU flag capabilities"),
+      "/api2/json/nodes/{node}/capabilities/qemu/machines" =>
+        implemented(:get, :low, "7.0", "QEMU machine type capabilities"),
+      "/api2/json/nodes/{node}/capabilities/qemu/migration" =>
+        implemented(:get, :low, "9.0", "QEMU migration capabilities"),
+      "/api2/json/nodes/{node}/certificates" =>
+        implemented(:get, :low, "7.0", "Node certificates index"),
+      "/api2/json/nodes/{node}/certificates/acme" =>
+        implemented(:get, :low, "7.0", "ACME certificate index"),
+      "/api2/json/nodes/{node}/certificates/custom" =>
+        implemented(:post_delete, :low, "7.0", "Upload or remove custom certificate"),
+      "/api2/json/nodes/{node}/disks/directory" =>
+        implemented(:get_post, :low, "7.0", "Directory storage management"),
+      "/api2/json/nodes/{node}/disks/directory/{name}" =>
+        implemented(:delete, :low, "7.1", "Remove directory storage"),
+      "/api2/json/nodes/{node}/termproxy" =>
+        implemented(:post, :low, "7.0", "Create node terminal proxy"),
+      "/api2/json/nodes/{node}/vncwebsocket" =>
+        implemented(:get, :low, "7.0", "Node VNC websocket"),
+      "/api2/json/nodes/{node}/spiceshell" =>
+        implemented(:post, :low, "7.0", "Create node SPICE shell"),
+      "/api2/json/nodes/{node}/wakeonlan" => implemented(:post, :low, "7.0", "Wake node via WoL"),
+      "/api2/json/nodes/{node}/suspendall" =>
+        implemented(:post, :low, "8.1", "Suspend all VMs on node")
     }
   end
 
@@ -549,6 +599,8 @@ defmodule MockPveApi.Coverage.Nodes do
   defp methods_for(:delete), do: [:delete]
   defp methods_for(:get_post), do: [:get, :post]
   defp methods_for(:get_put), do: [:get, :put]
+  defp methods_for(:get_post_put), do: [:get, :post, :put]
+  defp methods_for(:post_delete), do: [:post, :delete]
   defp methods_for(:get_put_delete), do: [:get, :put, :delete]
   defp methods_for(:get_post_put_delete), do: [:get, :post, :put, :delete]
   defp methods_for(:post_put_delete), do: [:post, :put, :delete]

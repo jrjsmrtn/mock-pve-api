@@ -295,6 +295,19 @@ defmodule MockPveApi.Handlers.Firewall do
   def get_ct_firewall_log(conn), do: do_get_log(conn)
 
   # ────────────────────────────────────────────────
+  # SDN VNet Firewall — stub handlers (8.3+)
+  # ────────────────────────────────────────────────
+
+  def get_sdn_vnet_firewall_index(conn), do: json_resp(conn, 200, [])
+  def get_sdn_vnet_firewall_options(conn), do: json_resp(conn, 200, %{})
+  def update_sdn_vnet_firewall_options(conn), do: json_resp(conn, 200, nil)
+  def list_sdn_vnet_firewall_rules(conn), do: json_resp(conn, 200, [])
+  def create_sdn_vnet_firewall_rule(conn), do: json_resp(conn, 200, nil)
+  def get_sdn_vnet_firewall_rule(conn), do: json_resp(conn, 200, %{})
+  def update_sdn_vnet_firewall_rule(conn), do: json_resp(conn, 200, nil)
+  def delete_sdn_vnet_firewall_rule(conn), do: json_resp(conn, 200, nil)
+
+  # ────────────────────────────────────────────────
   # Shared internals — Options
   # ────────────────────────────────────────────────
 
