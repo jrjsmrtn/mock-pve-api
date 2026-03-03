@@ -387,6 +387,10 @@ defmodule MockPveApi.State do
     GenServer.call(@name, {:add_storage_content, node, storage, content})
   end
 
+  def get_storage_status(storage_id) do
+    GenServer.call(@name, {:get_storage_status, storage_id})
+  end
+
   # Pool operations
   def get_pools do
     GenServer.call(@name, :get_pools)
@@ -2908,6 +2912,31 @@ defmodule MockPveApi.State do
 
   def handle_call({:get_storage_by_id, storage_id}, _from, state) do
     {:reply, Map.get(state.storage, storage_id), state}
+  end
+
+  def handle_call({:get_storage_status, storage_id}, _from, state) do
+    case Map.get(state.storage, storage_id) do
+      nil ->
+        {:reply, nil, state}
+
+      storage ->
+        status = %{
+          storage: storage_id,
+          type: storage.type,
+          content: storage.content,
+          enabled: Map.get(storage, :enabled, 1),
+          active: 1,
+          shared: 0,
+          # 100 GiB synthetic
+          total: 107_374_182_400,
+          # 50 GiB synthetic
+          used: 53_687_091_200,
+          # 50 GiB synthetic
+          avail: 53_687_091_200
+        }
+
+        {:reply, status, state}
+    end
   end
 
   def handle_call({:create_storage, storage_id, params}, _from, state) do

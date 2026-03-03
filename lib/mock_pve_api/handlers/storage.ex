@@ -101,6 +101,45 @@ defmodule MockPveApi.Handlers.Storage do
   end
 
   @doc """
+  GET /api2/json/nodes/:node/storage/:storage/status
+  Gets storage status (capacity) for a specific storage on a node.
+  """
+  def get_storage_status(conn) do
+    node_name = conn.path_params["node"]
+    storage_id = conn.path_params["storage"]
+
+    case State.get_node(node_name) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{
+            errors: %{message: "Node '#{node_name}' not found"}
+          })
+        )
+
+      _node ->
+        case State.get_storage_status(storage_id) do
+          nil ->
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(
+              404,
+              Jason.encode!(%{
+                errors: %{message: "Storage '#{storage_id}' not found"}
+              })
+            )
+
+          status ->
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(200, Jason.encode!(%{data: status}))
+        end
+    end
+  end
+
+  @doc """
   POST /api2/json/storage
   Creates a new storage definition.
   """

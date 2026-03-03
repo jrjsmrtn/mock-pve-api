@@ -948,6 +948,10 @@ defmodule MockPveApi.Router do
     Storage.delete_prunebackups(conn)
   end
 
+  get "/api2/json/nodes/:node/storage/:storage/status" do
+    Storage.get_storage_status(conn)
+  end
+
   get "/api2/json/nodes/:node/storage/:storage/rrd" do
     Metrics.get_storage_rrd(conn)
   end
