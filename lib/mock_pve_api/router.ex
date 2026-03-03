@@ -36,6 +36,9 @@ defmodule MockPveApi.Router do
   plug(:authenticate)
   plug(:check_coverage_status)
   plug(:check_endpoint_support)
+  plug(:check_feature_flags)
+  plug(:apply_response_delay)
+  plug(:maybe_inject_error)
   plug(:track_endpoint_usage)
   plug(:add_cors_headers)
   plug(:dispatch)
@@ -2925,6 +2928,87 @@ defmodule MockPveApi.Router do
         }
       })
     )
+  end
+
+  # Feature flag guard — skip version and internal coverage endpoints
+  defp check_feature_flags(%Plug.Conn{request_path: "/api2/json/version"} = conn, _opts), do: conn
+
+  defp check_feature_flags(%Plug.Conn{request_path: "/api2/json/_coverage" <> _} = conn, _opts),
+    do: conn
+
+  defp check_feature_flags(conn, _opts) do
+    path = conn.request_path
+
+    cond do
+      sdn_path?(path) && !feature_enabled?(:enable_sdn) ->
+        feature_disabled_error(conn, "SDN")
+
+      firewall_path?(path) && !feature_enabled?(:enable_firewall) ->
+        feature_disabled_error(conn, "Firewall")
+
+      backup_providers_path?(path) && !feature_enabled?(:enable_backup_providers) ->
+        feature_disabled_error(conn, "Backup Providers")
+
+      true ->
+        conn
+    end
+  end
+
+  defp sdn_path?(path), do: String.starts_with?(path, "/api2/json/cluster/sdn")
+
+  defp firewall_path?(path), do: String.contains?(path, "/firewall")
+
+  defp backup_providers_path?(path) do
+    String.starts_with?(path, "/api2/json/cluster/backup-providers") ||
+      path == "/api2/json/cluster/backup-info/providers"
+  end
+
+  defp feature_enabled?(key), do: Application.get_env(:mock_pve_api, key, true)
+
+  defp feature_disabled_error(conn, feature_name) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(
+      501,
+      Jason.encode!(%{
+        "errors" => %{"message" => "#{feature_name} feature is disabled"}
+      })
+    )
+    |> halt()
+  end
+
+  # Response delay — skip internal coverage endpoints
+  defp apply_response_delay(%Plug.Conn{request_path: "/api2/json/_coverage" <> _} = conn, _opts),
+    do: conn
+
+  defp apply_response_delay(conn, _opts) do
+    delay_ms = Application.get_env(:mock_pve_api, :response_delay_ms, 0)
+    if delay_ms > 0, do: Process.sleep(delay_ms)
+    conn
+  end
+
+  # Error injection — skip version and internal coverage endpoints
+  defp maybe_inject_error(%Plug.Conn{request_path: "/api2/json/version"} = conn, _opts), do: conn
+
+  defp maybe_inject_error(%Plug.Conn{request_path: "/api2/json/_coverage" <> _} = conn, _opts),
+    do: conn
+
+  defp maybe_inject_error(conn, _opts) do
+    error_rate = Application.get_env(:mock_pve_api, :error_rate, 0)
+
+    if error_rate > 0 && :rand.uniform(100) <= error_rate do
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        500,
+        Jason.encode!(%{
+          "errors" => %{"message" => "Simulated error (error_rate: #{error_rate}%)"}
+        })
+      )
+      |> halt()
+    else
+      conn
+    end
   end
 
   defp add_cors_headers(conn, _opts) do
