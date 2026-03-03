@@ -701,4 +701,86 @@ defmodule MockPveApi.Handlers.AccessTest do
       assert resp["data"]["entries"] == []
     end
   end
+
+  describe "TFA per-entry" do
+    test "GET /access/tfa/:userid/:id returns 200" do
+      conn = request(:get, "/api2/json/access/tfa/root@pam/tfa-123")
+      json(conn, 200)
+    end
+
+    test "PUT /access/tfa/:userid/:id returns 200" do
+      conn = request(:put, "/api2/json/access/tfa/root@pam/tfa-123")
+      json(conn, 200)
+    end
+
+    test "DELETE /access/tfa/:userid/:id returns 200" do
+      conn = request(:delete, "/api2/json/access/tfa/root@pam/tfa-123")
+      json(conn, 200)
+    end
+  end
+
+  describe "user TFA management" do
+    test "GET /access/users/:userid/tfa returns list" do
+      conn = request(:get, "/api2/json/access/users/root@pam/tfa")
+      data = json(conn, 200)
+      assert is_list(data["data"])
+    end
+
+    test "PUT /access/users/:userid/unlock-tfa returns 200" do
+      conn = request(:put, "/api2/json/access/users/root@pam/unlock-tfa")
+      json(conn, 200)
+    end
+  end
+
+  describe "access index stubs" do
+    setup do
+      original_version = Application.get_env(:mock_pve_api, :pve_version, "8.3")
+      Application.put_env(:mock_pve_api, :pve_version, "9.0")
+      MockPveApi.State.reset()
+
+      on_exit(fn ->
+        Application.put_env(:mock_pve_api, :pve_version, original_version)
+        MockPveApi.State.reset()
+      end)
+
+      :ok
+    end
+
+    test "GET /access returns 200" do
+      conn = request(:get, "/api2/json/access")
+      assert conn.status == 200
+      assert %{"data" => _} = json(conn, 200)
+    end
+
+    test "GET /access/openid returns 200" do
+      conn = request(:get, "/api2/json/access/openid")
+      json(conn, 200)
+    end
+
+    test "POST /access/openid/auth-url returns 200" do
+      conn =
+        request(:post, "/api2/json/access/openid/auth-url", %{
+          "redirect_url" => "https://example.com"
+        })
+
+      json(conn, 200)
+    end
+
+    test "POST /access/openid/login returns 200" do
+      conn =
+        request(:post, "/api2/json/access/openid/login", %{"code" => "abc", "state" => "xyz"})
+
+      json(conn, 200)
+    end
+
+    test "POST /access/vncticket returns 200" do
+      conn =
+        request(:post, "/api2/json/access/vncticket", %{
+          "username" => "root@pam",
+          "password" => "secret"
+        })
+
+      json(conn, 200)
+    end
+  end
 end

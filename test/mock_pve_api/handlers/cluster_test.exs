@@ -650,4 +650,146 @@ defmodule MockPveApi.Handlers.ClusterTest do
       assert length(body["data"]) == 1
     end
   end
+
+  describe "cluster tasks" do
+    test "GET /cluster/tasks returns empty list" do
+      conn = request(:get, "/api2/json/cluster/tasks")
+      assert conn.status == 200
+      assert json(conn, 200)["data"] == []
+    end
+  end
+
+  describe "HA manager status and resource actions" do
+    test "GET /cluster/ha/manager_status returns 200" do
+      conn = request(:get, "/api2/json/cluster/ha/manager_status")
+      json(conn, 200)
+    end
+
+    test "POST /cluster/ha/resources/:sid/migrate returns 200" do
+      conn = request(:post, "/api2/json/cluster/ha/resources/vm%3A100/migrate")
+      json(conn, 200)
+    end
+
+    test "POST /cluster/ha/resources/:sid/relocate returns 200" do
+      conn = request(:post, "/api2/json/cluster/ha/resources/vm%3A100/relocate")
+      json(conn, 200)
+    end
+  end
+
+  describe "bulk-action/guest (9.0+)" do
+    setup do
+      original_version = Application.get_env(:mock_pve_api, :pve_version, "8.3")
+      Application.put_env(:mock_pve_api, :pve_version, "9.0")
+      State.reset()
+
+      on_exit(fn ->
+        Application.put_env(:mock_pve_api, :pve_version, original_version)
+        State.reset()
+      end)
+
+      :ok
+    end
+
+    test "GET /cluster/bulk-action/guest returns 200" do
+      conn = request(:get, "/api2/json/cluster/bulk-action/guest")
+      json(conn, 200)
+    end
+
+    test "POST /cluster/bulk-action/guest/start returns 200" do
+      conn = request(:post, "/api2/json/cluster/bulk-action/guest/start")
+      json(conn, 200)
+    end
+
+    test "POST /cluster/bulk-action/guest/shutdown returns 200" do
+      conn = request(:post, "/api2/json/cluster/bulk-action/guest/shutdown")
+      json(conn, 200)
+    end
+
+    test "POST /cluster/bulk-action/guest/suspend returns 200" do
+      conn = request(:post, "/api2/json/cluster/bulk-action/guest/suspend")
+      json(conn, 200)
+    end
+
+    test "POST /cluster/bulk-action/guest/migrate returns 200" do
+      conn = request(:post, "/api2/json/cluster/bulk-action/guest/migrate")
+      json(conn, 200)
+    end
+  end
+
+  describe "cluster config stubs" do
+    test "GET /cluster/config/apiversion returns 200" do
+      conn = request(:get, "/api2/json/cluster/config/apiversion")
+      assert conn.status == 200
+      assert %{"data" => _} = json(conn, 200)
+    end
+
+    test "GET /cluster/config/qdevice returns 200" do
+      conn = request(:get, "/api2/json/cluster/config/qdevice")
+      json(conn, 200)
+    end
+
+    test "GET /cluster/config/totem returns 200" do
+      conn = request(:get, "/api2/json/cluster/config/totem")
+      json(conn, 200)
+    end
+  end
+
+  describe "cluster ceph flags" do
+    test "GET /cluster/ceph/flags/:flag returns flag info" do
+      conn = request(:get, "/api2/json/cluster/ceph/flags/noout")
+      assert conn.status == 200
+      assert %{"data" => %{"name" => "noout"}} = json(conn, 200)
+    end
+
+    test "PUT /cluster/ceph/flags/:flag returns 200" do
+      conn = request(:put, "/api2/json/cluster/ceph/flags/noout", %{"value" => true})
+      json(conn, 200)
+    end
+  end
+
+  describe "cluster HA rules (9.0+)" do
+    setup do
+      original_version = Application.get_env(:mock_pve_api, :pve_version, "8.3")
+      Application.put_env(:mock_pve_api, :pve_version, "9.0")
+      State.reset()
+
+      on_exit(fn ->
+        Application.put_env(:mock_pve_api, :pve_version, original_version)
+        State.reset()
+      end)
+
+      :ok
+    end
+
+    test "GET /cluster/ha/rules returns empty list initially" do
+      conn = request(:get, "/api2/json/cluster/ha/rules")
+      assert conn.status == 200
+      assert %{"data" => []} = json(conn, 200)
+    end
+
+    test "POST /cluster/ha/rules creates a rule" do
+      conn = request(:post, "/api2/json/cluster/ha/rules", %{"id" => "r1", "type" => "vm"})
+      json(conn, 200)
+    end
+
+    test "GET /cluster/ha/rules/:rule returns rule" do
+      request(:post, "/api2/json/cluster/ha/rules", %{"id" => "r2", "type" => "vm"})
+      conn = request(:get, "/api2/json/cluster/ha/rules/r2")
+      assert conn.status == 200
+      assert %{"data" => _} = json(conn, 200)
+    end
+
+    test "GET /cluster/ha/rules/:rule for unknown returns 404" do
+      conn = request(:get, "/api2/json/cluster/ha/rules/nonexistent")
+      assert conn.status == 404
+    end
+
+    test "DELETE /cluster/ha/rules/:rule removes rule" do
+      request(:post, "/api2/json/cluster/ha/rules", %{"id" => "r3", "type" => "vm"})
+      conn = request(:delete, "/api2/json/cluster/ha/rules/r3")
+      json(conn, 200)
+      conn2 = request(:get, "/api2/json/cluster/ha/rules/r3")
+      assert conn2.status == 404
+    end
+  end
 end

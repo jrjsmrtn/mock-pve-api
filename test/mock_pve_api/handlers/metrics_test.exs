@@ -445,4 +445,11 @@ defmodule MockPveApi.Handlers.MetricsTest do
       assert resp["data"]["service"] == "pvedaemon"
     end
   end
+
+  describe "cluster metrics export" do
+    test "GET /cluster/metrics/export returns 200" do
+      conn = request(:get, "/api2/json/cluster/metrics/export")
+      json(conn, 200)
+    end
+  end
 end

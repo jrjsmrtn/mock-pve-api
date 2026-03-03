@@ -2036,4 +2036,449 @@ defmodule MockPveApi.Handlers.NodesTest do
       json(conn, 200)
     end
   end
+
+  # ---------------------------------------------------------------------------
+  # Sprint 11: VM/LXC console, cloudinit, scan, services, replication
+  # ---------------------------------------------------------------------------
+
+  describe "VM status index" do
+    test "GET /nodes/:node/qemu/:vmid/status returns 200" do
+      State.create_vm("pve1", 100, %{"name" => "test"})
+      conn = request(:get, "/api2/json/nodes/pve1/qemu/100/status")
+      assert conn.status == 200
+    end
+  end
+
+  describe "LXC status index" do
+    test "GET /nodes/:node/lxc/:vmid/status returns 200" do
+      State.create_container("pve1", 200, %{"hostname" => "test"})
+      conn = request(:get, "/api2/json/nodes/pve1/lxc/200/status")
+      assert conn.status == 200
+    end
+  end
+
+  describe "VM console stubs" do
+    setup do
+      State.create_vm("pve1", 100, %{"name" => "test"})
+      :ok
+    end
+
+    test "POST vncproxy returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/qemu/100/vncproxy")
+      assert conn.status == 200
+    end
+
+    test "POST termproxy returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/qemu/100/termproxy")
+      assert conn.status == 200
+    end
+
+    test "POST spiceproxy returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/qemu/100/spiceproxy")
+      assert conn.status == 200
+    end
+
+    test "GET vncwebsocket returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/qemu/100/vncwebsocket")
+      assert conn.status == 200
+    end
+
+    test "POST mtunnel returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/qemu/100/mtunnel")
+      assert conn.status == 200
+    end
+
+    test "GET mtunnelwebsocket returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/qemu/100/mtunnelwebsocket")
+      assert conn.status == 200
+    end
+
+    test "POST remote_migrate returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/qemu/100/remote_migrate")
+      assert conn.status == 200
+    end
+
+    test "POST monitor returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/qemu/100/monitor")
+      assert conn.status == 200
+    end
+  end
+
+  describe "VM cloudinit" do
+    setup do
+      State.create_vm("pve1", 100, %{"name" => "test"})
+      :ok
+    end
+
+    test "GET cloudinit returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/qemu/100/cloudinit")
+      assert conn.status == 200
+    end
+
+    test "PUT cloudinit returns 200" do
+      conn = request(:put, "/api2/json/nodes/pve1/qemu/100/cloudinit")
+      assert conn.status == 200
+    end
+  end
+
+  describe "LXC console stubs" do
+    setup do
+      State.create_container("pve1", 200, %{"hostname" => "test"})
+      :ok
+    end
+
+    test "POST vncproxy returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/lxc/200/vncproxy")
+      assert conn.status == 200
+    end
+
+    test "POST termproxy returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/lxc/200/termproxy")
+      assert conn.status == 200
+    end
+
+    test "POST spiceproxy returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/lxc/200/spiceproxy")
+      assert conn.status == 200
+    end
+
+    test "GET vncwebsocket returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/lxc/200/vncwebsocket")
+      assert conn.status == 200
+    end
+
+    test "POST mtunnel returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/lxc/200/mtunnel")
+      assert conn.status == 200
+    end
+
+    test "GET mtunnelwebsocket returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/lxc/200/mtunnelwebsocket")
+      assert conn.status == 200
+    end
+
+    test "POST remote_migrate returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/lxc/200/remote_migrate")
+      assert conn.status == 200
+    end
+
+    test "GET interfaces returns 200 with list" do
+      conn = request(:get, "/api2/json/nodes/pve1/lxc/200/interfaces")
+      assert conn.status == 200
+      assert is_list(json(conn, 200)["data"])
+    end
+  end
+
+  describe "node scan" do
+    test "GET /nodes/:node/scan returns scan types index" do
+      conn = request(:get, "/api2/json/nodes/pve1/scan")
+      assert conn.status == 200
+      assert is_list(json(conn, 200)["data"])
+    end
+
+    test "GET /nodes/:node/scan/:type returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/scan/nfs")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/scan/:type works for any type" do
+      for type <- ~w(cifs lvm lvmthin pbs zfs glusterfs iscsi) do
+        conn = request(:get, "/api2/json/nodes/pve1/scan/#{type}")
+        assert conn.status == 200, "Expected 200 for scan/#{type}"
+      end
+    end
+  end
+
+  describe "node services actions" do
+    test "POST /nodes/:node/services/:service/reload returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/services/pveproxy/reload")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/services/:service/restart returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/services/pveproxy/restart")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/services/:service/start returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/services/pveproxy/start")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/services/:service/stop returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/services/pveproxy/stop")
+      assert conn.status == 200
+    end
+  end
+
+  describe "node replication stubs" do
+    test "GET /nodes/:node/replication returns empty list" do
+      conn = request(:get, "/api2/json/nodes/pve1/replication")
+      assert conn.status == 200
+      assert json(conn, 200)["data"] == []
+    end
+
+    test "GET /nodes/:node/replication/:id returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/replication/job1")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/replication/:id/log returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/replication/job1/log")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/replication/:id/schedule_now returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/replication/job1/schedule_now")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/replication/:id/status returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/replication/job1/status")
+      assert conn.status == 200
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Sprint 12: APT, certificates, disks/directory, console, VM/LXC status actions
+  # ---------------------------------------------------------------------------
+
+  describe "node apt" do
+    test "GET /nodes/:node/apt returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/apt")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/apt/changelog returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/apt/changelog")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/apt/repositories returns 200 with map" do
+      conn = request(:get, "/api2/json/nodes/pve1/apt/repositories")
+      assert conn.status == 200
+      assert is_map(json(conn, 200)["data"])
+    end
+
+    test "POST /nodes/:node/apt/repositories returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/apt/repositories")
+      assert conn.status == 200
+    end
+
+    test "PUT /nodes/:node/apt/repositories returns 200" do
+      conn = request(:put, "/api2/json/nodes/pve1/apt/repositories")
+      assert conn.status == 200
+    end
+  end
+
+  describe "node certificate stubs" do
+    test "GET /nodes/:node/certificates returns list" do
+      conn = request(:get, "/api2/json/nodes/pve1/certificates")
+      assert conn.status == 200
+      assert is_list(json(conn, 200)["data"])
+    end
+
+    test "GET /nodes/:node/certificates/acme returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/certificates/acme")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/certificates/custom returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/certificates/custom")
+      assert conn.status == 200
+    end
+
+    test "DELETE /nodes/:node/certificates/custom returns 200" do
+      conn = request(:delete, "/api2/json/nodes/pve1/certificates/custom")
+      assert conn.status == 200
+    end
+  end
+
+  describe "node disks directory" do
+    test "GET /nodes/:node/disks/directory returns list" do
+      conn = request(:get, "/api2/json/nodes/pve1/disks/directory")
+      assert conn.status == 200
+      assert is_list(json(conn, 200)["data"])
+    end
+
+    test "POST /nodes/:node/disks/directory returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/disks/directory")
+      assert conn.status == 200
+    end
+
+    test "DELETE /nodes/:node/disks/directory/:name returns 200" do
+      conn = request(:delete, "/api2/json/nodes/pve1/disks/directory/local-dir")
+      assert conn.status == 200
+    end
+  end
+
+  describe "node console and power management stubs" do
+    test "POST /nodes/:node/termproxy returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/termproxy")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/spiceshell returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/spiceshell")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/vncwebsocket returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/vncwebsocket")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/wakeonlan returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/wakeonlan")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/suspendall returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/suspendall")
+      assert conn.status == 200
+    end
+  end
+
+  describe "VM specific status actions" do
+    setup do
+      State.create_vm("pve1", 100, %{"name" => "test-vm"})
+      :ok
+    end
+
+    test "POST /nodes/:node/qemu/:vmid/status/start returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/qemu/100/status/start")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/qemu/:vmid/status/stop returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/qemu/100/status/stop")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/qemu/:vmid/status/shutdown returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/qemu/100/status/shutdown")
+      assert conn.status == 200
+    end
+  end
+
+  describe "LXC specific status actions" do
+    setup do
+      State.create_container("pve1", 200, %{"hostname" => "test-ct"})
+      :ok
+    end
+
+    test "POST /nodes/:node/lxc/:vmid/status/start returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/lxc/200/status/start")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/lxc/:vmid/status/shutdown returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/lxc/200/status/shutdown")
+      assert conn.status == 200
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # Sprint 13: disks index, aplinfo, misc stubs, Ceph stubs, dbus-vmstate
+  # ---------------------------------------------------------------------------
+
+  describe "node disks stubs" do
+    test "GET /nodes/:node/disks returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/disks")
+      assert conn.status == 200
+    end
+
+    test "PUT /nodes/:node/disks/wipedisk returns 200" do
+      conn = request(:put, "/api2/json/nodes/pve1/disks/wipedisk", %{"disk" => "sdb"})
+      assert conn.status == 200
+    end
+
+    test "DELETE /nodes/:node/disks/lvm/:name returns 200" do
+      conn = request(:delete, "/api2/json/nodes/pve1/disks/lvm/pve")
+      assert conn.status == 200
+    end
+  end
+
+  describe "node aplinfo" do
+    test "GET /nodes/:node/aplinfo returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/aplinfo")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/aplinfo returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/aplinfo", %{"storage" => "local"})
+      assert conn.status == 200
+    end
+  end
+
+  describe "node misc stubs" do
+    test "POST /nodes/:node/vncshell returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/vncshell")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/query-url-metadata returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/query-url-metadata")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/query-oci-repo-tags returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/query-oci-repo-tags")
+      assert conn.status == 200
+    end
+  end
+
+  describe "node Ceph stubs" do
+    test "GET /nodes/:node/ceph returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/ceph")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/ceph/cfg returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/ceph/cfg")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/ceph/pool returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/ceph/pool")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/ceph/pools/:name returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/ceph/pools/cephpool")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/ceph/init returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/ceph/init", %{"network" => "10.0.0.0/8"})
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/ceph/start returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/ceph/start")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/ceph/stop returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/ceph/stop")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/ceph/osd/:osdid returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/ceph/osd/0")
+      assert conn.status == 200
+    end
+
+    test "POST /nodes/:node/ceph/osd/:osdid/in returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/ceph/osd/0/in")
+      assert conn.status == 200
+    end
+  end
+
+  describe "VM dbus-vmstate" do
+    test "POST /nodes/:node/qemu/:vmid/dbus-vmstate returns 200" do
+      conn = request(:post, "/api2/json/nodes/pve1/qemu/100/dbus-vmstate")
+      assert conn.status == 200
+    end
+  end
 end

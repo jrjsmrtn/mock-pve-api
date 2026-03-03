@@ -134,4 +134,27 @@ defmodule MockPveApi.Handlers.ClusterMappingTest do
       assert resp["errors"]["message"] =~ "already exists"
     end
   end
+
+  describe "PCI mapping listing (stub)" do
+    test "GET /cluster/mapping/pci returns empty list initially" do
+      conn = request(:get, "/api2/json/cluster/mapping/pci")
+      assert conn.status == 200
+      assert %{"data" => []} = json(conn, 200)
+    end
+  end
+
+  describe "Dir mapping stubs" do
+    test "POST /cluster/mapping/dir creates mapping" do
+      conn =
+        request(:post, "/api2/json/cluster/mapping/dir", %{"id" => "mydir", "path" => "/mnt/data"})
+
+      assert conn.status == 200
+      assert %{"data" => %{"id" => "mydir"}} = json(conn, 200)
+    end
+
+    test "GET /cluster/mapping/dir/:id returns 404 for unknown" do
+      conn = request(:get, "/api2/json/cluster/mapping/dir/notfound")
+      assert conn.status == 404
+    end
+  end
 end

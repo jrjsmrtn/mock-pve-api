@@ -411,4 +411,93 @@ defmodule MockPveApi.Handlers.SdnTest do
       assert conn.status == 400
     end
   end
+
+  describe "SDN vnet IPs" do
+    test "POST /cluster/sdn/vnets/:vnet/ips returns 200" do
+      conn = request(:post, "/api2/json/cluster/sdn/vnets/myvnet/ips", %{ip: "10.0.0.1/24"})
+      assert conn.status == 200
+    end
+
+    test "PUT /cluster/sdn/vnets/:vnet/ips returns 200" do
+      conn = request(:put, "/api2/json/cluster/sdn/vnets/myvnet/ips")
+      assert conn.status == 200
+    end
+
+    test "DELETE /cluster/sdn/vnets/:vnet/ips returns 200" do
+      conn = request(:delete, "/api2/json/cluster/sdn/vnets/myvnet/ips")
+      assert conn.status == 200
+    end
+  end
+
+  describe "SDN fabrics and lock/rollback (9.0+)" do
+    setup do
+      original_version = Application.get_env(:mock_pve_api, :pve_version, "8.3")
+      Application.put_env(:mock_pve_api, :pve_version, "9.0")
+      State.reset()
+
+      on_exit(fn ->
+        Application.put_env(:mock_pve_api, :pve_version, original_version)
+        State.reset()
+      end)
+
+      :ok
+    end
+
+    test "GET /cluster/sdn/fabrics returns 200" do
+      conn = request(:get, "/api2/json/cluster/sdn/fabrics")
+      assert conn.status == 200
+    end
+
+    test "GET /cluster/sdn/fabrics/all returns 200" do
+      conn = request(:get, "/api2/json/cluster/sdn/fabrics/all")
+      assert conn.status == 200
+    end
+
+    test "GET /cluster/sdn/fabrics/fabric returns 200" do
+      conn = request(:get, "/api2/json/cluster/sdn/fabrics/fabric")
+      assert conn.status == 200
+    end
+
+    test "POST /cluster/sdn/lock returns 200" do
+      conn = request(:post, "/api2/json/cluster/sdn/lock")
+      assert conn.status == 200
+    end
+
+    test "DELETE /cluster/sdn/lock returns 200" do
+      conn = request(:delete, "/api2/json/cluster/sdn/lock")
+      assert conn.status == 200
+    end
+
+    test "POST /cluster/sdn/rollback returns 200" do
+      conn = request(:post, "/api2/json/cluster/sdn/rollback")
+      assert conn.status == 200
+    end
+
+    test "GET /cluster/sdn/ipams/:ipam/status returns 200" do
+      conn = request(:get, "/api2/json/cluster/sdn/ipams/ipam1/status")
+      assert conn.status == 200
+    end
+  end
+
+  describe "node SDN local" do
+    test "GET /nodes/:node/sdn returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/sdn")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/sdn/zones returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/sdn/zones")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/sdn/zones/:zone returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/sdn/zones/myzone")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/sdn/zones/:zone/content returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/sdn/zones/myzone/content")
+      assert conn.status == 200
+    end
+  end
 end

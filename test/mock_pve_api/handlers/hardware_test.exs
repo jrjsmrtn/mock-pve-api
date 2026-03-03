@@ -175,4 +175,52 @@ defmodule MockPveApi.Handlers.HardwareTest do
       assert conn.status == 404
     end
   end
+
+  describe "node hardware index and PCI mdev" do
+    test "GET /nodes/:node/hardware returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/hardware")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/hardware/pci/:pciid/mdev returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/hardware/pci/0000:00:02.0/mdev")
+      assert conn.status == 200
+    end
+  end
+
+  describe "node capabilities" do
+    test "GET /nodes/:node/capabilities returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/capabilities")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/capabilities/qemu returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/capabilities/qemu")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/capabilities/qemu/cpu returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/capabilities/qemu/cpu")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/capabilities/qemu/machines returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/capabilities/qemu/machines")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/capabilities/qemu/cpu-flags returns 200 on 9.0" do
+      Application.put_env(:mock_pve_api, :pve_version, "9.0")
+      State.reset()
+      conn = request(:get, "/api2/json/nodes/pve1/capabilities/qemu/cpu-flags")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/capabilities/qemu/migration returns 200 on 9.0" do
+      Application.put_env(:mock_pve_api, :pve_version, "9.0")
+      State.reset()
+      conn = request(:get, "/api2/json/nodes/pve1/capabilities/qemu/migration")
+      assert conn.status == 200
+    end
+  end
 end

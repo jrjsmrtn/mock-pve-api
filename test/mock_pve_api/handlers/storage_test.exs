@@ -298,4 +298,26 @@ defmodule MockPveApi.Handlers.StorageTest do
       assert String.starts_with?(data, "UPID:")
     end
   end
+
+  describe "node storage sub-items" do
+    test "GET /nodes/:node/storage/:storage returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/storage/local")
+      json(conn, 200)
+    end
+
+    test "POST /nodes/:node/storage/:storage/download-url returns 200" do
+      conn =
+        request(:post, "/api2/json/nodes/pve-node1/storage/local/download-url", %{
+          "url" => "http://example.com/img.iso",
+          "filename" => "img.iso"
+        })
+
+      json(conn, 200)
+    end
+
+    test "GET /nodes/:node/storage/:storage/import-metadata returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve-node1/storage/local/import-metadata")
+      json(conn, 200)
+    end
+  end
 end

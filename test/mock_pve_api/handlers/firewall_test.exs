@@ -883,4 +883,48 @@ defmodule MockPveApi.Handlers.FirewallTest do
       assert ct_resp["data"]["cidr"] == "10.0.0.2/32"
     end
   end
+
+  describe "SDN vnet firewall" do
+    test "GET /cluster/sdn/vnets/:vnet/firewall returns list" do
+      conn = request(:get, "/api2/json/cluster/sdn/vnets/myvnet/firewall")
+      assert conn.status == 200
+      assert is_list(json(conn, 200)["data"])
+    end
+
+    test "GET /cluster/sdn/vnets/:vnet/firewall/options returns 200" do
+      conn = request(:get, "/api2/json/cluster/sdn/vnets/myvnet/firewall/options")
+      json(conn, 200)
+    end
+
+    test "PUT /cluster/sdn/vnets/:vnet/firewall/options returns 200" do
+      conn = request(:put, "/api2/json/cluster/sdn/vnets/myvnet/firewall/options")
+      json(conn, 200)
+    end
+
+    test "GET /cluster/sdn/vnets/:vnet/firewall/rules returns list" do
+      conn = request(:get, "/api2/json/cluster/sdn/vnets/myvnet/firewall/rules")
+      assert conn.status == 200
+      assert is_list(json(conn, 200)["data"])
+    end
+
+    test "POST /cluster/sdn/vnets/:vnet/firewall/rules returns 200" do
+      conn = request(:post, "/api2/json/cluster/sdn/vnets/myvnet/firewall/rules")
+      json(conn, 200)
+    end
+
+    test "GET /cluster/sdn/vnets/:vnet/firewall/rules/:pos returns 200" do
+      conn = request(:get, "/api2/json/cluster/sdn/vnets/myvnet/firewall/rules/0")
+      json(conn, 200)
+    end
+
+    test "PUT /cluster/sdn/vnets/:vnet/firewall/rules/:pos returns 200" do
+      conn = request(:put, "/api2/json/cluster/sdn/vnets/myvnet/firewall/rules/0")
+      json(conn, 200)
+    end
+
+    test "DELETE /cluster/sdn/vnets/:vnet/firewall/rules/:pos returns 200" do
+      conn = request(:delete, "/api2/json/cluster/sdn/vnets/myvnet/firewall/rules/0")
+      json(conn, 200)
+    end
+  end
 end
