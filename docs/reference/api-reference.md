@@ -45,7 +45,7 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Category | Total | Implemented | Coverage |
 |----------|-------|-------------|----------|
 | Version | 1 | 1 | 100.0% |
-| Cluster | 24 | 24 | 100.0% |
+| Cluster | 41 | 41 | 100.0% |
 | Nodes | 34 | 34 | 100.0% |
 | Virtual Machines | 20 | 20 | 100.0% |
 | LXC Containers | 16 | 16 | 100.0% |
@@ -58,7 +58,7 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Hardware | 7 | 7 | 100.0% |
 | Firewall | 41 | 41 | 100.0% |
 | Notifications | 16 | 16 | 100.0% |
-| **TOTAL** | **228** | **228** | **100.0%** |
+| **TOTAL** | **245** | **245** | **100.0%** |
 
 
 ## Status Legend
@@ -112,6 +112,42 @@ Get PVE version information and server details
 
 ## Cluster Management
 
+### `/cluster` ✅
+
+Top-level cluster index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme` ✅
+
+ACME module index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/acme/account` ✅
 
 ACME account management
@@ -130,6 +166,84 @@ ACME account management
 ```
 
 
+### `/cluster/acme/account/{name}` ✅
+
+Get, update, or delete a specific ACME account
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Account name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/challenge-schema` ✅
+
+ACME challenge schema types
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/directories` ✅
+
+Known ACME directory endpoints
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/meta` ✅ 🔴
+
+ACME directory metadata
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/acme/plugins` ✅
 
 ACME plugin management
@@ -139,6 +253,66 @@ ACME plugin management
 | **Methods** | GET, POST |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/plugins/{id}` ✅
+
+Get, update, or delete a specific ACME plugin
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `id` | string | Yes | Plugin ID | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/tos` ✅
+
+ACME terms of service URL
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/backup-info` ✅
+
+Backup info index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -192,6 +366,42 @@ List backup providers (alternate path)
 ```
 
 **Notes**: Inline handler in router; alternate path for backup provider listing
+
+
+### `/cluster/bulk-action` ✅ 🟠
+
+Bulk action index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/ceph` ✅
+
+Ceph module index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
 
 
 ### `/cluster/ceph/flags` ✅
@@ -351,6 +561,42 @@ Remove node from cluster
 **Notes**: Node removal from cluster implemented
 
 
+### `/cluster/firewall` ✅
+
+Cluster firewall index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/ha` ✅
+
+HA module index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/ha/affinity` ✅ 🟠
 
 HA resource affinity rules management
@@ -487,6 +733,24 @@ Individual HA resource operations
 ```
 
 
+### `/cluster/ha/status` ✅
+
+HA status index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/ha/status/current` ✅
 
 Current HA manager and resource status
@@ -501,6 +765,60 @@ Current HA manager and resource status
 ```json
 {
   "data": []
+}
+```
+
+
+### `/cluster/jobs` ✅
+
+Scheduled jobs index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/log` ✅
+
+Recent cluster log entries
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping` ✅
+
+Hardware mapping index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
 }
 ```
 

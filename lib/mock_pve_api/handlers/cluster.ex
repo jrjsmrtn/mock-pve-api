@@ -834,6 +834,171 @@ defmodule MockPveApi.Handlers.Cluster do
     end
   end
 
+  # Navigation index stubs
+
+  @doc "GET /api2/json/cluster"
+  def get_cluster_index(conn) do
+    subdirs = ~w(replication tasks resources log options status ha sdn firewall
+                 backup acme ceph config jobs notifications metrics mapping nextid)
+
+    json_ok(conn, Enum.map(subdirs, &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/acme"
+  def get_acme_index(conn) do
+    json_ok(
+      conn,
+      Enum.map(~w(account plugins directories tos challenge-schema meta), &%{subdir: &1})
+    )
+  end
+
+  @doc "GET /api2/json/cluster/ceph"
+  def get_ceph_index(conn) do
+    json_ok(conn, Enum.map(~w(flags metadata status), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/firewall"
+  def get_firewall_index(conn) do
+    json_ok(conn, Enum.map(~w(options rules groups aliases ipset refs), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/ha"
+  def get_ha_index(conn) do
+    json_ok(conn, Enum.map(~w(resources groups affinity status rules), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/ha/status"
+  def get_ha_status_index(conn) do
+    json_ok(conn, Enum.map(~w(current manager_status), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/jobs"
+  def get_jobs_index(conn) do
+    json_ok(conn, Enum.map(~w(realm-sync schedule-analyze), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/log"
+  def get_log_index(conn) do
+    json_ok(conn, [])
+  end
+
+  @doc "GET /api2/json/cluster/mapping"
+  def get_mapping_index(conn) do
+    json_ok(conn, Enum.map(~w(pci usb dir), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/backup-info"
+  def get_backup_info_index(conn) do
+    json_ok(conn, Enum.map(~w(not-backed-up providers), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/bulk-action"
+  def get_bulk_action_index(conn) do
+    json_ok(conn, [%{subdir: "guest"}])
+  end
+
+  # ACME individual resource CRUD
+
+  @doc "GET /api2/json/cluster/acme/account/:name"
+  def get_acme_account(conn) do
+    name = conn.path_params["name"]
+
+    case State.get_acme_account(name) do
+      nil -> json_error(conn, 404, "ACME account '#{name}' not found")
+      account -> json_ok(conn, account)
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/acme/account/:name"
+  def update_acme_account(conn) do
+    name = conn.path_params["name"]
+    params = atomize_params(conn.body_params)
+
+    case State.update_acme_account(name, params) do
+      {:ok, _} -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/acme/account/:name"
+  def delete_acme_account(conn) do
+    name = conn.path_params["name"]
+
+    case State.delete_acme_account(name) do
+      :ok -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  @doc "GET /api2/json/cluster/acme/plugins/:id"
+  def get_acme_plugin_by_id(conn) do
+    id = conn.path_params["id"]
+
+    case State.get_acme_plugin(id) do
+      nil -> json_error(conn, 404, "ACME plugin '#{id}' not found")
+      plugin -> json_ok(conn, plugin)
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/acme/plugins/:id"
+  def update_acme_plugin_by_id(conn) do
+    id = conn.path_params["id"]
+    params = atomize_params(conn.body_params)
+
+    case State.update_acme_plugin(id, params) do
+      {:ok, _} -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/acme/plugins/:id"
+  def delete_acme_plugin_by_id(conn) do
+    id = conn.path_params["id"]
+
+    case State.delete_acme_plugin(id) do
+      :ok -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  # Static ACME read-only stubs
+
+  @doc "GET /api2/json/cluster/acme/challenge-schema"
+  def get_acme_challenge_schema(conn), do: json_ok(conn, [])
+
+  @doc "GET /api2/json/cluster/acme/directories"
+  def get_acme_directories(conn) do
+    json_ok(conn, [
+      %{name: "Let's Encrypt", url: "https://acme-v02.api.letsencrypt.org/directory"}
+    ])
+  end
+
+  @doc "GET /api2/json/cluster/acme/tos"
+  def get_acme_tos(conn), do: json_ok(conn, "")
+
+  @doc "GET /api2/json/cluster/acme/meta"
+  def get_acme_meta(conn), do: json_ok(conn, %{termsOfService: ""})
+
+  # Private helpers
+
+  defp json_ok(conn, data) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  defp json_error(conn, status, message) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(status, Jason.encode!(%{errors: %{message: message}}))
+  end
+
+  defp atomize_params(params) do
+    Enum.reduce(params, %{}, fn {k, v}, acc ->
+      Map.put(acc, String.to_atom(k), v)
+    end)
+  end
+
   @doc "POST /api2/json/cluster/replication"
   def create_replication_job(conn) do
     params = conn.body_params

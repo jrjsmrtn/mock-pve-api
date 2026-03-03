@@ -11,7 +11,15 @@ defmodule MockPveApi.Handlers.HardwareTest do
   alias MockPveApi.State
 
   setup do
+    original_version = Application.get_env(:mock_pve_api, :pve_version, "8.0")
+    Application.put_env(:mock_pve_api, :pve_version, "8.3")
     State.reset()
+
+    on_exit(fn ->
+      Application.put_env(:mock_pve_api, :pve_version, original_version)
+      State.reset()
+    end)
+
     :ok
   end
 

@@ -7,7 +7,7 @@ defmodule MockPveApi.MixProject do
   def project do
     [
       app: :mock_pve_api,
-      version: "0.4.14",
+      version: "0.4.15",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),

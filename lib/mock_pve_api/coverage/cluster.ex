@@ -355,7 +355,73 @@ defmodule MockPveApi.Coverage.Cluster do
       "/api2/json/cluster/ceph/metadata" =>
         implemented(:get, :low, "7.0", "Ceph cluster metadata"),
       "/api2/json/cluster/ceph/status" => implemented(:get, :low, "7.0", "Ceph cluster status"),
-      "/api2/json/cluster/ceph/flags" => implemented(:get_put, :low, "7.0", "Ceph global flags")
+      "/api2/json/cluster/ceph/flags" => implemented(:get_put, :low, "7.0", "Ceph global flags"),
+      "/api2/json/cluster" => implemented(:get, :low, "7.0", "Top-level cluster index"),
+      "/api2/json/cluster/acme" => implemented(:get, :low, "7.0", "ACME module index"),
+      "/api2/json/cluster/ceph" => implemented(:get, :low, "7.0", "Ceph module index"),
+      "/api2/json/cluster/firewall" => implemented(:get, :low, "7.0", "Cluster firewall index"),
+      "/api2/json/cluster/ha" => implemented(:get, :low, "7.0", "HA module index"),
+      "/api2/json/cluster/ha/status" => implemented(:get, :low, "7.0", "HA status index"),
+      "/api2/json/cluster/jobs" => implemented(:get, :low, "7.1", "Scheduled jobs index"),
+      "/api2/json/cluster/log" => implemented(:get, :low, "7.0", "Recent cluster log entries"),
+      "/api2/json/cluster/mapping" => implemented(:get, :low, "7.0", "Hardware mapping index"),
+      "/api2/json/cluster/backup-info" => implemented(:get, :low, "7.0", "Backup info index"),
+      "/api2/json/cluster/bulk-action" => implemented(:get, :low, "9.0", "Bulk action index"),
+      "/api2/json/cluster/acme/account/{name}" => %{
+        path: "/api2/json/cluster/acme/account/{name}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "Get, update, or delete a specific ACME account",
+        parameters: [
+          %{
+            name: "name",
+            type: :string,
+            required: true,
+            description: "Account name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        example_response: nil,
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: nil
+      },
+      "/api2/json/cluster/acme/plugins/{id}" => %{
+        path: "/api2/json/cluster/acme/plugins/{id}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "Get, update, or delete a specific ACME plugin",
+        parameters: [
+          %{
+            name: "id",
+            type: :string,
+            required: true,
+            description: "Plugin ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        example_response: nil,
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: nil
+      },
+      "/api2/json/cluster/acme/challenge-schema" =>
+        implemented(:get, :low, "7.0", "ACME challenge schema types"),
+      "/api2/json/cluster/acme/directories" =>
+        implemented(:get, :low, "7.0", "Known ACME directory endpoints"),
+      "/api2/json/cluster/acme/tos" =>
+        implemented(:get, :low, "7.0", "ACME terms of service URL"),
+      "/api2/json/cluster/acme/meta" => implemented(:get, :low, "8.1", "ACME directory metadata")
     }
   end
 

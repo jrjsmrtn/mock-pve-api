@@ -1052,7 +1052,49 @@ defmodule MockPveApi.Router do
     Storage.upload_storage_content(conn)
   end
 
-  # Cluster endpoints  
+  # Cluster endpoints
+
+  # Navigation index stubs
+  get "/api2/json/cluster" do
+    Cluster.get_cluster_index(conn)
+  end
+
+  get "/api2/json/cluster/ha/status" do
+    Cluster.get_ha_status_index(conn)
+  end
+
+  get "/api2/json/cluster/ha" do
+    Cluster.get_ha_index(conn)
+  end
+
+  get "/api2/json/cluster/jobs" do
+    Cluster.get_jobs_index(conn)
+  end
+
+  get "/api2/json/cluster/log" do
+    Cluster.get_log_index(conn)
+  end
+
+  get "/api2/json/cluster/mapping" do
+    Cluster.get_mapping_index(conn)
+  end
+
+  get "/api2/json/cluster/backup-info" do
+    Cluster.get_backup_info_index(conn)
+  end
+
+  get "/api2/json/cluster/bulk-action" do
+    Cluster.get_bulk_action_index(conn)
+  end
+
+  get "/api2/json/cluster/ceph" do
+    Cluster.get_ceph_index(conn)
+  end
+
+  get "/api2/json/cluster/firewall" do
+    Cluster.get_firewall_index(conn)
+  end
+
   get "/api2/json/cluster/status" do
     Cluster.get_cluster_status(conn)
   end
@@ -1276,6 +1318,50 @@ defmodule MockPveApi.Router do
   end
 
   # Cluster ACME endpoints
+  get "/api2/json/cluster/acme" do
+    Cluster.get_acme_index(conn)
+  end
+
+  get "/api2/json/cluster/acme/challenge-schema" do
+    Cluster.get_acme_challenge_schema(conn)
+  end
+
+  get "/api2/json/cluster/acme/directories" do
+    Cluster.get_acme_directories(conn)
+  end
+
+  get "/api2/json/cluster/acme/tos" do
+    Cluster.get_acme_tos(conn)
+  end
+
+  get "/api2/json/cluster/acme/meta" do
+    Cluster.get_acme_meta(conn)
+  end
+
+  get "/api2/json/cluster/acme/account/:name" do
+    Cluster.get_acme_account(conn)
+  end
+
+  put "/api2/json/cluster/acme/account/:name" do
+    Cluster.update_acme_account(conn)
+  end
+
+  delete "/api2/json/cluster/acme/account/:name" do
+    Cluster.delete_acme_account(conn)
+  end
+
+  get "/api2/json/cluster/acme/plugins/:id" do
+    Cluster.get_acme_plugin_by_id(conn)
+  end
+
+  put "/api2/json/cluster/acme/plugins/:id" do
+    Cluster.update_acme_plugin_by_id(conn)
+  end
+
+  delete "/api2/json/cluster/acme/plugins/:id" do
+    Cluster.delete_acme_plugin_by_id(conn)
+  end
+
   get "/api2/json/cluster/acme/account" do
     Cluster.list_acme_accounts(conn)
   end
