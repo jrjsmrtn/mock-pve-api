@@ -113,6 +113,49 @@ defmodule MockPveApi.Handlers.Cluster do
   end
 
   @doc """
+  GET /api2/json/cluster/config/join
+  Returns information needed to join an existing cluster.
+  """
+  def get_config_join(conn) do
+    join_info = %{
+      totem: %{
+        version: 2,
+        cluster_name: "pve-cluster",
+        interface: [%{linknumber: 0}]
+      },
+      nodelist: [
+        %{
+          name: "pve-node1",
+          nodeid: 1,
+          quorum_votes: 1,
+          ring0_addr: "192.168.1.10",
+          pve_addr: "192.168.1.10",
+          pve_fp: "AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD"
+        }
+      ],
+      preferred_node: "pve-node1",
+      config_digest: "mock_digest_0"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: join_info}))
+  end
+
+  @doc """
+  POST /api2/json/cluster/config/nodes/:node
+  Adds a node to the cluster (mock: returns UPID).
+  """
+  def add_cluster_node(conn) do
+    node_name = conn.path_params["node"]
+    upid = "UPID:pve-node1:00001234:000000:00000000:addnode:#{node_name}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc """
   GET /api2/json/cluster/config/nodes
   Lists cluster nodes configuration.
   """

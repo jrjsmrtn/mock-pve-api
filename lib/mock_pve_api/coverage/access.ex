@@ -113,7 +113,7 @@ defmodule MockPveApi.Coverage.Access do
       },
       "/api2/json/access/ticket" => %{
         path: "/api2/json/access/ticket",
-        methods: [:post],
+        methods: [:get, :post],
         status: :implemented,
         priority: :high,
         since: "6.0",
@@ -345,7 +345,7 @@ defmodule MockPveApi.Coverage.Access do
       },
       "/api2/json/access/tfa" => %{
         path: "/api2/json/access/tfa",
-        methods: [:get, :post],
+        methods: [:get, :post, :put],
         status: :implemented,
         priority: :low,
         since: "7.0",
@@ -359,7 +359,7 @@ defmodule MockPveApi.Coverage.Access do
       },
       "/api2/json/access/tfa/{userid}" => %{
         path: "/api2/json/access/tfa/{userid}",
-        methods: [:get],
+        methods: [:get, :post],
         status: :implemented,
         priority: :low,
         since: "7.0",

@@ -371,6 +371,31 @@ defmodule MockPveApi.Handlers.Storage do
     |> send_resp(200, Jason.encode!(%{data: upid}))
   end
 
+  @doc """
+  POST /api2/json/nodes/:node/storage/:storage/content/:volume
+  Copy/restore a storage volume. Returns a task UPID.
+  """
+  def copy_storage_volume(conn) do
+    node_name = conn.path_params["node"]
+    volume = conn.path_params["volume"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node_name}:00001234:000000:#{now}:copy:#{volume}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/storage/:storage/content/:volume
+  Update storage volume attributes (notes, protected flag, etc).
+  """
+  def update_storage_volume(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
   # Helper function to determine format from filename
   defp get_format_from_filename(filename) do
     case Path.extname(filename) do

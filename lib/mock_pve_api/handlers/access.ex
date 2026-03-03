@@ -11,6 +11,22 @@ defmodule MockPveApi.Handlers.Access do
   alias MockPveApi.State
 
   @doc """
+  GET /api2/json/access/ticket
+  Returns current authentication ticket info (mock: returns a static ticket).
+  """
+  def get_ticket(conn) do
+    ticket_info = %{
+      ticket: "PVE:root@pam:MOCK_TICKET",
+      CSRFPreventionToken: "MOCK_CSRF_TOKEN",
+      username: "root@pam"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ticket_info}))
+  end
+
+  @doc """
   POST /api2/json/access/ticket
   Creates authentication ticket for username/password authentication.
   """
@@ -694,6 +710,16 @@ defmodule MockPveApi.Handlers.Access do
   # --- TFA ---
 
   @doc """
+  PUT /api2/json/access/tfa
+  Update TFA settings (mock: no-op, returns nil).
+  """
+  def update_tfa(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  @doc """
   GET /api2/json/access/tfa
   Lists TFA configurations for all users.
   """
@@ -720,6 +746,24 @@ defmodule MockPveApi.Handlers.Access do
         Enum.map(1..8, fn _ ->
           :crypto.strong_rand_bytes(4) |> Base.encode16(case: :lower)
         end)
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: result}))
+  end
+
+  @doc """
+  POST /api2/json/access/tfa/:userid
+  Add a TFA entry for a user (mock: returns a static recovery key set).
+  """
+  def create_tfa_entry(conn) do
+    userid = conn.path_params["userid"]
+
+    result = %{
+      id: "totp/#{userid}",
+      type: "totp",
+      description: "Mock TFA entry"
     }
 
     conn

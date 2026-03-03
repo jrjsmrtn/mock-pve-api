@@ -272,7 +272,8 @@ defmodule MockPveApi.State do
           "VM.Snapshot",
           "VM.Snapshot.Rollback"
         ]
-      }
+      },
+      metrics_servers: %{}
     }
   end
 
@@ -1011,6 +1012,27 @@ defmodule MockPveApi.State do
 
   def update_firewall(scope, updates) do
     GenServer.call(@name, {:update_firewall, scope, updates})
+  end
+
+  # Metrics server operations
+  def get_metrics_servers do
+    GenServer.call(@name, :get_metrics_servers)
+  end
+
+  def get_metrics_server(id) do
+    GenServer.call(@name, {:get_metrics_server, id})
+  end
+
+  def create_metrics_server(id, params) do
+    GenServer.call(@name, {:create_metrics_server, id, params})
+  end
+
+  def update_metrics_server(id, params) do
+    GenServer.call(@name, {:update_metrics_server, id, params})
+  end
+
+  def delete_metrics_server(id) do
+    GenServer.call(@name, {:delete_metrics_server, id})
   end
 
   # Version and capability operations
@@ -3482,6 +3504,47 @@ defmodule MockPveApi.State do
     new_cts = Map.put(state.firewall.containers, vmid, updated)
     new_fw = %{state.firewall | containers: new_cts}
     {:reply, :ok, %{state | firewall: new_fw}}
+  end
+
+  # Metrics server handle_calls
+
+  def handle_call(:get_metrics_servers, _from, state) do
+    servers = state.metrics_servers |> Map.values()
+    {:reply, servers, state}
+  end
+
+  def handle_call({:get_metrics_server, id}, _from, state) do
+    {:reply, Map.get(state.metrics_servers, id), state}
+  end
+
+  def handle_call({:create_metrics_server, id, params}, _from, state) do
+    if Map.has_key?(state.metrics_servers, id) do
+      {:reply, {:error, "Metrics server '#{id}' already exists"}, state}
+    else
+      server = Map.merge(%{id: id, type: "influxdb", port: 8089, enable: 1}, params)
+      new_servers = Map.put(state.metrics_servers, id, server)
+      {:reply, {:ok, server}, %{state | metrics_servers: new_servers}}
+    end
+  end
+
+  def handle_call({:update_metrics_server, id, params}, _from, state) do
+    case Map.get(state.metrics_servers, id) do
+      nil ->
+        {:reply, {:error, "Metrics server '#{id}' not found"}, state}
+
+      server ->
+        updated = Map.merge(server, params)
+        new_servers = Map.put(state.metrics_servers, id, updated)
+        {:reply, {:ok, updated}, %{state | metrics_servers: new_servers}}
+    end
+  end
+
+  def handle_call({:delete_metrics_server, id}, _from, state) do
+    if Map.has_key?(state.metrics_servers, id) do
+      {:reply, :ok, %{state | metrics_servers: Map.delete(state.metrics_servers, id)}}
+    else
+      {:reply, {:error, "Metrics server '#{id}' not found"}, state}
+    end
   end
 
   @impl true

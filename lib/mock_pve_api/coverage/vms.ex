@@ -53,7 +53,7 @@ defmodule MockPveApi.Coverage.VMs do
       },
       "/api2/json/nodes/{node}/qemu/{vmid}" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}",
-        methods: [:get, :put, :delete],
+        methods: [:get, :delete],
         status: :implemented,
         priority: :critical,
         since: "6.0",
@@ -84,7 +84,7 @@ defmodule MockPveApi.Coverage.VMs do
       },
       "/api2/json/nodes/{node}/qemu/{vmid}/config" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}/config",
-        methods: [:get, :put],
+        methods: [:get, :put, :post],
         status: :implemented,
         priority: :high,
         since: "6.0",
@@ -224,7 +224,7 @@ defmodule MockPveApi.Coverage.VMs do
       },
       "/api2/json/nodes/{node}/qemu/{vmid}/migrate" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}/migrate",
-        methods: [:post],
+        methods: [:get, :post],
         status: :implemented,
         priority: :high,
         since: "6.0",
@@ -468,7 +468,7 @@ defmodule MockPveApi.Coverage.VMs do
       "/api2/json/nodes/{node}/qemu/{vmid}/template" =>
         implemented(:post, :low, "6.0", "Convert VM to template"),
       "/api2/json/nodes/{node}/qemu/{vmid}/agent" =>
-        implemented(:post, :medium, "6.0", "Execute QEMU guest agent command"),
+        implemented(:get_post, :medium, "6.0", "QEMU guest agent info and commands"),
       "/api2/json/nodes/{node}/qemu/{vmid}/cloudinit/dump" =>
         implemented(:get, :low, "6.0", "Get cloud-init configuration dump"),
       "/api2/json/nodes/{node}/qemu/{vmid}/unlink" =>
@@ -504,6 +504,7 @@ defmodule MockPveApi.Coverage.VMs do
   defp methods_for(:get), do: [:get]
   defp methods_for(:post), do: [:post]
   defp methods_for(:put), do: [:put]
+  defp methods_for(:get_post), do: [:get, :post]
   defp methods_for(:get_put), do: [:get, :put]
   defp methods_for(:get_delete), do: [:get, :delete]
 end

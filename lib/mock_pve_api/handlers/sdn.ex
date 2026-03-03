@@ -12,6 +12,16 @@ defmodule MockPveApi.Handlers.Sdn do
   alias MockPveApi.State
 
   @doc """
+  PUT /api2/json/cluster/sdn
+  Apply pending SDN configuration changes (mock: no-op, returns nil).
+  """
+  def apply_sdn(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  @doc """
   GET /api2/json/cluster/sdn
   Returns SDN index (available sub-resources).
   """

@@ -45,7 +45,7 @@ defmodule MockPveApi.Coverage.Containers do
       },
       "/api2/json/nodes/{node}/lxc/{vmid}" => %{
         path: "/api2/json/nodes/{node}/lxc/{vmid}",
-        methods: [:get, :put, :delete],
+        methods: [:get, :delete],
         status: :implemented,
         priority: :critical,
         since: "6.0",
@@ -216,7 +216,7 @@ defmodule MockPveApi.Coverage.Containers do
       },
       "/api2/json/nodes/{node}/lxc/{vmid}/migrate" => %{
         path: "/api2/json/nodes/{node}/lxc/{vmid}/migrate",
-        methods: [:post],
+        methods: [:get, :post],
         status: :implemented,
         priority: :high,
         since: "6.0",

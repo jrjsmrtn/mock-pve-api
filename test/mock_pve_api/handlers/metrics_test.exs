@@ -437,12 +437,12 @@ defmodule MockPveApi.Handlers.MetricsTest do
       assert resp["data"]["state"] == "running"
     end
 
-    test "PUT service state returns success" do
+    test "GET service state returns service info" do
       resp =
-        request(:put, "/api2/json/nodes/pve-node1/services/pvedaemon/state", %{command: "restart"})
+        request(:get, "/api2/json/nodes/pve-node1/services/pvedaemon/state")
         |> json(200)
 
-      assert resp["data"] == nil
+      assert resp["data"]["service"] == "pvedaemon"
     end
   end
 end

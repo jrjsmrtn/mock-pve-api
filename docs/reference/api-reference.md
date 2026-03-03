@@ -253,7 +253,7 @@ Cluster configuration management
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, PUT |
+| **Methods** | GET, POST |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -276,7 +276,7 @@ Join node to existing cluster
 
 | Property | Value |
 |----------|-------|
-| **Methods** | POST |
+| **Methods** | GET, POST |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -330,7 +330,7 @@ Remove node from cluster
 
 | Property | Value |
 |----------|-------|
-| **Methods** | DELETE |
+| **Methods** | POST, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -1232,7 +1232,7 @@ List available network interfaces
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -1342,7 +1342,7 @@ Node subscription information
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, POST |
+| **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -1408,7 +1408,7 @@ Stop a running task
 
 | Property | Value |
 |----------|-------|
-| **Methods** | DELETE |
+| **Methods** | GET, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -1577,7 +1577,7 @@ Individual VM configuration and management
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, PUT, DELETE |
+| **Methods** | GET, DELETE |
 | **Priority** | Critical |
 | **Since** | PVE 6.0 |
 
@@ -1609,11 +1609,11 @@ Individual VM configuration and management
 
 ### `/nodes/{node}/qemu/{vmid}/agent` ✅
 
-Execute QEMU guest agent command
+QEMU guest agent info and commands
 
 | Property | Value |
 |----------|-------|
-| **Methods** | POST |
+| **Methods** | GET, POST |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -1695,7 +1695,7 @@ VM configuration (get current or update)
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, PUT |
+| **Methods** | GET, PUT, POST |
 | **Priority** | High |
 | **Since** | PVE 6.0 |
 
@@ -1756,7 +1756,7 @@ Migrate VM to another node
 
 | Property | Value |
 |----------|-------|
-| **Methods** | POST |
+| **Methods** | GET, POST |
 | **Priority** | High |
 | **Since** | PVE 6.0 |
 
@@ -2208,7 +2208,7 @@ Individual LXC container configuration
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, PUT, DELETE |
+| **Methods** | GET, DELETE |
 | **Priority** | Critical |
 | **Since** | PVE 6.0 |
 
@@ -2330,7 +2330,7 @@ Migrate container to another node
 
 | Property | Value |
 |----------|-------|
-| **Methods** | POST |
+| **Methods** | GET, POST |
 | **Priority** | High |
 | **Since** | PVE 6.0 |
 
@@ -2794,7 +2794,7 @@ Individual storage volume operations
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, DELETE |
+| **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -3308,7 +3308,7 @@ Two-factor authentication management
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, POST |
+| **Methods** | GET, POST, PUT |
 | **Priority** | Low |
 | **Since** | PVE 7.0 |
 
@@ -3326,7 +3326,7 @@ User TFA configuration
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | GET, POST |
 | **Priority** | Low |
 | **Since** | PVE 7.0 |
 
@@ -3350,7 +3350,7 @@ Authentication ticket creation
 
 | Property | Value |
 |----------|-------|
-| **Methods** | POST |
+| **Methods** | GET, POST |
 | **Priority** | High |
 | **Since** | PVE 6.0 |
 
@@ -3509,7 +3509,7 @@ Resource pool management
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, POST |
+| **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -3573,7 +3573,7 @@ SDN index
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | GET, PUT |
 | **Priority** | Medium |
 | **Since** | PVE 7.0 |
 
@@ -3907,7 +3907,7 @@ Get external metric server configuration
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 7.0 |
 
@@ -4200,7 +4200,7 @@ Control service (start/stop/restart)
 
 | Property | Value |
 |----------|-------|
-| **Methods** | PUT |
+| **Methods** | GET |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -4672,11 +4672,11 @@ List/create security groups
 
 ### `/cluster/firewall/groups/{group}` ✅
 
-Get rules / delete security group
+Get rules / create rule / delete security group
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, DELETE |
+| **Methods** | GET, POST, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 

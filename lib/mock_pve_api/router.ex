@@ -46,6 +46,10 @@ defmodule MockPveApi.Router do
   end
 
   # Access endpoints
+  get "/api2/json/access/ticket" do
+    Access.get_ticket(conn)
+  end
+
   post "/api2/json/access/ticket" do
     Access.create_ticket(conn)
   end
@@ -175,8 +179,16 @@ defmodule MockPveApi.Router do
     Access.add_tfa(conn)
   end
 
+  put "/api2/json/access/tfa" do
+    Access.update_tfa(conn)
+  end
+
   get "/api2/json/access/tfa/:userid" do
     Access.get_user_tfa(conn)
+  end
+
+  post "/api2/json/access/tfa/:userid" do
+    Access.create_tfa_entry(conn)
   end
 
   # Node endpoints
@@ -352,6 +364,18 @@ defmodule MockPveApi.Router do
     Nodes.get_node_network(conn)
   end
 
+  post "/api2/json/nodes/:node/network" do
+    Nodes.create_node_network_iface(conn)
+  end
+
+  put "/api2/json/nodes/:node/network" do
+    Nodes.reload_node_network(conn)
+  end
+
+  delete "/api2/json/nodes/:node/network" do
+    Nodes.delete_pending_node_network(conn)
+  end
+
   post "/api2/json/nodes/:node/execute" do
     Nodes.execute_command(conn)
   end
@@ -388,6 +412,14 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/nodes/:node/subscription" do
     Nodes.set_subscription(conn)
+  end
+
+  put "/api2/json/nodes/:node/subscription" do
+    Nodes.update_subscription(conn)
+  end
+
+  delete "/api2/json/nodes/:node/subscription" do
+    Nodes.delete_subscription(conn)
   end
 
   post "/api2/json/nodes/:node/startall" do
@@ -544,6 +576,10 @@ defmodule MockPveApi.Router do
     Nodes.update_vm_config(conn)
   end
 
+  post "/api2/json/nodes/:node/qemu/:vmid/config" do
+    Nodes.async_update_vm_config(conn)
+  end
+
   post "/api2/json/nodes/:node/qemu/:vmid/status/:action" do
     Nodes.vm_action(conn)
   end
@@ -691,8 +727,16 @@ defmodule MockPveApi.Router do
   end
 
   # VM/Container migration, backup and snapshot endpoints
+  get "/api2/json/nodes/:node/qemu/:vmid/migrate" do
+    Nodes.get_vm_migrate_preconditions(conn)
+  end
+
   post "/api2/json/nodes/:node/qemu/:vmid/migrate" do
     Nodes.migrate_vm(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/migrate" do
+    Nodes.get_ct_migrate_preconditions(conn)
   end
 
   post "/api2/json/nodes/:node/lxc/:vmid/migrate" do
@@ -773,6 +817,10 @@ defmodule MockPveApi.Router do
     Nodes.vm_sendkey(conn)
   end
 
+  get "/api2/json/nodes/:node/qemu/:vmid/agent" do
+    Nodes.get_vm_agent(conn)
+  end
+
   post "/api2/json/nodes/:node/qemu/:vmid/agent" do
     Nodes.vm_agent(conn)
   end
@@ -820,6 +868,10 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/nodes/:node/tasks/:upid/log" do
     Nodes.get_task_log(conn)
+  end
+
+  get "/api2/json/nodes/:node/tasks/:upid" do
+    Nodes.get_task(conn)
   end
 
   delete "/api2/json/nodes/:node/tasks/:upid" do
@@ -882,6 +934,18 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/cluster/metrics/server/:id" do
     Metrics.get_cluster_metrics(conn)
+  end
+
+  post "/api2/json/cluster/metrics/server/:id" do
+    Metrics.create_metrics_server(conn)
+  end
+
+  put "/api2/json/cluster/metrics/server/:id" do
+    Metrics.update_metrics_server(conn)
+  end
+
+  delete "/api2/json/cluster/metrics/server/:id" do
+    Metrics.delete_metrics_server(conn)
   end
 
   get "/api2/json/cluster/metrics/server" do
@@ -964,6 +1028,14 @@ defmodule MockPveApi.Router do
     Storage.get_storage_volume(conn)
   end
 
+  post "/api2/json/nodes/:node/storage/:storage/content/:volume" do
+    Storage.copy_storage_volume(conn)
+  end
+
+  put "/api2/json/nodes/:node/storage/:storage/content/:volume" do
+    Storage.update_storage_volume(conn)
+  end
+
   delete "/api2/json/nodes/:node/storage/:storage/content/:volume" do
     Storage.delete_storage_volume(conn)
   end
@@ -997,8 +1069,12 @@ defmodule MockPveApi.Router do
     Cluster.get_cluster_config(conn)
   end
 
-  put "/api2/json/cluster/config" do
+  post "/api2/json/cluster/config" do
     Cluster.update_cluster_config(conn)
+  end
+
+  get "/api2/json/cluster/config/join" do
+    Cluster.get_config_join(conn)
   end
 
   post "/api2/json/cluster/config/join" do
@@ -1007,6 +1083,10 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/cluster/config/nodes" do
     Cluster.get_cluster_nodes_config(conn)
+  end
+
+  post "/api2/json/cluster/config/nodes/:node" do
+    Cluster.add_cluster_node(conn)
   end
 
   delete "/api2/json/cluster/config/nodes/:node" do
@@ -1278,6 +1358,10 @@ defmodule MockPveApi.Router do
     Firewall.get_security_group(conn)
   end
 
+  post "/api2/json/cluster/firewall/groups/:group" do
+    Firewall.create_security_group_rule(conn)
+  end
+
   delete "/api2/json/cluster/firewall/groups/:group" do
     Firewall.delete_security_group(conn)
   end
@@ -1356,8 +1440,16 @@ defmodule MockPveApi.Router do
     Pools.create_pool(conn)
   end
 
+  put "/api2/json/pools" do
+    Pools.update_pool_by_params(conn)
+  end
+
   put "/api2/json/pools/:poolid" do
     Pools.update_pool(conn)
+  end
+
+  delete "/api2/json/pools" do
+    Pools.delete_pool_by_params(conn)
   end
 
   delete "/api2/json/pools/:poolid" do
@@ -1367,6 +1459,10 @@ defmodule MockPveApi.Router do
   # SDN endpoints (PVE 8.0+ only)
   get "/api2/json/cluster/sdn" do
     Sdn.get_sdn_index(conn)
+  end
+
+  put "/api2/json/cluster/sdn" do
+    Sdn.apply_sdn(conn)
   end
 
   get "/api2/json/cluster/sdn/zones" do

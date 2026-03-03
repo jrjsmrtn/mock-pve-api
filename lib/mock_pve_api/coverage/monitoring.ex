@@ -274,10 +274,10 @@ defmodule MockPveApi.Coverage.Monitoring do
       "/api2/json/nodes/{node}/services/{service}" =>
         implemented(:get, :low, "6.0", "Get service status"),
       "/api2/json/nodes/{node}/services/{service}/state" =>
-        implemented(:put, :low, "6.0", "Control service (start/stop/restart)"),
+        implemented(:get, :low, "6.0", "Control service (start/stop/restart)"),
       "/api2/json/cluster/metrics/server/{id}" => %{
         path: "/api2/json/cluster/metrics/server/{id}",
-        methods: [:get],
+        methods: [:get, :post, :put, :delete],
         status: :implemented,
         priority: :low,
         since: "7.0",
@@ -324,4 +324,5 @@ defmodule MockPveApi.Coverage.Monitoring do
 
   defp methods_for(:get), do: [:get]
   defp methods_for(:put), do: [:put]
+  defp methods_for(:get_post_put_delete), do: [:get, :post, :put, :delete]
 end

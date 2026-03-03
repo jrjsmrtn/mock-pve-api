@@ -246,7 +246,7 @@ defmodule MockPveApi.Coverage.Nodes do
       },
       "/api2/json/nodes/{node}/network" => %{
         path: "/api2/json/nodes/{node}/network",
-        methods: [:get],
+        methods: [:get, :post, :put, :delete],
         status: :implemented,
         priority: :medium,
         since: "6.0",
@@ -415,7 +415,7 @@ defmodule MockPveApi.Coverage.Nodes do
       },
       "/api2/json/nodes/{node}/tasks/{upid}" => %{
         path: "/api2/json/nodes/{node}/tasks/{upid}",
-        methods: [:delete],
+        methods: [:get, :delete],
         status: :implemented,
         priority: :medium,
         since: "6.0",
@@ -470,7 +470,7 @@ defmodule MockPveApi.Coverage.Nodes do
       "/api2/json/nodes/{node}/hosts" =>
         implemented(:get_post, :low, "6.0", "Node /etc/hosts management"),
       "/api2/json/nodes/{node}/subscription" =>
-        implemented(:get_post, :low, "6.0", "Node subscription information"),
+        implemented(:get_post_put_delete, :low, "6.0", "Node subscription information"),
       "/api2/json/nodes/{node}/startall" =>
         implemented(:post, :low, "6.0", "Start all VMs and containers on node"),
       "/api2/json/nodes/{node}/stopall" =>
@@ -528,5 +528,6 @@ defmodule MockPveApi.Coverage.Nodes do
   defp methods_for(:get_post), do: [:get, :post]
   defp methods_for(:get_put), do: [:get, :put]
   defp methods_for(:get_put_delete), do: [:get, :put, :delete]
+  defp methods_for(:get_post_put_delete), do: [:get, :post, :put, :delete]
   defp methods_for(:post_put_delete), do: [:post, :put, :delete]
 end

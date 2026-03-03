@@ -2013,4 +2013,167 @@ defmodule MockPveApi.Handlers.Nodes do
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: upid}))
   end
+
+  # --- VM Migrate Preconditions ---
+
+  @doc """
+  GET /api2/json/nodes/:node/qemu/:vmid/migrate
+  Returns VM migration preconditions (running status, local disks, local resources).
+  """
+  def get_vm_migrate_preconditions(conn) do
+    data = %{
+      running: false,
+      local_disks: [],
+      local_resources: [],
+      allowed_nodes: []
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM Async Config Update ---
+
+  @doc """
+  POST /api2/json/nodes/:node/qemu/:vmid/config
+  Asynchronous VM configuration update — returns a UPID task string.
+  """
+  def async_update_vm_config(conn) do
+    node = conn.path_params["node"]
+    vmid = conn.path_params["vmid"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:00001234:000000:#{now}:qmconfig:#{vmid}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # --- VM Agent Info ---
+
+  @doc """
+  GET /api2/json/nodes/:node/qemu/:vmid/agent
+  Returns QEMU guest agent availability info.
+  """
+  def get_vm_agent(conn) do
+    data = %{supported: false}
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- Container Migrate Preconditions ---
+
+  @doc """
+  GET /api2/json/nodes/:node/lxc/:vmid/migrate
+  Returns container migration preconditions.
+  """
+  def get_ct_migrate_preconditions(conn) do
+    data = %{
+      running: false,
+      local_volumes: [],
+      allowed_nodes: []
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- Node Network Create/Reload/Delete Pending ---
+
+  @doc """
+  POST /api2/json/nodes/:node/network
+  Creates a new network interface configuration.
+  """
+  def create_node_network_iface(conn) do
+    node_name = conn.path_params["node"]
+    params = conn.body_params
+    iface = Map.get(params, "iface")
+
+    if iface do
+      iface_config = Map.put(params, "iface", iface)
+      State.update_node_network_iface(node_name, iface, iface_config)
+
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(200, Jason.encode!(%{data: nil}))
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{iface: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/network
+  Reloads network configuration (apply pending changes).
+  """
+  def reload_node_network(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  @doc """
+  DELETE /api2/json/nodes/:node/network
+  Reverts pending network configuration changes.
+  """
+  def delete_pending_node_network(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Subscription Update/Delete ---
+
+  @doc """
+  PUT /api2/json/nodes/:node/subscription
+  Updates the subscription key.
+  """
+  def update_subscription(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  @doc """
+  DELETE /api2/json/nodes/:node/subscription
+  Deletes the subscription.
+  """
+  def delete_subscription(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Task Summary ---
+
+  @doc """
+  GET /api2/json/nodes/:node/tasks/:upid
+  Returns task summary (distinct from /status and /log).
+  """
+  def get_task(conn) do
+    upid = conn.path_params["upid"]
+
+    summary = %{
+      upid: upid,
+      type: "unknown",
+      id: "",
+      user: "root@pam",
+      status: "stopped",
+      exitstatus: "OK",
+      starttime: System.system_time(:second),
+      endtime: System.system_time(:second)
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: summary}))
+  end
 end

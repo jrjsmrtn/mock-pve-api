@@ -111,6 +111,25 @@ defmodule MockPveApi.Handlers.Firewall do
     end
   end
 
+  def create_security_group_rule(conn) do
+    group_name = conn.path_params["group"]
+    params = conn.body_params
+    fw = State.get_firewall(:cluster)
+
+    case Map.get(fw.groups, group_name) do
+      nil ->
+        json_error(conn, 404, "no such security group '#{group_name}'")
+
+      group ->
+        rule = build_rule(params)
+        new_rules = group.rules ++ [rule]
+        new_group = %{group | rules: new_rules}
+        new_groups = Map.put(fw.groups, group_name, new_group)
+        State.update_firewall(:cluster, %{groups: new_groups})
+        json_resp(conn, 200, nil)
+    end
+  end
+
   def get_security_group_rule(conn) do
     group_name = conn.path_params["group"]
     pos = parse_pos(conn.path_params["pos"])

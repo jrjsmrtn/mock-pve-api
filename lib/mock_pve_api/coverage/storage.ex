@@ -214,7 +214,7 @@ defmodule MockPveApi.Coverage.Storage do
       },
       "/api2/json/nodes/{node}/storage/{storage}/content/{volume}" => %{
         path: "/api2/json/nodes/{node}/storage/{storage}/content/{volume}",
-        methods: [:get, :delete],
+        methods: [:get, :post, :put, :delete],
         status: :implemented,
         priority: :medium,
         since: "6.0",
@@ -317,4 +317,5 @@ defmodule MockPveApi.Coverage.Storage do
   defp methods_for(:get_post), do: [:get, :post]
   defp methods_for(:get_delete), do: [:get, :delete]
   defp methods_for(:get_put_delete), do: [:get, :put, :delete]
+  defp methods_for(:get_post_put_delete), do: [:get, :post, :put, :delete]
 end

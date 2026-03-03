@@ -77,7 +77,7 @@ defmodule MockPveApi.Coverage.Cluster do
       },
       "/api2/json/cluster/config" => %{
         path: "/api2/json/cluster/config",
-        methods: [:get, :put],
+        methods: [:get, :post],
         status: :implemented,
         priority: :medium,
         since: "6.0",
@@ -91,7 +91,7 @@ defmodule MockPveApi.Coverage.Cluster do
       },
       "/api2/json/cluster/config/join" => %{
         path: "/api2/json/cluster/config/join",
-        methods: [:post],
+        methods: [:get, :post],
         status: :implemented,
         priority: :medium,
         since: "6.0",
@@ -144,7 +144,7 @@ defmodule MockPveApi.Coverage.Cluster do
       },
       "/api2/json/cluster/config/nodes/{node}" => %{
         path: "/api2/json/cluster/config/nodes/{node}",
-        methods: [:delete],
+        methods: [:post, :delete],
         status: :implemented,
         priority: :medium,
         since: "6.0",

@@ -23,7 +23,7 @@ defmodule MockPveApi.Coverage.Sdn do
     %{
       "/api2/json/cluster/sdn" => %{
         path: "/api2/json/cluster/sdn",
-        methods: [:get],
+        methods: [:get, :put],
         status: :implemented,
         priority: :medium,
         since: "7.0",

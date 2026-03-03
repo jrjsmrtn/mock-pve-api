@@ -45,7 +45,12 @@ defmodule MockPveApi.Coverage.Firewall do
       "/api2/json/cluster/firewall/groups" =>
         implemented(:get_post, :medium, "6.0", "List/create security groups"),
       "/api2/json/cluster/firewall/groups/{group}" =>
-        implemented(:get_delete, :medium, "6.0", "Get rules / delete security group"),
+        implemented(
+          :get_post_delete,
+          :medium,
+          "6.0",
+          "Get rules / create rule / delete security group"
+        ),
       "/api2/json/cluster/firewall/groups/{group}/{pos}" =>
         implemented(:get_put_delete, :low, "6.0", "Security group rule CRUD"),
       "/api2/json/cluster/firewall/aliases" =>

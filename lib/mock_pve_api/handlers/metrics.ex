@@ -572,13 +572,77 @@ defmodule MockPveApi.Handlers.Metrics do
   end
 
   @doc """
+  POST /api2/json/cluster/metrics/server/:id
+  Creates an external metric server configuration.
+  """
+  def create_metrics_server(conn) do
+    server_id = conn.path_params["id"]
+    params = conn.body_params
+
+    case State.create_metrics_server(server_id, params) do
+      {:ok, _server} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/cluster/metrics/server/:id
+  Updates an external metric server configuration.
+  """
+  def update_metrics_server(conn) do
+    server_id = conn.path_params["id"]
+    params = conn.body_params
+
+    case State.update_metrics_server(server_id, params) do
+      {:ok, _server} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  DELETE /api2/json/cluster/metrics/server/:id
+  Deletes an external metric server configuration.
+  """
+  def delete_metrics_server(conn) do
+    server_id = conn.path_params["id"]
+
+    case State.delete_metrics_server(server_id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
   GET /api2/json/cluster/metrics/server
   Lists configured external metric servers.
   """
   def list_metrics_servers(conn) do
+    servers = State.get_metrics_servers()
+
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: []}))
+    |> send_resp(200, Jason.encode!(%{data: servers}))
   end
 
   # --- Node Services ---
