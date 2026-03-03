@@ -10,8 +10,6 @@ defmodule MockPveApi.Coverage.Version do
 
   @behaviour MockPveApi.Coverage.Category
 
-  @min_since Application.compile_env(:mock_pve_api, :min_pve_version, "7.0")
-
   @impl true
   def category, do: :version
 
@@ -23,7 +21,7 @@ defmodule MockPveApi.Coverage.Version do
         methods: [:get],
         status: :implemented,
         priority: :critical,
-        since: @min_since,
+        since: "6.0",
         description: "Get PVE version information and server details",
         parameters: [],
         response_schema: %{

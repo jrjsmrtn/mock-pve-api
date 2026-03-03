@@ -11,8 +11,6 @@ defmodule MockPveApi.Coverage.Hardware do
 
   @behaviour MockPveApi.Coverage.Category
 
-  @min_since Application.compile_env(:mock_pve_api, :min_pve_version, "7.0")
-
   @impl true
   def category, do: :hardware
 
@@ -25,11 +23,11 @@ defmodule MockPveApi.Coverage.Hardware do
   defp implemented_endpoints do
     %{
       "/api2/json/nodes/{node}/hardware/pci" =>
-        implemented(:get, :medium, @min_since, "List PCI devices on node"),
+        implemented(:get, :medium, "6.0", "List PCI devices on node"),
       "/api2/json/nodes/{node}/hardware/pci/{pciid}" =>
-        implemented(:get, :low, @min_since, "Get PCI device details"),
+        implemented(:get, :low, "6.0", "Get PCI device details"),
       "/api2/json/nodes/{node}/hardware/usb" =>
-        implemented(:get, :medium, @min_since, "List USB devices on node"),
+        implemented(:get, :medium, "6.0", "List USB devices on node"),
       "/api2/json/cluster/mapping/pci" =>
         implemented(:get_post, :low, "8.0", "PCI resource mapping management"),
       "/api2/json/cluster/mapping/pci/{id}" =>

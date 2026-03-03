@@ -12,8 +12,6 @@ defmodule MockPveApi.Coverage.Nodes do
 
   @behaviour MockPveApi.Coverage.Category
 
-  @min_since Application.compile_env(:mock_pve_api, :min_pve_version, "7.0")
-
   @impl true
   def category, do: :nodes
 
@@ -29,7 +27,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get],
         status: :implemented,
         priority: :critical,
-        since: @min_since,
+        since: "6.0",
         description: "List all cluster nodes with status",
         parameters: [],
         response_schema: %{data: :array},
@@ -43,7 +41,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Node index — lists available sub-resources",
         parameters: [
           %{
@@ -66,7 +64,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get, :post],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Node status and control operations",
         parameters: [
           %{
@@ -97,7 +95,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Node-specific version information",
         parameters: [
           %{
@@ -120,7 +118,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get, :put],
         status: :implemented,
         priority: :low,
-        since: @min_since,
+        since: "6.0",
         description: "Node time configuration",
         parameters: [
           %{
@@ -143,7 +141,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "List tasks on node",
         parameters: [
           %{
@@ -166,7 +164,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Get task status by UPID",
         parameters: [
           %{
@@ -197,7 +195,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Get task log by UPID",
         parameters: [
           %{
@@ -228,7 +226,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Read system log (syslog)",
         parameters: [
           %{
@@ -251,7 +249,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get, :post, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "List available network interfaces",
         parameters: [
           %{
@@ -274,7 +272,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:post],
         status: :implemented,
         priority: :low,
-        since: @min_since,
+        since: "6.0",
         description: "Execute a command on a node (API call, not shell)",
         parameters: [
           %{
@@ -297,7 +295,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get, :put],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Node DNS configuration",
         parameters: [
           %{
@@ -320,7 +318,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "APT package update management",
         parameters: [
           %{
@@ -343,7 +341,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get],
         status: :implemented,
         priority: :low,
-        since: @min_since,
+        since: "6.0",
         description: "Get package version information",
         parameters: [
           %{
@@ -366,7 +364,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Individual network interface management",
         parameters: [
           %{
@@ -397,7 +395,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "List local disks",
         parameters: [
           %{
@@ -420,7 +418,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get, :delete],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Stop a running task",
         parameters: [
           %{
@@ -451,7 +449,7 @@ defmodule MockPveApi.Coverage.Nodes do
         methods: [:get, :put],
         status: :implemented,
         priority: :low,
-        since: @min_since,
+        since: "6.0",
         description: "Node configuration options",
         parameters: [
           %{
@@ -470,30 +468,30 @@ defmodule MockPveApi.Coverage.Nodes do
         notes: nil
       },
       "/api2/json/nodes/{node}/hosts" =>
-        implemented(:get_post, :low, @min_since, "Node /etc/hosts management"),
+        implemented(:get_post, :low, "6.0", "Node /etc/hosts management"),
       "/api2/json/nodes/{node}/subscription" =>
-        implemented(:get_post_put_delete, :low, @min_since, "Node subscription information"),
+        implemented(:get_post_put_delete, :low, "6.0", "Node subscription information"),
       "/api2/json/nodes/{node}/startall" =>
-        implemented(:post, :low, @min_since, "Start all VMs and containers on node"),
+        implemented(:post, :low, "6.0", "Start all VMs and containers on node"),
       "/api2/json/nodes/{node}/stopall" =>
-        implemented(:post, :low, @min_since, "Stop all VMs and containers on node"),
+        implemented(:post, :low, "6.0", "Stop all VMs and containers on node"),
       "/api2/json/nodes/{node}/migrateall" =>
-        implemented(:post, :low, @min_since, "Migrate all VMs and containers to another node"),
+        implemented(:post, :low, "6.0", "Migrate all VMs and containers to another node"),
       "/api2/json/nodes/{node}/journal" => implemented(:get, :low, "7.0", "Read systemd journal"),
       "/api2/json/nodes/{node}/certificates/info" =>
-        implemented(:get, :low, @min_since, "Get node TLS certificate info"),
+        implemented(:get, :low, "6.0", "Get node TLS certificate info"),
       "/api2/json/nodes/{node}/disks/smart" =>
-        implemented(:get, :low, @min_since, "Get SMART health data for disks"),
+        implemented(:get, :low, "6.0", "Get SMART health data for disks"),
       "/api2/json/nodes/{node}/certificates/acme/certificate" =>
-        implemented(:post_put_delete, :low, @min_since, "ACME certificate management"),
+        implemented(:post_put_delete, :low, "6.0", "ACME certificate management"),
       "/api2/json/nodes/{node}/disks/initgpt" =>
-        implemented(:post, :low, @min_since, "Initialize disk with GPT"),
+        implemented(:post, :low, "6.0", "Initialize disk with GPT"),
       "/api2/json/nodes/{node}/disks/lvm" =>
-        implemented(:get_post, :low, @min_since, "LVM management on node"),
+        implemented(:get_post, :low, "6.0", "LVM management on node"),
       "/api2/json/nodes/{node}/disks/lvmthin" =>
-        implemented(:get_post, :low, @min_since, "LVM thin pool management on node"),
+        implemented(:get_post, :low, "6.0", "LVM thin pool management on node"),
       "/api2/json/nodes/{node}/disks/zfs" =>
-        implemented(:get_post, :low, @min_since, "ZFS pool management on node"),
+        implemented(:get_post, :low, "6.0", "ZFS pool management on node"),
       "/api2/json/nodes/{node}/ceph/status" =>
         implemented(:get, :low, "7.0", "Ceph status on node"),
       "/api2/json/nodes/{node}/ceph/osd" =>

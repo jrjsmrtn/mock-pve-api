@@ -413,20 +413,31 @@ defmodule MockPveApi.Capabilities do
   end
 
   @doc """
-  Returns the minimum supported PVE version for this mock server.
+  Returns the minimum PVE version this mock server will simulate.
 
-  Endpoints available in all versions since before this version are catalogued
-  with `since: min_version()` in the Coverage modules.
+  Attempting to configure a `pve_version` below this value is unsupported.
+  Set `min_pve_version` in application config (default: `"7.0"`).
   """
   @spec min_version() :: version()
   def min_version, do: Application.get_env(:mock_pve_api, :min_pve_version, "7.0")
 
   @doc """
-  Lists all supported PVE versions.
+  Lists all PVE versions this mock server supports (>= `min_version/0`).
   """
   @spec supported_versions() :: [version()]
   def supported_versions do
-    Map.keys(@capabilities) |> Enum.sort()
+    min = min_version()
+
+    {:ok, min_parsed} = parse_version(min)
+
+    Map.keys(@capabilities)
+    |> Enum.filter(fn v ->
+      case parse_version(v) do
+        {:ok, parsed} -> version_lte(min_parsed, parsed)
+        :error -> false
+      end
+    end)
+    |> Enum.sort()
   end
 
   @doc """

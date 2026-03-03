@@ -14,8 +14,6 @@ defmodule MockPveApi.Coverage.Cluster do
 
   @behaviour MockPveApi.Coverage.Category
 
-  @min_since Application.compile_env(:mock_pve_api, :min_pve_version, "7.0")
-
   @impl true
   def category, do: :cluster
 
@@ -31,7 +29,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get],
         status: :implemented,
         priority: :critical,
-        since: @min_since,
+        since: "6.0",
         description: "Get cluster status and node information",
         parameters: [],
         response_schema: %{data: :array},
@@ -45,7 +43,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Get cluster resource overview (VMs, containers, storage)",
         parameters: [
           %{
@@ -68,7 +66,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Get next free VMID",
         parameters: [],
         response_schema: %{data: :integer},
@@ -82,7 +80,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Cluster configuration management",
         parameters: [],
         response_schema: %{data: :object},
@@ -96,7 +94,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Join node to existing cluster",
         parameters: [
           %{
@@ -135,7 +133,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "List cluster nodes configuration",
         parameters: [],
         response_schema: %{data: :array},
@@ -149,7 +147,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:post, :delete],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Remove node from cluster",
         parameters: [
           %{
@@ -242,7 +240,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get, :post],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "HA resource management",
         parameters: [],
         response_schema: %{data: :array},
@@ -256,7 +254,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Individual HA resource operations",
         parameters: [
           %{
@@ -279,7 +277,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Current HA manager and resource status",
         parameters: [],
         response_schema: %{data: :array},
@@ -293,7 +291,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "HA group management",
         parameters: [],
         response_schema: %{data: :array},
@@ -307,7 +305,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Individual HA group operations",
         parameters: [
           %{
@@ -353,7 +351,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get, :put],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Cluster-wide datacenter options",
         parameters: [],
         response_schema: %{data: :object},
@@ -367,7 +365,7 @@ defmodule MockPveApi.Coverage.Cluster do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Replication job management",
         parameters: [],
         response_schema: %{data: :array},
@@ -377,11 +375,11 @@ defmodule MockPveApi.Coverage.Cluster do
         notes: nil
       },
       "/api2/json/cluster/replication/{id}" =>
-        implemented(:get_put_delete, :medium, @min_since, "Individual replication job operations"),
+        implemented(:get_put_delete, :medium, "6.0", "Individual replication job operations"),
       "/api2/json/cluster/acme/account" =>
-        implemented(:get_post, :low, @min_since, "ACME account management"),
+        implemented(:get_post, :low, "6.0", "ACME account management"),
       "/api2/json/cluster/acme/plugins" =>
-        implemented(:get_post, :low, @min_since, "ACME plugin management"),
+        implemented(:get_post, :low, "6.0", "ACME plugin management"),
       "/api2/json/cluster/ceph/metadata" =>
         implemented(:get, :low, "7.0", "Ceph cluster metadata"),
       "/api2/json/cluster/ceph/status" => implemented(:get, :low, "7.0", "Ceph cluster status"),

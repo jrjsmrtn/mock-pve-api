@@ -89,7 +89,7 @@ Get PVE version information and server details
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Critical |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -119,7 +119,7 @@ ACME account management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -137,7 +137,7 @@ ACME plugin management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -255,7 +255,7 @@ Cluster configuration management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -278,7 +278,7 @@ Join node to existing cluster
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -306,7 +306,7 @@ List cluster nodes configuration
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -332,7 +332,7 @@ Remove node from cluster
 |----------|-------|
 | **Methods** | POST, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -410,7 +410,7 @@ HA group management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -428,7 +428,7 @@ Individual HA group operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -452,7 +452,7 @@ HA resource management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -470,7 +470,7 @@ Individual HA resource operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -494,7 +494,7 @@ Current HA manager and resource status
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -512,7 +512,7 @@ Get next free VMID
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 
 ### `/cluster/notifications/endpoints` ✅ 🔴
@@ -671,7 +671,7 @@ Cluster-wide datacenter options
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -689,7 +689,7 @@ Replication job management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -707,7 +707,7 @@ Individual replication job operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -725,7 +725,7 @@ Get cluster resource overview (VMs, containers, storage)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -768,7 +768,7 @@ Get cluster status and node information
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Critical |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -804,7 +804,7 @@ List all cluster nodes with status
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Critical |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -832,7 +832,7 @@ Node index — lists available sub-resources
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -856,7 +856,7 @@ APT package update management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -880,7 +880,7 @@ Get package version information
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -958,7 +958,7 @@ ACME certificate management
 |----------|-------|
 | **Methods** | POST, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -976,7 +976,7 @@ Get node TLS certificate info
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -994,7 +994,7 @@ Node configuration options
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1018,7 +1018,7 @@ Initialize disk with GPT
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1036,7 +1036,7 @@ List local disks
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1060,7 +1060,7 @@ LVM management on node
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1078,7 +1078,7 @@ LVM thin pool management on node
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1096,7 +1096,7 @@ Get SMART health data for disks
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1114,7 +1114,7 @@ ZFS pool management on node
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1132,7 +1132,7 @@ Node DNS configuration
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1156,7 +1156,7 @@ Execute a command on a node (API call, not shell)
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1180,7 +1180,7 @@ Node /etc/hosts management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1216,7 +1216,7 @@ Migrate all VMs and containers to another node
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1234,7 +1234,7 @@ List available network interfaces
 |----------|-------|
 | **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1258,7 +1258,7 @@ Individual network interface management
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1283,7 +1283,7 @@ Start all VMs and containers on node
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1301,7 +1301,7 @@ Node status and control operations
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1326,7 +1326,7 @@ Stop all VMs and containers on node
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1344,7 +1344,7 @@ Node subscription information
 |----------|-------|
 | **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1362,7 +1362,7 @@ Read system log (syslog)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1386,7 +1386,7 @@ List tasks on node
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1410,7 +1410,7 @@ Stop a running task
 |----------|-------|
 | **Methods** | GET, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1435,7 +1435,7 @@ Get task log by UPID
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1460,7 +1460,7 @@ Get task status by UPID
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1485,7 +1485,7 @@ Node time configuration
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1515,7 +1515,7 @@ Node-specific version information
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1544,7 +1544,7 @@ List and create virtual machines on node
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Critical |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1579,7 +1579,7 @@ Individual VM configuration and management
 |----------|-------|
 | **Methods** | GET, DELETE |
 | **Priority** | Critical |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1615,7 +1615,7 @@ QEMU guest agent info and commands
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1642,7 +1642,7 @@ Clone virtual machine
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1670,7 +1670,7 @@ Get cloud-init configuration dump
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1697,7 +1697,7 @@ VM configuration (get current or update)
 |----------|-------|
 | **Methods** | GET, PUT, POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1731,7 +1731,7 @@ Check VM feature availability
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1758,7 +1758,7 @@ Migrate VM to another node
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1792,7 +1792,7 @@ Move VM disk to different storage
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1819,7 +1819,7 @@ Get pending VM configuration changes
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1853,7 +1853,7 @@ Resize VM disk
 |----------|-------|
 | **Methods** | PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1887,7 +1887,7 @@ Send key event to VM
 |----------|-------|
 | **Methods** | PUT |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1914,7 +1914,7 @@ List snapshots / create snapshot
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1950,7 +1950,7 @@ Get snapshot info / delete snapshot
 |----------|-------|
 | **Methods** | GET, DELETE |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -1985,7 +1985,7 @@ Get or update snapshot configuration
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2020,7 +2020,7 @@ Rollback VM to snapshot
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2055,7 +2055,7 @@ Current VM status and statistics
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2089,7 +2089,7 @@ VM control operations (start, stop, reset, etc.)
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2117,7 +2117,7 @@ Convert VM to template
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -2144,7 +2144,7 @@ Unlink/delete disk images
 |----------|-------|
 | **Methods** | PUT |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -2176,7 +2176,7 @@ List and create LXC containers on node
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Critical |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2210,7 +2210,7 @@ Individual LXC container configuration
 |----------|-------|
 | **Methods** | GET, DELETE |
 | **Priority** | Critical |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2245,7 +2245,7 @@ Clone LXC container
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2273,7 +2273,7 @@ Container configuration (get current or update)
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2306,7 +2306,7 @@ Check container feature availability
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -2365,7 +2365,7 @@ Move container volume to different storage
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -2391,7 +2391,7 @@ Get pending container configuration changes
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2424,7 +2424,7 @@ Resize container disk
 |----------|-------|
 | **Methods** | PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2457,7 +2457,7 @@ List snapshots / create snapshot
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2492,7 +2492,7 @@ Get snapshot info / delete snapshot
 |----------|-------|
 | **Methods** | GET, DELETE |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2526,7 +2526,7 @@ Get or update snapshot configuration
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2560,7 +2560,7 @@ Rollback container to snapshot
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2594,7 +2594,7 @@ Current container status and statistics
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2627,7 +2627,7 @@ Container control operations (start, stop, shutdown, etc.)
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2663,7 +2663,7 @@ Convert container to template
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -2694,7 +2694,7 @@ List storage configured for node
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2728,7 +2728,7 @@ List backup files in storage
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2762,7 +2762,7 @@ Storage content management (images, backups, templates)
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2796,7 +2796,7 @@ Individual storage volume operations
 |----------|-------|
 | **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2919,7 +2919,7 @@ Prune old backups
 |----------|-------|
 | **Methods** | GET, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -2946,7 +2946,7 @@ Storage status and capacity information
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -2977,7 +2977,7 @@ Upload content to storage
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3011,7 +3011,7 @@ Storage definition management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -3038,7 +3038,7 @@ Individual storage definition CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3076,7 +3076,7 @@ Access control list management
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -3094,7 +3094,7 @@ Authentication realms/domains management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -3118,7 +3118,7 @@ Individual realm/domain CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3168,7 +3168,7 @@ User group management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -3193,7 +3193,7 @@ Individual group operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3225,7 +3225,7 @@ Change user password
 |----------|-------|
 | **Methods** | PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3250,7 +3250,7 @@ Get current user permissions
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -3268,7 +3268,7 @@ Role management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -3286,7 +3286,7 @@ Individual role CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3352,7 +3352,7 @@ Authentication ticket creation
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3383,7 +3383,7 @@ User account management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -3412,7 +3412,7 @@ Individual user account operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3445,7 +3445,7 @@ List API tokens for user
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3474,7 +3474,7 @@ Individual API token operations
 |----------|-------|
 | **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3511,7 +3511,7 @@ Resource pool management
 |----------|-------|
 | **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -3534,7 +3534,7 @@ Individual pool operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3933,7 +3933,7 @@ Read container RRD statistics (returns PNG graph)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3966,7 +3966,7 @@ Read container RRD statistics (JSON data)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -3999,7 +3999,7 @@ Read node network statistics
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4023,7 +4023,7 @@ Read VM RRD statistics (returns PNG graph)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4057,7 +4057,7 @@ Read VM RRD statistics (JSON data)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4091,7 +4091,7 @@ Get node status report (text format)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4115,7 +4115,7 @@ Read node RRD statistics (returns PNG graph)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4141,7 +4141,7 @@ Read node RRD statistics (returns JSON data)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4166,7 +4166,7 @@ List system services on node
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4184,7 +4184,7 @@ Get service status
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4202,7 +4202,7 @@ Control service (start/stop/restart)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4220,7 +4220,7 @@ Storage RRD statistics (graph)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4247,7 +4247,7 @@ Storage RRD statistics (data)
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4279,7 +4279,7 @@ List/create backup jobs
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4315,7 +4315,7 @@ Individual backup job CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4363,7 +4363,7 @@ Restore VM from backup
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4387,7 +4387,7 @@ Create backup (vzdump)
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | High |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4416,7 +4416,7 @@ Get vzdump default options
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4440,7 +4440,7 @@ Extract configuration from backup archive
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4464,7 +4464,7 @@ Restore container from backup
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Parameters**:
 
@@ -4565,7 +4565,7 @@ List PCI devices on node
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4583,7 +4583,7 @@ Get PCI device details
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4601,7 +4601,7 @@ List USB devices on node
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4624,7 +4624,7 @@ List/create cluster IP aliases
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4642,7 +4642,7 @@ Individual alias CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4660,7 +4660,7 @@ List/create security groups
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4678,7 +4678,7 @@ Get rules / create rule / delete security group
 |----------|-------|
 | **Methods** | GET, POST, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4696,7 +4696,7 @@ Security group rule CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4714,7 +4714,7 @@ List/create IP sets
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4732,7 +4732,7 @@ List/add entries, delete IP set
 |----------|-------|
 | **Methods** | GET, POST, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4750,7 +4750,7 @@ IP set entry CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4768,7 +4768,7 @@ Read cluster firewall log
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4786,7 +4786,7 @@ List available firewall macros
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4804,7 +4804,7 @@ Cluster firewall options
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4822,7 +4822,7 @@ List available firewall references
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4840,7 +4840,7 @@ List/create cluster firewall rules
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4858,7 +4858,7 @@ Individual cluster rule CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4876,7 +4876,7 @@ Node firewall index
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4894,7 +4894,7 @@ Read node firewall log
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4912,7 +4912,7 @@ Node firewall options
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4930,7 +4930,7 @@ List/create node firewall rules
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4948,7 +4948,7 @@ Individual node rule CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4966,7 +4966,7 @@ Container firewall index
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -4992,7 +4992,7 @@ Container-level IP aliases
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5018,7 +5018,7 @@ Container alias CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5044,7 +5044,7 @@ Container-level IP sets
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5070,7 +5070,7 @@ Container IP set entries / add / delete
 |----------|-------|
 | **Methods** | GET, POST, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5096,7 +5096,7 @@ Container IP set entry CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5122,7 +5122,7 @@ Read container firewall log
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5148,7 +5148,7 @@ Container firewall options
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5174,7 +5174,7 @@ Container firewall references
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5200,7 +5200,7 @@ List/create container firewall rules
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5226,7 +5226,7 @@ Individual container rule CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5252,7 +5252,7 @@ VM firewall index
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5279,7 +5279,7 @@ VM-level IP aliases
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5306,7 +5306,7 @@ VM alias CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5333,7 +5333,7 @@ VM-level IP sets
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5360,7 +5360,7 @@ VM IP set entries / add / delete
 |----------|-------|
 | **Methods** | GET, POST, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5387,7 +5387,7 @@ VM IP set entry CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5414,7 +5414,7 @@ Read VM firewall log
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5441,7 +5441,7 @@ VM firewall options
 |----------|-------|
 | **Methods** | GET, PUT |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5468,7 +5468,7 @@ VM firewall references
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5495,7 +5495,7 @@ List/create VM firewall rules
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -5522,7 +5522,7 @@ Individual VM rule CRUD
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json

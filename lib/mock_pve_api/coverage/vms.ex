@@ -10,8 +10,6 @@ defmodule MockPveApi.Coverage.VMs do
 
   @behaviour MockPveApi.Coverage.Category
 
-  @min_since Application.compile_env(:mock_pve_api, :min_pve_version, "7.0")
-
   @impl true
   def category, do: :vms
 
@@ -27,7 +25,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:get, :post],
         status: :implemented,
         priority: :critical,
-        since: @min_since,
+        since: "6.0",
         description: "List and create virtual machines on node",
         parameters: [
           %{
@@ -58,7 +56,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:get, :delete],
         status: :implemented,
         priority: :critical,
-        since: @min_since,
+        since: "6.0",
         description: "Individual VM configuration and management",
         parameters: [
           %{
@@ -89,7 +87,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:get, :put, :post],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "VM configuration (get current or update)",
         parameters: [
           %{
@@ -120,7 +118,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:get],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Current VM status and statistics",
         parameters: [
           %{
@@ -151,7 +149,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:post],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "VM control operations (start, stop, reset, etc.)",
         parameters: [
           %{
@@ -190,7 +188,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:post],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Clone virtual machine",
         parameters: [
           %{
@@ -229,7 +227,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:get, :post],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Migrate VM to another node",
         parameters: [
           %{
@@ -260,7 +258,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:get, :post],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "List snapshots / create snapshot",
         parameters: [
           %{
@@ -291,7 +289,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:get, :delete],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Get snapshot info / delete snapshot",
         parameters: [
           %{
@@ -330,7 +328,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:get, :put],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Get or update snapshot configuration",
         parameters: [
           %{
@@ -369,7 +367,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:post],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Rollback VM to snapshot",
         parameters: [
           %{
@@ -408,7 +406,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Get pending VM configuration changes",
         parameters: [
           %{
@@ -439,7 +437,7 @@ defmodule MockPveApi.Coverage.VMs do
         methods: [:put],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Resize VM disk",
         parameters: [
           %{
@@ -466,19 +464,19 @@ defmodule MockPveApi.Coverage.VMs do
         notes: nil
       },
       "/api2/json/nodes/{node}/qemu/{vmid}/feature" =>
-        implemented(:get, :low, @min_since, "Check VM feature availability"),
+        implemented(:get, :low, "6.0", "Check VM feature availability"),
       "/api2/json/nodes/{node}/qemu/{vmid}/template" =>
-        implemented(:post, :low, @min_since, "Convert VM to template"),
+        implemented(:post, :low, "6.0", "Convert VM to template"),
       "/api2/json/nodes/{node}/qemu/{vmid}/agent" =>
-        implemented(:get_post, :medium, @min_since, "QEMU guest agent info and commands"),
+        implemented(:get_post, :medium, "6.0", "QEMU guest agent info and commands"),
       "/api2/json/nodes/{node}/qemu/{vmid}/cloudinit/dump" =>
-        implemented(:get, :low, @min_since, "Get cloud-init configuration dump"),
+        implemented(:get, :low, "6.0", "Get cloud-init configuration dump"),
       "/api2/json/nodes/{node}/qemu/{vmid}/unlink" =>
-        implemented(:put, :low, @min_since, "Unlink/delete disk images"),
+        implemented(:put, :low, "6.0", "Unlink/delete disk images"),
       "/api2/json/nodes/{node}/qemu/{vmid}/move_disk" =>
-        implemented(:post, :medium, @min_since, "Move VM disk to different storage"),
+        implemented(:post, :medium, "6.0", "Move VM disk to different storage"),
       "/api2/json/nodes/{node}/qemu/{vmid}/sendkey" =>
-        implemented(:put, :low, @min_since, "Send key event to VM")
+        implemented(:put, :low, "6.0", "Send key event to VM")
     }
   end
 

@@ -12,8 +12,6 @@ defmodule MockPveApi.Coverage.Backup do
 
   @behaviour MockPveApi.Coverage.Category
 
-  @min_since Application.compile_env(:mock_pve_api, :min_pve_version, "7.0")
-
   @impl true
   def category, do: :backup
 
@@ -29,7 +27,7 @@ defmodule MockPveApi.Coverage.Backup do
         methods: [:post],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "Create backup (vzdump)",
         parameters: [
           %{
@@ -76,7 +74,7 @@ defmodule MockPveApi.Coverage.Backup do
         methods: [:get, :post],
         status: :implemented,
         priority: :high,
-        since: @min_since,
+        since: "6.0",
         description: "List/create backup jobs",
         parameters: [],
         response_schema: %{data: :array},
@@ -90,7 +88,7 @@ defmodule MockPveApi.Coverage.Backup do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Individual backup job CRUD",
         parameters: [
           %{
@@ -150,7 +148,7 @@ defmodule MockPveApi.Coverage.Backup do
         methods: [:get],
         status: :implemented,
         priority: :low,
-        since: @min_since,
+        since: "6.0",
         description: "Get vzdump default options",
         parameters: [
           %{
@@ -173,7 +171,7 @@ defmodule MockPveApi.Coverage.Backup do
         methods: [:get],
         status: :implemented,
         priority: :low,
-        since: @min_since,
+        since: "6.0",
         description: "Extract configuration from backup archive",
         parameters: [
           %{
@@ -196,7 +194,7 @@ defmodule MockPveApi.Coverage.Backup do
         methods: [:post],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Restore VM from backup",
         parameters: [
           %{
@@ -219,7 +217,7 @@ defmodule MockPveApi.Coverage.Backup do
         methods: [:post],
         status: :implemented,
         priority: :medium,
-        since: @min_since,
+        since: "6.0",
         description: "Restore container from backup",
         parameters: [
           %{
