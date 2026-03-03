@@ -10,6 +10,8 @@ defmodule MockPveApi.Coverage.Pools do
 
   @behaviour MockPveApi.Coverage.Category
 
+  @min_since Application.compile_env(:mock_pve_api, :min_pve_version, "7.0")
+
   @impl true
   def category, do: :pools
 
@@ -21,7 +23,7 @@ defmodule MockPveApi.Coverage.Pools do
         methods: [:get, :post, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Resource pool management",
         parameters: [],
         response_schema: %{data: :array},
@@ -35,7 +37,7 @@ defmodule MockPveApi.Coverage.Pools do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Individual pool operations",
         parameters: [
           %{

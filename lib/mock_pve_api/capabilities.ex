@@ -413,6 +413,15 @@ defmodule MockPveApi.Capabilities do
   end
 
   @doc """
+  Returns the minimum supported PVE version for this mock server.
+
+  Endpoints available in all versions since before this version are catalogued
+  with `since: min_version()` in the Coverage modules.
+  """
+  @spec min_version() :: version()
+  def min_version, do: Application.get_env(:mock_pve_api, :min_pve_version, "7.0")
+
+  @doc """
   Lists all supported PVE versions.
   """
   @spec supported_versions() :: [version()]

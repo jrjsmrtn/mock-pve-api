@@ -10,6 +10,8 @@ defmodule MockPveApi.Coverage.Access do
 
   @behaviour MockPveApi.Coverage.Category
 
+  @min_since Application.compile_env(:mock_pve_api, :min_pve_version, "7.0")
+
   @impl true
   def category, do: :access
 
@@ -25,7 +27,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get, :post],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "User account management",
         parameters: [],
         response_schema: %{data: :array},
@@ -39,7 +41,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Individual user account operations",
         parameters: [
           %{
@@ -62,7 +64,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "List API tokens for user",
         parameters: [
           %{
@@ -85,7 +87,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get, :post, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Individual API token operations",
         parameters: [
           %{
@@ -116,7 +118,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get, :post],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "Authentication ticket creation",
         parameters: [
           %{
@@ -155,7 +157,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "User group management",
         parameters: [],
         response_schema: %{data: :array},
@@ -169,7 +171,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Individual group operations",
         parameters: [
           %{
@@ -192,7 +194,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Authentication realms/domains management",
         parameters: [],
         response_schema: %{data: :array},
@@ -206,7 +208,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Get current user permissions",
         parameters: [],
         response_schema: %{data: :object},
@@ -220,7 +222,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get, :put],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Access control list management",
         parameters: [],
         response_schema: %{data: :array},
@@ -234,7 +236,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Role management",
         parameters: [],
         response_schema: %{data: :array},
@@ -271,7 +273,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Individual role CRUD",
         parameters: [
           %{
@@ -294,7 +296,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Individual realm/domain CRUD",
         parameters: [
           %{
@@ -317,7 +319,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:put],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Change user password",
         parameters: [
           %{

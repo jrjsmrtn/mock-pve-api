@@ -10,6 +10,8 @@ defmodule MockPveApi.Coverage.Storage do
 
   @behaviour MockPveApi.Coverage.Category
 
+  @min_since Application.compile_env(:mock_pve_api, :min_pve_version, "7.0")
+
   @impl true
   def category, do: :storage
 
@@ -25,7 +27,7 @@ defmodule MockPveApi.Coverage.Storage do
         methods: [:get, :post],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "Storage definition management",
         parameters: [],
         response_schema: %{data: :array},
@@ -39,7 +41,7 @@ defmodule MockPveApi.Coverage.Storage do
         methods: [:get],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "List storage configured for node",
         parameters: [
           %{
@@ -70,7 +72,7 @@ defmodule MockPveApi.Coverage.Storage do
         methods: [:get],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "Storage status and capacity information",
         parameters: [
           %{
@@ -101,7 +103,7 @@ defmodule MockPveApi.Coverage.Storage do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Storage content management (images, backups, templates)",
         parameters: [
           %{
@@ -132,7 +134,7 @@ defmodule MockPveApi.Coverage.Storage do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "List backup files in storage",
         parameters: [
           %{
@@ -194,7 +196,7 @@ defmodule MockPveApi.Coverage.Storage do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Individual storage definition CRUD",
         parameters: [
           %{
@@ -217,7 +219,7 @@ defmodule MockPveApi.Coverage.Storage do
         methods: [:get, :post, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Individual storage volume operations",
         parameters: [
           %{
@@ -252,7 +254,7 @@ defmodule MockPveApi.Coverage.Storage do
         notes: nil
       },
       "/api2/json/nodes/{node}/storage/{storage}/prunebackups" =>
-        implemented(:get_delete, :low, "6.0", "Prune old backups"),
+        implemented(:get_delete, :low, @min_since, "Prune old backups"),
       "/api2/json/nodes/{node}/storage/{storage}/file-restore/list" =>
         implemented(:get, :low, "7.0", "List files in a backup for single-file restore"),
       "/api2/json/nodes/{node}/storage/{storage}/file-restore/download" =>
@@ -262,7 +264,7 @@ defmodule MockPveApi.Coverage.Storage do
         methods: [:post],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Upload content to storage",
         parameters: [
           %{

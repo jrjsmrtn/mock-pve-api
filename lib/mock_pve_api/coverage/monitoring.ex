@@ -12,6 +12,8 @@ defmodule MockPveApi.Coverage.Monitoring do
 
   @behaviour MockPveApi.Coverage.Category
 
+  @min_since Application.compile_env(:mock_pve_api, :min_pve_version, "7.0")
+
   @impl true
   def category, do: :monitoring
 
@@ -27,7 +29,7 @@ defmodule MockPveApi.Coverage.Monitoring do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Read node RRD statistics (returns PNG graph)",
         parameters: [
           %{
@@ -66,7 +68,7 @@ defmodule MockPveApi.Coverage.Monitoring do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Read node RRD statistics (returns JSON data)",
         parameters: [
           %{
@@ -97,7 +99,7 @@ defmodule MockPveApi.Coverage.Monitoring do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Read VM RRD statistics (returns PNG graph)",
         parameters: [
           %{
@@ -128,7 +130,7 @@ defmodule MockPveApi.Coverage.Monitoring do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Read container RRD statistics (returns PNG graph)",
         parameters: [
           %{
@@ -159,7 +161,7 @@ defmodule MockPveApi.Coverage.Monitoring do
         methods: [:get],
         status: :implemented,
         priority: :low,
-        since: "6.0",
+        since: @min_since,
         description: "Read node network statistics",
         parameters: [
           %{
@@ -182,7 +184,7 @@ defmodule MockPveApi.Coverage.Monitoring do
         methods: [:get],
         status: :implemented,
         priority: :low,
-        since: "6.0",
+        since: @min_since,
         description: "Get node status report (text format)",
         parameters: [
           %{
@@ -205,7 +207,7 @@ defmodule MockPveApi.Coverage.Monitoring do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Read VM RRD statistics (JSON data)",
         parameters: [
           %{
@@ -236,7 +238,7 @@ defmodule MockPveApi.Coverage.Monitoring do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Read container RRD statistics (JSON data)",
         parameters: [
           %{
@@ -263,18 +265,18 @@ defmodule MockPveApi.Coverage.Monitoring do
         notes: nil
       },
       "/api2/json/nodes/{node}/storage/{storage}/rrd" =>
-        implemented(:get, :low, "6.0", "Storage RRD statistics (graph)"),
+        implemented(:get, :low, @min_since, "Storage RRD statistics (graph)"),
       "/api2/json/nodes/{node}/storage/{storage}/rrddata" =>
-        implemented(:get, :low, "6.0", "Storage RRD statistics (data)"),
+        implemented(:get, :low, @min_since, "Storage RRD statistics (data)"),
       "/api2/json/cluster/metrics" => implemented(:get, :low, "7.0", "Cluster metrics index"),
       "/api2/json/cluster/metrics/server" =>
         implemented(:get, :low, "7.0", "List configured external metric servers"),
       "/api2/json/nodes/{node}/services" =>
-        implemented(:get, :low, "6.0", "List system services on node"),
+        implemented(:get, :low, @min_since, "List system services on node"),
       "/api2/json/nodes/{node}/services/{service}" =>
-        implemented(:get, :low, "6.0", "Get service status"),
+        implemented(:get, :low, @min_since, "Get service status"),
       "/api2/json/nodes/{node}/services/{service}/state" =>
-        implemented(:get, :low, "6.0", "Control service (start/stop/restart)"),
+        implemented(:get, :low, @min_since, "Control service (start/stop/restart)"),
       "/api2/json/cluster/metrics/server/{id}" => %{
         path: "/api2/json/cluster/metrics/server/{id}",
         methods: [:get, :post, :put, :delete],

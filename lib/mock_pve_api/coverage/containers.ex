@@ -10,6 +10,8 @@ defmodule MockPveApi.Coverage.Containers do
 
   @behaviour MockPveApi.Coverage.Category
 
+  @min_since Application.compile_env(:mock_pve_api, :min_pve_version, "7.0")
+
   @impl true
   def category, do: :containers
 
@@ -25,7 +27,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:get, :post],
         status: :implemented,
         priority: :critical,
-        since: "6.0",
+        since: @min_since,
         description: "List and create LXC containers on node",
         parameters: [
           %{
@@ -48,7 +50,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:get, :delete],
         status: :implemented,
         priority: :critical,
-        since: "6.0",
+        since: @min_since,
         description: "Individual LXC container configuration",
         parameters: [
           %{
@@ -79,7 +81,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:get, :put],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "Container configuration (get current or update)",
         parameters: [
           %{
@@ -110,7 +112,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:get],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "Current container status and statistics",
         parameters: [
           %{
@@ -141,7 +143,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:post],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "Container control operations (start, stop, shutdown, etc.)",
         parameters: [
           %{
@@ -180,7 +182,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:post],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "Clone LXC container",
         parameters: [
           %{
@@ -219,7 +221,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:get, :post],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: "9.0",
         description: "Migrate container to another node",
         parameters: [
           %{
@@ -250,7 +252,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:get, :post],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "List snapshots / create snapshot",
         parameters: [
           %{
@@ -281,7 +283,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:get, :delete],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "Get snapshot info / delete snapshot",
         parameters: [
           %{
@@ -320,7 +322,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:get, :put],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Get or update snapshot configuration",
         parameters: [
           %{
@@ -359,7 +361,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:post],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: @min_since,
         description: "Rollback container to snapshot",
         parameters: [
           %{
@@ -398,7 +400,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:get],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Get pending container configuration changes",
         parameters: [
           %{
@@ -429,7 +431,7 @@ defmodule MockPveApi.Coverage.Containers do
         methods: [:put],
         status: :implemented,
         priority: :medium,
-        since: "6.0",
+        since: @min_since,
         description: "Resize container disk",
         parameters: [
           %{
@@ -456,11 +458,11 @@ defmodule MockPveApi.Coverage.Containers do
         notes: nil
       },
       "/api2/json/nodes/{node}/lxc/{vmid}/feature" =>
-        implemented(:get, :low, "6.0", "Check container feature availability"),
+        implemented(:get, :low, @min_since, "Check container feature availability"),
       "/api2/json/nodes/{node}/lxc/{vmid}/template" =>
-        implemented(:post, :low, "6.0", "Convert container to template"),
+        implemented(:post, :low, @min_since, "Convert container to template"),
       "/api2/json/nodes/{node}/lxc/{vmid}/move_volume" =>
-        implemented(:post, :medium, "6.0", "Move container volume to different storage")
+        implemented(:post, :medium, @min_since, "Move container volume to different storage")
     }
   end
 
