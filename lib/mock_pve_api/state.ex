@@ -106,6 +106,8 @@ defmodule MockPveApi.State do
       sdn_ipams: %{},
       pci_mappings: %{},
       usb_mappings: %{},
+      dir_mappings: %{},
+      realm_sync_jobs: %{},
       storage_content: %{},
       node_dns: %{},
       node_network_interfaces: %{
@@ -831,6 +833,28 @@ defmodule MockPveApi.State do
 
   def update_usb_mapping(id, params), do: GenServer.call(@name, {:update_usb_mapping, id, params})
   def delete_usb_mapping(id), do: GenServer.call(@name, {:delete_usb_mapping, id})
+
+  # Dir mapping CRUD operations
+  def list_dir_mappings, do: GenServer.call(@name, :list_dir_mappings)
+  def get_dir_mapping(id), do: GenServer.call(@name, {:get_dir_mapping, id})
+
+  def create_dir_mapping(id, params \\ %{}),
+    do: GenServer.call(@name, {:create_dir_mapping, id, params})
+
+  def update_dir_mapping(id, params), do: GenServer.call(@name, {:update_dir_mapping, id, params})
+  def delete_dir_mapping(id), do: GenServer.call(@name, {:delete_dir_mapping, id})
+
+  # Realm sync job CRUD operations
+  def list_realm_sync_jobs, do: GenServer.call(@name, :list_realm_sync_jobs)
+  def get_realm_sync_job(id), do: GenServer.call(@name, {:get_realm_sync_job, id})
+
+  def create_realm_sync_job(id, params \\ %{}),
+    do: GenServer.call(@name, {:create_realm_sync_job, id, params})
+
+  def update_realm_sync_job(id, params),
+    do: GenServer.call(@name, {:update_realm_sync_job, id, params})
+
+  def delete_realm_sync_job(id), do: GenServer.call(@name, {:delete_realm_sync_job, id})
 
   # Storage CRUD operations
   def get_storage_by_id(storage_id) do
@@ -2929,6 +2953,122 @@ defmodule MockPveApi.State do
       _ ->
         new = Map.delete(state.usb_mappings, id)
         {:reply, :ok, %{state | usb_mappings: new}}
+    end
+  end
+
+  # Dir mapping handle_calls
+
+  def handle_call(:list_dir_mappings, _from, state) do
+    {:reply, Map.values(state.dir_mappings), state}
+  end
+
+  def handle_call({:get_dir_mapping, id}, _from, state) do
+    {:reply, Map.get(state.dir_mappings, id), state}
+  end
+
+  def handle_call({:create_dir_mapping, id, params}, _from, state) do
+    if Map.has_key?(state.dir_mappings, id) do
+      {:reply, {:error, "Dir mapping '#{id}' already exists"}, state}
+    else
+      mapping = %{
+        id: id,
+        path: Map.get(params, "path", "/"),
+        nodes: Map.get(params, "nodes", []),
+        description: Map.get(params, "description", ""),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new = Map.put(state.dir_mappings, id, mapping)
+      {:reply, {:ok, mapping}, %{state | dir_mappings: new}}
+    end
+  end
+
+  def handle_call({:update_dir_mapping, id, params}, _from, state) do
+    case Map.get(state.dir_mappings, id) do
+      nil ->
+        {:reply, {:error, "Dir mapping '#{id}' not found"}, state}
+
+      mapping ->
+        updated =
+          Enum.reduce(params, mapping, fn
+            {"path", v}, acc -> Map.put(acc, :path, v)
+            {"nodes", v}, acc -> Map.put(acc, :nodes, v)
+            {"description", v}, acc -> Map.put(acc, :description, v)
+            _, acc -> acc
+          end)
+
+        new = Map.put(state.dir_mappings, id, updated)
+        {:reply, {:ok, updated}, %{state | dir_mappings: new}}
+    end
+  end
+
+  def handle_call({:delete_dir_mapping, id}, _from, state) do
+    case Map.get(state.dir_mappings, id) do
+      nil ->
+        {:reply, {:error, "Dir mapping '#{id}' not found"}, state}
+
+      _ ->
+        new = Map.delete(state.dir_mappings, id)
+        {:reply, :ok, %{state | dir_mappings: new}}
+    end
+  end
+
+  # Realm sync job handle_calls
+
+  def handle_call(:list_realm_sync_jobs, _from, state) do
+    {:reply, Map.values(state.realm_sync_jobs), state}
+  end
+
+  def handle_call({:get_realm_sync_job, id}, _from, state) do
+    {:reply, Map.get(state.realm_sync_jobs, id), state}
+  end
+
+  def handle_call({:create_realm_sync_job, id, params}, _from, state) do
+    if Map.has_key?(state.realm_sync_jobs, id) do
+      {:reply, {:error, "Realm sync job '#{id}' already exists"}, state}
+    else
+      job = %{
+        id: id,
+        realm: Map.get(params, "realm", ""),
+        schedule: Map.get(params, "schedule", ""),
+        remove_vanished: Map.get(params, "remove-vanished", ""),
+        enabled: Map.get(params, "enabled", 1),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new = Map.put(state.realm_sync_jobs, id, job)
+      {:reply, {:ok, job}, %{state | realm_sync_jobs: new}}
+    end
+  end
+
+  def handle_call({:update_realm_sync_job, id, params}, _from, state) do
+    case Map.get(state.realm_sync_jobs, id) do
+      nil ->
+        {:reply, {:error, "Realm sync job '#{id}' not found"}, state}
+
+      job ->
+        updated =
+          Enum.reduce(params, job, fn
+            {"realm", v}, acc -> Map.put(acc, :realm, v)
+            {"schedule", v}, acc -> Map.put(acc, :schedule, v)
+            {"remove-vanished", v}, acc -> Map.put(acc, :remove_vanished, v)
+            {"enabled", v}, acc -> Map.put(acc, :enabled, v)
+            _, acc -> acc
+          end)
+
+        new = Map.put(state.realm_sync_jobs, id, updated)
+        {:reply, {:ok, updated}, %{state | realm_sync_jobs: new}}
+    end
+  end
+
+  def handle_call({:delete_realm_sync_job, id}, _from, state) do
+    case Map.get(state.realm_sync_jobs, id) do
+      nil ->
+        {:reply, {:error, "Realm sync job '#{id}' not found"}, state}
+
+      _ ->
+        new = Map.delete(state.realm_sync_jobs, id)
+        {:reply, :ok, %{state | realm_sync_jobs: new}}
     end
   end
 

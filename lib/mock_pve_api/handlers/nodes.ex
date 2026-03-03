@@ -1943,6 +1943,18 @@ defmodule MockPveApi.Handlers.Nodes do
     |> send_resp(200, Jason.encode!(%{data: data}))
   end
 
+  def vm_agent_subcommand(conn) do
+    data =
+      case conn.method do
+        "POST" -> nil
+        _ -> %{result: ""}
+      end
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
   # --- VM Sendkey ---
 
   @doc "PUT /api2/json/nodes/:node/qemu/:vmid/sendkey"

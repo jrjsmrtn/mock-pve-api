@@ -35,7 +35,11 @@ defmodule MockPveApi.Coverage.Hardware do
       "/api2/json/cluster/mapping/usb" =>
         implemented(:get_post, :low, "8.0", "USB resource mapping management"),
       "/api2/json/cluster/mapping/usb/{id}" =>
-        implemented(:get_put_delete, :low, "8.0", "Individual USB mapping CRUD")
+        implemented(:get_put_delete, :low, "8.0", "Individual USB mapping CRUD"),
+      "/api2/json/cluster/mapping/dir" =>
+        implemented(:get_post, :medium, "8.0", "Directory mapping list and create"),
+      "/api2/json/cluster/mapping/dir/{id}" =>
+        implemented(:get_put_delete, :medium, "8.0", "Directory mapping CRUD")
     }
   end
 

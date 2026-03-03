@@ -979,6 +979,54 @@ defmodule MockPveApi.Handlers.Cluster do
   @doc "GET /api2/json/cluster/acme/meta"
   def get_acme_meta(conn), do: json_ok(conn, %{termsOfService: ""})
 
+  # Jobs: schedule-analyze and realm-sync CRUD
+
+  @doc "GET /api2/json/cluster/jobs/schedule-analyze"
+  def get_schedule_analyze(conn), do: json_ok(conn, [])
+
+  @doc "GET /api2/json/cluster/jobs/realm-sync"
+  def list_realm_sync_jobs(conn), do: json_ok(conn, State.list_realm_sync_jobs())
+
+  @doc "GET /api2/json/cluster/jobs/realm-sync/:id"
+  def get_realm_sync_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.get_realm_sync_job(id) do
+      nil -> json_error(conn, 404, "Realm sync job '#{id}' not found")
+      job -> json_ok(conn, job)
+    end
+  end
+
+  @doc "POST /api2/json/cluster/jobs/realm-sync/:id"
+  def create_realm_sync_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.create_realm_sync_job(id, conn.body_params) do
+      {:ok, job} -> json_ok(conn, job)
+      {:error, msg} -> json_error(conn, 400, msg)
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/jobs/realm-sync/:id"
+  def update_realm_sync_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.update_realm_sync_job(id, conn.body_params) do
+      {:ok, _} -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/jobs/realm-sync/:id"
+  def delete_realm_sync_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.delete_realm_sync_job(id) do
+      :ok -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
   # Private helpers
 
   defp json_ok(conn, data) do

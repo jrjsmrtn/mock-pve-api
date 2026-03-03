@@ -319,8 +319,20 @@ defmodule MockPveApi.CoverageTest do
         # VM/CT template conversion - POST only
         "/api2/json/nodes/{node}/qemu/{vmid}/template",
         "/api2/json/nodes/{node}/lxc/{vmid}/template",
-        # VM agent - POST only
+        # VM agent - POST only (base and all sub-commands)
         "/api2/json/nodes/{node}/qemu/{vmid}/agent",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/exec",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/file-write",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-freeze",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-status",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-thaw",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/fstrim",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/ping",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/set-user-password",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/shutdown",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-disk",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-hybrid",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-ram",
         # VM/CT move operations - POST only (returns UPID)
         "/api2/json/nodes/{node}/qemu/{vmid}/move_disk",
         "/api2/json/nodes/{node}/lxc/{vmid}/move_volume",

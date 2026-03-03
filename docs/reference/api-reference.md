@@ -45,9 +45,9 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Category | Total | Implemented | Coverage |
 |----------|-------|-------------|----------|
 | Version | 1 | 1 | 100.0% |
-| Cluster | 41 | 41 | 100.0% |
+| Cluster | 44 | 44 | 100.0% |
 | Nodes | 34 | 34 | 100.0% |
-| Virtual Machines | 20 | 20 | 100.0% |
+| Virtual Machines | 45 | 45 | 100.0% |
 | LXC Containers | 16 | 16 | 100.0% |
 | Storage | 12 | 12 | 100.0% |
 | Access Control | 17 | 17 | 100.0% |
@@ -55,10 +55,10 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | SDN | 13 | 13 | 100.0% |
 | Monitoring | 16 | 16 | 100.0% |
 | Backup | 9 | 9 | 100.0% |
-| Hardware | 7 | 7 | 100.0% |
+| Hardware | 9 | 9 | 100.0% |
 | Firewall | 41 | 41 | 100.0% |
 | Notifications | 16 | 16 | 100.0% |
-| **TOTAL** | **245** | **245** | **100.0%** |
+| **TOTAL** | **275** | **275** | **100.0%** |
 
 
 ## Status Legend
@@ -772,6 +772,60 @@ Current HA manager and resource status
 ### `/cluster/jobs` ✅
 
 Scheduled jobs index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/jobs/realm-sync` ✅
+
+List realm sync jobs
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/jobs/realm-sync/{id}` ✅
+
+Realm sync job CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/jobs/schedule-analyze` ✅
+
+Analyze scheduled job timing
 
 | Property | Value |
 |----------|-------|
@@ -1787,6 +1841,681 @@ QEMU guest agent info and commands
 | **Methods** | GET, POST |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/exec` ✅
+
+Execute command in guest
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/exec-status` ✅
+
+Get agent exec command exit code and output
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/file-read` ✅
+
+Read file from guest via agent
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/file-write` ✅
+
+Write file to guest via agent
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/fsfreeze-freeze` ✅
+
+Freeze guest filesystems
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/fsfreeze-status` ✅
+
+Get filesystem freeze status
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/fsfreeze-thaw` ✅
+
+Thaw guest filesystems
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/fstrim` ✅
+
+Trim guest filesystems
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-fsinfo` ✅
+
+Get guest filesystem info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-host-name` ✅
+
+Get guest hostname
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-memory-block-info` ✅
+
+Get guest memory block info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-memory-blocks` ✅
+
+Get guest memory blocks
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-osinfo` ✅
+
+Get guest OS information
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-time` ✅
+
+Get guest time
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-timezone` ✅
+
+Get guest timezone
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-users` ✅
+
+List logged-in guest users
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-vcpus` ✅
+
+Get guest vCPU info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/info` ✅
+
+Get QEMU guest agent info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/network-get-interfaces` ✅
+
+Get guest network interfaces
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/ping` ✅
+
+Ping QEMU guest agent
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/set-user-password` ✅
+
+Set guest user password
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/shutdown` ✅
+
+Shutdown guest via agent
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/suspend-disk` ✅
+
+Suspend guest to disk
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/suspend-hybrid` ✅
+
+Hybrid guest suspend
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/suspend-ram` ✅
+
+Suspend guest to RAM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -4655,6 +5384,42 @@ Restore container from backup
 
 
 ## Hardware Detection & Passthrough
+
+### `/cluster/mapping/dir` ✅ 🔴
+
+Directory mapping list and create
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/dir/{id}` ✅ 🔴
+
+Directory mapping CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
 
 ### `/cluster/mapping/pci` ✅ 🔴
 

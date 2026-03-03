@@ -421,7 +421,13 @@ defmodule MockPveApi.Coverage.Cluster do
         implemented(:get, :low, "7.0", "Known ACME directory endpoints"),
       "/api2/json/cluster/acme/tos" =>
         implemented(:get, :low, "7.0", "ACME terms of service URL"),
-      "/api2/json/cluster/acme/meta" => implemented(:get, :low, "8.1", "ACME directory metadata")
+      "/api2/json/cluster/acme/meta" => implemented(:get, :low, "8.1", "ACME directory metadata"),
+      "/api2/json/cluster/jobs/schedule-analyze" =>
+        implemented(:get, :low, "7.1", "Analyze scheduled job timing"),
+      "/api2/json/cluster/jobs/realm-sync" =>
+        implemented(:get, :low, "7.1", "List realm sync jobs"),
+      "/api2/json/cluster/jobs/realm-sync/{id}" =>
+        implemented(:get_post_put_delete, :low, "7.1", "Realm sync job CRUD")
     }
   end
 

@@ -817,6 +817,14 @@ defmodule MockPveApi.Router do
     Nodes.vm_sendkey(conn)
   end
 
+  get "/api2/json/nodes/:node/qemu/:vmid/agent/:subcommand" do
+    Nodes.vm_agent_subcommand(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/agent/:subcommand" do
+    Nodes.vm_agent_subcommand(conn)
+  end
+
   get "/api2/json/nodes/:node/qemu/:vmid/agent" do
     Nodes.get_vm_agent(conn)
   end
@@ -1071,6 +1079,30 @@ defmodule MockPveApi.Router do
     Cluster.get_jobs_index(conn)
   end
 
+  get "/api2/json/cluster/jobs/schedule-analyze" do
+    Cluster.get_schedule_analyze(conn)
+  end
+
+  get "/api2/json/cluster/jobs/realm-sync" do
+    Cluster.list_realm_sync_jobs(conn)
+  end
+
+  get "/api2/json/cluster/jobs/realm-sync/:id" do
+    Cluster.get_realm_sync_job(conn)
+  end
+
+  post "/api2/json/cluster/jobs/realm-sync/:id" do
+    Cluster.create_realm_sync_job(conn)
+  end
+
+  put "/api2/json/cluster/jobs/realm-sync/:id" do
+    Cluster.update_realm_sync_job(conn)
+  end
+
+  delete "/api2/json/cluster/jobs/realm-sync/:id" do
+    Cluster.delete_realm_sync_job(conn)
+  end
+
   get "/api2/json/cluster/log" do
     Cluster.get_log_index(conn)
   end
@@ -1247,6 +1279,26 @@ defmodule MockPveApi.Router do
 
   delete "/api2/json/cluster/mapping/usb/:id" do
     Hardware.delete_usb_mapping(conn)
+  end
+
+  get "/api2/json/cluster/mapping/dir" do
+    Hardware.list_dir_mappings(conn)
+  end
+
+  post "/api2/json/cluster/mapping/dir" do
+    Hardware.create_dir_mapping(conn)
+  end
+
+  get "/api2/json/cluster/mapping/dir/:id" do
+    Hardware.get_dir_mapping(conn)
+  end
+
+  put "/api2/json/cluster/mapping/dir/:id" do
+    Hardware.update_dir_mapping(conn)
+  end
+
+  delete "/api2/json/cluster/mapping/dir/:id" do
+    Hardware.delete_dir_mapping(conn)
   end
 
   # Backup job endpoints

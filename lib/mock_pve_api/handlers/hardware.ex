@@ -278,4 +278,89 @@ defmodule MockPveApi.Handlers.Hardware do
         |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
     end
   end
+
+  # --- Cluster Resource Mappings: Dir ---
+
+  def list_dir_mappings(conn) do
+    mappings = State.list_dir_mappings()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: mappings}))
+  end
+
+  def create_dir_mapping(conn) do
+    params = conn.body_params
+    id = Map.get(params, "id")
+
+    if id do
+      case State.create_dir_mapping(id, params) do
+        {:ok, mapping} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: mapping}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{id: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  def get_dir_mapping(conn) do
+    id = conn.path_params["id"]
+
+    case State.get_dir_mapping(id) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: "Dir mapping '#{id}' not found"}}))
+
+      mapping ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: mapping}))
+    end
+  end
+
+  def update_dir_mapping(conn) do
+    id = conn.path_params["id"]
+    params = conn.body_params
+
+    case State.update_dir_mapping(id, params) do
+      {:ok, mapping} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: mapping}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  def delete_dir_mapping(conn) do
+    id = conn.path_params["id"]
+
+    case State.delete_dir_mapping(id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
 end

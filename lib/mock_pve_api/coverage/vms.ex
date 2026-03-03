@@ -469,6 +469,56 @@ defmodule MockPveApi.Coverage.VMs do
         implemented(:post, :low, "6.0", "Convert VM to template"),
       "/api2/json/nodes/{node}/qemu/{vmid}/agent" =>
         implemented(:get_post, :medium, "6.0", "QEMU guest agent info and commands"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/exec-status" =>
+        implemented(:get, :low, "7.0", "Get agent exec command exit code and output"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/file-read" =>
+        implemented(:get, :low, "7.0", "Read file from guest via agent"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-fsinfo" =>
+        implemented(:get, :low, "7.0", "Get guest filesystem info"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-host-name" =>
+        implemented(:get, :low, "7.0", "Get guest hostname"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-memory-block-info" =>
+        implemented(:get, :low, "7.0", "Get guest memory block info"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-memory-blocks" =>
+        implemented(:get, :low, "7.0", "Get guest memory blocks"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-osinfo" =>
+        implemented(:get, :low, "7.0", "Get guest OS information"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-time" =>
+        implemented(:get, :low, "7.0", "Get guest time"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-timezone" =>
+        implemented(:get, :low, "7.0", "Get guest timezone"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-users" =>
+        implemented(:get, :low, "7.0", "List logged-in guest users"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-vcpus" =>
+        implemented(:get, :low, "7.0", "Get guest vCPU info"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/info" =>
+        implemented(:get, :low, "7.0", "Get QEMU guest agent info"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/network-get-interfaces" =>
+        implemented(:get, :low, "7.0", "Get guest network interfaces"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/exec" =>
+        implemented(:post, :low, "7.0", "Execute command in guest"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/file-write" =>
+        implemented(:post, :low, "7.0", "Write file to guest via agent"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-freeze" =>
+        implemented(:post, :low, "7.0", "Freeze guest filesystems"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-status" =>
+        implemented(:post, :low, "7.0", "Get filesystem freeze status"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-thaw" =>
+        implemented(:post, :low, "7.0", "Thaw guest filesystems"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/fstrim" =>
+        implemented(:post, :low, "7.0", "Trim guest filesystems"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/ping" =>
+        implemented(:post, :low, "7.0", "Ping QEMU guest agent"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/set-user-password" =>
+        implemented(:post, :low, "7.0", "Set guest user password"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/shutdown" =>
+        implemented(:post, :low, "7.0", "Shutdown guest via agent"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-disk" =>
+        implemented(:post, :low, "7.0", "Suspend guest to disk"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-hybrid" =>
+        implemented(:post, :low, "7.0", "Hybrid guest suspend"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-ram" =>
+        implemented(:post, :low, "7.0", "Suspend guest to RAM"),
       "/api2/json/nodes/{node}/qemu/{vmid}/cloudinit/dump" =>
         implemented(:get, :low, "6.0", "Get cloud-init configuration dump"),
       "/api2/json/nodes/{node}/qemu/{vmid}/unlink" =>
