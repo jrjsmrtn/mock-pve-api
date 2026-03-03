@@ -87,6 +87,7 @@ defmodule MockPveApi.State do
       ha_resources: %{},
       ha_groups: %{},
       ha_affinity_rules: %{},
+      ha_rules: %{},
       backup_jobs: %{},
       next_backup_job_id: 1,
       cluster_options: %{
@@ -600,6 +601,16 @@ defmodule MockPveApi.State do
   def delete_ha_affinity_rule(rule) do
     GenServer.call(@name, {:delete_ha_affinity_rule, rule})
   end
+
+  # HA rule operations (PVE 9.0+)
+  def list_ha_rules, do: GenServer.call(@name, :list_ha_rules)
+  def get_ha_rule(rule), do: GenServer.call(@name, {:get_ha_rule, rule})
+
+  def create_ha_rule(rule, params \\ %{}),
+    do: GenServer.call(@name, {:create_ha_rule, rule, params})
+
+  def update_ha_rule(rule, params), do: GenServer.call(@name, {:update_ha_rule, rule, params})
+  def delete_ha_rule(rule), do: GenServer.call(@name, {:delete_ha_rule, rule})
 
   # HA status
   def get_ha_status do
@@ -2171,6 +2182,64 @@ defmodule MockPveApi.State do
       _rule ->
         new_rules = Map.delete(state.ha_affinity_rules, rule)
         {:reply, :ok, %{state | ha_affinity_rules: new_rules}}
+    end
+  end
+
+  # HA rules callbacks (PVE 9.0+)
+  def handle_call(:list_ha_rules, _from, state) do
+    {:reply, Map.values(state.ha_rules), state}
+  end
+
+  def handle_call({:get_ha_rule, rule}, _from, state) do
+    {:reply, Map.get(state.ha_rules, rule), state}
+  end
+
+  def handle_call({:create_ha_rule, rule, params}, _from, state) do
+    if Map.has_key?(state.ha_rules, rule) do
+      {:reply, {:error, "HA rule '#{rule}' already exists"}, state}
+    else
+      ha_rule = %{
+        id: rule,
+        type: Map.get(params, "type", "affinity"),
+        resources: Map.get(params, "resources", ""),
+        comment: Map.get(params, "comment", ""),
+        enabled: Map.get(params, "enabled", 1),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_rules = Map.put(state.ha_rules, rule, ha_rule)
+      {:reply, {:ok, ha_rule}, %{state | ha_rules: new_rules}}
+    end
+  end
+
+  def handle_call({:update_ha_rule, rule, params}, _from, state) do
+    case Map.get(state.ha_rules, rule) do
+      nil ->
+        {:reply, {:error, "HA rule '#{rule}' not found"}, state}
+
+      ha_rule ->
+        updated =
+          Enum.reduce(params, ha_rule, fn
+            {"type", v}, acc -> Map.put(acc, :type, v)
+            {"resources", v}, acc -> Map.put(acc, :resources, v)
+            {"comment", v}, acc -> Map.put(acc, :comment, v)
+            {"enabled", v}, acc -> Map.put(acc, :enabled, v)
+            _, acc -> acc
+          end)
+
+        new_rules = Map.put(state.ha_rules, rule, updated)
+        {:reply, {:ok, updated}, %{state | ha_rules: new_rules}}
+    end
+  end
+
+  def handle_call({:delete_ha_rule, rule}, _from, state) do
+    case Map.get(state.ha_rules, rule) do
+      nil ->
+        {:reply, {:error, "HA rule '#{rule}' not found"}, state}
+
+      _rule ->
+        new_rules = Map.delete(state.ha_rules, rule)
+        {:reply, :ok, %{state | ha_rules: new_rules}}
     end
   end
 

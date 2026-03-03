@@ -450,7 +450,31 @@ defmodule MockPveApi.Coverage.Cluster do
       "/api2/json/cluster/bulk-action/guest/suspend" =>
         implemented(:post, :low, "9.0", "Bulk suspend guests"),
       "/api2/json/cluster/bulk-action/guest/migrate" =>
-        implemented(:post, :low, "9.0", "Bulk migrate guests")
+        implemented(:post, :low, "9.0", "Bulk migrate guests"),
+      "/api2/json/cluster/config/apiversion" =>
+        implemented(:get, :low, "6.0", "Cluster config API version"),
+      "/api2/json/cluster/config/qdevice" =>
+        implemented(:get, :low, "6.0", "Get corosync QDevice status"),
+      "/api2/json/cluster/config/totem" =>
+        implemented(:get, :low, "6.0", "Get corosync totem protocol settings"),
+      "/api2/json/cluster/ceph/flags/{flag}" =>
+        implemented(:get_put, :low, "7.0", "Get or set individual Ceph flag"),
+      "/api2/json/cluster/ha/rules" =>
+        implemented(:get_post, :low, "9.0", "List and create HA rules"),
+      "/api2/json/cluster/ha/rules/{rule}" =>
+        implemented(:get_put_delete, :low, "9.0", "HA rule CRUD"),
+      "/api2/json/cluster/mapping/pci" =>
+        implemented(:get_post, :medium, "7.0", "PCI hardware mapping list and create"),
+      "/api2/json/cluster/mapping/pci/{id}" =>
+        implemented(:get_put_delete, :medium, "7.0", "PCI hardware mapping CRUD"),
+      "/api2/json/cluster/mapping/usb" =>
+        implemented(:get_post, :medium, "7.0", "USB hardware mapping list and create"),
+      "/api2/json/cluster/mapping/usb/{id}" =>
+        implemented(:get_put_delete, :medium, "7.0", "USB hardware mapping CRUD"),
+      "/api2/json/cluster/mapping/dir" =>
+        implemented(:get_post, :medium, "8.0", "Directory mapping list and create"),
+      "/api2/json/cluster/mapping/dir/{id}" =>
+        implemented(:get_put_delete, :medium, "8.0", "Directory mapping CRUD")
     }
   end
 

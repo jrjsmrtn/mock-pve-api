@@ -393,7 +393,36 @@ defmodule MockPveApi.CoverageTest do
         "/api2/json/nodes/{node}/wakeonlan",
         "/api2/json/nodes/{node}/suspendall",
         # Certificates/custom - POST+DELETE only (no GET)
-        "/api2/json/nodes/{node}/certificates/custom"
+        "/api2/json/nodes/{node}/certificates/custom",
+        # OpenID auth actions - POST only
+        "/api2/json/access/openid/auth-url",
+        "/api2/json/access/openid/login",
+        # VNC ticket - POST only
+        "/api2/json/access/vncticket",
+        # Ceph service actions - POST only (no '}' suffix)
+        "/api2/json/nodes/{node}/ceph/init",
+        "/api2/json/nodes/{node}/ceph/restart",
+        "/api2/json/nodes/{node}/ceph/start",
+        "/api2/json/nodes/{node}/ceph/stop",
+        # Ceph OSD actions - POST only
+        "/api2/json/nodes/{node}/ceph/osd/{osdid}/in",
+        "/api2/json/nodes/{node}/ceph/osd/{osdid}/out",
+        "/api2/json/nodes/{node}/ceph/osd/{osdid}/scrub",
+        # VM dbus-vmstate - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/dbus-vmstate",
+        # Node VNC shell - POST only
+        "/api2/json/nodes/{node}/vncshell",
+        # Storage actions - POST only
+        "/api2/json/nodes/{node}/storage/{storage}/download-url",
+        "/api2/json/nodes/{node}/storage/{storage}/oci-registry-pull",
+        # SDN lock/rollback - POST only (or POST+DELETE with no GET)
+        "/api2/json/cluster/sdn/lock",
+        "/api2/json/cluster/sdn/rollback",
+        # Ceph MDS/MGR/MON - POST only base creation endpoints
+        "/api2/json/nodes/{node}/ceph/fs/{name}",
+        # APL info - POST only (though also GET; covered)
+        # Realm sync jobs - POST creates via ID in path
+        "/api2/json/cluster/jobs/realm-sync/{id}"
       ]
 
       # Only validate method combinations on implemented endpoints —
@@ -425,7 +454,9 @@ defmodule MockPveApi.CoverageTest do
           # SDN vnet IPs - POST/PUT/DELETE only (no GET)
           "/api2/json/cluster/sdn/vnets/{vnet}/ips",
           # Unlock TFA - PUT only (action, no GET)
-          "/api2/json/access/users/{userid}/unlock-tfa"
+          "/api2/json/access/users/{userid}/unlock-tfa",
+          # Wipe disk - PUT only (action, no GET)
+          "/api2/json/nodes/{node}/disks/wipedisk"
         ]
 
         if :put in methods and endpoint.path not in put_only_actions do

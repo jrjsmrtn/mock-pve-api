@@ -1123,4 +1123,127 @@ defmodule MockPveApi.Handlers.Cluster do
 
   @doc "POST /api2/json/cluster/bulk-action/guest/:action"
   def bulk_action_guest(conn), do: json_ok(conn, nil)
+
+  # Cluster config detail stubs
+
+  @doc "GET /api2/json/cluster/config/apiversion"
+  def get_cluster_config_apiversion(conn), do: json_ok(conn, 10)
+
+  @doc "GET /api2/json/cluster/config/qdevice"
+  def get_cluster_config_qdevice(conn), do: json_ok(conn, %{})
+
+  @doc "GET /api2/json/cluster/config/totem"
+  def get_cluster_config_totem(conn), do: json_ok(conn, %{})
+
+  # Ceph per-flag stubs
+
+  @doc "GET /api2/json/cluster/ceph/flags/:flag"
+  def get_ceph_flag(conn) do
+    flag = conn.path_params["flag"]
+    json_ok(conn, %{name: flag, value: false})
+  end
+
+  @doc "PUT /api2/json/cluster/ceph/flags/:flag"
+  def set_ceph_flag(conn), do: json_ok(conn, nil)
+
+  # HA rules CRUD (PVE 9.0+)
+
+  @doc "GET /api2/json/cluster/ha/rules"
+  def list_ha_rules(conn), do: json_ok(conn, State.list_ha_rules())
+
+  @doc "POST /api2/json/cluster/ha/rules"
+  def create_ha_rule(conn) do
+    params = conn.body_params
+    rule = Map.get(params, "id", "rule-#{:rand.uniform(9999)}")
+
+    case State.create_ha_rule(rule, params) do
+      {:ok, _} -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 400, msg)
+    end
+  end
+
+  @doc "GET /api2/json/cluster/ha/rules/:rule"
+  def get_ha_rule(conn) do
+    rule = conn.path_params["rule"]
+
+    case State.get_ha_rule(rule) do
+      nil -> json_error(conn, 404, "HA rule '#{rule}' not found")
+      r -> json_ok(conn, r)
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/ha/rules/:rule"
+  def update_ha_rule(conn) do
+    rule = conn.path_params["rule"]
+
+    case State.update_ha_rule(rule, conn.body_params) do
+      {:ok, _} -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/ha/rules/:rule"
+  def delete_ha_rule(conn) do
+    rule = conn.path_params["rule"]
+
+    case State.delete_ha_rule(rule) do
+      :ok -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  # SDN fabrics stubs (PVE 9.0+)
+
+  @doc "GET /api2/json/cluster/sdn/fabrics"
+  def list_sdn_fabrics(conn), do: json_ok(conn, [])
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/all"
+  def get_sdn_fabrics_all(conn), do: json_ok(conn, [])
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/fabric"
+  def list_sdn_fabric_type(conn), do: json_ok(conn, [])
+
+  @doc "POST /api2/json/cluster/sdn/fabrics/fabric"
+  def create_sdn_fabric(conn), do: json_ok(conn, nil)
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/fabric/:id"
+  def get_sdn_fabric(conn), do: json_ok(conn, %{})
+
+  @doc "PUT /api2/json/cluster/sdn/fabrics/fabric/:id"
+  def update_sdn_fabric(conn), do: json_ok(conn, nil)
+
+  @doc "DELETE /api2/json/cluster/sdn/fabrics/fabric/:id"
+  def delete_sdn_fabric(conn), do: json_ok(conn, nil)
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/node"
+  def list_sdn_fabric_nodes(conn), do: json_ok(conn, [])
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/node/:fabric_id"
+  def list_sdn_fabric_node_members(conn), do: json_ok(conn, [])
+
+  @doc "POST /api2/json/cluster/sdn/fabrics/node/:fabric_id"
+  def add_sdn_fabric_node(conn), do: json_ok(conn, nil)
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id"
+  def get_sdn_fabric_node(conn), do: json_ok(conn, %{})
+
+  @doc "PUT /api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id"
+  def update_sdn_fabric_node(conn), do: json_ok(conn, nil)
+
+  @doc "DELETE /api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id"
+  def delete_sdn_fabric_node(conn), do: json_ok(conn, nil)
+
+  # SDN lock, rollback, ipam status stubs
+
+  @doc "POST /api2/json/cluster/sdn/lock"
+  def lock_sdn(conn), do: json_ok(conn, nil)
+
+  @doc "DELETE /api2/json/cluster/sdn/lock"
+  def unlock_sdn(conn), do: json_ok(conn, nil)
+
+  @doc "POST /api2/json/cluster/sdn/rollback"
+  def rollback_sdn(conn), do: json_ok(conn, nil)
+
+  @doc "GET /api2/json/cluster/sdn/ipams/:ipam/status"
+  def get_sdn_ipam_status(conn), do: json_ok(conn, %{})
 end

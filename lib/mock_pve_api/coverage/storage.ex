@@ -257,6 +257,14 @@ defmodule MockPveApi.Coverage.Storage do
         implemented(:get, :low, "7.0", "List files in a backup for single-file restore"),
       "/api2/json/nodes/{node}/storage/{storage}/file-restore/download" =>
         implemented(:get, :low, "7.0", "Download files from a backup"),
+      "/api2/json/nodes/{node}/storage/{storage}" =>
+        implemented(:get, :low, "6.0", "Node storage index"),
+      "/api2/json/nodes/{node}/storage/{storage}/download-url" =>
+        implemented(:post, :low, "7.0", "Download content from URL to storage"),
+      "/api2/json/nodes/{node}/storage/{storage}/import-metadata" =>
+        implemented(:get, :low, "8.2", "Get import metadata for disk image"),
+      "/api2/json/nodes/{node}/storage/{storage}/oci-registry-pull" =>
+        implemented(:post, :low, "9.0", "Pull OCI image from registry to storage"),
       "/api2/json/nodes/{node}/storage/{storage}/upload" => %{
         path: "/api2/json/nodes/{node}/storage/{storage}/upload",
         methods: [:post],

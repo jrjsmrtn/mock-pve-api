@@ -421,11 +421,45 @@ defmodule MockPveApi.Coverage.Access do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Access,
         notes: nil
-      }
+      },
+      "/api2/json/access" => implemented(:get, :low, "6.0", "Access control index"),
+      "/api2/json/access/openid" => implemented(:get, :low, "7.0", "OpenID index"),
+      "/api2/json/access/openid/auth-url" =>
+        implemented(:post, :low, "7.0", "Get OpenID auth URL"),
+      "/api2/json/access/openid/login" =>
+        implemented(:post, :low, "7.0", "OpenID login callback"),
+      "/api2/json/access/vncticket" =>
+        implemented(:post, :low, "6.0", "Create VNC ticket for noVNC")
     }
   end
 
   defp planned_endpoints do
     %{}
   end
+
+  defp implemented(methods_atom, priority, since, description) do
+    %{
+      path: "",
+      methods: methods_for(methods_atom),
+      status: :implemented,
+      priority: priority,
+      since: since,
+      description: description,
+      parameters: [],
+      response_schema: %{data: :object},
+      capabilities_required: [:user_management_basic],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Access,
+      notes: nil
+    }
+  end
+
+  defp methods_for(:get), do: [:get]
+  defp methods_for(:post), do: [:post]
+  defp methods_for(:put), do: [:put]
+  defp methods_for(:delete), do: [:delete]
+  defp methods_for(:get_post), do: [:get, :post]
+  defp methods_for(:get_put), do: [:get, :put]
+  defp methods_for(:get_put_delete), do: [:get, :put, :delete]
+  defp methods_for(:get_post_put_delete), do: [:get, :post, :put, :delete]
 end

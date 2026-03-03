@@ -560,7 +560,9 @@ defmodule MockPveApi.Coverage.VMs do
       "/api2/json/nodes/{node}/qemu/{vmid}/move_disk" =>
         implemented(:post, :medium, "6.0", "Move VM disk to different storage"),
       "/api2/json/nodes/{node}/qemu/{vmid}/sendkey" =>
-        implemented(:put, :low, "6.0", "Send key event to VM")
+        implemented(:put, :low, "6.0", "Send key event to VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/dbus-vmstate" =>
+        implemented(:post, :low, "8.0", "Add dbus-vmstate object")
     }
   end
 

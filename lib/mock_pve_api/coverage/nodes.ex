@@ -569,7 +569,109 @@ defmodule MockPveApi.Coverage.Nodes do
         implemented(:post, :low, "7.0", "Create node SPICE shell"),
       "/api2/json/nodes/{node}/wakeonlan" => implemented(:post, :low, "7.0", "Wake node via WoL"),
       "/api2/json/nodes/{node}/suspendall" =>
-        implemented(:post, :low, "8.1", "Suspend all VMs on node")
+        implemented(:post, :low, "8.1", "Suspend all VMs on node"),
+      "/api2/json/nodes/{node}/vncshell" =>
+        implemented(:post, :low, "6.0", "Create VNC shell on node"),
+      "/api2/json/nodes/{node}/aplinfo" =>
+        implemented(:get_post, :low, "6.0", "APL appliance template info"),
+      "/api2/json/nodes/{node}/query-url-metadata" =>
+        implemented(:get, :low, "7.0", "Query URL metadata"),
+      "/api2/json/nodes/{node}/query-oci-repo-tags" =>
+        implemented(:get, :low, "9.0", "Query OCI repository tags"),
+      "/api2/json/nodes/{node}/disks" => implemented(:get, :low, "6.0", "Node disks index"),
+      "/api2/json/nodes/{node}/disks/lvm/{name}" =>
+        implemented(:delete, :low, "6.0", "Remove LVM volume group"),
+      "/api2/json/nodes/{node}/disks/lvmthin/{name}" =>
+        implemented(:delete, :low, "6.0", "Remove LVM thin pool"),
+      "/api2/json/nodes/{node}/disks/wipedisk" => implemented(:put, :low, "6.0", "Wipe a disk"),
+      "/api2/json/nodes/{node}/disks/zfs/{name}" =>
+        implemented(:get_delete, :low, "6.0", "Get or delete ZFS pool"),
+      "/api2/json/nodes/{node}/sdn" => implemented(:get, :low, "8.0", "Node SDN index"),
+      "/api2/json/nodes/{node}/sdn/fabrics/{fabric}" =>
+        implemented(:get, :low, "9.0", "Get local fabric info"),
+      "/api2/json/nodes/{node}/sdn/fabrics/{fabric}/interfaces" =>
+        implemented(:get, :low, "9.0", "List fabric interfaces on node"),
+      "/api2/json/nodes/{node}/sdn/fabrics/{fabric}/neighbors" =>
+        implemented(:get, :low, "9.0", "List fabric neighbors on node"),
+      "/api2/json/nodes/{node}/sdn/fabrics/{fabric}/routes" =>
+        implemented(:get, :low, "9.0", "List fabric routes on node"),
+      "/api2/json/nodes/{node}/sdn/vnets/{vnet}" =>
+        implemented(:get, :low, "8.0", "Get local vnet info"),
+      "/api2/json/nodes/{node}/sdn/vnets/{vnet}/mac-vrf" =>
+        implemented(:get, :low, "9.0", "Get vnet MAC-VRF info"),
+      "/api2/json/nodes/{node}/sdn/zones" =>
+        implemented(:get, :low, "8.0", "List local SDN zones"),
+      "/api2/json/nodes/{node}/sdn/zones/{zone}" =>
+        implemented(:get, :low, "8.0", "Get local zone info"),
+      "/api2/json/nodes/{node}/sdn/zones/{zone}/bridges" =>
+        implemented(:get, :low, "8.0", "List zone bridges on node"),
+      "/api2/json/nodes/{node}/sdn/zones/{zone}/content" =>
+        implemented(:get, :low, "8.0", "List zone content on node"),
+      "/api2/json/nodes/{node}/sdn/zones/{zone}/ip-vrf" =>
+        implemented(:get, :low, "9.0", "Get zone IP-VRF info"),
+      "/api2/json/nodes/{node}/ceph" =>
+        implemented(:get, :low, "7.0", "Node Ceph management index"),
+      "/api2/json/nodes/{node}/ceph/cfg" =>
+        implemented(:get, :low, "7.0", "Get Ceph config path index"),
+      "/api2/json/nodes/{node}/ceph/cfg/db" =>
+        implemented(:get, :low, "7.0", "Get Ceph monitor database config"),
+      "/api2/json/nodes/{node}/ceph/cfg/raw" =>
+        implemented(:get, :low, "7.0", "Get raw Ceph config file"),
+      "/api2/json/nodes/{node}/ceph/cfg/value" =>
+        implemented(:get, :low, "7.0", "Get a specific Ceph config value"),
+      "/api2/json/nodes/{node}/ceph/cmd-safety" =>
+        implemented(:get, :low, "7.0", "Check Ceph command safety"),
+      "/api2/json/nodes/{node}/ceph/config" => implemented(:get, :low, "7.0", "Get Ceph config"),
+      "/api2/json/nodes/{node}/ceph/configdb" =>
+        implemented(:get, :low, "7.0", "Get Ceph config database"),
+      "/api2/json/nodes/{node}/ceph/crush" => implemented(:get, :low, "7.0", "Get CRUSH map"),
+      "/api2/json/nodes/{node}/ceph/fs" =>
+        implemented(:get, :low, "7.0", "List Ceph filesystems"),
+      "/api2/json/nodes/{node}/ceph/fs/{name}" =>
+        implemented(:post, :low, "7.0", "Create Ceph filesystem"),
+      "/api2/json/nodes/{node}/ceph/init" =>
+        implemented(:post, :low, "7.0", "Create initial Ceph config"),
+      "/api2/json/nodes/{node}/ceph/log" =>
+        implemented(:get, :low, "7.0", "Get recent Ceph log entries"),
+      "/api2/json/nodes/{node}/ceph/mds" =>
+        implemented(:get, :low, "7.0", "List Ceph MDS daemons"),
+      "/api2/json/nodes/{node}/ceph/mds/{name}" =>
+        implemented(:post_delete, :low, "7.0", "Create or destroy Ceph MDS daemon"),
+      "/api2/json/nodes/{node}/ceph/mgr" =>
+        implemented(:get, :low, "7.0", "List Ceph MGR daemons"),
+      "/api2/json/nodes/{node}/ceph/mgr/{id}" =>
+        implemented(:post_delete, :low, "7.0", "Create or destroy Ceph MGR daemon"),
+      "/api2/json/nodes/{node}/ceph/mon" =>
+        implemented(:get, :low, "7.0", "List Ceph monitor daemons"),
+      "/api2/json/nodes/{node}/ceph/mon/{monid}" =>
+        implemented(:post_delete, :low, "7.0", "Create or destroy Ceph monitor"),
+      "/api2/json/nodes/{node}/ceph/osd/{osdid}" =>
+        implemented(:get_delete, :low, "7.0", "Get or destroy OSD"),
+      "/api2/json/nodes/{node}/ceph/osd/{osdid}/in" =>
+        implemented(:post, :low, "7.0", "Mark OSD as in-cluster"),
+      "/api2/json/nodes/{node}/ceph/osd/{osdid}/lv-info" =>
+        implemented(:get, :low, "7.0", "Get OSD LV info"),
+      "/api2/json/nodes/{node}/ceph/osd/{osdid}/metadata" =>
+        implemented(:get, :low, "7.0", "Get OSD metadata"),
+      "/api2/json/nodes/{node}/ceph/osd/{osdid}/out" =>
+        implemented(:post, :low, "7.0", "Mark OSD as out-of-cluster"),
+      "/api2/json/nodes/{node}/ceph/osd/{osdid}/scrub" =>
+        implemented(:post, :low, "7.0", "Scrub OSD"),
+      "/api2/json/nodes/{node}/ceph/pool" =>
+        implemented(:get_post, :low, "7.0", "List and create Ceph pools (singular)"),
+      "/api2/json/nodes/{node}/ceph/pool/{name}" =>
+        implemented(:get_put_delete, :low, "7.0", "Ceph pool CRUD (singular)"),
+      "/api2/json/nodes/{node}/ceph/pool/{name}/status" =>
+        implemented(:get, :low, "7.0", "Get Ceph pool status"),
+      "/api2/json/nodes/{node}/ceph/pools/{name}" =>
+        implemented(:get_put_delete, :low, "7.0", "Ceph pool CRUD (legacy plural)"),
+      "/api2/json/nodes/{node}/ceph/restart" =>
+        implemented(:post, :low, "7.0", "Restart all Ceph services on node"),
+      "/api2/json/nodes/{node}/ceph/rules" => implemented(:get, :low, "7.0", "List CRUSH rules"),
+      "/api2/json/nodes/{node}/ceph/start" =>
+        implemented(:post, :low, "7.0", "Start all Ceph services on node"),
+      "/api2/json/nodes/{node}/ceph/stop" =>
+        implemented(:post, :low, "7.0", "Stop all Ceph services on node")
     }
   end
 
@@ -596,9 +698,11 @@ defmodule MockPveApi.Coverage.Nodes do
 
   defp methods_for(:get), do: [:get]
   defp methods_for(:post), do: [:post]
+  defp methods_for(:put), do: [:put]
   defp methods_for(:delete), do: [:delete]
   defp methods_for(:get_post), do: [:get, :post]
   defp methods_for(:get_put), do: [:get, :put]
+  defp methods_for(:get_delete), do: [:get, :delete]
   defp methods_for(:get_post_put), do: [:get, :post, :put]
   defp methods_for(:post_delete), do: [:post, :delete]
   defp methods_for(:get_put_delete), do: [:get, :put, :delete]

@@ -46,6 +46,26 @@ defmodule MockPveApi.Router do
   end
 
   # Access endpoints
+  get "/api2/json/access" do
+    Access.get_access_index(conn)
+  end
+
+  get "/api2/json/access/openid" do
+    Access.get_openid_index(conn)
+  end
+
+  post "/api2/json/access/openid/auth-url" do
+    Access.openid_auth_url(conn)
+  end
+
+  post "/api2/json/access/openid/login" do
+    Access.openid_login(conn)
+  end
+
+  post "/api2/json/access/vncticket" do
+    Access.create_vncticket(conn)
+  end
+
   get "/api2/json/access/ticket" do
     Access.get_ticket(conn)
   end
@@ -323,6 +343,30 @@ defmodule MockPveApi.Router do
     Nodes.delete_node_network_iface(conn)
   end
 
+  get "/api2/json/nodes/:node/disks" do
+    Nodes.get_node_disks_index(conn)
+  end
+
+  delete "/api2/json/nodes/:node/disks/lvm/:name" do
+    Nodes.delete_node_disks_lvm(conn)
+  end
+
+  delete "/api2/json/nodes/:node/disks/lvmthin/:name" do
+    Nodes.delete_node_disks_lvmthin(conn)
+  end
+
+  put "/api2/json/nodes/:node/disks/wipedisk" do
+    Nodes.wipe_node_disk(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/zfs/:name" do
+    Nodes.get_node_disks_zfs_detail(conn)
+  end
+
+  delete "/api2/json/nodes/:node/disks/zfs/:name" do
+    Nodes.delete_node_disks_zfs(conn)
+  end
+
   get "/api2/json/nodes/:node/disks/list" do
     Nodes.list_disks(conn)
   end
@@ -368,6 +412,122 @@ defmodule MockPveApi.Router do
   end
 
   # Node Ceph endpoints
+  get "/api2/json/nodes/:node/ceph" do
+    Nodes.get_node_ceph_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/cfg/db" do
+    Nodes.get_node_ceph_cfg_db(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/cfg/raw" do
+    Nodes.get_node_ceph_cfg_raw(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/cfg/value" do
+    Nodes.get_node_ceph_cfg_value(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/cfg" do
+    Nodes.get_node_ceph_cfg(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/cmd-safety" do
+    Nodes.get_node_ceph_cmd_safety(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/config" do
+    Nodes.get_node_ceph_config(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/configdb" do
+    Nodes.get_node_ceph_configdb(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/crush" do
+    Nodes.get_node_ceph_crush(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/fs" do
+    Nodes.get_node_ceph_fs(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/fs/:name" do
+    Nodes.create_node_ceph_fs(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/init" do
+    Nodes.init_node_ceph(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/log" do
+    Nodes.get_node_ceph_log(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/mds" do
+    Nodes.get_node_ceph_mds(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/mds/:name" do
+    Nodes.create_node_ceph_mds(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/mds/:name" do
+    Nodes.delete_node_ceph_mds(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/mgr" do
+    Nodes.get_node_ceph_mgr(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/mgr/:id" do
+    Nodes.create_node_ceph_mgr(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/mgr/:id" do
+    Nodes.delete_node_ceph_mgr(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/mon" do
+    Nodes.get_node_ceph_mon(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/mon/:monid" do
+    Nodes.create_node_ceph_mon(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/mon/:monid" do
+    Nodes.delete_node_ceph_mon(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/osd/:osdid/lv-info" do
+    Nodes.get_node_ceph_osd_lv_info(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/osd/:osdid/metadata" do
+    Nodes.get_node_ceph_osd_metadata(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/osd/:osdid/in" do
+    Nodes.node_ceph_osd_in(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/osd/:osdid/out" do
+    Nodes.node_ceph_osd_out(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/osd/:osdid/scrub" do
+    Nodes.node_ceph_osd_scrub(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/osd/:osdid" do
+    Nodes.get_node_ceph_osd_detail(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/osd/:osdid" do
+    Nodes.delete_node_ceph_osd(conn)
+  end
+
   get "/api2/json/nodes/:node/ceph/status" do
     Nodes.get_node_ceph_status(conn)
   end
@@ -380,12 +540,64 @@ defmodule MockPveApi.Router do
     Nodes.create_node_ceph_osd(conn)
   end
 
+  get "/api2/json/nodes/:node/ceph/pool/:name/status" do
+    Nodes.get_node_ceph_pool_status(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/pool/:name" do
+    Nodes.get_node_ceph_pool_by_name(conn)
+  end
+
+  put "/api2/json/nodes/:node/ceph/pool/:name" do
+    Nodes.update_node_ceph_pool(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/pool/:name" do
+    Nodes.delete_node_ceph_pool_by_name(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/pool" do
+    Nodes.get_node_ceph_pool_list(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/pool" do
+    Nodes.create_node_ceph_pool_v2(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/pools/:name" do
+    Nodes.get_node_ceph_pools_by_name(conn)
+  end
+
+  put "/api2/json/nodes/:node/ceph/pools/:name" do
+    Nodes.update_node_ceph_pools(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/pools/:name" do
+    Nodes.delete_node_ceph_pools_by_name(conn)
+  end
+
   get "/api2/json/nodes/:node/ceph/pools" do
     Nodes.list_node_ceph_pools(conn)
   end
 
   post "/api2/json/nodes/:node/ceph/pools" do
     Nodes.create_node_ceph_pool(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/rules" do
+    Nodes.get_node_ceph_rules(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/restart" do
+    Nodes.restart_node_ceph(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/start" do
+    Nodes.start_node_ceph(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/stop" do
+    Nodes.stop_node_ceph(conn)
   end
 
   # Node certificates index and sub-resources
@@ -1017,6 +1229,10 @@ defmodule MockPveApi.Router do
     Nodes.vm_agent(conn)
   end
 
+  post "/api2/json/nodes/:node/qemu/:vmid/dbus-vmstate" do
+    Nodes.node_qemu_dbus_vmstate(conn)
+  end
+
   get "/api2/json/nodes/:node/qemu/:vmid/cloudinit/dump" do
     Nodes.get_vm_cloudinit_dump(conn)
   end
@@ -1079,6 +1295,14 @@ defmodule MockPveApi.Router do
   end
 
   # Node hardware detection endpoints
+  get "/api2/json/nodes/:node/hardware" do
+    Hardware.get_hardware_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/hardware/pci/:pciid/mdev" do
+    Hardware.get_pci_mdev(conn)
+  end
+
   get "/api2/json/nodes/:node/hardware/pci/:pciid" do
     Hardware.get_pci(conn)
   end
@@ -1227,6 +1451,77 @@ defmodule MockPveApi.Router do
     Nodes.node_suspendall(conn)
   end
 
+  post "/api2/json/nodes/:node/vncshell" do
+    Nodes.node_vncshell(conn)
+  end
+
+  # Node aplinfo endpoints
+  get "/api2/json/nodes/:node/aplinfo" do
+    Nodes.get_node_aplinfo(conn)
+  end
+
+  post "/api2/json/nodes/:node/aplinfo" do
+    Nodes.post_node_aplinfo(conn)
+  end
+
+  # Node query stubs
+  get "/api2/json/nodes/:node/query-url-metadata" do
+    Nodes.get_query_url_metadata(conn)
+  end
+
+  get "/api2/json/nodes/:node/query-oci-repo-tags" do
+    Nodes.get_query_oci_repo_tags(conn)
+  end
+
+  # Node SDN local endpoints
+  get "/api2/json/nodes/:node/sdn/fabrics/:fabric/interfaces" do
+    Nodes.get_node_sdn_fabric_interfaces(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/fabrics/:fabric/neighbors" do
+    Nodes.get_node_sdn_fabric_neighbors(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/fabrics/:fabric/routes" do
+    Nodes.get_node_sdn_fabric_routes(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/fabrics/:fabric" do
+    Nodes.get_node_sdn_fabric(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/vnets/:vnet/mac-vrf" do
+    Nodes.get_node_sdn_vnet_mac_vrf(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/vnets/:vnet" do
+    Nodes.get_node_sdn_vnet(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/zones/:zone/bridges" do
+    Nodes.get_node_sdn_zone_bridges(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/zones/:zone/content" do
+    Nodes.get_node_sdn_zone_content(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/zones/:zone/ip-vrf" do
+    Nodes.get_node_sdn_zone_ip_vrf(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/zones/:zone" do
+    Nodes.get_node_sdn_zone(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/zones" do
+    Nodes.get_node_sdn_zones(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn" do
+    Nodes.get_node_sdn_index(conn)
+  end
+
   # Storage endpoints
   get "/api2/json/storage" do
     Storage.list_storage(conn)
@@ -1304,6 +1599,22 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/nodes/:node/storage/:storage/upload" do
     Storage.upload_storage_content(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage/import-metadata" do
+    Nodes.get_node_storage_import_metadata(conn)
+  end
+
+  post "/api2/json/nodes/:node/storage/:storage/download-url" do
+    Nodes.node_storage_download_url(conn)
+  end
+
+  post "/api2/json/nodes/:node/storage/:storage/oci-registry-pull" do
+    Nodes.node_storage_oci_pull(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage" do
+    Nodes.get_node_storage(conn)
   end
 
   # Cluster endpoints
@@ -1417,6 +1728,18 @@ defmodule MockPveApi.Router do
     Cluster.update_cluster_config(conn)
   end
 
+  get "/api2/json/cluster/config/apiversion" do
+    Cluster.get_cluster_config_apiversion(conn)
+  end
+
+  get "/api2/json/cluster/config/qdevice" do
+    Cluster.get_cluster_config_qdevice(conn)
+  end
+
+  get "/api2/json/cluster/config/totem" do
+    Cluster.get_cluster_config_totem(conn)
+  end
+
   get "/api2/json/cluster/config/join" do
     Cluster.get_config_join(conn)
   end
@@ -1524,6 +1847,27 @@ defmodule MockPveApi.Router do
 
   delete "/api2/json/cluster/ha/affinity/:rule" do
     Cluster.delete_ha_affinity_rule(conn)
+  end
+
+  # HA rules (PVE 9.0+)
+  get "/api2/json/cluster/ha/rules" do
+    Cluster.list_ha_rules(conn)
+  end
+
+  post "/api2/json/cluster/ha/rules" do
+    Cluster.create_ha_rule(conn)
+  end
+
+  get "/api2/json/cluster/ha/rules/:rule" do
+    Cluster.get_ha_rule(conn)
+  end
+
+  put "/api2/json/cluster/ha/rules/:rule" do
+    Cluster.update_ha_rule(conn)
+  end
+
+  delete "/api2/json/cluster/ha/rules/:rule" do
+    Cluster.delete_ha_rule(conn)
   end
 
   # Cluster resource mapping endpoints (PCI/USB passthrough)
@@ -1639,6 +1983,14 @@ defmodule MockPveApi.Router do
   end
 
   # Cluster Ceph endpoints
+  get "/api2/json/cluster/ceph/flags/:flag" do
+    Cluster.get_ceph_flag(conn)
+  end
+
+  put "/api2/json/cluster/ceph/flags/:flag" do
+    Cluster.set_ceph_flag(conn)
+  end
+
   get "/api2/json/cluster/ceph/flags" do
     Cluster.get_ceph_flags(conn)
   end
@@ -2035,6 +2387,72 @@ defmodule MockPveApi.Router do
     Sdn.delete_dns(conn)
   end
 
+  # SDN fabrics endpoints (PVE 9.0+)
+  get "/api2/json/cluster/sdn/fabrics" do
+    Cluster.list_sdn_fabrics(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/all" do
+    Cluster.get_sdn_fabrics_all(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/fabric" do
+    Cluster.list_sdn_fabric_type(conn)
+  end
+
+  post "/api2/json/cluster/sdn/fabrics/fabric" do
+    Cluster.create_sdn_fabric(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/fabric/:id" do
+    Cluster.get_sdn_fabric(conn)
+  end
+
+  put "/api2/json/cluster/sdn/fabrics/fabric/:id" do
+    Cluster.update_sdn_fabric(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/fabrics/fabric/:id" do
+    Cluster.delete_sdn_fabric(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/node" do
+    Cluster.list_sdn_fabric_nodes(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/node/:fabric_id" do
+    Cluster.list_sdn_fabric_node_members(conn)
+  end
+
+  post "/api2/json/cluster/sdn/fabrics/node/:fabric_id" do
+    Cluster.add_sdn_fabric_node(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id" do
+    Cluster.get_sdn_fabric_node(conn)
+  end
+
+  put "/api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id" do
+    Cluster.update_sdn_fabric_node(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id" do
+    Cluster.delete_sdn_fabric_node(conn)
+  end
+
+  # SDN lock and rollback stubs (PVE 9.0+)
+  post "/api2/json/cluster/sdn/lock" do
+    Cluster.lock_sdn(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/lock" do
+    Cluster.unlock_sdn(conn)
+  end
+
+  post "/api2/json/cluster/sdn/rollback" do
+    Cluster.rollback_sdn(conn)
+  end
+
   # SDN IPAM endpoints
   get "/api2/json/cluster/sdn/ipams" do
     Sdn.list_ipams(conn)
@@ -2042,6 +2460,10 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/cluster/sdn/ipams" do
     Sdn.create_ipam(conn)
+  end
+
+  get "/api2/json/cluster/sdn/ipams/:ipam/status" do
+    Cluster.get_sdn_ipam_status(conn)
   end
 
   get "/api2/json/cluster/sdn/ipams/:ipam" do

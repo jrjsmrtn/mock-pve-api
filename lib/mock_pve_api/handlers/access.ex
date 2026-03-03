@@ -817,4 +817,41 @@ defmodule MockPveApi.Handlers.Access do
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: nil}))
   end
+
+  # Access index and OpenID stubs
+
+  @doc "GET /api2/json/access"
+  def get_access_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  @doc "GET /api2/json/access/openid"
+  def get_openid_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  @doc "POST /api2/json/access/openid/auth-url"
+  def openid_auth_url(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  @doc "POST /api2/json/access/openid/login"
+  def openid_login(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  @doc "POST /api2/json/access/vncticket"
+  def create_vncticket(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
 end

@@ -45,20 +45,20 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Category | Total | Implemented | Coverage |
 |----------|-------|-------------|----------|
 | Version | 1 | 1 | 100.0% |
-| Cluster | 56 | 56 | 100.0% |
-| Nodes | 72 | 72 | 100.0% |
-| Virtual Machines | 62 | 62 | 100.0% |
+| Cluster | 68 | 68 | 100.0% |
+| Nodes | 126 | 126 | 100.0% |
+| Virtual Machines | 63 | 63 | 100.0% |
 | LXC Containers | 31 | 31 | 100.0% |
-| Storage | 12 | 12 | 100.0% |
-| Access Control | 20 | 20 | 100.0% |
+| Storage | 16 | 16 | 100.0% |
+| Access Control | 25 | 25 | 100.0% |
 | Resource Pools | 2 | 2 | 100.0% |
-| SDN | 17 | 17 | 100.0% |
+| SDN | 27 | 27 | 100.0% |
 | Monitoring | 16 | 16 | 100.0% |
 | Backup | 9 | 9 | 100.0% |
-| Hardware | 9 | 9 | 100.0% |
+| Hardware | 13 | 13 | 100.0% |
 | Firewall | 41 | 41 | 100.0% |
 | Notifications | 16 | 16 | 100.0% |
-| **TOTAL** | **364** | **364** | **100.0%** |
+| **TOTAL** | **454** | **454** | **100.0%** |
 
 
 ## Status Legend
@@ -512,6 +512,24 @@ Ceph global flags
 ```
 
 
+### `/cluster/ceph/flags/{flag}` ✅
+
+Get or set individual Ceph flag
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/ceph/metadata` ✅
 
 Ceph cluster metadata
@@ -569,6 +587,24 @@ Cluster configuration management
 ```
 
 **Notes**: Cluster configuration implemented
+
+
+### `/cluster/config/apiversion` ✅
+
+Cluster config API version
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
 
 
 ### `/cluster/config/join` ✅
@@ -649,6 +685,42 @@ Remove node from cluster
 ```
 
 **Notes**: Node removal from cluster implemented
+
+
+### `/cluster/config/qdevice` ✅
+
+Get corosync QDevice status
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/config/totem` ✅
+
+Get corosync totem protocol settings
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
 
 
 ### `/cluster/firewall` ✅
@@ -877,6 +949,42 @@ Relocate HA resource to different node
 ```
 
 
+### `/cluster/ha/rules` ✅ 🟠
+
+List and create HA rules
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/ha/rules/{rule}` ✅ 🟠
+
+HA rule CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/ha/status` ✅
 
 HA status index
@@ -1029,6 +1137,114 @@ Hardware mapping index
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/dir` ✅ 🔴
+
+Directory mapping list and create
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/dir/{id}` ✅ 🔴
+
+Directory mapping CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/pci` ✅
+
+PCI hardware mapping list and create
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/pci/{id}` ✅
+
+PCI hardware mapping CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/usb` ✅
+
+USB hardware mapping list and create
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/usb/{id}` ✅
+
+USB hardware mapping CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
 | **Since** | PVE 7.0 |
 
 **Example Response**:
@@ -1285,6 +1501,24 @@ Node index — lists available sub-resources
 ```json
 {
   "data": []
+}
+```
+
+
+### `/nodes/{node}/aplinfo` ✅
+
+APL appliance template info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
 }
 ```
 
@@ -1549,6 +1783,348 @@ QEMU migration capabilities
 ```
 
 
+### `/nodes/{node}/ceph` ✅
+
+Node Ceph management index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/cfg` ✅
+
+Get Ceph config path index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/cfg/db` ✅
+
+Get Ceph monitor database config
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/cfg/raw` ✅
+
+Get raw Ceph config file
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/cfg/value` ✅
+
+Get a specific Ceph config value
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/cmd-safety` ✅
+
+Check Ceph command safety
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/config` ✅
+
+Get Ceph config
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/configdb` ✅
+
+Get Ceph config database
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/crush` ✅
+
+Get CRUSH map
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/fs` ✅
+
+List Ceph filesystems
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/fs/{name}` ✅
+
+Create Ceph filesystem
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/init` ✅
+
+Create initial Ceph config
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/log` ✅
+
+Get recent Ceph log entries
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mds` ✅
+
+List Ceph MDS daemons
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mds/{name}` ✅
+
+Create or destroy Ceph MDS daemon
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mgr` ✅
+
+List Ceph MGR daemons
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mgr/{id}` ✅
+
+Create or destroy Ceph MGR daemon
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mon` ✅
+
+List Ceph monitor daemons
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mon/{monid}` ✅
+
+Create or destroy Ceph monitor
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/ceph/osd` ✅
 
 Ceph OSD management
@@ -1556,6 +2132,168 @@ Ceph OSD management
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}` ✅
+
+Get or destroy OSD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}/in` ✅
+
+Mark OSD as in-cluster
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}/lv-info` ✅
+
+Get OSD LV info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}/metadata` ✅
+
+Get OSD metadata
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}/out` ✅
+
+Mark OSD as out-of-cluster
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}/scrub` ✅
+
+Scrub OSD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/pool` ✅
+
+List and create Ceph pools (singular)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/pool/{name}` ✅
+
+Ceph pool CRUD (singular)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/pool/{name}/status` ✅
+
+Get Ceph pool status
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
 | **Priority** | Low |
 | **Since** | PVE 7.0 |
 
@@ -1585,6 +2323,78 @@ Ceph pool management
 ```
 
 
+### `/nodes/{node}/ceph/pools/{name}` ✅
+
+Ceph pool CRUD (legacy plural)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/restart` ✅
+
+Restart all Ceph services on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/rules` ✅
+
+List CRUSH rules
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/start` ✅
+
+Start all Ceph services on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/ceph/status` ✅
 
 Ceph status on node
@@ -1592,6 +2402,24 @@ Ceph status on node
 | Property | Value |
 |----------|-------|
 | **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/stop` ✅
+
+Stop all Ceph services on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
 | **Priority** | Low |
 | **Since** | PVE 7.0 |
 
@@ -1717,6 +2545,24 @@ Node configuration options
 ```
 
 
+### `/nodes/{node}/disks` ✅
+
+Node disks index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/disks/directory` ✅
 
 Directory storage management
@@ -1813,6 +2659,24 @@ LVM management on node
 ```
 
 
+### `/nodes/{node}/disks/lvm/{name}` ✅
+
+Remove LVM volume group
+
+| Property | Value |
+|----------|-------|
+| **Methods** | DELETE |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/disks/lvmthin` ✅
 
 LVM thin pool management on node
@@ -1820,6 +2684,24 @@ LVM thin pool management on node
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/lvmthin/{name}` ✅
+
+Remove LVM thin pool
+
+| Property | Value |
+|----------|-------|
+| **Methods** | DELETE |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -1849,6 +2731,24 @@ Get SMART health data for disks
 ```
 
 
+### `/nodes/{node}/disks/wipedisk` ✅
+
+Wipe a disk
+
+| Property | Value |
+|----------|-------|
+| **Methods** | PUT |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/disks/zfs` ✅
 
 ZFS pool management on node
@@ -1856,6 +2756,24 @@ ZFS pool management on node
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/zfs/{name}` ✅
+
+Get or delete ZFS pool
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -2009,6 +2927,42 @@ Individual network interface management
 |------|------|----------|-------------|--------|
 | `node` | string | Yes | Node name | - |
 | `iface` | string | Yes | Interface name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/query-oci-repo-tags` ✅ 🟠
+
+Query OCI repository tags
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/query-url-metadata` ✅
+
+Query URL metadata
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -2284,6 +3238,238 @@ Scan for resources of a specific type
 ```json
 {
   "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn` ✅ 🔴
+
+Node SDN index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/fabrics/{fabric}` ✅ 🟠
+
+Get local fabric info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/fabrics/{fabric}/interfaces` ✅ 🟠
+
+List fabric interfaces on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/fabrics/{fabric}/neighbors` ✅ 🟠
+
+List fabric neighbors on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/fabrics/{fabric}/routes` ✅ 🟠
+
+List fabric routes on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/vnets/{vnet}` ✅ 🔴
+
+Get local vnet info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/vnets/{vnet}/mac-vrf` ✅ 🟠
+
+Get vnet MAC-VRF info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/zones` ✅ 🔴
+
+List local SDN zones
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/zones/{zone}` ✅ 🔴
+
+Get local zone info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "type": "simple",
+    "nodes": "pve-node-1,pve-node-2",
+    "zone": "localnetwork"
+  }
+}
+```
+
+
+### `/nodes/{node}/sdn/zones/{zone}/bridges` ✅ 🔴
+
+List zone bridges on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "type": "simple",
+    "nodes": "pve-node-1,pve-node-2",
+    "zone": "localnetwork"
+  }
+}
+```
+
+
+### `/nodes/{node}/sdn/zones/{zone}/content` ✅ 🔴
+
+List zone content on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "type": "simple",
+    "nodes": "pve-node-1,pve-node-2",
+    "zone": "localnetwork"
+  }
+}
+```
+
+
+### `/nodes/{node}/sdn/zones/{zone}/ip-vrf` ✅ 🟠
+
+Get zone IP-VRF info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "type": "simple",
+    "nodes": "pve-node-1,pve-node-2",
+    "zone": "localnetwork"
+  }
 }
 ```
 
@@ -2661,6 +3847,24 @@ Node-specific version information
 | Name | Type | Required | Description | Values |
 |------|------|----------|-------------|--------|
 | `node` | string | Yes | Node name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/vncshell` ✅
+
+Create VNC shell on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -3582,6 +4786,33 @@ VM configuration (get current or update)
 |------|------|----------|-------------|--------|
 | `node` | string | Yes | Node name | - |
 | `vmid` | integer | Yes | VM ID | - |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/dbus-vmstate` ✅ 🔴
+
+Add dbus-vmstate object
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
 
 **Example Response**:
 ```json
@@ -5419,6 +6650,33 @@ List storage configured for node
 ```
 
 
+### `/nodes/{node}/storage/{storage}` ✅
+
+Node storage index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "active": 1,
+      "enabled": 1,
+      "total": 107374182400,
+      "type": "dir",
+      "used": 21474836480,
+      "storage": "local"
+    }
+  ]
+}
+```
+
+
 ### `/nodes/{node}/storage/{storage}/backup` ✅
 
 List backup files in storage
@@ -5520,6 +6778,33 @@ Individual storage volume operations
 ```
 
 
+### `/nodes/{node}/storage/{storage}/download-url` ✅
+
+Download content from URL to storage
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "active": 1,
+      "enabled": 1,
+      "total": 107374182400,
+      "type": "dir",
+      "used": 21474836480,
+      "storage": "local"
+    }
+  ]
+}
+```
+
+
 ### `/nodes/{node}/storage/{storage}/file-restore/download` ✅
 
 Download files from a backup
@@ -5608,6 +6893,60 @@ Import content into storage (e.g., VMware import)
 ```
 
 **Notes**: Inline handler in router; VMware import introduced in PVE 8.2
+
+
+### `/nodes/{node}/storage/{storage}/import-metadata` ✅ 🔴
+
+Get import metadata for disk image
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.2 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "active": 1,
+      "enabled": 1,
+      "total": 107374182400,
+      "type": "dir",
+      "used": 21474836480,
+      "storage": "local"
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/storage/{storage}/oci-registry-pull` ✅ 🟠
+
+Pull OCI image from registry to storage
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "active": 1,
+      "enabled": 1,
+      "total": 107374182400,
+      "type": "dir",
+      "used": 21474836480,
+      "storage": "local"
+    }
+  ]
+}
+```
 
 
 ### `/nodes/{node}/storage/{storage}/prunebackups` ✅
@@ -5767,6 +7106,24 @@ Individual storage definition CRUD
 
 ## Access Control & User Management
 
+### `/access` ✅
+
+Access control index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/access/acl` ✅
 
 Access control list management
@@ -5914,6 +7271,60 @@ Individual group operations
 ```
 
 **Notes**: Individual group CRUD operations implemented
+
+
+### `/access/openid` ✅
+
+OpenID index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/access/openid/auth-url` ✅
+
+Get OpenID auth URL
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/access/openid/login` ✅
+
+OpenID login callback
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
 
 
 ### `/access/password` ✅
@@ -6265,6 +7676,24 @@ Unlock locked TFA for user
 ```
 
 
+### `/access/vncticket` ✅
+
+Create VNC ticket for noVNC
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ---
 
 
@@ -6436,6 +7865,132 @@ Individual SDN DNS plugin operations
 ```
 
 
+### `/cluster/sdn/fabrics` ✅ 🟠
+
+List all SDN fabrics
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/all` ✅ 🟠
+
+Get all SDN fabric info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/fabric` ✅ 🟠
+
+List and create SDN fabrics
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/fabric/{id}` ✅ 🟠
+
+SDN fabric CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/node` ✅ 🟠
+
+List SDN fabric nodes
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/node/{fabric_id}` ✅ 🟠
+
+List and add nodes to fabric
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/node/{fabric_id}/{node_id}` ✅ 🟠
+
+SDN fabric node CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/sdn/ipams` ✅
 
 SDN IPAM plugin management
@@ -6469,6 +8024,60 @@ Individual SDN IPAM plugin operations
 | Name | Type | Required | Description | Values |
 |------|------|----------|-------------|--------|
 | `ipam` | string | Yes | IPAM identifier | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/ipams/{ipam}/status` ✅ 🔴
+
+Get IPAM plugin status
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/lock` ✅ 🟠
+
+Lock or unlock SDN config
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/rollback` ✅ 🟠
+
+Rollback uncommitted SDN changes
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
 
 **Example Response**:
 ```json
@@ -7432,6 +9041,24 @@ Individual USB mapping CRUD
 ```
 
 
+### `/nodes/{node}/hardware` ✅
+
+Node hardware detection index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/hardware/pci` ✅
 
 List PCI devices on node
@@ -7450,9 +9077,63 @@ List PCI devices on node
 ```
 
 
+### `/nodes/{node}/hardware/pci/{pci-id-or-mapping}` ✅
+
+Get PCI device or mapping details
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/hardware/pci/{pci-id-or-mapping}/mdev` ✅
+
+List mediated device types for PCI device or mapping
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/hardware/pci/{pciid}` ✅
 
 Get PCI device details
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/hardware/pci/{pciid}/mdev` ✅
+
+List mediated device types for PCI device
 
 | Property | Value |
 |----------|-------|

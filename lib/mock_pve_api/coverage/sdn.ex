@@ -329,11 +329,53 @@ defmodule MockPveApi.Coverage.Sdn do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Firewall,
         notes: nil
-      }
+      },
+      "/api2/json/cluster/sdn/fabrics" => implemented(:get, :low, "9.0", "List all SDN fabrics"),
+      "/api2/json/cluster/sdn/fabrics/all" =>
+        implemented(:get, :low, "9.0", "Get all SDN fabric info"),
+      "/api2/json/cluster/sdn/fabrics/fabric" =>
+        implemented(:get_post, :low, "9.0", "List and create SDN fabrics"),
+      "/api2/json/cluster/sdn/fabrics/fabric/{id}" =>
+        implemented(:get_put_delete, :low, "9.0", "SDN fabric CRUD"),
+      "/api2/json/cluster/sdn/fabrics/node" =>
+        implemented(:get, :low, "9.0", "List SDN fabric nodes"),
+      "/api2/json/cluster/sdn/fabrics/node/{fabric_id}" =>
+        implemented(:get_post, :low, "9.0", "List and add nodes to fabric"),
+      "/api2/json/cluster/sdn/fabrics/node/{fabric_id}/{node_id}" =>
+        implemented(:get_put_delete, :low, "9.0", "SDN fabric node CRUD"),
+      "/api2/json/cluster/sdn/lock" =>
+        implemented(:post_delete, :low, "9.0", "Lock or unlock SDN config"),
+      "/api2/json/cluster/sdn/rollback" =>
+        implemented(:post, :low, "9.0", "Rollback uncommitted SDN changes"),
+      "/api2/json/cluster/sdn/ipams/{ipam}/status" =>
+        implemented(:get, :low, "8.0", "Get IPAM plugin status")
     }
   end
 
   defp planned_endpoints do
     %{}
   end
+
+  defp implemented(methods_atom, priority, since, description) do
+    %{
+      path: "",
+      methods: methods_for(methods_atom),
+      status: :implemented,
+      priority: priority,
+      since: since,
+      description: description,
+      parameters: [],
+      response_schema: %{data: :object},
+      capabilities_required: [:sdn_tech_preview],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Cluster,
+      notes: nil
+    }
+  end
+
+  defp methods_for(:get), do: [:get]
+  defp methods_for(:post), do: [:post]
+  defp methods_for(:get_post), do: [:get, :post]
+  defp methods_for(:get_put_delete), do: [:get, :put, :delete]
+  defp methods_for(:post_delete), do: [:post, :delete]
 end

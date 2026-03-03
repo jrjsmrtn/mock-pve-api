@@ -12,6 +12,16 @@ defmodule MockPveApi.Handlers.Hardware do
   # --- Node Hardware Detection ---
 
   @doc """
+  GET /api2/json/nodes/:node/hardware
+  Node hardware index.
+  """
+  def get_hardware_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: [%{name: "pci"}, %{name: "usb"}]}))
+  end
+
+  @doc """
   GET /api2/json/nodes/:node/hardware/pci
   Lists PCI devices on node (static mock data).
   """
@@ -72,6 +82,16 @@ defmodule MockPveApi.Handlers.Hardware do
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: detail}))
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/hardware/pci/:pciid/mdev
+  Lists available mediated device types for a PCI device.
+  """
+  def get_pci_mdev(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
   end
 
   @doc """

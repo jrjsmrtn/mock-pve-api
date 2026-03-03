@@ -22,10 +22,18 @@ defmodule MockPveApi.Coverage.Hardware do
 
   defp implemented_endpoints do
     %{
+      "/api2/json/nodes/{node}/hardware" =>
+        implemented(:get, :low, "6.0", "Node hardware detection index"),
       "/api2/json/nodes/{node}/hardware/pci" =>
         implemented(:get, :medium, "6.0", "List PCI devices on node"),
       "/api2/json/nodes/{node}/hardware/pci/{pciid}" =>
         implemented(:get, :low, "6.0", "Get PCI device details"),
+      "/api2/json/nodes/{node}/hardware/pci/{pciid}/mdev" =>
+        implemented(:get, :low, "6.0", "List mediated device types for PCI device"),
+      "/api2/json/nodes/{node}/hardware/pci/{pci-id-or-mapping}" =>
+        implemented(:get, :low, "6.0", "Get PCI device or mapping details"),
+      "/api2/json/nodes/{node}/hardware/pci/{pci-id-or-mapping}/mdev" =>
+        implemented(:get, :low, "6.0", "List mediated device types for PCI device or mapping"),
       "/api2/json/nodes/{node}/hardware/usb" =>
         implemented(:get, :medium, "6.0", "List USB devices on node"),
       "/api2/json/cluster/mapping/pci" =>

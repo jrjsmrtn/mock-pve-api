@@ -2536,4 +2536,530 @@ defmodule MockPveApi.Handlers.Nodes do
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: nil}))
   end
+
+  # Node aplinfo
+
+  def get_node_aplinfo(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def post_node_aplinfo(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:apldownload::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node vncshell
+
+  def node_vncshell(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  # Node query stubs
+
+  def get_query_url_metadata(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_query_oci_repo_tags(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  # Node qemu dbus-vmstate stub
+
+  def node_qemu_dbus_vmstate(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:dbusstate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node disks index and remaining stubs
+
+  def get_node_disks_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def delete_node_disks_lvm(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:lvmremove::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def delete_node_disks_lvmthin(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:lvmthinremove::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def wipe_node_disk(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:wipedisk::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def delete_node_disks_zfs(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:zfsdestroy::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_disks_zfs_detail(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  # Node storage sub-item stubs
+
+  def get_node_storage(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def node_storage_download_url(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:download::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_storage_import_metadata(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def node_storage_oci_pull(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:ocipull::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node SDN local stubs
+
+  def get_node_sdn_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_fabric(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_sdn_fabric_interfaces(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_fabric_neighbors(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_fabric_routes(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_vnet(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_sdn_vnet_mac_vrf(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_zones(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_zone(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_sdn_zone_bridges(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_zone_content(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_zone_ip_vrf(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  # Node ceph sub-endpoint stubs
+
+  def get_node_ceph_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_ceph_cfg(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_ceph_cfg_db(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_ceph_cfg_raw(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ""}))
+  end
+
+  def get_node_ceph_cfg_value(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_ceph_cmd_safety(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_ceph_config(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ""}))
+  end
+
+  def get_node_ceph_configdb(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_ceph_crush(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ""}))
+  end
+
+  def get_node_ceph_fs(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def create_node_ceph_fs(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephcreatefscreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def init_node_ceph(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephinit::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_log(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_ceph_mds(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def delete_node_ceph_mds(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmdsdelete::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def create_node_ceph_mds(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmdscreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_mgr(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def delete_node_ceph_mgr(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmgrremove::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def create_node_ceph_mgr(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmgrcreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_mon(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def delete_node_ceph_mon(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmonremove::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def create_node_ceph_mon(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmonstart::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def delete_node_ceph_osd(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephosdremove::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_osd_detail(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def node_ceph_osd_in(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephosdin::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_osd_lv_info(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_ceph_osd_metadata(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def node_ceph_osd_out(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephosdout::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def node_ceph_osd_scrub(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephosdscrub::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node ceph pool (singular) stubs - alias for pools (newer PVE API path)
+
+  def get_node_ceph_pool_list(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def create_node_ceph_pool_v2(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephcreatepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def delete_node_ceph_pool_by_name(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephdeletepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_pool_by_name(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def update_node_ceph_pool(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephupdatepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_pool_status(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  # Node ceph pools/{name} sub-item stubs (legacy path, exists alongside pool/)
+
+  def get_node_ceph_pools_by_name(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def update_node_ceph_pools(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephupdatepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def delete_node_ceph_pools_by_name(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephdeletepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node ceph lifecycle stubs
+
+  def get_node_ceph_rules(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def restart_node_ceph(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephrestart::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def start_node_ceph(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephstart::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def stop_node_ceph(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephstop::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
 end
