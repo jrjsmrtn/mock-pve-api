@@ -207,34 +207,6 @@ defmodule MockPveApi.Coverage.Cluster do
         handler_module: MockPveApi.Handlers.Cluster,
         notes: "HA affinity rules new in PVE 9.0"
       },
-      "/api2/json/cluster/notifications/endpoints" => %{
-        path: "/api2/json/cluster/notifications/endpoints",
-        methods: [:get],
-        status: :implemented,
-        priority: :low,
-        since: "8.1",
-        description: "List notification endpoints",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [],
-        test_coverage: false,
-        handler_module: nil,
-        notes: "Inline handler in router; notification system introduced in PVE 8.1"
-      },
-      "/api2/json/cluster/notifications/filters" => %{
-        path: "/api2/json/cluster/notifications/filters",
-        methods: [:get],
-        status: :implemented,
-        priority: :low,
-        since: "8.1",
-        description: "List notification filters",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [],
-        test_coverage: false,
-        handler_module: nil,
-        notes: "Inline handler in router; notification system introduced in PVE 8.1"
-      },
       "/api2/json/cluster/ha/resources" => %{
         path: "/api2/json/cluster/ha/resources",
         methods: [:get, :post],
@@ -383,19 +355,7 @@ defmodule MockPveApi.Coverage.Cluster do
       "/api2/json/cluster/ceph/metadata" =>
         implemented(:get, :low, "7.0", "Ceph cluster metadata"),
       "/api2/json/cluster/ceph/status" => implemented(:get, :low, "7.0", "Ceph cluster status"),
-      "/api2/json/cluster/ceph/flags" => implemented(:get_put, :low, "7.0", "Ceph global flags"),
-      "/api2/json/cluster/notifications/matchers" =>
-        implemented(:get_post, :low, "8.1", "Notification matchers management"),
-      "/api2/json/cluster/notifications/matchers/{name}" =>
-        implemented(:get_put_delete, :low, "8.1", "Individual notification matcher operations"),
-      "/api2/json/cluster/notifications/endpoints/sendmail" =>
-        implemented(:get_post, :low, "8.1", "Sendmail notification endpoints"),
-      "/api2/json/cluster/notifications/endpoints/sendmail/{name}" =>
-        implemented(:get_put_delete, :low, "8.1", "Individual sendmail endpoint operations"),
-      "/api2/json/cluster/notifications/endpoints/gotify" =>
-        implemented(:get_post, :low, "8.1", "Gotify notification endpoints"),
-      "/api2/json/cluster/notifications/endpoints/gotify/{name}" =>
-        implemented(:get_put_delete, :low, "8.1", "Individual gotify endpoint operations")
+      "/api2/json/cluster/ceph/flags" => implemented(:get_put, :low, "7.0", "Ceph global flags")
     }
   end
 

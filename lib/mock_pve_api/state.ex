@@ -166,6 +166,8 @@ defmodule MockPveApi.State do
       acme_plugins: %{},
       notification_gotify: %{},
       notification_sendmail: %{},
+      notification_smtp: %{},
+      notification_webhook: %{},
       notification_matchers: %{},
       firewall: %{
         cluster: %{
@@ -3627,8 +3629,12 @@ defmodule MockPveApi.State do
 
   defp notification_key(:gotify), do: :notification_gotify
   defp notification_key(:sendmail), do: :notification_sendmail
+  defp notification_key(:smtp), do: :notification_smtp
+  defp notification_key(:webhook), do: :notification_webhook
   defp notification_key("gotify"), do: :notification_gotify
   defp notification_key("sendmail"), do: :notification_sendmail
+  defp notification_key("smtp"), do: :notification_smtp
+  defp notification_key("webhook"), do: :notification_webhook
 
   defp default_vm_ct_firewall do
     %{

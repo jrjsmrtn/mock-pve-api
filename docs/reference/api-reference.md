@@ -45,7 +45,7 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Category | Total | Implemented | Coverage |
 |----------|-------|-------------|----------|
 | Version | 1 | 1 | 100.0% |
-| Cluster | 32 | 32 | 100.0% |
+| Cluster | 24 | 24 | 100.0% |
 | Nodes | 34 | 34 | 100.0% |
 | Virtual Machines | 20 | 20 | 100.0% |
 | LXC Containers | 16 | 16 | 100.0% |
@@ -57,7 +57,8 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Backup | 9 | 9 | 100.0% |
 | Hardware | 7 | 7 | 100.0% |
 | Firewall | 41 | 41 | 100.0% |
-| **TOTAL** | **220** | **220** | **100.0%** |
+| Notifications | 16 | 16 | 100.0% |
+| **TOTAL** | **228** | **228** | **100.0%** |
 
 
 ## Status Legend
@@ -513,154 +514,6 @@ Get next free VMID
 | **Methods** | GET |
 | **Priority** | High |
 | **Since** | PVE 6.0 |
-
-
-### `/cluster/notifications/endpoints` ✅ 🔴
-
-List notification endpoints
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": []
-}
-```
-
-**Notes**: Inline handler in router; notification system introduced in PVE 8.1
-
-
-### `/cluster/notifications/endpoints/gotify` ✅ 🔴
-
-Gotify notification endpoints
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/notifications/endpoints/gotify/{name}` ✅ 🔴
-
-Individual gotify endpoint operations
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, PUT, DELETE |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/notifications/endpoints/sendmail` ✅ 🔴
-
-Sendmail notification endpoints
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/notifications/endpoints/sendmail/{name}` ✅ 🔴
-
-Individual sendmail endpoint operations
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, PUT, DELETE |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/notifications/filters` ✅ 🔴
-
-List notification filters
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": []
-}
-```
-
-**Notes**: Inline handler in router; notification system introduced in PVE 8.1
-
-
-### `/cluster/notifications/matchers` ✅ 🔴
-
-Notification matchers management
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/notifications/matchers/{name}` ✅ 🔴
-
-Individual notification matcher operations
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, PUT, DELETE |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
 
 
 ### `/cluster/options` ✅
@@ -5539,6 +5392,328 @@ Individual VM rule CRUD
   }
 }
 ```
+
+
+---
+
+
+## Notifications
+
+### `/cluster/notifications` ✅ 🔴
+
+Notification system index — lists child resource names
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints` ✅ 🔴
+
+List available notification endpoint types
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints/gotify` ✅ 🔴
+
+List or create Gotify notification endpoints
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints/gotify/{name}` ✅ 🔴
+
+Get, update, or delete a specific Gotify notification endpoint
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Endpoint name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/endpoints/sendmail` ✅ 🔴
+
+List or create sendmail notification endpoints
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints/sendmail/{name}` ✅ 🔴
+
+Get, update, or delete a specific sendmail notification endpoint
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Endpoint name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/endpoints/smtp` ✅ 🔴
+
+List or create SMTP notification endpoints
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints/smtp/{name}` ✅ 🔴
+
+Get, update, or delete a specific SMTP notification endpoint
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Endpoint name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/endpoints/webhook` ✅ 🔴
+
+List or create webhook notification endpoints
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.2 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints/webhook/{name}` ✅ 🔴
+
+Get, update, or delete a specific webhook notification endpoint
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.2 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Endpoint name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/matcher-field-values` ✅ 🔴
+
+List possible values for matcher fields
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.2 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/matcher-fields` ✅ 🔴
+
+List available matcher fields
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.2 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/matchers` ✅ 🔴
+
+List or create notification matchers
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/matchers/{name}` ✅ 🔴
+
+Get, update, or delete a specific notification matcher
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Matcher name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/targets` ✅ 🔴
+
+List all notification targets across all endpoint types
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/targets/{name}/test` ✅ 🔴
+
+Send a test notification to a target
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 8.1 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Target name | - |
 
 
 ---

@@ -37,6 +37,7 @@ defmodule MockPveApi.Coverage do
           | :backup
           | :hardware
           | :firewall
+          | :notifications
 
   @type http_method() :: :get | :post | :put | :delete | :patch
 
@@ -88,7 +89,8 @@ defmodule MockPveApi.Coverage do
     MockPveApi.Coverage.Monitoring,
     MockPveApi.Coverage.Backup,
     MockPveApi.Coverage.Hardware,
-    MockPveApi.Coverage.Firewall
+    MockPveApi.Coverage.Firewall,
+    MockPveApi.Coverage.Notifications
   ]
 
   # Build the coverage matrix at compile time from sub-modules.

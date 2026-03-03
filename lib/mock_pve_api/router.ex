@@ -1656,15 +1656,77 @@ defmodule MockPveApi.Router do
   end
 
   get "/api2/json/cluster/notifications/endpoints" do
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: []}))
+    Notifications.list_endpoint_types(conn)
   end
 
   get "/api2/json/cluster/notifications/filters" do
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  get "/api2/json/cluster/notifications/targets/:name/test" do
+    Notifications.test_target(conn)
+  end
+
+  post "/api2/json/cluster/notifications/targets/:name/test" do
+    Notifications.test_target(conn)
+  end
+
+  get "/api2/json/cluster/notifications/targets" do
+    Notifications.list_targets(conn)
+  end
+
+  get "/api2/json/cluster/notifications/matcher-field-values" do
+    Notifications.get_matcher_field_values(conn)
+  end
+
+  get "/api2/json/cluster/notifications/matcher-fields" do
+    Notifications.list_matcher_fields(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/smtp/:name" do
+    Notifications.get_smtp(conn)
+  end
+
+  put "/api2/json/cluster/notifications/endpoints/smtp/:name" do
+    Notifications.update_smtp(conn)
+  end
+
+  delete "/api2/json/cluster/notifications/endpoints/smtp/:name" do
+    Notifications.delete_smtp(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/smtp" do
+    Notifications.list_smtp(conn)
+  end
+
+  post "/api2/json/cluster/notifications/endpoints/smtp" do
+    Notifications.create_smtp(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/webhook/:name" do
+    Notifications.get_webhook(conn)
+  end
+
+  put "/api2/json/cluster/notifications/endpoints/webhook/:name" do
+    Notifications.update_webhook(conn)
+  end
+
+  delete "/api2/json/cluster/notifications/endpoints/webhook/:name" do
+    Notifications.delete_webhook(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/webhook" do
+    Notifications.list_webhook(conn)
+  end
+
+  post "/api2/json/cluster/notifications/endpoints/webhook" do
+    Notifications.create_webhook(conn)
+  end
+
+  get "/api2/json/cluster/notifications" do
+    Notifications.list_notifications(conn)
   end
 
   # VMware import endpoints (PVE 8.2+ only)

@@ -324,6 +324,8 @@ defmodule MockPveApi.CoverageTest do
         # VM/CT move operations - POST only (returns UPID)
         "/api2/json/nodes/{node}/qemu/{vmid}/move_disk",
         "/api2/json/nodes/{node}/lxc/{vmid}/move_volume",
+        # Notification target test - POST only (send test notification)
+        "/api2/json/cluster/notifications/targets/{name}/test",
         # ACME certificate - POST=order, PUT=renew, DELETE=revoke (no GET)
         "/api2/json/nodes/{node}/certificates/acme/certificate",
         # Disk initialization - POST only
