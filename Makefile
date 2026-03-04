@@ -243,29 +243,17 @@ validate: arch-validate lint typecheck test ## Run all validation checks
 	@echo "$(GREEN)All validation checks passed!$(RESET)"
 
 ## Testing Commands
-test-examples: container-build ## Test all language examples against mock server
-	@echo "$(BLUE)Testing examples against mock server with $(CONTAINER_RUNTIME)...$(RESET)"
+test-examples: container-build ## Test shell/curl example against mock server
+	@echo "$(BLUE)Testing shell example against mock server with $(CONTAINER_RUNTIME)...$(RESET)"
 	@# Start mock server in background
 	$(CONTAINER_RUNTIME) run -d --name test-mock-pve -p 8006:8006 $(IMAGE_NAME):latest
 	@sleep 3
-	@# Test Python example
-	@if [ -f examples/python/test_client.py ]; then \
-		echo "$(GREEN)Testing Python example...$(RESET)"; \
-		cd examples/python && python test_client.py; \
-	fi
-	@# Test JavaScript example  
-	@if [ -f examples/javascript/test-client.js ] && command -v node >/dev/null 2>&1; then \
-		echo "$(GREEN)Testing JavaScript example...$(RESET)"; \
-		cd examples/javascript && npm install --silent && node test-client.js; \
-	fi
-	@# Test Elixir example
-	@if [ -f examples/elixir/test_client.exs ]; then \
-		echo "$(GREEN)Testing Elixir example...$(RESET)"; \
-		cd examples/elixir && elixir test_client.exs; \
-	fi
+	@# Test Shell/curl example
+	@echo "$(GREEN)Testing Shell/curl example...$(RESET)"
+	@bash examples/shell/test-endpoints.sh
 	@# Cleanup
 	$(CONTAINER_RUNTIME) stop test-mock-pve && $(CONTAINER_RUNTIME) rm test-mock-pve
-	@echo "$(GREEN)All examples tested successfully!$(RESET)"
+	@echo "$(GREEN)Shell example tested successfully!$(RESET)"
 
 test-integration: container-build ## Run integration tests against container
 	@echo "$(BLUE)Running integration tests...$(RESET)"

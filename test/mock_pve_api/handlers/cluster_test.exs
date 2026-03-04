@@ -68,7 +68,11 @@ defmodule MockPveApi.Handlers.ClusterTest do
 
       assert conn.status == 200
       body = Jason.decode!(conn.resp_body)
-      assert length(body["data"]) == 2
+      # 1 cluster entry + 2 nodes
+      assert length(body["data"]) == 3
+      types = Enum.map(body["data"], & &1["type"])
+      assert "cluster" in types
+      assert Enum.count(types, &(&1 == "node")) == 2
     end
   end
 

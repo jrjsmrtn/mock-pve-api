@@ -1877,6 +1877,15 @@ defmodule MockPveApi.State do
 
   # Cluster management callbacks
   def handle_call(:get_cluster_status, _from, state) do
+    cluster_entry = %{
+      type: "cluster",
+      name: Map.get(state.cluster_config, :name, "pvecluster"),
+      id: "cluster",
+      nodes: map_size(state.nodes),
+      quorate: 1,
+      version: 2
+    }
+
     cluster_nodes =
       state.nodes
       |> Enum.map(fn {node_name, node_data} ->
@@ -1884,13 +1893,14 @@ defmodule MockPveApi.State do
 
         Map.merge(node_data, %{
           type: "node",
+          name: node_name,
           level: "",
           nodeid: Map.get(cluster_node, :nodeid, 1),
           local: node_name == "pve-node1"
         })
       end)
 
-    {:reply, cluster_nodes, state}
+    {:reply, [cluster_entry | cluster_nodes], state}
   end
 
   def handle_call({:join_cluster, hostname, nodeid, votes}, _from, state) do
