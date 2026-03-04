@@ -447,6 +447,19 @@ defmodule MockPveApi.Handlers.MetricsTest do
   end
 
   describe "cluster metrics export" do
+    setup do
+      original_version = Application.get_env(:mock_pve_api, :pve_version, "8.3")
+      Application.put_env(:mock_pve_api, :pve_version, "8.3")
+      MockPveApi.State.reset()
+
+      on_exit(fn ->
+        Application.put_env(:mock_pve_api, :pve_version, original_version)
+        MockPveApi.State.reset()
+      end)
+
+      :ok
+    end
+
     test "GET /cluster/metrics/export returns 200" do
       conn = request(:get, "/api2/json/cluster/metrics/export")
       json(conn, 200)
