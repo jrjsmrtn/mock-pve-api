@@ -49,11 +49,11 @@ jobs:
             ${{ runner.os }}-mix-${{ matrix.elixir }}-${{ matrix.otp }}-
       
       - name: Install dependencies
-        run: mix deps.get
-      
+        run: mix deps.get && mix deps.compile
+
       - name: Check formatting
         run: mix format --check-formatted
-      
+
       - name: Compile with warnings as errors
         run: mix compile --force --warnings-as-errors
       
