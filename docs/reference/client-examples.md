@@ -43,11 +43,8 @@ pip install proxmoxer requests
 
 **Usage:**
 ```bash
-# Requires SSL-enabled mock server (proxmoxer uses HTTPS):
-MOCK_PVE_SSL_ENABLED=true \
-  MOCK_PVE_SSL_KEYFILE=certs/server.key \
-  MOCK_PVE_SSL_CERTFILE=certs/server.crt \
-  mix run --no-halt
+# Start mock server (HTTPS by default, certs auto-generated)
+mix run --no-halt
 
 # Run the test
 python3 examples/proxmoxer/test_proxmoxer.py
@@ -86,11 +83,8 @@ make test-examples
 
 ### Manual Testing
 ```bash
-# Start mock server with SSL
-MOCK_PVE_SSL_ENABLED=true \
-  MOCK_PVE_SSL_KEYFILE=certs/server.key \
-  MOCK_PVE_SSL_CERTFILE=certs/server.crt \
-  mix run --no-halt
+# Start mock server (HTTPS by default, certs auto-generated)
+mix run --no-halt
 
 # Test proxmoxer
 python3 examples/proxmoxer/test_proxmoxer.py

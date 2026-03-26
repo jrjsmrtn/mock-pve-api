@@ -11,31 +11,20 @@ This directory contains example scripts demonstrating how to use the Mock PVE AP
 
 ## Quick Start
 
-### Shell (HTTP)
-
 ```bash
-# Start mock server
+# Start mock server (HTTPS by default, like real PVE)
 mix run --no-halt
 
-# Run the example
+# Run the shell example
 ./examples/shell/test-endpoints.sh
-```
 
-### Proxmoxer (HTTPS required)
-
-```bash
-# Install proxmoxer
-pip install proxmoxer requests
-
-# Start mock server with SSL (proxmoxer uses HTTPS)
-MOCK_PVE_SSL_ENABLED=true \
-  MOCK_PVE_SSL_KEYFILE=certs/server.key \
-  MOCK_PVE_SSL_CERTFILE=certs/server.crt \
-  mix run --no-halt
-
-# Run the test
+# Run the proxmoxer test (requires: pip install proxmoxer requests)
 python3 examples/proxmoxer/test_proxmoxer.py
 ```
+
+Self-signed TLS certificates are auto-generated on first startup if none exist.
+
+To use HTTP instead: `MOCK_PVE_SSL_ENABLED=false mix run --no-halt`
 
 ## Configuration
 

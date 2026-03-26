@@ -270,10 +270,10 @@ MOCK_PVE_VERSION=8.3          # PVE version to simulate (7.0-9.0)
 MOCK_PVE_PORT=8006            # Server port
 MOCK_PVE_HOST=0.0.0.0         # Bind address
 
-# SSL/TLS configuration
-MOCK_PVE_SSL_ENABLED=false    # Enable SSL/TLS (default: false)
-MOCK_PVE_SSL_KEYFILE=certs/server.key    # SSL private key file
-MOCK_PVE_SSL_CERTFILE=certs/server.crt   # SSL certificate file
+# SSL/TLS configuration (HTTPS is default, matching real PVE API)
+MOCK_PVE_SSL_ENABLED=true     # HTTPS enabled by default; set "false" for HTTP
+MOCK_PVE_SSL_KEYFILE=certs/server.key    # SSL private key (auto-generated if missing)
+MOCK_PVE_SSL_CERTFILE=certs/server.crt   # SSL certificate (auto-generated if missing)
 MOCK_PVE_SSL_CACERTFILE=      # Optional CA certificate file
 
 # Feature toggles
@@ -605,26 +605,20 @@ services:
 
 ### **SSL/TLS Configuration**
 ```bash
-# Generate self-signed certificates
-./scripts/generate-certs.sh
-
-# Start with HTTPS enabled
-export MOCK_PVE_SSL_ENABLED=true
-export MOCK_PVE_SSL_KEYFILE=certs/server.key
-export MOCK_PVE_SSL_CERTFILE=certs/server.crt
+# HTTPS is the default (matching real PVE API).
+# Self-signed certificates are auto-generated on first startup if none exist.
 mix run --no-halt
 
-# Test HTTPS connection (note -k flag for self-signed certs)
+# Test HTTPS connection (-k flag for self-signed certs)
 curl -k https://localhost:8006/api2/json/version
 
-# Container with SSL enabled
-podman run -d --name mock-pve-ssl \
-  -p 8006:8006 \
-  -v $(pwd)/certs:/app/certs:ro \
-  -e MOCK_PVE_SSL_ENABLED=true \
-  -e MOCK_PVE_SSL_KEYFILE=certs/server.key \
-  -e MOCK_PVE_SSL_CERTFILE=certs/server.crt \
-  ghcr.io/jrjsmrtn/mock-pve-api:latest
+# To use HTTP instead (e.g. for simple debugging):
+MOCK_PVE_SSL_ENABLED=false mix run --no-halt
+
+# Custom certificates (optional)
+export MOCK_PVE_SSL_KEYFILE=/path/to/custom.key
+export MOCK_PVE_SSL_CERTFILE=/path/to/custom.crt
+mix run --no-halt
 ```
 
 ### **Local Development**
@@ -644,10 +638,10 @@ docker run -d --name mock-pve \
   -e MOCK_PVE_LOG_LEVEL=debug \
   jrjsmrtn/mock-pve-api:latest
 
-# Test your client (HTTP mode - default)
+# Test your client (HTTPS with self-signed certs)
 export PVE_HOST=localhost
 export PVE_PORT=8006
-export PVE_VERIFY_SSL=false  # Disable SSL verification for testing
+export PVE_VERIFY_SSL=false  # Disable SSL verification for self-signed certs
 python your_pve_client.py
 ```
 

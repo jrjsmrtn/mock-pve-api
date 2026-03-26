@@ -9,6 +9,8 @@ config :mock_pve_api,
   port: 8007,
   host: "127.0.0.1",
   pve_version: "8.3",
+  # Tests use HTTP for speed (no TLS handshake overhead)
+  ssl_enabled: false,
   # No delays in tests
   response_delay_ms: 0,
   # No simulated errors in tests

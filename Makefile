@@ -243,10 +243,9 @@ validate: arch-validate lint typecheck test ## Run all validation checks
 	@echo "$(GREEN)All validation checks passed!$(RESET)"
 
 ## Testing Commands
-test-examples: ## Test example scripts against a local dev server
+test-examples: ## Test example scripts against a local dev server (HTTPS default)
 	@echo "$(BLUE)Starting mock server for example testing...$(RESET)"
-	@MOCK_PVE_SSL_ENABLED=true MOCK_PVE_SSL_KEYFILE=certs/server.key MOCK_PVE_SSL_CERTFILE=certs/server.crt \
-		MIX_ENV=dev mix run --no-halt &
+	@MIX_ENV=dev mix run --no-halt &
 	@MOCK_PID=$$!; \
 	sleep 8; \
 	echo "$(GREEN)Testing Shell/curl example...$(RESET)"; \

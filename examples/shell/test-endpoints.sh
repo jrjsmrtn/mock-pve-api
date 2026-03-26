@@ -26,7 +26,8 @@ set -euo pipefail
 # Configuration
 PVE_HOST="${PVE_HOST:-localhost}"
 PVE_PORT="${PVE_PORT:-8006}"
-BASE_URL="http://${PVE_HOST}:${PVE_PORT}/api2/json"
+PVE_SCHEME="${PVE_SCHEME:-https}"
+BASE_URL="${PVE_SCHEME}://${PVE_HOST}:${PVE_PORT}/api2/json"
 TIMEOUT="${TIMEOUT:-10}"
 
 # Colors for output
@@ -73,6 +74,7 @@ api_request() {
         --silent
         --show-error
         --fail
+        --insecure
         --max-time "$TIMEOUT"
         --header "Content-Type: application/json"
         --header "Authorization: PVEAPIToken=root@pam!test=secret"
@@ -397,7 +399,7 @@ health_check() {
 test_connection() {
     log_info "Testing connection to $BASE_URL..."
     
-    if ! curl --silent --fail --max-time 5 --output /dev/null "$BASE_URL/version"; then
+    if ! curl --silent --fail --insecure --max-time 5 --output /dev/null "$BASE_URL/version"; then
         log_error "Could not connect to Mock PVE API Server"
         echo ""
         echo "Make sure the server is running:"

@@ -19,13 +19,22 @@ if version = System.get_env("MOCK_PVE_VERSION") do
   config :mock_pve_api, pve_version: version
 end
 
-# SSL/TLS configuration
-if System.get_env("MOCK_PVE_SSL_ENABLED") do
-  config :mock_pve_api,
-    ssl_enabled: System.get_env("MOCK_PVE_SSL_ENABLED") == "true",
-    ssl_keyfile: System.get_env("MOCK_PVE_SSL_KEYFILE", "certs/server.key"),
-    ssl_certfile: System.get_env("MOCK_PVE_SSL_CERTFILE", "certs/server.crt"),
-    ssl_cacertfile: System.get_env("MOCK_PVE_SSL_CACERTFILE")
+# SSL/TLS configuration — HTTPS is the default (matching real PVE API).
+# Set MOCK_PVE_SSL_ENABLED=false to use HTTP instead.
+if val = System.get_env("MOCK_PVE_SSL_ENABLED") do
+  config :mock_pve_api, ssl_enabled: val != "false"
+end
+
+if val = System.get_env("MOCK_PVE_SSL_KEYFILE") do
+  config :mock_pve_api, ssl_keyfile: val
+end
+
+if val = System.get_env("MOCK_PVE_SSL_CERTFILE") do
+  config :mock_pve_api, ssl_certfile: val
+end
+
+if val = System.get_env("MOCK_PVE_SSL_CACERTFILE") do
+  config :mock_pve_api, ssl_cacertfile: val
 end
 
 # Feature toggles - only override if explicitly set
