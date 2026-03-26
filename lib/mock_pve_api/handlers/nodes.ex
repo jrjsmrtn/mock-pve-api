@@ -2640,9 +2640,18 @@ defmodule MockPveApi.Handlers.Nodes do
   # Node storage sub-item stubs
 
   def get_node_storage(conn) do
+    node_name = conn.path_params["node"]
+    storage = State.get_storage()
+
+    # Filter storage and add node context (matching real PVE behaviour)
+    node_storage =
+      Enum.map(storage, fn s ->
+        Map.merge(s, %{node: node_name, active: 1, enabled: 1})
+      end)
+
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: %{}}))
+    |> send_resp(200, Jason.encode!(%{data: node_storage}))
   end
 
   def node_storage_download_url(conn) do

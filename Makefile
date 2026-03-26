@@ -243,17 +243,22 @@ validate: arch-validate lint typecheck test ## Run all validation checks
 	@echo "$(GREEN)All validation checks passed!$(RESET)"
 
 ## Testing Commands
-test-examples: container-build ## Test shell/curl example against mock server
-	@echo "$(BLUE)Testing shell example against mock server with $(CONTAINER_RUNTIME)...$(RESET)"
-	@# Start mock server in background
-	$(CONTAINER_RUNTIME) run -d --name test-mock-pve -p 8006:8006 $(IMAGE_NAME):latest
-	@sleep 3
-	@# Test Shell/curl example
-	@echo "$(GREEN)Testing Shell/curl example...$(RESET)"
-	@bash examples/shell/test-endpoints.sh
-	@# Cleanup
-	$(CONTAINER_RUNTIME) stop test-mock-pve && $(CONTAINER_RUNTIME) rm test-mock-pve
-	@echo "$(GREEN)Shell example tested successfully!$(RESET)"
+test-examples: ## Test example scripts against a local dev server
+	@echo "$(BLUE)Starting mock server for example testing...$(RESET)"
+	@MOCK_PVE_SSL_ENABLED=true MOCK_PVE_SSL_KEYFILE=certs/server.key MOCK_PVE_SSL_CERTFILE=certs/server.crt \
+		MIX_ENV=dev mix run --no-halt &
+	@MOCK_PID=$$!; \
+	sleep 8; \
+	echo "$(GREEN)Testing Shell/curl example...$(RESET)"; \
+	bash examples/shell/test-endpoints.sh; SHELL_RC=$$?; \
+	echo ""; \
+	echo "$(GREEN)Testing proxmoxer integration...$(RESET)"; \
+	python3 examples/proxmoxer/test_proxmoxer.py; PROX_RC=$$?; \
+	kill $$MOCK_PID 2>/dev/null; \
+	if [ $$SHELL_RC -ne 0 ] || [ $$PROX_RC -ne 0 ]; then \
+		echo "$(RED)Some example tests failed$(RESET)"; exit 1; \
+	fi; \
+	echo "$(GREEN)All example tests passed!$(RESET)"
 
 test-integration: container-build ## Run integration tests against container
 	@echo "$(BLUE)Running integration tests...$(RESET)"

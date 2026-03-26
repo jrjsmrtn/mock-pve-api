@@ -1268,6 +1268,10 @@ defmodule MockPveApi.Router do
     Nodes.create_backup(conn)
   end
 
+  get "/api2/json/nodes/:node/storage" do
+    Nodes.get_node_storage(conn)
+  end
+
   get "/api2/json/nodes/:node/storage/:storage/backup" do
     Nodes.list_backup_files(conn)
   end
