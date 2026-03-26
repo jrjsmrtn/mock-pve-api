@@ -39,14 +39,14 @@ defmodule Mix.Tasks.MockPve.Gen.EndpointMatrix do
     unless Code.ensure_loaded?(PveOpenapi.VersionMatrix) do
       Mix.raise("""
       pve-openapi is not available. Ensure:
-        1. {:pve_openapi, path: "../pve-openapi"} is in your deps
+        1. {:pve_openapi, github: "jrjsmrtn/pve-openapi"} is in your deps
         2. You ran `mix deps.get`
         3. Specs exist: run `make setup` in pve-openapi first
       """)
     end
 
     pve_openapi_version = pve_openapi_version()
-    versions = PveOpenapi.versions()
+    versions = apply(PveOpenapi, :versions, [])
 
     if Enum.empty?(versions) do
       Mix.raise("No PVE versions found. Run `make setup` in pve-openapi first.")
@@ -79,7 +79,7 @@ defmodule Mix.Tasks.MockPve.Gen.EndpointMatrix do
     matrix =
       for version <- versions, into: %{} do
         endpoints =
-          PveOpenapi.VersionMatrix.endpoints_for_version(version)
+          apply(PveOpenapi.VersionMatrix, :endpoints_for_version, [version])
           |> MapSet.new(fn {path, method} -> {@api_prefix <> path, method} end)
 
         {version, endpoints}
