@@ -37,6 +37,7 @@ defmodule MockPveApi.Coverage do
           | :backup
           | :hardware
           | :firewall
+          | :notifications
 
   @type http_method() :: :get | :post | :put | :delete | :patch
 
@@ -88,7 +89,8 @@ defmodule MockPveApi.Coverage do
     MockPveApi.Coverage.Monitoring,
     MockPveApi.Coverage.Backup,
     MockPveApi.Coverage.Hardware,
-    MockPveApi.Coverage.Firewall
+    MockPveApi.Coverage.Firewall,
+    MockPveApi.Coverage.Notifications
   ]
 
   # Build the coverage matrix at compile time from sub-modules.
@@ -127,9 +129,12 @@ defmodule MockPveApi.Coverage do
   def get_endpoint_info(endpoint_path) do
     @coverage_matrix
     |> Enum.flat_map(fn {_category, endpoints} -> Map.to_list(endpoints) end)
-    |> Enum.find_value(fn {pattern, info} ->
-      if matches_pattern?(endpoint_path, pattern), do: info
-    end)
+    |> Enum.filter(fn {pattern, _info} -> matches_pattern?(endpoint_path, pattern) end)
+    |> Enum.min_by(fn {pattern, _info} -> param_count(pattern) end, fn -> nil end)
+    |> case do
+      nil -> nil
+      {_pattern, info} -> info
+    end
   end
 
   @doc """
@@ -281,5 +286,10 @@ defmodule MockPveApi.Coverage do
       regex_str = Regex.replace(~r/\{[^}]+\}/, pattern, "[^/]+")
       Regex.match?(~r/^#{regex_str}$/, endpoint_path)
     end
+  end
+
+  # Count parameter placeholders — fewer params = more specific pattern
+  defp param_count(pattern) do
+    pattern |> String.split("{") |> length() |> Kernel.-(1)
   end
 end

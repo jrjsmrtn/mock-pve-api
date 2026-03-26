@@ -12,7 +12,7 @@
 #
 # Usage:
 #   # Start mock server first
-#   podman run -d -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+#   podman run -d -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
 #   
 #   # Run this script
 #   ./test-endpoints.sh
@@ -26,7 +26,8 @@ set -euo pipefail
 # Configuration
 PVE_HOST="${PVE_HOST:-localhost}"
 PVE_PORT="${PVE_PORT:-8006}"
-BASE_URL="http://${PVE_HOST}:${PVE_PORT}/api2/json"
+PVE_SCHEME="${PVE_SCHEME:-https}"
+BASE_URL="${PVE_SCHEME}://${PVE_HOST}:${PVE_PORT}/api2/json"
 TIMEOUT="${TIMEOUT:-10}"
 
 # Colors for output
@@ -73,8 +74,10 @@ api_request() {
         --silent
         --show-error
         --fail
+        --insecure
         --max-time "$TIMEOUT"
         --header "Content-Type: application/json"
+        --header "Authorization: PVEAPIToken=root@pam!test=secret"
     )
     
     if [[ "$method" == "POST" && -n "$data" ]]; then
@@ -133,8 +136,6 @@ test_version_info() {
     
     # Store version for later tests
     export PVE_VERSION="$version"
-    
-    echo "$response"
 }
 
 # Test cluster status
@@ -164,8 +165,6 @@ test_cluster_status() {
     else
         log_success "Cluster status retrieved (jq required for detailed parsing)"
     fi
-    
-    echo "$response"
 }
 
 # Test nodes list
@@ -190,8 +189,6 @@ test_nodes_list() {
     else
         log_success "Nodes list retrieved"
     fi
-    
-    echo "$response"
 }
 
 # Test cluster resources
@@ -246,13 +243,11 @@ test_cluster_resources() {
     else
         log_success "Cluster resources retrieved"
     fi
-    
-    echo "$response"
 }
 
 # Test storage content
 test_storage_content() {
-    local node="${1:-pve-node-1}"
+    local node="${1:-pve-node1}"
     local storage="${2:-local}"
     
     log_info "Testing storage content for $storage on $node..."
@@ -277,8 +272,6 @@ test_storage_content() {
     else
         log_success "Storage content retrieved"
     fi
-    
-    echo "$response"
 }
 
 # Test resource pools
@@ -304,8 +297,6 @@ test_resource_pools() {
     else
         log_success "Resource pools retrieved"
     fi
-    
-    echo "$response"
 }
 
 # Test version-specific features
@@ -408,11 +399,11 @@ health_check() {
 test_connection() {
     log_info "Testing connection to $BASE_URL..."
     
-    if ! curl --silent --fail --max-time 5 --output /dev/null "$BASE_URL/version"; then
+    if ! curl --silent --fail --insecure --max-time 5 --output /dev/null "$BASE_URL/version"; then
         log_error "Could not connect to Mock PVE API Server"
         echo ""
         echo "Make sure the server is running:"
-        echo "  podman run -d -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest"
+        echo "  podman run -d -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest"
         echo ""
         echo "Or check if it's running on a different port:"
         echo "  podman ps | grep mock-pve-api"
@@ -446,37 +437,33 @@ main() {
     
     echo ""
     
-    # Store responses for potential debugging
-    local version_response
-    
     # Run all tests
-    if version_response=$(test_version_info); then
-        local version
-        version=$(extract_json_value "$version_response" ".data.version")
-        
-        echo ""
-        test_cluster_status >/dev/null
-        echo ""
-        test_nodes_list >/dev/null
-        echo ""
-        test_cluster_resources >/dev/null
-        echo ""
-        test_storage_content >/dev/null
-        echo ""
-        test_resource_pools >/dev/null
-        echo ""
-        test_version_specific_features "$version"
-        
-        echo ""
-        echo "=========================================="
-        echo -e "${GREEN}🎉 All tests completed successfully!${NC}"
-        echo ""
-        echo "Mock PVE API Server is working correctly."
-        
-    else
-        log_error "Version test failed, cannot continue"
-        exit 1
+    test_version_info || { log_error "Version test failed, cannot continue"; exit 1; }
+
+    # Get version string separately for decision-making
+    local version="8.3"
+    if has_jq; then
+        version=$(api_request "version" | jq -r '.data.version // "8.3"')
     fi
+
+    echo ""
+    test_cluster_status
+    echo ""
+    test_nodes_list
+    echo ""
+    test_cluster_resources
+    echo ""
+    test_storage_content
+    echo ""
+    test_resource_pools
+    echo ""
+    test_version_specific_features "$version"
+
+    echo ""
+    echo "=========================================="
+    echo -e "${GREEN}🎉 All tests completed successfully!${NC}"
+    echo ""
+    echo "Mock PVE API Server is working correctly."
 }
 
 # Check dependencies

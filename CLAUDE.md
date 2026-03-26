@@ -12,7 +12,7 @@
 - Cross-language client library testing
 - Development environment provisioning
 
-**Current Status:** 0.4.9 (Consumer-Driven API Coverage Expansion)
+**Current Status:** 0.4.10 (Consumer-Driven API Coverage Expansion)
 **Supported PVE Versions:** 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 9.0
 **Target Elixir Version:** 1.15+
 **Target OTP Version:** 26+
@@ -270,10 +270,10 @@ MOCK_PVE_VERSION=8.3          # PVE version to simulate (7.0-9.0)
 MOCK_PVE_PORT=8006            # Server port
 MOCK_PVE_HOST=0.0.0.0         # Bind address
 
-# SSL/TLS configuration
-MOCK_PVE_SSL_ENABLED=false    # Enable SSL/TLS (default: false)
-MOCK_PVE_SSL_KEYFILE=certs/server.key    # SSL private key file
-MOCK_PVE_SSL_CERTFILE=certs/server.crt   # SSL certificate file
+# SSL/TLS configuration (HTTPS is default, matching real PVE API)
+MOCK_PVE_SSL_ENABLED=true     # HTTPS enabled by default; set "false" for HTTP
+MOCK_PVE_SSL_KEYFILE=certs/server.key    # SSL private key (auto-generated if missing)
+MOCK_PVE_SSL_CERTFILE=certs/server.crt   # SSL certificate (auto-generated if missing)
 MOCK_PVE_SSL_CACERTFILE=      # Optional CA certificate file
 
 # Feature toggles
@@ -463,8 +463,8 @@ config :mock_pve_api,
 - [x] **Code Quality**: Dependency upgrades, ADR formatting aligned with pvex-suite convention, broken cross-references fixed
 - [x] **Dead Code Removal**: -150 lines of redundant version gating code
 
-### **Phase 4.9: Consumer-Driven API Coverage Expansion (v0.4.9+)** 🎯 **IN PROGRESS**
-Closing highest-impact coverage gaps based on pvex usage patterns. Target: 71 -> ~138 endpoints.
+### **Phase 4.9: Consumer-Driven API Coverage Expansion (v0.4.9–v0.4.19)** ✅
+Closed highest-impact coverage gaps based on pvex usage patterns. Achieved 220/220 endpoints (100% coverage).
 
 #### Sprint 4.9.1: VM & Container Snapshots (v0.4.9) ✅
 - [x] Snapshot state management with parent chain tracking
@@ -473,48 +473,53 @@ Closing highest-impact coverage gaps based on pvex usage patterns. Target: 71 ->
 - [x] 14 new routes, 8 new endpoint paths, 23 new tests
 - [x] **78 implemented endpoints** (71 -> 78)
 
-#### Sprint 4.9.2: HA Resources & Backup Jobs (planned)
-- [ ] HA resources, groups, affinity CRUD
-- [ ] Backup job CRUD, included_volumes, not-backed-up
-- [ ] Cluster options
+#### Sprint 4.9.2: HA Resources & Backup Jobs ✅
+- [x] HA resources, groups, affinity CRUD
+- [x] Backup job CRUD, included_volumes, not-backed-up
+- [x] Cluster options
 
-#### Sprint 4.9.3: Access Control & SDN Completion (planned)
-- [ ] Roles CRUD, domains CRUD, password, ACL
-- [ ] SDN vnets/subnets/controllers CRUD, zones POST
+#### Sprint 4.9.3: Access Control & SDN Completion ✅
+- [x] Roles CRUD, domains CRUD, password, ACL
+- [x] SDN vnets/subnets/controllers CRUD, zones POST
 
-#### Sprint 4.9.4: Storage & Node Advanced (planned)
-- [ ] Cluster-level storage CRUD, volume operations
-- [ ] Node DNS, APT, network interfaces, disks, config
+#### Sprint 4.9.4: Storage & Node Advanced ✅
+- [x] Cluster-level storage CRUD, volume operations
+- [x] Node DNS, APT, network interfaces, disks, config
 
-#### Sprint 4.9.5: Restore, Monitoring & Misc (planned)
-- [ ] Backup restore, vzdump extractconfig
-- [ ] VM/container RRD data, pending config, disk resize
-- [ ] Cluster replication
+#### Sprint 4.9.5: Restore, Monitoring & Misc ✅
+- [x] Backup restore, vzdump extractconfig
+- [x] VM/container RRD data, pending config, disk resize
+- [x] Cluster replication
 
-#### Sprint 4.9.6: Cluster & Node Firewall (planned)
-- [ ] Cluster firewall: options, rules, groups, aliases, ipsets
-- [ ] Node firewall: options, rules
+#### Sprint 4.9.6: Cluster & Node Firewall ✅
+- [x] Cluster firewall: options, rules, groups, aliases, ipsets
+- [x] Node firewall: options, rules
+- [x] VM/container firewall: options, rules, aliases, ipsets (beyond original plan)
 
-### **Phase 5: Container Distribution (v0.5.0)**
-- [ ] Automated multi-arch builds (amd64, arm64)
-- [ ] Semantic versioning tags synchronized with git releases
-- [ ] Container security scanning and vulnerability assessment
-- [ ] Signed container image provenance
-- [ ] Release v0.4.8 as stable production image
-- [ ] Update container registry documentation
+### **Phase 5: Container Distribution (v0.5.0)** ✅
+- [x] **Multi-arch builds**: CI builds `linux/amd64` + `linux/arm64` via Docker Buildx
+- [x] **Semantic version tags**: `docker/metadata-action` generates semver, major, major.minor, and `latest` tags
+- [x] **Container security scanning**: Syft SBOM generation + Grype vulnerability scanning in CI
+- [x] **Signed image provenance**: cosign keyless signing + BuildKit SLSA provenance/SBOM attestations
+- [x] **HTTPS default in container**: matches real PVE API; auto-generated self-signed certs
+- [x] **Registry consolidation**: all references migrated from `docker.io` to `ghcr.io/jrjsmrtn/mock-pve-api`
+- [x] **Dockerfile modernized**: Alpine 3.22, Elixir 1.17, non-root user, HTTPS healthcheck
+- [x] **Makefile fixed**: correct build paths (`docker/Dockerfile`), `ghcr.io` registry, runtime detection, port collision fix
+- [x] **Compose updated**: HTTPS healthchecks, correct Dockerfile paths
 
-### **Phase 5.1: Simulation Features (v0.5.1)**
-- [ ] **Implement feature toggle env vars**: Wire `MOCK_PVE_ENABLE_SDN`, `MOCK_PVE_ENABLE_FIREWALL`, `MOCK_PVE_ENABLE_BACKUP_PROVIDERS` to router/handlers so they actually enable/disable endpoint groups at runtime
-- [ ] **Implement response delay**: Read `MOCK_PVE_DELAY` (configured in runtime.exs) and apply as `Process.sleep/1` in the router plug pipeline
-- [ ] **Implement error injection**: Read `MOCK_PVE_ERROR_RATE` and randomly return 500 errors at the configured percentage
-- [ ] **Firewall endpoint stubs**: Add `MockPveApi.Handlers.Firewall` with cluster-level, node-level, and VM/container-level firewall endpoints matching the real PVE API (mirrors `Pvex.Resources.Firewall`)
-- [ ] Tests for all new features
+### **Phase 5.1: Simulation Features (v0.4.20)** ✅
+- [x] **Implement feature toggle env vars**: Wire `MOCK_PVE_ENABLE_SDN`, `MOCK_PVE_ENABLE_FIREWALL`, `MOCK_PVE_ENABLE_BACKUP_PROVIDERS` to router/handlers so they actually enable/disable endpoint groups at runtime
+- [x] **Implement response delay**: Read `MOCK_PVE_DELAY` (configured in runtime.exs) and apply as `Process.sleep/1` in the router plug pipeline
+- [x] **Implement error injection**: Read `MOCK_PVE_ERROR_RATE` and randomly return 500 errors at the configured percentage
+- [x] **Firewall endpoints**: Full `MockPveApi.Handlers.Firewall` with cluster-level, node-level, and VM/container-level firewall endpoints (completed in Phase 4.9.6)
+- [x] Tests for all new features
 
-### **Phase 5.2: Client Validation & Cross-Language Testing (v0.5.2)**
-- [ ] **Validate example scripts**: Run each script in `examples/` (Python, JavaScript, Go, Ruby, Shell, Elixir) against a live mock-pve-api instance, fix any failures
-- [ ] **proxmoxer integration test**: Install the [proxmoxer](https://github.com/proxmoxer/proxmoxer) Python library and run its standard operations (auth, list nodes, list VMs, create/delete VM, storage listing) against mock-pve-api; document gaps and fix mock responses as needed
-- [ ] **Automated example testing**: Add a `make test-examples` target that starts mock-pve-api, runs all example scripts, and reports results
-- [ ] **Document compatibility**: Update README and docs with verified client library compatibility matrix
+### **Phase 5.2: Client Validation & Cross-Language Testing (v0.4.21)** ✅
+- [x] **Validate shell example**: Shell script validated against live mock-pve-api instance; non-shell examples dropped
+- [x] **proxmoxer integration test**: proxmoxer 2.3.0 validated — 37/38 pass (1 expected skip for version gating); ticket auth, API token auth, VM lifecycle, storage, pools, access, HA, firewall, SDN, notifications all working
+- [x] **Bug fix: missing route**: Added `GET /nodes/{node}/storage` route and improved handler to return node-contextualised storage list (was returning 500)
+- [x] **Automated example testing**: `make test-examples` starts SSL-enabled dev server, runs shell + proxmoxer tests, reports results
+- [x] **Document compatibility**: Updated `docs/reference/client-examples.md` and `examples/README.md` with verified compatibility matrix (proxmoxer 2.3.0, curl)
 
 ### **Phase 6: Advanced Features (v0.6.0)**
 - [ ] WebSocket support for console/VNC simulation
@@ -603,26 +608,20 @@ services:
 
 ### **SSL/TLS Configuration**
 ```bash
-# Generate self-signed certificates
-./scripts/generate-certs.sh
-
-# Start with HTTPS enabled
-export MOCK_PVE_SSL_ENABLED=true
-export MOCK_PVE_SSL_KEYFILE=certs/server.key
-export MOCK_PVE_SSL_CERTFILE=certs/server.crt
+# HTTPS is the default (matching real PVE API).
+# Self-signed certificates are auto-generated on first startup if none exist.
 mix run --no-halt
 
-# Test HTTPS connection (note -k flag for self-signed certs)
+# Test HTTPS connection (-k flag for self-signed certs)
 curl -k https://localhost:8006/api2/json/version
 
-# Container with SSL enabled
-podman run -d --name mock-pve-ssl \
-  -p 8006:8006 \
-  -v $(pwd)/certs:/app/certs:ro \
-  -e MOCK_PVE_SSL_ENABLED=true \
-  -e MOCK_PVE_SSL_KEYFILE=certs/server.key \
-  -e MOCK_PVE_SSL_CERTFILE=certs/server.crt \
-  ghcr.io/jrjsmrtn/mock-pve-api:latest
+# To use HTTP instead (e.g. for simple debugging):
+MOCK_PVE_SSL_ENABLED=false mix run --no-halt
+
+# Custom certificates (optional)
+export MOCK_PVE_SSL_KEYFILE=/path/to/custom.key
+export MOCK_PVE_SSL_CERTFILE=/path/to/custom.crt
+mix run --no-halt
 ```
 
 ### **Local Development**
@@ -642,10 +641,10 @@ docker run -d --name mock-pve \
   -e MOCK_PVE_LOG_LEVEL=debug \
   jrjsmrtn/mock-pve-api:latest
 
-# Test your client (HTTP mode - default)
+# Test your client (HTTPS with self-signed certs)
 export PVE_HOST=localhost
 export PVE_PORT=8006
-export PVE_VERIFY_SSL=false  # Disable SSL verification for testing
+export PVE_VERIFY_SSL=false  # Disable SSL verification for self-signed certs
 python your_pve_client.py
 ```
 

@@ -510,8 +510,10 @@ defmodule MockPveApi.StateTest do
   describe "cluster operations" do
     test "gets cluster status" do
       status = State.get_cluster_status()
-      assert length(status) == 2
-      assert Enum.all?(status, &(&1.type == "node"))
+      # 1 cluster entry + 2 nodes
+      assert length(status) == 3
+      assert Enum.any?(status, &(&1.type == "cluster"))
+      assert Enum.count(status, &(&1.type == "node")) == 2
     end
 
     test "gets cluster config" do

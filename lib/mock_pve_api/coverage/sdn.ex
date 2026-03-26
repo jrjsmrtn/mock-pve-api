@@ -6,7 +6,7 @@ defmodule MockPveApi.Coverage.Sdn do
   PVE API coverage: Software Defined Networking (SDN) endpoints.
 
   Covers `/cluster/sdn/*` in the PVE API Viewer.
-  SDN is available in PVE 7.0+ (tech preview) and production-ready in PVE 8.0+.
+  SDN endpoints exist in the PVE API since 7.0 (tech preview), production-ready in 8.0+.
   """
 
   @behaviour MockPveApi.Coverage.Category
@@ -23,10 +23,10 @@ defmodule MockPveApi.Coverage.Sdn do
     %{
       "/api2/json/cluster/sdn" => %{
         path: "/api2/json/cluster/sdn",
-        methods: [:get],
+        methods: [:get, :put],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "SDN index",
         parameters: [],
         response_schema: %{data: :array},
@@ -40,7 +40,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Software Defined Networking zone management",
         parameters: [],
         response_schema: %{data: :array},
@@ -54,7 +54,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Individual SDN zone operations",
         parameters: [
           %{
@@ -77,7 +77,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Virtual network management",
         parameters: [],
         response_schema: %{data: :array},
@@ -91,7 +91,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Individual virtual network operations",
         parameters: [
           %{
@@ -114,7 +114,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Subnet management for a virtual network",
         parameters: [
           %{
@@ -137,7 +137,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Individual subnet operations",
         parameters: [
           %{
@@ -168,7 +168,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :post],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "SDN controller management",
         parameters: [],
         response_schema: %{data: :array},
@@ -182,7 +182,7 @@ defmodule MockPveApi.Coverage.Sdn do
         methods: [:get, :put, :delete],
         status: :implemented,
         priority: :medium,
-        since: "8.0",
+        since: "7.0",
         description: "Individual SDN controller operations",
         parameters: [
           %{
@@ -199,41 +199,183 @@ defmodule MockPveApi.Coverage.Sdn do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Sdn,
         notes: nil
-      }
+      },
+      "/api2/json/cluster/sdn/dns" => %{
+        path: "/api2/json/cluster/sdn/dns",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "SDN DNS plugin management",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/dns/{dns}" => %{
+        path: "/api2/json/cluster/sdn/dns/{dns}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "Individual SDN DNS plugin operations",
+        parameters: [
+          %{
+            name: "dns",
+            type: :string,
+            required: true,
+            description: "DNS plugin identifier",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/ipams" => %{
+        path: "/api2/json/cluster/sdn/ipams",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "SDN IPAM plugin management",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/ipams/{ipam}" => %{
+        path: "/api2/json/cluster/sdn/ipams/{ipam}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "Individual SDN IPAM plugin operations",
+        parameters: [
+          %{
+            name: "ipam",
+            type: :string,
+            required: true,
+            description: "IPAM identifier",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Sdn,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/vnets/{vnet}/firewall" => %{
+        path: "/api2/json/cluster/sdn/vnets/{vnet}/firewall",
+        methods: [:get],
+        status: :implemented,
+        priority: :low,
+        since: "8.3",
+        description: "SDN vnet firewall index",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Firewall,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/vnets/{vnet}/firewall/options" => %{
+        path: "/api2/json/cluster/sdn/vnets/{vnet}/firewall/options",
+        methods: [:get, :put],
+        status: :implemented,
+        priority: :low,
+        since: "8.3",
+        description: "SDN vnet firewall options",
+        parameters: [],
+        response_schema: %{data: :object},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Firewall,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/vnets/{vnet}/firewall/rules" => %{
+        path: "/api2/json/cluster/sdn/vnets/{vnet}/firewall/rules",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :low,
+        since: "8.3",
+        description: "SDN vnet firewall rules list and create",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Firewall,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/vnets/{vnet}/firewall/rules/{pos}" => %{
+        path: "/api2/json/cluster/sdn/vnets/{vnet}/firewall/rules/{pos}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "8.3",
+        description: "SDN vnet firewall rule CRUD",
+        parameters: [],
+        response_schema: %{data: :object},
+        capabilities_required: [:sdn_tech_preview],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Firewall,
+        notes: nil
+      },
+      "/api2/json/cluster/sdn/fabrics" => implemented(:get, :low, "9.0", "List all SDN fabrics"),
+      "/api2/json/cluster/sdn/fabrics/all" =>
+        implemented(:get, :low, "9.0", "Get all SDN fabric info"),
+      "/api2/json/cluster/sdn/fabrics/fabric" =>
+        implemented(:get_post, :low, "9.0", "List and create SDN fabrics"),
+      "/api2/json/cluster/sdn/fabrics/fabric/{id}" =>
+        implemented(:get_put_delete, :low, "9.0", "SDN fabric CRUD"),
+      "/api2/json/cluster/sdn/fabrics/node" =>
+        implemented(:get, :low, "9.0", "List SDN fabric nodes"),
+      "/api2/json/cluster/sdn/fabrics/node/{fabric_id}" =>
+        implemented(:get_post, :low, "9.0", "List and add nodes to fabric"),
+      "/api2/json/cluster/sdn/fabrics/node/{fabric_id}/{node_id}" =>
+        implemented(:get_put_delete, :low, "9.0", "SDN fabric node CRUD"),
+      "/api2/json/cluster/sdn/lock" =>
+        implemented(:post_delete, :low, "9.0", "Lock or unlock SDN config"),
+      "/api2/json/cluster/sdn/rollback" =>
+        implemented(:post, :low, "9.0", "Rollback uncommitted SDN changes"),
+      "/api2/json/cluster/sdn/ipams/{ipam}/status" =>
+        implemented(:get, :low, "8.0", "Get IPAM plugin status")
     }
   end
 
   defp planned_endpoints do
-    %{
-      "/api2/json/cluster/sdn/dns" =>
-        planned(:get_post, :low, "8.0", "SDN DNS plugin management"),
-      "/api2/json/cluster/sdn/dns/{dns}" =>
-        planned(:get_put_delete, :low, "8.0", "Individual SDN DNS plugin operations"),
-      "/api2/json/cluster/sdn/ipams" =>
-        planned(:get_post, :low, "8.0", "SDN IPAM plugin management"),
-      "/api2/json/cluster/sdn/ipams/{ipam}" =>
-        planned(:get_put_delete, :low, "8.0", "Individual SDN IPAM plugin operations")
-    }
+    %{}
   end
 
-  defp planned(methods_atom, priority, since, description) do
+  defp implemented(methods_atom, priority, since, description) do
     %{
       path: "",
       methods: methods_for(methods_atom),
-      status: :planned,
+      status: :implemented,
       priority: priority,
       since: since,
       description: description,
       parameters: [],
       response_schema: %{data: :object},
       capabilities_required: [:sdn_tech_preview],
-      test_coverage: false,
-      handler_module: nil,
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Cluster,
       notes: nil
     }
   end
 
   defp methods_for(:get), do: [:get]
+  defp methods_for(:post), do: [:post]
   defp methods_for(:get_post), do: [:get, :post]
   defp methods_for(:get_put_delete), do: [:get, :put, :delete]
+  defp methods_for(:post_delete), do: [:post, :delete]
 end

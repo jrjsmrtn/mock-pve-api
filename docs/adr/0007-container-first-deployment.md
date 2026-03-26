@@ -32,7 +32,7 @@ Chosen option: "**Option 1: Container-first with OCI registry distribution**", b
 
 ### Positive Consequences
 
-* **Instant Startup**: `podman run -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest`
+* **Instant Startup**: `podman run -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest`
 * **Perfect CI/CD Integration**: Native support in all major CI platforms
 * **Version Isolation**: Multiple PVE versions can run simultaneously
 * **Zero Dependencies**: No need to install Elixir/Erlang on host systems
@@ -104,13 +104,13 @@ Chosen option: "**Option 1: Container-first with OCI registry distribution**", b
 
 ### OCI Registry Distribution
 ```bash
-# Repository: docker.io/jrjsmrtn/mock-pve-api (Podman preferred)
+# Repository: ghcr.io/jrjsmrtn/mock-pve-api (Podman preferred)
 # Tags:
-podman pull docker.io/jrjsmrtn/mock-pve-api:latest    # Latest stable
-podman pull docker.io/jrjsmrtn/mock-pve-api:0.1.0     # Specific version
-podman pull docker.io/jrjsmrtn/mock-pve-api:pve7      # PVE 7.x compatible
-podman pull docker.io/jrjsmrtn/mock-pve-api:pve8      # PVE 8.x compatible  
-podman pull docker.io/jrjsmrtn/mock-pve-api:pve9      # PVE 9.x compatible
+podman pull ghcr.io/jrjsmrtn/mock-pve-api:latest    # Latest stable
+podman pull ghcr.io/jrjsmrtn/mock-pve-api:0.1.0     # Specific version
+podman pull ghcr.io/jrjsmrtn/mock-pve-api:pve7      # PVE 7.x compatible
+podman pull ghcr.io/jrjsmrtn/mock-pve-api:pve8      # PVE 8.x compatible  
+podman pull ghcr.io/jrjsmrtn/mock-pve-api:pve9      # PVE 9.x compatible
 ```
 
 ### Multi-Stage OCI Build
@@ -198,18 +198,18 @@ services:
 ### Quick Start
 ```bash
 # Simplest usage (Podman recommended)
-podman run -d -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -d -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # With specific PVE version
 podman run -d -p 8006:8006 \
   -e MOCK_PVE_VERSION=8.0 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # With custom configuration
 podman run -d -p 8006:8006 \
   -e MOCK_PVE_VERSION=8.3 \
   -e MOCK_PVE_LOG_LEVEL=debug \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 ### CI/CD Integration Examples
@@ -249,13 +249,13 @@ test:
 version: '3.8'
 services:
   mock-pve-7:
-    image: docker.io/jrjsmrtn/mock-pve-api:pve7
+    image: ghcr.io/jrjsmrtn/mock-pve-api:pve7
     ports: ["8007:8006"]
   mock-pve-8:  
-    image: docker.io/jrjsmrtn/mock-pve-api:pve8
+    image: ghcr.io/jrjsmrtn/mock-pve-api:pve8
     ports: ["8008:8006"]
   mock-pve-9:
-    image: docker.io/jrjsmrtn/mock-pve-api:pve9
+    image: ghcr.io/jrjsmrtn/mock-pve-api:pve9
     ports: ["8009:8006"]
 ```
 
@@ -264,12 +264,12 @@ services:
 # Development with volume mount (Podman preferred)
 podman run -d -p 8006:8006 \
   -v $(pwd)/test-state.json:/app/initial-state.json \
-  docker.io/jrjsmrtn/mock-pve-api:dev
+  ghcr.io/jrjsmrtn/mock-pve-api:dev
 
 # With debug logging
 podman run -d -p 8006:8006 \
   -e MOCK_PVE_LOG_LEVEL=debug \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 ## Distribution Pipeline
@@ -316,7 +316,7 @@ for version in 7.4 8.0 8.3 9.0; do
   podman run -d --name mock-pve-$version \
     -p $((8000 + ${version%%.*})):8006 \
     -e MOCK_PVE_VERSION=$version \
-    docker.io/jrjsmrtn/mock-pve-api:latest
+    ghcr.io/jrjsmrtn/mock-pve-api:latest
 done
 ```
 

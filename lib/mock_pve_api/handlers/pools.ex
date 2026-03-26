@@ -85,6 +85,36 @@ defmodule MockPveApi.Handlers.Pools do
   end
 
   @doc """
+  PUT /api2/json/pools
+  Updates a resource pool (poolid taken from body params).
+  """
+  def update_pool_by_params(conn) do
+    params = conn.body_params
+    poolid = Map.get(params, "poolid") || Map.get(conn.query_params, "poolid")
+
+    if poolid do
+      case State.update_pool(poolid, Map.delete(params, "poolid")) do
+        {:ok, pool} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: pool}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{poolid: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  @doc """
   PUT /api2/json/pools/:poolid
   Updates a resource pool configuration.
   """
@@ -102,6 +132,43 @@ defmodule MockPveApi.Handlers.Pools do
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  DELETE /api2/json/pools
+  Deletes a resource pool (poolid taken from body or query params).
+  """
+  def delete_pool_by_params(conn) do
+    poolid =
+      Map.get(conn.body_params, "poolid") || Map.get(conn.query_params, "poolid")
+
+    if poolid do
+      pools = State.get_pools()
+
+      case Enum.find(pools, fn pool -> pool.poolid == poolid end) do
+        nil ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(
+            404,
+            Jason.encode!(%{errors: %{message: "Pool '#{poolid}' not found"}})
+          )
+
+        _pool ->
+          State.delete_pool(poolid)
+
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: nil}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{poolid: "property is missing and it is not optional"}})
+      )
     end
   end
 

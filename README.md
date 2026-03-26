@@ -8,17 +8,6 @@
 
 A lightweight, containerized Mock Proxmox VE API Server for testing and development. Perfect for CI/CD pipelines, integration testing, and developing PVE client libraries without requiring actual Proxmox VE infrastructure.
 
-## Origin Story
-
-Born from the [**pvex**](https://github.com/jrjsmrtn/pvex) project during Sprint G, this mock server eliminated infrastructure dependencies for Elixir PVE client testing. Its success and broad ecosystem value led to extraction as a standalone project, now serving the entire Proxmox VE development community across all programming languages.
-
-**Battle-Tested Metrics from pvex Integration:**
-
-- ✅ **Test Reliability**: 100% pass rate across 560+ unit and integration tests
-- 🔄 **CI/CD Ready**: Zero infrastructure dependencies
-- 🎯 **Version Coverage**: Complete PVE 7.0-9.0 feature matrix
-- 🌍 **Multi-Language**: Example scripts for Python, JavaScript, Elixir, Go, Ruby, Shell
-
 ## Features
 
 - **Complete PVE Version Support**: Simulates PVE 7.0 through 9.0 with version-specific features

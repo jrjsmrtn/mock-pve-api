@@ -53,7 +53,7 @@ defmodule MockPveApi.Coverage.VMs do
       },
       "/api2/json/nodes/{node}/qemu/{vmid}" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}",
-        methods: [:get, :put, :delete],
+        methods: [:get, :delete],
         status: :implemented,
         priority: :critical,
         since: "6.0",
@@ -84,7 +84,7 @@ defmodule MockPveApi.Coverage.VMs do
       },
       "/api2/json/nodes/{node}/qemu/{vmid}/config" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}/config",
-        methods: [:get, :put],
+        methods: [:get, :put, :post],
         status: :implemented,
         priority: :high,
         since: "6.0",
@@ -113,6 +113,22 @@ defmodule MockPveApi.Coverage.VMs do
         handler_module: MockPveApi.Handlers.Nodes,
         notes: nil
       },
+      "/api2/json/nodes/{node}/qemu/{vmid}/status" =>
+        implemented(:get, :medium, "6.0", "VM status index"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/start" =>
+        implemented(:post, :high, "6.0", "Start VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/stop" =>
+        implemented(:post, :high, "6.0", "Stop VM (immediate)"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/reset" =>
+        implemented(:post, :medium, "6.0", "Reset VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/reboot" =>
+        implemented(:post, :medium, "6.0", "Reboot VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/shutdown" =>
+        implemented(:post, :medium, "6.0", "Shutdown VM (graceful)"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/resume" =>
+        implemented(:post, :medium, "6.0", "Resume suspended VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/status/suspend" =>
+        implemented(:post, :medium, "6.0", "Suspend VM"),
       "/api2/json/nodes/{node}/qemu/{vmid}/status/current" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}/status/current",
         methods: [:get],
@@ -224,7 +240,7 @@ defmodule MockPveApi.Coverage.VMs do
       },
       "/api2/json/nodes/{node}/qemu/{vmid}/migrate" => %{
         path: "/api2/json/nodes/{node}/qemu/{vmid}/migrate",
-        methods: [:post],
+        methods: [:get, :post],
         status: :implemented,
         priority: :high,
         since: "6.0",
@@ -462,44 +478,111 @@ defmodule MockPveApi.Coverage.VMs do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Nodes,
         notes: nil
-      }
+      },
+      "/api2/json/nodes/{node}/qemu/{vmid}/feature" =>
+        implemented(:get, :low, "6.0", "Check VM feature availability"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/template" =>
+        implemented(:post, :low, "6.0", "Convert VM to template"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent" =>
+        implemented(:get_post, :medium, "6.0", "QEMU guest agent info and commands"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/exec-status" =>
+        implemented(:get, :low, "7.0", "Get agent exec command exit code and output"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/file-read" =>
+        implemented(:get, :low, "7.0", "Read file from guest via agent"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-fsinfo" =>
+        implemented(:get, :low, "7.0", "Get guest filesystem info"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-host-name" =>
+        implemented(:get, :low, "7.0", "Get guest hostname"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-memory-block-info" =>
+        implemented(:get, :low, "7.0", "Get guest memory block info"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-memory-blocks" =>
+        implemented(:get, :low, "7.0", "Get guest memory blocks"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-osinfo" =>
+        implemented(:get, :low, "7.0", "Get guest OS information"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-time" =>
+        implemented(:get, :low, "7.0", "Get guest time"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-timezone" =>
+        implemented(:get, :low, "7.0", "Get guest timezone"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-users" =>
+        implemented(:get, :low, "7.0", "List logged-in guest users"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/get-vcpus" =>
+        implemented(:get, :low, "7.0", "Get guest vCPU info"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/info" =>
+        implemented(:get, :low, "7.0", "Get QEMU guest agent info"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/network-get-interfaces" =>
+        implemented(:get, :low, "7.0", "Get guest network interfaces"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/exec" =>
+        implemented(:post, :low, "7.0", "Execute command in guest"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/file-write" =>
+        implemented(:post, :low, "7.0", "Write file to guest via agent"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-freeze" =>
+        implemented(:post, :low, "7.0", "Freeze guest filesystems"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-status" =>
+        implemented(:post, :low, "7.0", "Get filesystem freeze status"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-thaw" =>
+        implemented(:post, :low, "7.0", "Thaw guest filesystems"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/fstrim" =>
+        implemented(:post, :low, "7.0", "Trim guest filesystems"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/ping" =>
+        implemented(:post, :low, "7.0", "Ping QEMU guest agent"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/set-user-password" =>
+        implemented(:post, :low, "7.0", "Set guest user password"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/shutdown" =>
+        implemented(:post, :low, "7.0", "Shutdown guest via agent"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-disk" =>
+        implemented(:post, :low, "7.0", "Suspend guest to disk"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-hybrid" =>
+        implemented(:post, :low, "7.0", "Hybrid guest suspend"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-ram" =>
+        implemented(:post, :low, "7.0", "Suspend guest to RAM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/cloudinit/dump" =>
+        implemented(:get, :low, "6.0", "Get cloud-init configuration dump"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/cloudinit" =>
+        implemented(:get_put, :low, "6.0", "Cloud-init configuration get/update"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/vncproxy" =>
+        implemented(:post, :low, "6.0", "Create VNC proxy for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/termproxy" =>
+        implemented(:post, :low, "6.0", "Create terminal proxy for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/spiceproxy" =>
+        implemented(:post, :low, "6.0", "Create SPICE proxy for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/vncwebsocket" =>
+        implemented(:get, :low, "6.0", "VNC WebSocket endpoint for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/mtunnel" =>
+        implemented(:post, :low, "7.0", "Create migration tunnel for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/mtunnelwebsocket" =>
+        implemented(:get, :low, "7.0", "Migration tunnel WebSocket for VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/remote_migrate" =>
+        implemented(:post, :medium, "7.0", "Migrate VM to remote cluster"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/monitor" =>
+        implemented(:post, :low, "6.0", "Send QEMU monitor command"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/unlink" =>
+        implemented(:put, :low, "6.0", "Unlink/delete disk images"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/move_disk" =>
+        implemented(:post, :medium, "6.0", "Move VM disk to different storage"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/sendkey" =>
+        implemented(:put, :low, "6.0", "Send key event to VM"),
+      "/api2/json/nodes/{node}/qemu/{vmid}/dbus-vmstate" =>
+        implemented(:post, :low, "8.0", "Add dbus-vmstate object")
     }
   end
 
   defp planned_endpoints do
-    %{
-      "/api2/json/nodes/{node}/qemu/{vmid}/feature" =>
-        planned(:get, :low, "6.0", "Check VM feature availability"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/agent" =>
-        planned(:post, :low, "6.0", "Execute QEMU guest agent commands"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/cloudinit/dump" =>
-        planned(:get, :low, "7.0", "Get cloud-init generated config"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/template" =>
-        planned(:post, :low, "6.0", "Convert VM to template"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/unlink" =>
-        planned(:put, :low, "6.0", "Unlink/delete disk images"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/move_disk" =>
-        planned(:post, :medium, "6.0", "Move VM disk to different storage"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/sendkey" =>
-        planned(:put, :low, "6.0", "Send key event to VM"),
-      "/api2/json/nodes/{node}/qemu/{vmid}/firewall" =>
-        planned(:get, :low, "6.0", "VM firewall index")
-    }
+    %{}
   end
 
-  defp planned(methods_atom, priority, since, description) do
+  defp implemented(methods_atom, priority, since, description) do
     %{
       path: "",
       methods: methods_for(methods_atom),
-      status: :planned,
+      status: :implemented,
       priority: priority,
       since: since,
       description: description,
       parameters: [],
       response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
+      capabilities_required: [:basic_virtualization],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Nodes,
       notes: nil
     }
   end
@@ -507,6 +590,7 @@ defmodule MockPveApi.Coverage.VMs do
   defp methods_for(:get), do: [:get]
   defp methods_for(:post), do: [:post]
   defp methods_for(:put), do: [:put]
+  defp methods_for(:get_post), do: [:get, :post]
   defp methods_for(:get_put), do: [:get, :put]
   defp methods_for(:get_delete), do: [:get, :delete]
 end

@@ -12,6 +12,16 @@ defmodule MockPveApi.Handlers.Sdn do
   alias MockPveApi.State
 
   @doc """
+  PUT /api2/json/cluster/sdn
+  Apply pending SDN configuration changes (mock: no-op, returns nil).
+  """
+  def apply_sdn(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  @doc """
   GET /api2/json/cluster/sdn
   Returns SDN index (available sub-resources).
   """
@@ -448,6 +458,182 @@ defmodule MockPveApi.Handlers.Sdn do
     controller_id = conn.path_params["controller"]
 
     case State.delete_sdn_controller(controller_id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  # --- SDN DNS ---
+
+  def list_dns(conn) do
+    dns_list = State.list_sdn_dns()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: dns_list}))
+  end
+
+  def create_dns(conn) do
+    params = conn.body_params
+    dns_id = Map.get(params, "dns")
+
+    if dns_id do
+      case State.create_sdn_dns(dns_id, params) do
+        {:ok, dns} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: dns}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{dns: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  def get_dns(conn) do
+    dns_id = conn.path_params["dns"]
+
+    case State.get_sdn_dns(dns_id) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "DNS plugin '#{dns_id}' not found"}})
+        )
+
+      dns ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: dns}))
+    end
+  end
+
+  def update_dns(conn) do
+    dns_id = conn.path_params["dns"]
+    params = conn.body_params
+
+    case State.update_sdn_dns(dns_id, params) do
+      {:ok, dns} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: dns}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  def delete_dns(conn) do
+    dns_id = conn.path_params["dns"]
+
+    case State.delete_sdn_dns(dns_id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  # --- SDN IPAM ---
+
+  def list_ipams(conn) do
+    ipams = State.list_sdn_ipams()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ipams}))
+  end
+
+  def create_ipam(conn) do
+    params = conn.body_params
+    ipam_id = Map.get(params, "ipam")
+
+    if ipam_id do
+      case State.create_sdn_ipam(ipam_id, params) do
+        {:ok, ipam} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: ipam}))
+
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{ipam: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  def get_ipam(conn) do
+    ipam_id = conn.path_params["ipam"]
+
+    case State.get_sdn_ipam(ipam_id) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "IPAM '#{ipam_id}' not found"}})
+        )
+
+      ipam ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: ipam}))
+    end
+  end
+
+  def update_ipam(conn) do
+    ipam_id = conn.path_params["ipam"]
+    params = conn.body_params
+
+    case State.update_sdn_ipam(ipam_id, params) do
+      {:ok, ipam} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: ipam}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  def delete_ipam(conn) do
+    ipam_id = conn.path_params["ipam"]
+
+    case State.delete_sdn_ipam(ipam_id) do
       :ok ->
         conn
         |> put_resp_content_type("application/json")

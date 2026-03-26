@@ -40,6 +40,8 @@ defmodule MockPveApi.Handlers.SdnTest do
       assert "zones" in subdirs
       assert "vnets" in subdirs
       assert "controllers" in subdirs
+      assert "dns" in subdirs
+      assert "ipams" in subdirs
     end
   end
 
@@ -291,6 +293,211 @@ defmodule MockPveApi.Handlers.SdnTest do
     test "create controller requires controller name" do
       conn = request(:post, "/api2/json/cluster/sdn/controllers", %{"type" => "evpn"})
       assert conn.status == 400
+    end
+  end
+
+  # SDN DNS
+
+  describe "SDN DNS" do
+    test "list empty DNS plugins" do
+      conn = request(:get, "/api2/json/cluster/sdn/dns")
+      assert json(conn, 200)["data"] == []
+    end
+
+    test "CRUD lifecycle for DNS plugin" do
+      # Create
+      conn =
+        request(:post, "/api2/json/cluster/sdn/dns", %{
+          "dns" => "powerdns1",
+          "type" => "powerdns",
+          "url" => "http://dns.local:8081"
+        })
+
+      assert conn.status == 200
+
+      # Get
+      conn = request(:get, "/api2/json/cluster/sdn/dns/powerdns1")
+      dns = json(conn, 200)["data"]
+      assert dns["dns"] == "powerdns1"
+      assert dns["type"] == "powerdns"
+      assert dns["url"] == "http://dns.local:8081"
+
+      # Update
+      conn =
+        request(:put, "/api2/json/cluster/sdn/dns/powerdns1", %{
+          "url" => "http://dns2.local:8081"
+        })
+
+      assert conn.status == 200
+      updated = State.get_sdn_dns("powerdns1")
+      assert updated.url == "http://dns2.local:8081"
+
+      # Delete
+      conn = request(:delete, "/api2/json/cluster/sdn/dns/powerdns1")
+      assert conn.status == 200
+      assert State.get_sdn_dns("powerdns1") == nil
+    end
+
+    test "create duplicate DNS plugin returns 400" do
+      State.create_sdn_dns("dup-dns", %{})
+      conn = request(:post, "/api2/json/cluster/sdn/dns", %{"dns" => "dup-dns"})
+      assert conn.status == 400
+    end
+
+    test "get nonexistent DNS plugin returns 404" do
+      conn = request(:get, "/api2/json/cluster/sdn/dns/nonexistent")
+      assert conn.status == 404
+    end
+
+    test "create DNS plugin requires dns name" do
+      conn = request(:post, "/api2/json/cluster/sdn/dns", %{"type" => "powerdns"})
+      assert conn.status == 400
+    end
+  end
+
+  # SDN IPAM
+
+  describe "SDN IPAM" do
+    test "list empty IPAMs" do
+      conn = request(:get, "/api2/json/cluster/sdn/ipams")
+      assert json(conn, 200)["data"] == []
+    end
+
+    test "CRUD lifecycle for IPAM" do
+      # Create
+      conn =
+        request(:post, "/api2/json/cluster/sdn/ipams", %{
+          "ipam" => "pve-ipam",
+          "type" => "pve"
+        })
+
+      assert conn.status == 200
+
+      # Get
+      conn = request(:get, "/api2/json/cluster/sdn/ipams/pve-ipam")
+      ipam = json(conn, 200)["data"]
+      assert ipam["ipam"] == "pve-ipam"
+      assert ipam["type"] == "pve"
+
+      # Update
+      conn =
+        request(:put, "/api2/json/cluster/sdn/ipams/pve-ipam", %{
+          "type" => "netbox"
+        })
+
+      assert conn.status == 200
+      updated = State.get_sdn_ipam("pve-ipam")
+      assert updated.type == "netbox"
+
+      # Delete
+      conn = request(:delete, "/api2/json/cluster/sdn/ipams/pve-ipam")
+      assert conn.status == 200
+      assert State.get_sdn_ipam("pve-ipam") == nil
+    end
+
+    test "create duplicate IPAM returns 400" do
+      State.create_sdn_ipam("dup-ipam", %{})
+      conn = request(:post, "/api2/json/cluster/sdn/ipams", %{"ipam" => "dup-ipam"})
+      assert conn.status == 400
+    end
+
+    test "get nonexistent IPAM returns 404" do
+      conn = request(:get, "/api2/json/cluster/sdn/ipams/nonexistent")
+      assert conn.status == 404
+    end
+
+    test "create IPAM requires ipam name" do
+      conn = request(:post, "/api2/json/cluster/sdn/ipams", %{"type" => "pve"})
+      assert conn.status == 400
+    end
+  end
+
+  describe "SDN vnet IPs" do
+    test "POST /cluster/sdn/vnets/:vnet/ips returns 200" do
+      conn = request(:post, "/api2/json/cluster/sdn/vnets/myvnet/ips", %{ip: "10.0.0.1/24"})
+      assert conn.status == 200
+    end
+
+    test "PUT /cluster/sdn/vnets/:vnet/ips returns 200" do
+      conn = request(:put, "/api2/json/cluster/sdn/vnets/myvnet/ips")
+      assert conn.status == 200
+    end
+
+    test "DELETE /cluster/sdn/vnets/:vnet/ips returns 200" do
+      conn = request(:delete, "/api2/json/cluster/sdn/vnets/myvnet/ips")
+      assert conn.status == 200
+    end
+  end
+
+  describe "SDN fabrics and lock/rollback (9.0+)" do
+    setup do
+      original_version = Application.get_env(:mock_pve_api, :pve_version, "8.3")
+      Application.put_env(:mock_pve_api, :pve_version, "9.0")
+      State.reset()
+
+      on_exit(fn ->
+        Application.put_env(:mock_pve_api, :pve_version, original_version)
+        State.reset()
+      end)
+
+      :ok
+    end
+
+    test "GET /cluster/sdn/fabrics returns 200" do
+      conn = request(:get, "/api2/json/cluster/sdn/fabrics")
+      assert conn.status == 200
+    end
+
+    test "GET /cluster/sdn/fabrics/all returns 200" do
+      conn = request(:get, "/api2/json/cluster/sdn/fabrics/all")
+      assert conn.status == 200
+    end
+
+    test "GET /cluster/sdn/fabrics/fabric returns 200" do
+      conn = request(:get, "/api2/json/cluster/sdn/fabrics/fabric")
+      assert conn.status == 200
+    end
+
+    test "POST /cluster/sdn/lock returns 200" do
+      conn = request(:post, "/api2/json/cluster/sdn/lock")
+      assert conn.status == 200
+    end
+
+    test "DELETE /cluster/sdn/lock returns 200" do
+      conn = request(:delete, "/api2/json/cluster/sdn/lock")
+      assert conn.status == 200
+    end
+
+    test "POST /cluster/sdn/rollback returns 200" do
+      conn = request(:post, "/api2/json/cluster/sdn/rollback")
+      assert conn.status == 200
+    end
+
+    test "GET /cluster/sdn/ipams/:ipam/status returns 200" do
+      conn = request(:get, "/api2/json/cluster/sdn/ipams/ipam1/status")
+      assert conn.status == 200
+    end
+  end
+
+  describe "node SDN local" do
+    test "GET /nodes/:node/sdn returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/sdn")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/sdn/zones returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/sdn/zones")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/sdn/zones/:zone returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/sdn/zones/myzone")
+      assert conn.status == 200
+    end
+
+    test "GET /nodes/:node/sdn/zones/:zone/content returns 200" do
+      conn = request(:get, "/api2/json/nodes/pve1/sdn/zones/myzone/content")
+      assert conn.status == 200
     end
   end
 end

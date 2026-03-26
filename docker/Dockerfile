@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 # Multi-stage build for Mock PVE API Server
-FROM elixir:1.15-alpine AS builder
+FROM elixir:1.17-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache \
@@ -41,9 +41,9 @@ RUN mix compile
 RUN mix release
 
 # ---- Runtime Stage ----
-FROM alpine:3.18 AS runtime
+FROM alpine:3.22 AS runtime
 
-# Install runtime dependencies
+# Install runtime dependencies (openssl needed for auto-cert generation)
 RUN apk add --no-cache \
     bash \
     openssl \
@@ -61,9 +61,6 @@ WORKDIR /app
 # Copy release from builder stage
 COPY --from=builder --chown=mockpve:mockpve /app/_build/prod/rel/mock_pve_api .
 
-# Copy certificate generation script
-COPY --chown=mockpve:mockpve scripts/generate-certs.sh ./scripts/
-
 # Create certificate directory with proper permissions
 RUN mkdir -p certs && chown mockpve:mockpve certs
 
@@ -73,19 +70,14 @@ USER mockpve
 # Expose PVE API port
 EXPOSE 8006
 
-# Health check (supports both HTTP and HTTPS)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD if [ "$MOCK_PVE_SSL_ENABLED" = "true" ]; then \
-            curl -fk https://localhost:8006/api2/json/version || exit 1; \
-        else \
-            curl -f http://localhost:8006/api2/json/version || exit 1; \
-        fi
+# Health check (HTTPS is the default, matching real PVE API)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -fk https://localhost:8006/api2/json/version || exit 1
 
 # Set environment variables
 ENV MOCK_PVE_PORT=8006
 ENV MOCK_PVE_HOST=0.0.0.0
 ENV MOCK_PVE_VERSION=8.3
-ENV MOCK_PVE_SSL_ENABLED=false
 ENV MOCK_PVE_SSL_KEYFILE=certs/server.key
 ENV MOCK_PVE_SSL_CERTFILE=certs/server.crt
 

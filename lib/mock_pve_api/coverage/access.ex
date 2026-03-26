@@ -113,7 +113,7 @@ defmodule MockPveApi.Coverage.Access do
       },
       "/api2/json/access/ticket" => %{
         path: "/api2/json/access/ticket",
-        methods: [:post],
+        methods: [:get, :post],
         status: :implemented,
         priority: :high,
         since: "6.0",
@@ -248,7 +248,7 @@ defmodule MockPveApi.Coverage.Access do
         methods: [:post],
         status: :implemented,
         priority: :low,
-        since: "8.0",
+        since: "7.0",
         description: "Sync realm/domain from external source",
         parameters: [
           %{
@@ -342,37 +342,124 @@ defmodule MockPveApi.Coverage.Access do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Access,
         notes: nil
-      }
+      },
+      "/api2/json/access/tfa" => %{
+        path: "/api2/json/access/tfa",
+        methods: [:get, :post, :put],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "Two-factor authentication management",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
+      },
+      "/api2/json/access/tfa/{userid}" => %{
+        path: "/api2/json/access/tfa/{userid}",
+        methods: [:get, :post],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "User TFA configuration",
+        parameters: [
+          %{
+            name: "userid",
+            type: :string,
+            required: true,
+            description: "User ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
+      },
+      "/api2/json/access/tfa/{userid}/{id}" => %{
+        path: "/api2/json/access/tfa/{userid}/{id}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "7.1",
+        description: "TFA entry CRUD",
+        parameters: [],
+        response_schema: %{data: :object},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
+      },
+      "/api2/json/access/users/{userid}/tfa" => %{
+        path: "/api2/json/access/users/{userid}/tfa",
+        methods: [:get],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "List available TFA methods for user",
+        parameters: [],
+        response_schema: %{data: :array},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
+      },
+      "/api2/json/access/users/{userid}/unlock-tfa" => %{
+        path: "/api2/json/access/users/{userid}/unlock-tfa",
+        methods: [:put],
+        status: :implemented,
+        priority: :low,
+        since: "8.0",
+        description: "Unlock locked TFA for user",
+        parameters: [],
+        response_schema: %{data: :object},
+        capabilities_required: [:user_management_basic],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Access,
+        notes: nil
+      },
+      "/api2/json/access" => implemented(:get, :low, "6.0", "Access control index"),
+      "/api2/json/access/openid" => implemented(:get, :low, "7.0", "OpenID index"),
+      "/api2/json/access/openid/auth-url" =>
+        implemented(:post, :low, "7.0", "Get OpenID auth URL"),
+      "/api2/json/access/openid/login" =>
+        implemented(:post, :low, "7.0", "OpenID login callback"),
+      "/api2/json/access/vncticket" =>
+        implemented(:post, :low, "6.0", "Create VNC ticket for noVNC")
     }
   end
 
   defp planned_endpoints do
-    %{
-      "/api2/json/access/tfa" =>
-        planned(:get_post, :low, "7.0", "Two-factor authentication management"),
-      "/api2/json/access/tfa/{userid}" => planned(:get, :low, "7.0", "User TFA configuration")
-    }
+    %{}
   end
 
-  defp planned(methods_atom, priority, since, description) do
+  defp implemented(methods_atom, priority, since, description) do
     %{
       path: "",
       methods: methods_for(methods_atom),
-      status: :planned,
+      status: :implemented,
       priority: priority,
       since: since,
       description: description,
       parameters: [],
       response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
+      capabilities_required: [:user_management_basic],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Access,
       notes: nil
     }
   end
 
   defp methods_for(:get), do: [:get]
+  defp methods_for(:post), do: [:post]
   defp methods_for(:put), do: [:put]
+  defp methods_for(:delete), do: [:delete]
   defp methods_for(:get_post), do: [:get, :post]
+  defp methods_for(:get_put), do: [:get, :put]
   defp methods_for(:get_put_delete), do: [:get, :put, :delete]
+  defp methods_for(:get_post_put_delete), do: [:get, :post, :put, :delete]
 end

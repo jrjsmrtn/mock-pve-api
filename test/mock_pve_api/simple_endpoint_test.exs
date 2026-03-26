@@ -137,11 +137,11 @@ defmodule MockPveApi.SimpleEndpointTest do
 
       IO.puts("Testing version-specific behavior for PVE #{server_version}")
 
-      # Test SDN endpoints (should work on PVE 8.0+)
+      # Test SDN endpoints (available since PVE 7.0 as tech preview)
       sdn_result = http_get("#{@base_url}/cluster/sdn/zones")
 
       if version_supports_sdn?(server_version) do
-        # For PVE 8.0+, SDN should either work or return acceptable errors (not 501)
+        # For PVE 7.0+, SDN should either work or return acceptable errors (not 501)
         refute match?({:error, {501, _}}, sdn_result),
                "SDN should not return 501 in PVE #{server_version}"
       else
@@ -269,13 +269,15 @@ defmodule MockPveApi.SimpleEndpointTest do
   end
 
   defp version_supports_sdn?(version) do
-    case Version.compare(version, "8.0.0") do
+    case Version.compare(version, "7.0.0") do
       :gt -> true
       :eq -> true
       :lt -> false
     end
   rescue
-    _ -> String.starts_with?(version, "8.") or String.starts_with?(version, "9.")
+    _ ->
+      String.starts_with?(version, "7.") or String.starts_with?(version, "8.") or
+        String.starts_with?(version, "9.")
   end
 
   defp version_supports_notifications?(version) do

@@ -22,7 +22,9 @@ defmodule MockPveApi.Router do
     Metrics,
     Sdn,
     Snapshots,
-    Firewall
+    Firewall,
+    Hardware,
+    Notifications
   }
 
   alias MockPveApi.{State, Coverage}
@@ -34,6 +36,9 @@ defmodule MockPveApi.Router do
   plug(:authenticate)
   plug(:check_coverage_status)
   plug(:check_endpoint_support)
+  plug(:check_feature_flags)
+  plug(:apply_response_delay)
+  plug(:maybe_inject_error)
   plug(:track_endpoint_usage)
   plug(:add_cors_headers)
   plug(:dispatch)
@@ -44,6 +49,30 @@ defmodule MockPveApi.Router do
   end
 
   # Access endpoints
+  get "/api2/json/access" do
+    Access.get_access_index(conn)
+  end
+
+  get "/api2/json/access/openid" do
+    Access.get_openid_index(conn)
+  end
+
+  post "/api2/json/access/openid/auth-url" do
+    Access.openid_auth_url(conn)
+  end
+
+  post "/api2/json/access/openid/login" do
+    Access.openid_login(conn)
+  end
+
+  post "/api2/json/access/vncticket" do
+    Access.create_vncticket(conn)
+  end
+
+  get "/api2/json/access/ticket" do
+    Access.get_ticket(conn)
+  end
+
   post "/api2/json/access/ticket" do
     Access.create_ticket(conn)
   end
@@ -86,6 +115,14 @@ defmodule MockPveApi.Router do
 
   delete "/api2/json/access/users/:userid/token/:tokenid" do
     Access.delete_api_token(conn)
+  end
+
+  get "/api2/json/access/users/:userid/tfa" do
+    Access.get_user_tfa_methods(conn)
+  end
+
+  put "/api2/json/access/users/:userid/unlock-tfa" do
+    Access.unlock_user_tfa(conn)
   end
 
   get "/api2/json/access/groups" do
@@ -164,6 +201,40 @@ defmodule MockPveApi.Router do
     Access.change_password(conn)
   end
 
+  # TFA endpoints
+  get "/api2/json/access/tfa" do
+    Access.list_tfa(conn)
+  end
+
+  post "/api2/json/access/tfa" do
+    Access.add_tfa(conn)
+  end
+
+  put "/api2/json/access/tfa" do
+    Access.update_tfa(conn)
+  end
+
+  get "/api2/json/access/tfa/:userid" do
+    Access.get_user_tfa(conn)
+  end
+
+  post "/api2/json/access/tfa/:userid" do
+    Access.create_tfa_entry(conn)
+  end
+
+  # TFA per-entry endpoints
+  get "/api2/json/access/tfa/:userid/:id" do
+    Access.get_tfa_entry(conn)
+  end
+
+  put "/api2/json/access/tfa/:userid/:id" do
+    Access.update_tfa_entry(conn)
+  end
+
+  delete "/api2/json/access/tfa/:userid/:id" do
+    Access.delete_tfa_entry(conn)
+  end
+
   # Node endpoints
   get "/api2/json/nodes" do
     Nodes.list_nodes(conn)
@@ -197,6 +268,26 @@ defmodule MockPveApi.Router do
     Nodes.update_node_dns(conn)
   end
 
+  get "/api2/json/nodes/:node/apt" do
+    Nodes.get_apt_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/apt/changelog" do
+    Nodes.get_apt_changelog(conn)
+  end
+
+  get "/api2/json/nodes/:node/apt/repositories" do
+    Nodes.get_apt_repositories(conn)
+  end
+
+  post "/api2/json/nodes/:node/apt/repositories" do
+    Nodes.post_apt_repositories(conn)
+  end
+
+  put "/api2/json/nodes/:node/apt/repositories" do
+    Nodes.update_apt_repositories(conn)
+  end
+
   get "/api2/json/nodes/:node/apt/update" do
     Nodes.get_apt_updates(conn)
   end
@@ -207,6 +298,40 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/nodes/:node/apt/versions" do
     Nodes.get_apt_versions(conn)
+  end
+
+  # Node capabilities endpoints
+  get "/api2/json/nodes/:node/capabilities" do
+    Nodes.get_capabilities_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/capabilities/qemu" do
+    Nodes.get_qemu_capabilities(conn)
+  end
+
+  get "/api2/json/nodes/:node/capabilities/qemu/cpu" do
+    Nodes.get_qemu_cpu_capabilities(conn)
+  end
+
+  get "/api2/json/nodes/:node/capabilities/qemu/cpu-flags" do
+    Nodes.get_qemu_cpu_flags(conn)
+  end
+
+  get "/api2/json/nodes/:node/capabilities/qemu/machines" do
+    Nodes.get_qemu_machine_capabilities(conn)
+  end
+
+  get "/api2/json/nodes/:node/capabilities/qemu/migration" do
+    Nodes.get_qemu_migration_capabilities(conn)
+  end
+
+  # Node scan endpoints
+  get "/api2/json/nodes/:node/scan" do
+    Nodes.get_scan_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/scan/:type" do
+    Nodes.scan_stub(conn)
   end
 
   get "/api2/json/nodes/:node/network/:iface" do
@@ -221,8 +346,300 @@ defmodule MockPveApi.Router do
     Nodes.delete_node_network_iface(conn)
   end
 
+  get "/api2/json/nodes/:node/disks" do
+    Nodes.get_node_disks_index(conn)
+  end
+
+  delete "/api2/json/nodes/:node/disks/lvm/:name" do
+    Nodes.delete_node_disks_lvm(conn)
+  end
+
+  delete "/api2/json/nodes/:node/disks/lvmthin/:name" do
+    Nodes.delete_node_disks_lvmthin(conn)
+  end
+
+  put "/api2/json/nodes/:node/disks/wipedisk" do
+    Nodes.wipe_node_disk(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/zfs/:name" do
+    Nodes.get_node_disks_zfs_detail(conn)
+  end
+
+  delete "/api2/json/nodes/:node/disks/zfs/:name" do
+    Nodes.delete_node_disks_zfs(conn)
+  end
+
   get "/api2/json/nodes/:node/disks/list" do
     Nodes.list_disks(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/lvm" do
+    Nodes.list_disks_lvm(conn)
+  end
+
+  post "/api2/json/nodes/:node/disks/lvm" do
+    Nodes.create_disk_lvm(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/lvmthin" do
+    Nodes.list_disks_lvmthin(conn)
+  end
+
+  post "/api2/json/nodes/:node/disks/lvmthin" do
+    Nodes.create_disk_lvmthin(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/zfs" do
+    Nodes.list_disks_zfs(conn)
+  end
+
+  post "/api2/json/nodes/:node/disks/zfs" do
+    Nodes.create_disk_zfs(conn)
+  end
+
+  post "/api2/json/nodes/:node/disks/initgpt" do
+    Nodes.init_disk_gpt(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/directory" do
+    Nodes.get_disks_directory(conn)
+  end
+
+  post "/api2/json/nodes/:node/disks/directory" do
+    Nodes.create_disks_directory(conn)
+  end
+
+  delete "/api2/json/nodes/:node/disks/directory/:name" do
+    Nodes.delete_disks_directory(conn)
+  end
+
+  # Node Ceph endpoints
+  get "/api2/json/nodes/:node/ceph" do
+    Nodes.get_node_ceph_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/cfg/db" do
+    Nodes.get_node_ceph_cfg_db(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/cfg/raw" do
+    Nodes.get_node_ceph_cfg_raw(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/cfg/value" do
+    Nodes.get_node_ceph_cfg_value(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/cfg" do
+    Nodes.get_node_ceph_cfg(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/cmd-safety" do
+    Nodes.get_node_ceph_cmd_safety(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/config" do
+    Nodes.get_node_ceph_config(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/configdb" do
+    Nodes.get_node_ceph_configdb(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/crush" do
+    Nodes.get_node_ceph_crush(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/fs" do
+    Nodes.get_node_ceph_fs(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/fs/:name" do
+    Nodes.create_node_ceph_fs(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/init" do
+    Nodes.init_node_ceph(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/log" do
+    Nodes.get_node_ceph_log(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/mds" do
+    Nodes.get_node_ceph_mds(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/mds/:name" do
+    Nodes.create_node_ceph_mds(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/mds/:name" do
+    Nodes.delete_node_ceph_mds(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/mgr" do
+    Nodes.get_node_ceph_mgr(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/mgr/:id" do
+    Nodes.create_node_ceph_mgr(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/mgr/:id" do
+    Nodes.delete_node_ceph_mgr(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/mon" do
+    Nodes.get_node_ceph_mon(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/mon/:monid" do
+    Nodes.create_node_ceph_mon(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/mon/:monid" do
+    Nodes.delete_node_ceph_mon(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/osd/:osdid/lv-info" do
+    Nodes.get_node_ceph_osd_lv_info(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/osd/:osdid/metadata" do
+    Nodes.get_node_ceph_osd_metadata(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/osd/:osdid/in" do
+    Nodes.node_ceph_osd_in(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/osd/:osdid/out" do
+    Nodes.node_ceph_osd_out(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/osd/:osdid/scrub" do
+    Nodes.node_ceph_osd_scrub(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/osd/:osdid" do
+    Nodes.get_node_ceph_osd_detail(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/osd/:osdid" do
+    Nodes.delete_node_ceph_osd(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/status" do
+    Nodes.get_node_ceph_status(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/osd" do
+    Nodes.list_node_ceph_osd(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/osd" do
+    Nodes.create_node_ceph_osd(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/pool/:name/status" do
+    Nodes.get_node_ceph_pool_status(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/pool/:name" do
+    Nodes.get_node_ceph_pool_by_name(conn)
+  end
+
+  put "/api2/json/nodes/:node/ceph/pool/:name" do
+    Nodes.update_node_ceph_pool(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/pool/:name" do
+    Nodes.delete_node_ceph_pool_by_name(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/pool" do
+    Nodes.get_node_ceph_pool_list(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/pool" do
+    Nodes.create_node_ceph_pool_v2(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/pools/:name" do
+    Nodes.get_node_ceph_pools_by_name(conn)
+  end
+
+  put "/api2/json/nodes/:node/ceph/pools/:name" do
+    Nodes.update_node_ceph_pools(conn)
+  end
+
+  delete "/api2/json/nodes/:node/ceph/pools/:name" do
+    Nodes.delete_node_ceph_pools_by_name(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/pools" do
+    Nodes.list_node_ceph_pools(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/pools" do
+    Nodes.create_node_ceph_pool(conn)
+  end
+
+  get "/api2/json/nodes/:node/ceph/rules" do
+    Nodes.get_node_ceph_rules(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/restart" do
+    Nodes.restart_node_ceph(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/start" do
+    Nodes.start_node_ceph(conn)
+  end
+
+  post "/api2/json/nodes/:node/ceph/stop" do
+    Nodes.stop_node_ceph(conn)
+  end
+
+  # Node certificates index and sub-resources
+  get "/api2/json/nodes/:node/certificates" do
+    Nodes.get_certificates_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/certificates/acme" do
+    Nodes.get_acme_cert_index(conn)
+  end
+
+  post "/api2/json/nodes/:node/certificates/custom" do
+    Nodes.manage_custom_certificate(conn)
+  end
+
+  delete "/api2/json/nodes/:node/certificates/custom" do
+    Nodes.manage_custom_certificate(conn)
+  end
+
+  # ACME certificate endpoints
+  post "/api2/json/nodes/:node/certificates/acme/certificate" do
+    Nodes.acme_certificate_new(conn)
+  end
+
+  put "/api2/json/nodes/:node/certificates/acme/certificate" do
+    Nodes.acme_certificate_renew(conn)
+  end
+
+  delete "/api2/json/nodes/:node/certificates/acme/certificate" do
+    Nodes.acme_certificate_delete(conn)
+  end
+
+  # Node firewall static endpoints
+  get "/api2/json/nodes/:node/firewall/log" do
+    Firewall.get_node_firewall_log(conn)
+  end
+
+  get "/api2/json/nodes/:node/firewall" do
+    Firewall.get_node_firewall_index(conn)
   end
 
   # Node firewall endpoints
@@ -266,6 +683,18 @@ defmodule MockPveApi.Router do
     Nodes.get_node_network(conn)
   end
 
+  post "/api2/json/nodes/:node/network" do
+    Nodes.create_node_network_iface(conn)
+  end
+
+  put "/api2/json/nodes/:node/network" do
+    Nodes.reload_node_network(conn)
+  end
+
+  delete "/api2/json/nodes/:node/network" do
+    Nodes.delete_pending_node_network(conn)
+  end
+
   post "/api2/json/nodes/:node/execute" do
     Nodes.execute_command(conn)
   end
@@ -285,6 +714,55 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/nodes/:node/vzrestore" do
     Nodes.vzrestore(conn)
+  end
+
+  # Node hosts, subscription, bulk ops, journal, certificates, disks/smart
+  get "/api2/json/nodes/:node/hosts" do
+    Nodes.get_hosts(conn)
+  end
+
+  post "/api2/json/nodes/:node/hosts" do
+    Nodes.set_hosts(conn)
+  end
+
+  get "/api2/json/nodes/:node/subscription" do
+    Nodes.get_subscription(conn)
+  end
+
+  post "/api2/json/nodes/:node/subscription" do
+    Nodes.set_subscription(conn)
+  end
+
+  put "/api2/json/nodes/:node/subscription" do
+    Nodes.update_subscription(conn)
+  end
+
+  delete "/api2/json/nodes/:node/subscription" do
+    Nodes.delete_subscription(conn)
+  end
+
+  post "/api2/json/nodes/:node/startall" do
+    Nodes.startall(conn)
+  end
+
+  post "/api2/json/nodes/:node/stopall" do
+    Nodes.stopall(conn)
+  end
+
+  post "/api2/json/nodes/:node/migrateall" do
+    Nodes.migrateall(conn)
+  end
+
+  get "/api2/json/nodes/:node/journal" do
+    Nodes.get_journal(conn)
+  end
+
+  get "/api2/json/nodes/:node/certificates/info" do
+    Nodes.get_certificates_info(conn)
+  end
+
+  get "/api2/json/nodes/:node/disks/smart" do
+    Nodes.get_disks_smart(conn)
   end
 
   # VM endpoints
@@ -312,8 +790,145 @@ defmodule MockPveApi.Router do
     Nodes.resize_vm_disk(conn)
   end
 
+  # VM firewall endpoints
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/options" do
+    Firewall.get_vm_firewall_options(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/firewall/options" do
+    Firewall.update_vm_firewall_options(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/rules/:pos" do
+    Firewall.get_vm_firewall_rule(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/firewall/rules/:pos" do
+    Firewall.update_vm_firewall_rule(conn)
+  end
+
+  delete "/api2/json/nodes/:node/qemu/:vmid/firewall/rules/:pos" do
+    Firewall.delete_vm_firewall_rule(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/rules" do
+    Firewall.list_vm_firewall_rules(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/firewall/rules" do
+    Firewall.create_vm_firewall_rule(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/aliases/:name" do
+    Firewall.get_vm_firewall_alias(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/firewall/aliases/:name" do
+    Firewall.update_vm_firewall_alias(conn)
+  end
+
+  delete "/api2/json/nodes/:node/qemu/:vmid/firewall/aliases/:name" do
+    Firewall.delete_vm_firewall_alias(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/aliases" do
+    Firewall.list_vm_firewall_aliases(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/firewall/aliases" do
+    Firewall.create_vm_firewall_alias(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.get_vm_firewall_ipset_entry(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.update_vm_firewall_ipset_entry(conn)
+  end
+
+  delete "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.delete_vm_firewall_ipset_entry(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name" do
+    Firewall.get_vm_firewall_ipset(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name" do
+    Firewall.add_vm_firewall_ipset_entry(conn)
+  end
+
+  delete "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset/:name" do
+    Firewall.delete_vm_firewall_ipset(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset" do
+    Firewall.list_vm_firewall_ipsets(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/firewall/ipset" do
+    Firewall.create_vm_firewall_ipset(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/refs" do
+    Firewall.get_vm_firewall_refs(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall/log" do
+    Firewall.get_vm_firewall_log(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/firewall" do
+    Firewall.get_vm_firewall_index(conn)
+  end
+
   get "/api2/json/nodes/:node/qemu/:vmid/status/current" do
     Nodes.get_vm_status(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/status" do
+    Nodes.get_vm_status_index(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/vncproxy" do
+    Nodes.vm_vncproxy(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/termproxy" do
+    Nodes.vm_termproxy(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/spiceproxy" do
+    Nodes.vm_spiceproxy(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/vncwebsocket" do
+    Nodes.vm_vncwebsocket(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/mtunnel" do
+    Nodes.vm_mtunnel(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/mtunnelwebsocket" do
+    Nodes.vm_mtunnelwebsocket(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/remote_migrate" do
+    Nodes.vm_remote_migrate(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/monitor" do
+    Nodes.vm_monitor(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/cloudinit" do
+    Nodes.get_vm_cloudinit(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/cloudinit" do
+    Nodes.update_vm_cloudinit(conn)
   end
 
   post "/api2/json/nodes/:node/qemu" do
@@ -322,6 +937,10 @@ defmodule MockPveApi.Router do
 
   put "/api2/json/nodes/:node/qemu/:vmid/config" do
     Nodes.update_vm_config(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/config" do
+    Nodes.async_update_vm_config(conn)
   end
 
   post "/api2/json/nodes/:node/qemu/:vmid/status/:action" do
@@ -357,8 +976,137 @@ defmodule MockPveApi.Router do
     Nodes.resize_container_disk(conn)
   end
 
+  # Container firewall endpoints
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/options" do
+    Firewall.get_ct_firewall_options(conn)
+  end
+
+  put "/api2/json/nodes/:node/lxc/:vmid/firewall/options" do
+    Firewall.update_ct_firewall_options(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/rules/:pos" do
+    Firewall.get_ct_firewall_rule(conn)
+  end
+
+  put "/api2/json/nodes/:node/lxc/:vmid/firewall/rules/:pos" do
+    Firewall.update_ct_firewall_rule(conn)
+  end
+
+  delete "/api2/json/nodes/:node/lxc/:vmid/firewall/rules/:pos" do
+    Firewall.delete_ct_firewall_rule(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/rules" do
+    Firewall.list_ct_firewall_rules(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/firewall/rules" do
+    Firewall.create_ct_firewall_rule(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/aliases/:name" do
+    Firewall.get_ct_firewall_alias(conn)
+  end
+
+  put "/api2/json/nodes/:node/lxc/:vmid/firewall/aliases/:name" do
+    Firewall.update_ct_firewall_alias(conn)
+  end
+
+  delete "/api2/json/nodes/:node/lxc/:vmid/firewall/aliases/:name" do
+    Firewall.delete_ct_firewall_alias(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/aliases" do
+    Firewall.list_ct_firewall_aliases(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/firewall/aliases" do
+    Firewall.create_ct_firewall_alias(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.get_ct_firewall_ipset_entry(conn)
+  end
+
+  put "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.update_ct_firewall_ipset_entry(conn)
+  end
+
+  delete "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name/:cidr" do
+    Firewall.delete_ct_firewall_ipset_entry(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name" do
+    Firewall.get_ct_firewall_ipset(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name" do
+    Firewall.add_ct_firewall_ipset_entry(conn)
+  end
+
+  delete "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset/:name" do
+    Firewall.delete_ct_firewall_ipset(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset" do
+    Firewall.list_ct_firewall_ipsets(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/firewall/ipset" do
+    Firewall.create_ct_firewall_ipset(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/refs" do
+    Firewall.get_ct_firewall_refs(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall/log" do
+    Firewall.get_ct_firewall_log(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/firewall" do
+    Firewall.get_ct_firewall_index(conn)
+  end
+
   get "/api2/json/nodes/:node/lxc/:vmid/status/current" do
     Nodes.get_container_status(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/status" do
+    Nodes.get_container_status_index(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/vncproxy" do
+    Nodes.container_vncproxy(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/termproxy" do
+    Nodes.container_termproxy(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/spiceproxy" do
+    Nodes.container_spiceproxy(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/vncwebsocket" do
+    Nodes.container_vncwebsocket(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/mtunnel" do
+    Nodes.container_mtunnel(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/mtunnelwebsocket" do
+    Nodes.container_mtunnelwebsocket(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/remote_migrate" do
+    Nodes.container_remote_migrate(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/interfaces" do
+    Nodes.container_interfaces(conn)
   end
 
   post "/api2/json/nodes/:node/lxc" do
@@ -378,8 +1126,16 @@ defmodule MockPveApi.Router do
   end
 
   # VM/Container migration, backup and snapshot endpoints
+  get "/api2/json/nodes/:node/qemu/:vmid/migrate" do
+    Nodes.get_vm_migrate_preconditions(conn)
+  end
+
   post "/api2/json/nodes/:node/qemu/:vmid/migrate" do
     Nodes.migrate_vm(conn)
+  end
+
+  get "/api2/json/nodes/:node/lxc/:vmid/migrate" do
+    Nodes.get_ct_migrate_preconditions(conn)
   end
 
   post "/api2/json/nodes/:node/lxc/:vmid/migrate" do
@@ -448,12 +1204,72 @@ defmodule MockPveApi.Router do
     Nodes.clone_vm(conn)
   end
 
+  get "/api2/json/nodes/:node/qemu/:vmid/feature" do
+    Nodes.get_vm_feature(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/template" do
+    Nodes.convert_vm_to_template(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/sendkey" do
+    Nodes.vm_sendkey(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/agent/:subcommand" do
+    Nodes.vm_agent_subcommand(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/agent/:subcommand" do
+    Nodes.vm_agent_subcommand(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/agent" do
+    Nodes.get_vm_agent(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/agent" do
+    Nodes.vm_agent(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/dbus-vmstate" do
+    Nodes.node_qemu_dbus_vmstate(conn)
+  end
+
+  get "/api2/json/nodes/:node/qemu/:vmid/cloudinit/dump" do
+    Nodes.get_vm_cloudinit_dump(conn)
+  end
+
+  put "/api2/json/nodes/:node/qemu/:vmid/unlink" do
+    Nodes.vm_unlink(conn)
+  end
+
+  post "/api2/json/nodes/:node/qemu/:vmid/move_disk" do
+    Nodes.vm_move_disk(conn)
+  end
+
   post "/api2/json/nodes/:node/lxc/:vmid/clone" do
     Nodes.clone_container(conn)
   end
 
+  get "/api2/json/nodes/:node/lxc/:vmid/feature" do
+    Nodes.get_ct_feature(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/template" do
+    Nodes.convert_ct_to_template(conn)
+  end
+
+  post "/api2/json/nodes/:node/lxc/:vmid/move_volume" do
+    Nodes.ct_move_volume(conn)
+  end
+
   post "/api2/json/nodes/:node/vzdump" do
     Nodes.create_backup(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage" do
+    Nodes.get_node_storage(conn)
   end
 
   get "/api2/json/nodes/:node/storage/:storage/backup" do
@@ -469,6 +1285,10 @@ defmodule MockPveApi.Router do
     Nodes.get_task_log(conn)
   end
 
+  get "/api2/json/nodes/:node/tasks/:upid" do
+    Nodes.get_task(conn)
+  end
+
   delete "/api2/json/nodes/:node/tasks/:upid" do
     Nodes.delete_task(conn)
   end
@@ -479,6 +1299,27 @@ defmodule MockPveApi.Router do
 
   put "/api2/json/nodes/:node/time" do
     Nodes.set_node_time(conn)
+  end
+
+  # Node hardware detection endpoints
+  get "/api2/json/nodes/:node/hardware" do
+    Hardware.get_hardware_index(conn)
+  end
+
+  get "/api2/json/nodes/:node/hardware/pci/:pciid/mdev" do
+    Hardware.get_pci_mdev(conn)
+  end
+
+  get "/api2/json/nodes/:node/hardware/pci/:pciid" do
+    Hardware.get_pci(conn)
+  end
+
+  get "/api2/json/nodes/:node/hardware/pci" do
+    Hardware.list_pci(conn)
+  end
+
+  get "/api2/json/nodes/:node/hardware/usb" do
+    Hardware.list_usb(conn)
   end
 
   # Metrics and statistics endpoints
@@ -518,6 +1359,176 @@ defmodule MockPveApi.Router do
     Metrics.get_cluster_metrics(conn)
   end
 
+  post "/api2/json/cluster/metrics/server/:id" do
+    Metrics.create_metrics_server(conn)
+  end
+
+  put "/api2/json/cluster/metrics/server/:id" do
+    Metrics.update_metrics_server(conn)
+  end
+
+  delete "/api2/json/cluster/metrics/server/:id" do
+    Metrics.delete_metrics_server(conn)
+  end
+
+  get "/api2/json/cluster/metrics/server" do
+    Metrics.list_metrics_servers(conn)
+  end
+
+  get "/api2/json/cluster/metrics/export" do
+    Cluster.get_metrics_export(conn)
+  end
+
+  get "/api2/json/cluster/metrics" do
+    Metrics.get_metrics_index(conn)
+  end
+
+  # Node replication endpoints
+  get "/api2/json/nodes/:node/replication" do
+    Nodes.list_node_replication(conn)
+  end
+
+  get "/api2/json/nodes/:node/replication/:id/log" do
+    Nodes.get_node_replication_log(conn)
+  end
+
+  post "/api2/json/nodes/:node/replication/:id/schedule_now" do
+    Nodes.node_replication_schedule_now(conn)
+  end
+
+  get "/api2/json/nodes/:node/replication/:id/status" do
+    Nodes.get_node_replication_status(conn)
+  end
+
+  get "/api2/json/nodes/:node/replication/:id" do
+    Nodes.get_node_replication_job(conn)
+  end
+
+  # Node services endpoints
+  get "/api2/json/nodes/:node/services/:service/state" do
+    Metrics.get_service(conn)
+  end
+
+  put "/api2/json/nodes/:node/services/:service/state" do
+    Metrics.set_service_state(conn)
+  end
+
+  post "/api2/json/nodes/:node/services/:service/reload" do
+    Nodes.node_service_action(conn)
+  end
+
+  post "/api2/json/nodes/:node/services/:service/restart" do
+    Nodes.node_service_action(conn)
+  end
+
+  post "/api2/json/nodes/:node/services/:service/start" do
+    Nodes.node_service_action(conn)
+  end
+
+  post "/api2/json/nodes/:node/services/:service/stop" do
+    Nodes.node_service_action(conn)
+  end
+
+  get "/api2/json/nodes/:node/services/:service" do
+    Metrics.get_service(conn)
+  end
+
+  get "/api2/json/nodes/:node/services" do
+    Metrics.list_services(conn)
+  end
+
+  # Node console and power management endpoints
+  post "/api2/json/nodes/:node/termproxy" do
+    Nodes.node_console_stub(conn)
+  end
+
+  get "/api2/json/nodes/:node/vncwebsocket" do
+    Nodes.get_node_vncwebsocket(conn)
+  end
+
+  post "/api2/json/nodes/:node/spiceshell" do
+    Nodes.node_console_stub(conn)
+  end
+
+  post "/api2/json/nodes/:node/wakeonlan" do
+    Nodes.node_wakeonlan(conn)
+  end
+
+  post "/api2/json/nodes/:node/suspendall" do
+    Nodes.node_suspendall(conn)
+  end
+
+  post "/api2/json/nodes/:node/vncshell" do
+    Nodes.node_vncshell(conn)
+  end
+
+  # Node aplinfo endpoints
+  get "/api2/json/nodes/:node/aplinfo" do
+    Nodes.get_node_aplinfo(conn)
+  end
+
+  post "/api2/json/nodes/:node/aplinfo" do
+    Nodes.post_node_aplinfo(conn)
+  end
+
+  # Node query stubs
+  get "/api2/json/nodes/:node/query-url-metadata" do
+    Nodes.get_query_url_metadata(conn)
+  end
+
+  get "/api2/json/nodes/:node/query-oci-repo-tags" do
+    Nodes.get_query_oci_repo_tags(conn)
+  end
+
+  # Node SDN local endpoints
+  get "/api2/json/nodes/:node/sdn/fabrics/:fabric/interfaces" do
+    Nodes.get_node_sdn_fabric_interfaces(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/fabrics/:fabric/neighbors" do
+    Nodes.get_node_sdn_fabric_neighbors(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/fabrics/:fabric/routes" do
+    Nodes.get_node_sdn_fabric_routes(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/fabrics/:fabric" do
+    Nodes.get_node_sdn_fabric(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/vnets/:vnet/mac-vrf" do
+    Nodes.get_node_sdn_vnet_mac_vrf(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/vnets/:vnet" do
+    Nodes.get_node_sdn_vnet(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/zones/:zone/bridges" do
+    Nodes.get_node_sdn_zone_bridges(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/zones/:zone/content" do
+    Nodes.get_node_sdn_zone_content(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/zones/:zone/ip-vrf" do
+    Nodes.get_node_sdn_zone_ip_vrf(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/zones/:zone" do
+    Nodes.get_node_sdn_zone(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn/zones" do
+    Nodes.get_node_sdn_zones(conn)
+  end
+
+  get "/api2/json/nodes/:node/sdn" do
+    Nodes.get_node_sdn_index(conn)
+  end
+
   # Storage endpoints
   get "/api2/json/storage" do
     Storage.list_storage(conn)
@@ -539,8 +1550,46 @@ defmodule MockPveApi.Router do
     Storage.delete_storage(conn)
   end
 
+  # Storage file-restore endpoints
+  get "/api2/json/nodes/:node/storage/:storage/file-restore/list" do
+    Storage.list_file_restore(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage/file-restore/download" do
+    Storage.download_file_restore(conn)
+  end
+
+  # Storage prunebackups
+  get "/api2/json/nodes/:node/storage/:storage/prunebackups" do
+    Storage.list_prunebackups(conn)
+  end
+
+  delete "/api2/json/nodes/:node/storage/:storage/prunebackups" do
+    Storage.delete_prunebackups(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage/status" do
+    Storage.get_storage_status(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage/rrd" do
+    Metrics.get_storage_rrd(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage/rrddata" do
+    Metrics.get_storage_rrd_data(conn)
+  end
+
   get "/api2/json/nodes/:node/storage/:storage/content/:volume" do
     Storage.get_storage_volume(conn)
+  end
+
+  post "/api2/json/nodes/:node/storage/:storage/content/:volume" do
+    Storage.copy_storage_volume(conn)
+  end
+
+  put "/api2/json/nodes/:node/storage/:storage/content/:volume" do
+    Storage.update_storage_volume(conn)
   end
 
   delete "/api2/json/nodes/:node/storage/:storage/content/:volume" do
@@ -559,7 +1608,113 @@ defmodule MockPveApi.Router do
     Storage.upload_storage_content(conn)
   end
 
-  # Cluster endpoints  
+  get "/api2/json/nodes/:node/storage/:storage/import-metadata" do
+    Nodes.get_node_storage_import_metadata(conn)
+  end
+
+  post "/api2/json/nodes/:node/storage/:storage/download-url" do
+    Nodes.node_storage_download_url(conn)
+  end
+
+  post "/api2/json/nodes/:node/storage/:storage/oci-registry-pull" do
+    Nodes.node_storage_oci_pull(conn)
+  end
+
+  get "/api2/json/nodes/:node/storage/:storage" do
+    Nodes.get_node_storage(conn)
+  end
+
+  # Cluster endpoints
+
+  # Navigation index stubs
+  get "/api2/json/cluster" do
+    Cluster.get_cluster_index(conn)
+  end
+
+  get "/api2/json/cluster/ha/status" do
+    Cluster.get_ha_status_index(conn)
+  end
+
+  get "/api2/json/cluster/ha" do
+    Cluster.get_ha_index(conn)
+  end
+
+  get "/api2/json/cluster/jobs" do
+    Cluster.get_jobs_index(conn)
+  end
+
+  get "/api2/json/cluster/jobs/schedule-analyze" do
+    Cluster.get_schedule_analyze(conn)
+  end
+
+  get "/api2/json/cluster/jobs/realm-sync" do
+    Cluster.list_realm_sync_jobs(conn)
+  end
+
+  get "/api2/json/cluster/jobs/realm-sync/:id" do
+    Cluster.get_realm_sync_job(conn)
+  end
+
+  post "/api2/json/cluster/jobs/realm-sync/:id" do
+    Cluster.create_realm_sync_job(conn)
+  end
+
+  put "/api2/json/cluster/jobs/realm-sync/:id" do
+    Cluster.update_realm_sync_job(conn)
+  end
+
+  delete "/api2/json/cluster/jobs/realm-sync/:id" do
+    Cluster.delete_realm_sync_job(conn)
+  end
+
+  get "/api2/json/cluster/log" do
+    Cluster.get_log_index(conn)
+  end
+
+  get "/api2/json/cluster/mapping" do
+    Cluster.get_mapping_index(conn)
+  end
+
+  get "/api2/json/cluster/backup-info" do
+    Cluster.get_backup_info_index(conn)
+  end
+
+  get "/api2/json/cluster/bulk-action/guest" do
+    Cluster.get_bulk_action_guest(conn)
+  end
+
+  post "/api2/json/cluster/bulk-action/guest/start" do
+    Cluster.bulk_action_guest(conn)
+  end
+
+  post "/api2/json/cluster/bulk-action/guest/shutdown" do
+    Cluster.bulk_action_guest(conn)
+  end
+
+  post "/api2/json/cluster/bulk-action/guest/suspend" do
+    Cluster.bulk_action_guest(conn)
+  end
+
+  post "/api2/json/cluster/bulk-action/guest/migrate" do
+    Cluster.bulk_action_guest(conn)
+  end
+
+  get "/api2/json/cluster/bulk-action" do
+    Cluster.get_bulk_action_index(conn)
+  end
+
+  get "/api2/json/cluster/tasks" do
+    Cluster.get_cluster_tasks(conn)
+  end
+
+  get "/api2/json/cluster/ceph" do
+    Cluster.get_ceph_index(conn)
+  end
+
+  get "/api2/json/cluster/firewall" do
+    Cluster.get_firewall_index(conn)
+  end
+
   get "/api2/json/cluster/status" do
     Cluster.get_cluster_status(conn)
   end
@@ -576,8 +1731,24 @@ defmodule MockPveApi.Router do
     Cluster.get_cluster_config(conn)
   end
 
-  put "/api2/json/cluster/config" do
+  post "/api2/json/cluster/config" do
     Cluster.update_cluster_config(conn)
+  end
+
+  get "/api2/json/cluster/config/apiversion" do
+    Cluster.get_cluster_config_apiversion(conn)
+  end
+
+  get "/api2/json/cluster/config/qdevice" do
+    Cluster.get_cluster_config_qdevice(conn)
+  end
+
+  get "/api2/json/cluster/config/totem" do
+    Cluster.get_cluster_config_totem(conn)
+  end
+
+  get "/api2/json/cluster/config/join" do
+    Cluster.get_config_join(conn)
   end
 
   post "/api2/json/cluster/config/join" do
@@ -586,6 +1757,10 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/cluster/config/nodes" do
     Cluster.get_cluster_nodes_config(conn)
+  end
+
+  post "/api2/json/cluster/config/nodes/:node" do
+    Cluster.add_cluster_node(conn)
   end
 
   delete "/api2/json/cluster/config/nodes/:node" do
@@ -614,6 +1789,14 @@ defmodule MockPveApi.Router do
     Cluster.update_ha_resource(conn)
   end
 
+  post "/api2/json/cluster/ha/resources/:sid/migrate" do
+    Cluster.ha_resource_migrate(conn)
+  end
+
+  post "/api2/json/cluster/ha/resources/:sid/relocate" do
+    Cluster.ha_resource_relocate(conn)
+  end
+
   delete "/api2/json/cluster/ha/resources/:sid" do
     Cluster.delete_ha_resource(conn)
   end
@@ -621,6 +1804,14 @@ defmodule MockPveApi.Router do
   # HA status
   get "/api2/json/cluster/ha/status/current" do
     Cluster.get_ha_status(conn)
+  end
+
+  get "/api2/json/cluster/ha/manager_status" do
+    Cluster.get_ha_manager_status(conn)
+  end
+
+  get "/api2/json/cluster/ha/status/manager_status" do
+    Cluster.get_ha_manager_status(conn)
   end
 
   # HA group endpoints
@@ -665,6 +1856,88 @@ defmodule MockPveApi.Router do
     Cluster.delete_ha_affinity_rule(conn)
   end
 
+  # HA rules (PVE 9.0+)
+  get "/api2/json/cluster/ha/rules" do
+    Cluster.list_ha_rules(conn)
+  end
+
+  post "/api2/json/cluster/ha/rules" do
+    Cluster.create_ha_rule(conn)
+  end
+
+  get "/api2/json/cluster/ha/rules/:rule" do
+    Cluster.get_ha_rule(conn)
+  end
+
+  put "/api2/json/cluster/ha/rules/:rule" do
+    Cluster.update_ha_rule(conn)
+  end
+
+  delete "/api2/json/cluster/ha/rules/:rule" do
+    Cluster.delete_ha_rule(conn)
+  end
+
+  # Cluster resource mapping endpoints (PCI/USB passthrough)
+  get "/api2/json/cluster/mapping/pci" do
+    Hardware.list_pci_mappings(conn)
+  end
+
+  post "/api2/json/cluster/mapping/pci" do
+    Hardware.create_pci_mapping(conn)
+  end
+
+  get "/api2/json/cluster/mapping/pci/:id" do
+    Hardware.get_pci_mapping(conn)
+  end
+
+  put "/api2/json/cluster/mapping/pci/:id" do
+    Hardware.update_pci_mapping(conn)
+  end
+
+  delete "/api2/json/cluster/mapping/pci/:id" do
+    Hardware.delete_pci_mapping(conn)
+  end
+
+  get "/api2/json/cluster/mapping/usb" do
+    Hardware.list_usb_mappings(conn)
+  end
+
+  post "/api2/json/cluster/mapping/usb" do
+    Hardware.create_usb_mapping(conn)
+  end
+
+  get "/api2/json/cluster/mapping/usb/:id" do
+    Hardware.get_usb_mapping(conn)
+  end
+
+  put "/api2/json/cluster/mapping/usb/:id" do
+    Hardware.update_usb_mapping(conn)
+  end
+
+  delete "/api2/json/cluster/mapping/usb/:id" do
+    Hardware.delete_usb_mapping(conn)
+  end
+
+  get "/api2/json/cluster/mapping/dir" do
+    Hardware.list_dir_mappings(conn)
+  end
+
+  post "/api2/json/cluster/mapping/dir" do
+    Hardware.create_dir_mapping(conn)
+  end
+
+  get "/api2/json/cluster/mapping/dir/:id" do
+    Hardware.get_dir_mapping(conn)
+  end
+
+  put "/api2/json/cluster/mapping/dir/:id" do
+    Hardware.update_dir_mapping(conn)
+  end
+
+  delete "/api2/json/cluster/mapping/dir/:id" do
+    Hardware.delete_dir_mapping(conn)
+  end
+
   # Backup job endpoints
   get "/api2/json/cluster/backup" do
     Cluster.list_backup_jobs(conn)
@@ -702,6 +1975,117 @@ defmodule MockPveApi.Router do
 
   post "/api2/json/cluster/replication" do
     Cluster.create_replication_job(conn)
+  end
+
+  get "/api2/json/cluster/replication/:id" do
+    Cluster.get_replication_job(conn)
+  end
+
+  put "/api2/json/cluster/replication/:id" do
+    Cluster.update_replication_job(conn)
+  end
+
+  delete "/api2/json/cluster/replication/:id" do
+    Cluster.delete_replication_job(conn)
+  end
+
+  # Cluster Ceph endpoints
+  get "/api2/json/cluster/ceph/flags/:flag" do
+    Cluster.get_ceph_flag(conn)
+  end
+
+  put "/api2/json/cluster/ceph/flags/:flag" do
+    Cluster.set_ceph_flag(conn)
+  end
+
+  get "/api2/json/cluster/ceph/flags" do
+    Cluster.get_ceph_flags(conn)
+  end
+
+  put "/api2/json/cluster/ceph/flags" do
+    Cluster.set_ceph_flags(conn)
+  end
+
+  get "/api2/json/cluster/ceph/metadata" do
+    Cluster.get_ceph_metadata(conn)
+  end
+
+  get "/api2/json/cluster/ceph/status" do
+    Cluster.get_ceph_status(conn)
+  end
+
+  # Cluster ACME endpoints
+  get "/api2/json/cluster/acme" do
+    Cluster.get_acme_index(conn)
+  end
+
+  get "/api2/json/cluster/acme/challenge-schema" do
+    Cluster.get_acme_challenge_schema(conn)
+  end
+
+  get "/api2/json/cluster/acme/directories" do
+    Cluster.get_acme_directories(conn)
+  end
+
+  get "/api2/json/cluster/acme/tos" do
+    Cluster.get_acme_tos(conn)
+  end
+
+  get "/api2/json/cluster/acme/meta" do
+    Cluster.get_acme_meta(conn)
+  end
+
+  get "/api2/json/cluster/acme/account/:name" do
+    Cluster.get_acme_account(conn)
+  end
+
+  put "/api2/json/cluster/acme/account/:name" do
+    Cluster.update_acme_account(conn)
+  end
+
+  delete "/api2/json/cluster/acme/account/:name" do
+    Cluster.delete_acme_account(conn)
+  end
+
+  get "/api2/json/cluster/acme/plugins/:id" do
+    Cluster.get_acme_plugin_by_id(conn)
+  end
+
+  put "/api2/json/cluster/acme/plugins/:id" do
+    Cluster.update_acme_plugin_by_id(conn)
+  end
+
+  delete "/api2/json/cluster/acme/plugins/:id" do
+    Cluster.delete_acme_plugin_by_id(conn)
+  end
+
+  get "/api2/json/cluster/acme/account" do
+    Cluster.list_acme_accounts(conn)
+  end
+
+  post "/api2/json/cluster/acme/account" do
+    Cluster.create_acme_account(conn)
+  end
+
+  get "/api2/json/cluster/acme/plugins" do
+    Cluster.list_acme_plugins(conn)
+  end
+
+  post "/api2/json/cluster/acme/plugins" do
+    Cluster.create_acme_plugin(conn)
+  end
+
+  # Cluster firewall static endpoints
+  get "/api2/json/cluster/firewall/refs" do
+    Firewall.get_cluster_firewall_refs(conn)
+  end
+
+  get "/api2/json/cluster/firewall/macros" do
+    Firewall.get_cluster_firewall_macros(conn)
+  end
+
+  get "/api2/json/cluster/firewall/log" do
+    Firewall.get_cluster_firewall_log(conn)
   end
 
   # Cluster firewall endpoints
@@ -755,6 +2139,10 @@ defmodule MockPveApi.Router do
 
   get "/api2/json/cluster/firewall/groups/:group" do
     Firewall.get_security_group(conn)
+  end
+
+  post "/api2/json/cluster/firewall/groups/:group" do
+    Firewall.create_security_group_rule(conn)
   end
 
   delete "/api2/json/cluster/firewall/groups/:group" do
@@ -835,8 +2223,16 @@ defmodule MockPveApi.Router do
     Pools.create_pool(conn)
   end
 
+  put "/api2/json/pools" do
+    Pools.update_pool_by_params(conn)
+  end
+
   put "/api2/json/pools/:poolid" do
     Pools.update_pool(conn)
+  end
+
+  delete "/api2/json/pools" do
+    Pools.delete_pool_by_params(conn)
   end
 
   delete "/api2/json/pools/:poolid" do
@@ -846,6 +2242,10 @@ defmodule MockPveApi.Router do
   # SDN endpoints (PVE 8.0+ only)
   get "/api2/json/cluster/sdn" do
     Sdn.get_sdn_index(conn)
+  end
+
+  put "/api2/json/cluster/sdn" do
+    Sdn.apply_sdn(conn)
   end
 
   get "/api2/json/cluster/sdn/zones" do
@@ -896,6 +2296,51 @@ defmodule MockPveApi.Router do
     Sdn.delete_subnet(conn)
   end
 
+  post "/api2/json/cluster/sdn/vnets/:vnet/ips" do
+    Cluster.sdn_vnet_ips(conn)
+  end
+
+  put "/api2/json/cluster/sdn/vnets/:vnet/ips" do
+    Cluster.sdn_vnet_ips(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/vnets/:vnet/ips" do
+    Cluster.sdn_vnet_ips(conn)
+  end
+
+  # SDN vnet firewall endpoints (8.3+)
+  get "/api2/json/cluster/sdn/vnets/:vnet/firewall" do
+    Firewall.get_sdn_vnet_firewall_index(conn)
+  end
+
+  get "/api2/json/cluster/sdn/vnets/:vnet/firewall/options" do
+    Firewall.get_sdn_vnet_firewall_options(conn)
+  end
+
+  put "/api2/json/cluster/sdn/vnets/:vnet/firewall/options" do
+    Firewall.update_sdn_vnet_firewall_options(conn)
+  end
+
+  get "/api2/json/cluster/sdn/vnets/:vnet/firewall/rules" do
+    Firewall.list_sdn_vnet_firewall_rules(conn)
+  end
+
+  post "/api2/json/cluster/sdn/vnets/:vnet/firewall/rules" do
+    Firewall.create_sdn_vnet_firewall_rule(conn)
+  end
+
+  get "/api2/json/cluster/sdn/vnets/:vnet/firewall/rules/:pos" do
+    Firewall.get_sdn_vnet_firewall_rule(conn)
+  end
+
+  put "/api2/json/cluster/sdn/vnets/:vnet/firewall/rules/:pos" do
+    Firewall.update_sdn_vnet_firewall_rule(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/vnets/:vnet/firewall/rules/:pos" do
+    Firewall.delete_sdn_vnet_firewall_rule(conn)
+  end
+
   get "/api2/json/cluster/sdn/vnets/:vnet" do
     Sdn.get_vnet(conn)
   end
@@ -928,6 +2373,118 @@ defmodule MockPveApi.Router do
     Sdn.delete_controller(conn)
   end
 
+  # SDN DNS endpoints
+  get "/api2/json/cluster/sdn/dns" do
+    Sdn.list_dns(conn)
+  end
+
+  post "/api2/json/cluster/sdn/dns" do
+    Sdn.create_dns(conn)
+  end
+
+  get "/api2/json/cluster/sdn/dns/:dns" do
+    Sdn.get_dns(conn)
+  end
+
+  put "/api2/json/cluster/sdn/dns/:dns" do
+    Sdn.update_dns(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/dns/:dns" do
+    Sdn.delete_dns(conn)
+  end
+
+  # SDN fabrics endpoints (PVE 9.0+)
+  get "/api2/json/cluster/sdn/fabrics" do
+    Cluster.list_sdn_fabrics(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/all" do
+    Cluster.get_sdn_fabrics_all(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/fabric" do
+    Cluster.list_sdn_fabric_type(conn)
+  end
+
+  post "/api2/json/cluster/sdn/fabrics/fabric" do
+    Cluster.create_sdn_fabric(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/fabric/:id" do
+    Cluster.get_sdn_fabric(conn)
+  end
+
+  put "/api2/json/cluster/sdn/fabrics/fabric/:id" do
+    Cluster.update_sdn_fabric(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/fabrics/fabric/:id" do
+    Cluster.delete_sdn_fabric(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/node" do
+    Cluster.list_sdn_fabric_nodes(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/node/:fabric_id" do
+    Cluster.list_sdn_fabric_node_members(conn)
+  end
+
+  post "/api2/json/cluster/sdn/fabrics/node/:fabric_id" do
+    Cluster.add_sdn_fabric_node(conn)
+  end
+
+  get "/api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id" do
+    Cluster.get_sdn_fabric_node(conn)
+  end
+
+  put "/api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id" do
+    Cluster.update_sdn_fabric_node(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id" do
+    Cluster.delete_sdn_fabric_node(conn)
+  end
+
+  # SDN lock and rollback stubs (PVE 9.0+)
+  post "/api2/json/cluster/sdn/lock" do
+    Cluster.lock_sdn(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/lock" do
+    Cluster.unlock_sdn(conn)
+  end
+
+  post "/api2/json/cluster/sdn/rollback" do
+    Cluster.rollback_sdn(conn)
+  end
+
+  # SDN IPAM endpoints
+  get "/api2/json/cluster/sdn/ipams" do
+    Sdn.list_ipams(conn)
+  end
+
+  post "/api2/json/cluster/sdn/ipams" do
+    Sdn.create_ipam(conn)
+  end
+
+  get "/api2/json/cluster/sdn/ipams/:ipam/status" do
+    Cluster.get_sdn_ipam_status(conn)
+  end
+
+  get "/api2/json/cluster/sdn/ipams/:ipam" do
+    Sdn.get_ipam(conn)
+  end
+
+  put "/api2/json/cluster/sdn/ipams/:ipam" do
+    Sdn.update_ipam(conn)
+  end
+
+  delete "/api2/json/cluster/sdn/ipams/:ipam" do
+    Sdn.delete_ipam(conn)
+  end
+
   # Realm sync endpoints (PVE 8.0+ only)
   post "/api2/json/access/domains/:realm/sync" do
     conn
@@ -936,16 +2493,138 @@ defmodule MockPveApi.Router do
   end
 
   # Notification endpoints (PVE 8.1+ only)
+  get "/api2/json/cluster/notifications/endpoints/gotify/:name" do
+    Notifications.get_gotify(conn)
+  end
+
+  put "/api2/json/cluster/notifications/endpoints/gotify/:name" do
+    Notifications.update_gotify(conn)
+  end
+
+  delete "/api2/json/cluster/notifications/endpoints/gotify/:name" do
+    Notifications.delete_gotify(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/gotify" do
+    Notifications.list_gotify(conn)
+  end
+
+  post "/api2/json/cluster/notifications/endpoints/gotify" do
+    Notifications.create_gotify(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/sendmail/:name" do
+    Notifications.get_sendmail(conn)
+  end
+
+  put "/api2/json/cluster/notifications/endpoints/sendmail/:name" do
+    Notifications.update_sendmail(conn)
+  end
+
+  delete "/api2/json/cluster/notifications/endpoints/sendmail/:name" do
+    Notifications.delete_sendmail(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/sendmail" do
+    Notifications.list_sendmail(conn)
+  end
+
+  post "/api2/json/cluster/notifications/endpoints/sendmail" do
+    Notifications.create_sendmail(conn)
+  end
+
+  get "/api2/json/cluster/notifications/matchers/:name" do
+    Notifications.get_matcher(conn)
+  end
+
+  put "/api2/json/cluster/notifications/matchers/:name" do
+    Notifications.update_matcher(conn)
+  end
+
+  delete "/api2/json/cluster/notifications/matchers/:name" do
+    Notifications.delete_matcher(conn)
+  end
+
+  get "/api2/json/cluster/notifications/matchers" do
+    Notifications.list_matchers(conn)
+  end
+
+  post "/api2/json/cluster/notifications/matchers" do
+    Notifications.create_matcher(conn)
+  end
+
   get "/api2/json/cluster/notifications/endpoints" do
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: []}))
+    Notifications.list_endpoint_types(conn)
   end
 
   get "/api2/json/cluster/notifications/filters" do
     conn
     |> put_resp_content_type("application/json")
     |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  get "/api2/json/cluster/notifications/targets/:name/test" do
+    Notifications.test_target(conn)
+  end
+
+  post "/api2/json/cluster/notifications/targets/:name/test" do
+    Notifications.test_target(conn)
+  end
+
+  get "/api2/json/cluster/notifications/targets" do
+    Notifications.list_targets(conn)
+  end
+
+  get "/api2/json/cluster/notifications/matcher-field-values" do
+    Notifications.get_matcher_field_values(conn)
+  end
+
+  get "/api2/json/cluster/notifications/matcher-fields" do
+    Notifications.list_matcher_fields(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/smtp/:name" do
+    Notifications.get_smtp(conn)
+  end
+
+  put "/api2/json/cluster/notifications/endpoints/smtp/:name" do
+    Notifications.update_smtp(conn)
+  end
+
+  delete "/api2/json/cluster/notifications/endpoints/smtp/:name" do
+    Notifications.delete_smtp(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/smtp" do
+    Notifications.list_smtp(conn)
+  end
+
+  post "/api2/json/cluster/notifications/endpoints/smtp" do
+    Notifications.create_smtp(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/webhook/:name" do
+    Notifications.get_webhook(conn)
+  end
+
+  put "/api2/json/cluster/notifications/endpoints/webhook/:name" do
+    Notifications.update_webhook(conn)
+  end
+
+  delete "/api2/json/cluster/notifications/endpoints/webhook/:name" do
+    Notifications.delete_webhook(conn)
+  end
+
+  get "/api2/json/cluster/notifications/endpoints/webhook" do
+    Notifications.list_webhook(conn)
+  end
+
+  post "/api2/json/cluster/notifications/endpoints/webhook" do
+    Notifications.create_webhook(conn)
+  end
+
+  get "/api2/json/cluster/notifications" do
+    Notifications.list_notifications(conn)
   end
 
   # VMware import endpoints (PVE 8.2+ only)
@@ -1253,6 +2932,87 @@ defmodule MockPveApi.Router do
         }
       })
     )
+  end
+
+  # Feature flag guard — skip version and internal coverage endpoints
+  defp check_feature_flags(%Plug.Conn{request_path: "/api2/json/version"} = conn, _opts), do: conn
+
+  defp check_feature_flags(%Plug.Conn{request_path: "/api2/json/_coverage" <> _} = conn, _opts),
+    do: conn
+
+  defp check_feature_flags(conn, _opts) do
+    path = conn.request_path
+
+    cond do
+      sdn_path?(path) && !feature_enabled?(:enable_sdn) ->
+        feature_disabled_error(conn, "SDN")
+
+      firewall_path?(path) && !feature_enabled?(:enable_firewall) ->
+        feature_disabled_error(conn, "Firewall")
+
+      backup_providers_path?(path) && !feature_enabled?(:enable_backup_providers) ->
+        feature_disabled_error(conn, "Backup Providers")
+
+      true ->
+        conn
+    end
+  end
+
+  defp sdn_path?(path), do: String.starts_with?(path, "/api2/json/cluster/sdn")
+
+  defp firewall_path?(path), do: String.contains?(path, "/firewall")
+
+  defp backup_providers_path?(path) do
+    String.starts_with?(path, "/api2/json/cluster/backup-providers") ||
+      path == "/api2/json/cluster/backup-info/providers"
+  end
+
+  defp feature_enabled?(key), do: Application.get_env(:mock_pve_api, key, true)
+
+  defp feature_disabled_error(conn, feature_name) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(
+      501,
+      Jason.encode!(%{
+        "errors" => %{"message" => "#{feature_name} feature is disabled"}
+      })
+    )
+    |> halt()
+  end
+
+  # Response delay — skip internal coverage endpoints
+  defp apply_response_delay(%Plug.Conn{request_path: "/api2/json/_coverage" <> _} = conn, _opts),
+    do: conn
+
+  defp apply_response_delay(conn, _opts) do
+    delay_ms = Application.get_env(:mock_pve_api, :response_delay_ms, 0)
+    if delay_ms > 0, do: Process.sleep(delay_ms)
+    conn
+  end
+
+  # Error injection — skip version and internal coverage endpoints
+  defp maybe_inject_error(%Plug.Conn{request_path: "/api2/json/version"} = conn, _opts), do: conn
+
+  defp maybe_inject_error(%Plug.Conn{request_path: "/api2/json/_coverage" <> _} = conn, _opts),
+    do: conn
+
+  defp maybe_inject_error(conn, _opts) do
+    error_rate = Application.get_env(:mock_pve_api, :error_rate, 0)
+
+    if error_rate > 0 && :rand.uniform(100) <= error_rate do
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        500,
+        Jason.encode!(%{
+          "errors" => %{"message" => "Simulated error (error_rate: #{error_rate}%)"}
+        })
+      )
+      |> halt()
+    else
+      conn
+    end
   end
 
   defp add_cors_headers(conn, _opts) do

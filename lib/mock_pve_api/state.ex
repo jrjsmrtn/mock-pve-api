@@ -87,6 +87,7 @@ defmodule MockPveApi.State do
       ha_resources: %{},
       ha_groups: %{},
       ha_affinity_rules: %{},
+      ha_rules: %{},
       backup_jobs: %{},
       next_backup_job_id: 1,
       cluster_options: %{
@@ -102,6 +103,12 @@ defmodule MockPveApi.State do
       sdn_vnets: %{},
       sdn_subnets: %{},
       sdn_controllers: %{},
+      sdn_dns: %{},
+      sdn_ipams: %{},
+      pci_mappings: %{},
+      usb_mappings: %{},
+      dir_mappings: %{},
+      realm_sync_jobs: %{},
       storage_content: %{},
       node_dns: %{},
       node_network_interfaces: %{
@@ -158,6 +165,13 @@ defmodule MockPveApi.State do
       },
       node_configs: %{},
       replication_jobs: %{},
+      acme_accounts: %{},
+      acme_plugins: %{},
+      notification_gotify: %{},
+      notification_sendmail: %{},
+      notification_smtp: %{},
+      notification_webhook: %{},
+      notification_matchers: %{},
       firewall: %{
         cluster: %{
           options: %{
@@ -171,7 +185,9 @@ defmodule MockPveApi.State do
           aliases: %{},
           ipsets: %{}
         },
-        nodes: %{}
+        nodes: %{},
+        vms: %{},
+        containers: %{}
       },
       pools: %{},
       users: %{
@@ -261,7 +277,8 @@ defmodule MockPveApi.State do
           "VM.Snapshot",
           "VM.Snapshot.Rollback"
         ]
-      }
+      },
+      metrics_servers: %{}
     }
   end
 
@@ -374,6 +391,10 @@ defmodule MockPveApi.State do
 
   def add_storage_content(node, storage, content) do
     GenServer.call(@name, {:add_storage_content, node, storage, content})
+  end
+
+  def get_storage_status(storage_id) do
+    GenServer.call(@name, {:get_storage_status, storage_id})
   end
 
   # Pool operations
@@ -581,6 +602,16 @@ defmodule MockPveApi.State do
     GenServer.call(@name, {:delete_ha_affinity_rule, rule})
   end
 
+  # HA rule operations (PVE 9.0+)
+  def list_ha_rules, do: GenServer.call(@name, :list_ha_rules)
+  def get_ha_rule(rule), do: GenServer.call(@name, {:get_ha_rule, rule})
+
+  def create_ha_rule(rule, params \\ %{}),
+    do: GenServer.call(@name, {:create_ha_rule, rule, params})
+
+  def update_ha_rule(rule, params), do: GenServer.call(@name, {:update_ha_rule, rule, params})
+  def delete_ha_rule(rule), do: GenServer.call(@name, {:delete_ha_rule, rule})
+
   # HA status
   def get_ha_status do
     GenServer.call(@name, :get_ha_status)
@@ -752,6 +783,90 @@ defmodule MockPveApi.State do
     GenServer.call(@name, {:delete_sdn_controller, controller})
   end
 
+  # SDN DNS CRUD operations
+  def list_sdn_dns do
+    GenServer.call(@name, :list_sdn_dns)
+  end
+
+  def get_sdn_dns(dns) do
+    GenServer.call(@name, {:get_sdn_dns, dns})
+  end
+
+  def create_sdn_dns(dns, params \\ %{}) do
+    GenServer.call(@name, {:create_sdn_dns, dns, params})
+  end
+
+  def update_sdn_dns(dns, params) do
+    GenServer.call(@name, {:update_sdn_dns, dns, params})
+  end
+
+  def delete_sdn_dns(dns) do
+    GenServer.call(@name, {:delete_sdn_dns, dns})
+  end
+
+  # SDN IPAM CRUD operations
+  def list_sdn_ipams do
+    GenServer.call(@name, :list_sdn_ipams)
+  end
+
+  def get_sdn_ipam(ipam) do
+    GenServer.call(@name, {:get_sdn_ipam, ipam})
+  end
+
+  def create_sdn_ipam(ipam, params \\ %{}) do
+    GenServer.call(@name, {:create_sdn_ipam, ipam, params})
+  end
+
+  def update_sdn_ipam(ipam, params) do
+    GenServer.call(@name, {:update_sdn_ipam, ipam, params})
+  end
+
+  def delete_sdn_ipam(ipam) do
+    GenServer.call(@name, {:delete_sdn_ipam, ipam})
+  end
+
+  # PCI mapping CRUD operations
+  def list_pci_mappings, do: GenServer.call(@name, :list_pci_mappings)
+  def get_pci_mapping(id), do: GenServer.call(@name, {:get_pci_mapping, id})
+
+  def create_pci_mapping(id, params \\ %{}),
+    do: GenServer.call(@name, {:create_pci_mapping, id, params})
+
+  def update_pci_mapping(id, params), do: GenServer.call(@name, {:update_pci_mapping, id, params})
+  def delete_pci_mapping(id), do: GenServer.call(@name, {:delete_pci_mapping, id})
+
+  # USB mapping CRUD operations
+  def list_usb_mappings, do: GenServer.call(@name, :list_usb_mappings)
+  def get_usb_mapping(id), do: GenServer.call(@name, {:get_usb_mapping, id})
+
+  def create_usb_mapping(id, params \\ %{}),
+    do: GenServer.call(@name, {:create_usb_mapping, id, params})
+
+  def update_usb_mapping(id, params), do: GenServer.call(@name, {:update_usb_mapping, id, params})
+  def delete_usb_mapping(id), do: GenServer.call(@name, {:delete_usb_mapping, id})
+
+  # Dir mapping CRUD operations
+  def list_dir_mappings, do: GenServer.call(@name, :list_dir_mappings)
+  def get_dir_mapping(id), do: GenServer.call(@name, {:get_dir_mapping, id})
+
+  def create_dir_mapping(id, params \\ %{}),
+    do: GenServer.call(@name, {:create_dir_mapping, id, params})
+
+  def update_dir_mapping(id, params), do: GenServer.call(@name, {:update_dir_mapping, id, params})
+  def delete_dir_mapping(id), do: GenServer.call(@name, {:delete_dir_mapping, id})
+
+  # Realm sync job CRUD operations
+  def list_realm_sync_jobs, do: GenServer.call(@name, :list_realm_sync_jobs)
+  def get_realm_sync_job(id), do: GenServer.call(@name, {:get_realm_sync_job, id})
+
+  def create_realm_sync_job(id, params \\ %{}),
+    do: GenServer.call(@name, {:create_realm_sync_job, id, params})
+
+  def update_realm_sync_job(id, params),
+    do: GenServer.call(@name, {:update_realm_sync_job, id, params})
+
+  def delete_realm_sync_job(id), do: GenServer.call(@name, {:delete_realm_sync_job, id})
+
   # Storage CRUD operations
   def get_storage_by_id(storage_id) do
     GenServer.call(@name, {:get_storage_by_id, storage_id})
@@ -836,6 +951,97 @@ defmodule MockPveApi.State do
     GenServer.call(@name, {:get_replication_job, id})
   end
 
+  def update_replication_job(id, params) do
+    GenServer.call(@name, {:update_replication_job, id, params})
+  end
+
+  def delete_replication_job(id) do
+    GenServer.call(@name, {:delete_replication_job, id})
+  end
+
+  # ACME account operations
+  def list_acme_accounts do
+    GenServer.call(@name, :list_acme_accounts)
+  end
+
+  def get_acme_account(name) do
+    GenServer.call(@name, {:get_acme_account, name})
+  end
+
+  def create_acme_account(name, params \\ %{}) do
+    GenServer.call(@name, {:create_acme_account, name, params})
+  end
+
+  def update_acme_account(name, params) do
+    GenServer.call(@name, {:update_acme_account, name, params})
+  end
+
+  def delete_acme_account(name) do
+    GenServer.call(@name, {:delete_acme_account, name})
+  end
+
+  # ACME plugin operations
+  def list_acme_plugins do
+    GenServer.call(@name, :list_acme_plugins)
+  end
+
+  def get_acme_plugin(id) do
+    GenServer.call(@name, {:get_acme_plugin, id})
+  end
+
+  def create_acme_plugin(id, params \\ %{}) do
+    GenServer.call(@name, {:create_acme_plugin, id, params})
+  end
+
+  def update_acme_plugin(id, params) do
+    GenServer.call(@name, {:update_acme_plugin, id, params})
+  end
+
+  def delete_acme_plugin(id) do
+    GenServer.call(@name, {:delete_acme_plugin, id})
+  end
+
+  # Notification operations
+  def list_notification_endpoints(type) do
+    GenServer.call(@name, {:list_notification_endpoints, type})
+  end
+
+  def get_notification_endpoint(type, name) do
+    GenServer.call(@name, {:get_notification_endpoint, type, name})
+  end
+
+  def create_notification_endpoint(type, name, params \\ %{}) do
+    GenServer.call(@name, {:create_notification_endpoint, type, name, params})
+  end
+
+  def update_notification_endpoint(type, name, params) do
+    GenServer.call(@name, {:update_notification_endpoint, type, name, params})
+  end
+
+  def delete_notification_endpoint(type, name) do
+    GenServer.call(@name, {:delete_notification_endpoint, type, name})
+  end
+
+  def list_notification_matchers do
+    GenServer.call(@name, :list_notification_matchers)
+  end
+
+  def get_notification_matcher(name) do
+    GenServer.call(@name, {:get_notification_matcher, name})
+  end
+
+  def create_notification_matcher(name, params \\ %{}) do
+    GenServer.call(@name, {:create_notification_matcher, name, params})
+  end
+
+  def update_notification_matcher(name, params) do
+    GenServer.call(@name, {:update_notification_matcher, name, params})
+  end
+
+  def delete_notification_matcher(name) do
+    GenServer.call(@name, {:delete_notification_matcher, name})
+  end
+
   # Firewall operations
   def get_firewall(scope) do
     GenServer.call(@name, {:get_firewall, scope})
@@ -843,6 +1049,27 @@ defmodule MockPveApi.State do
 
   def update_firewall(scope, updates) do
     GenServer.call(@name, {:update_firewall, scope, updates})
+  end
+
+  # Metrics server operations
+  def get_metrics_servers do
+    GenServer.call(@name, :get_metrics_servers)
+  end
+
+  def get_metrics_server(id) do
+    GenServer.call(@name, {:get_metrics_server, id})
+  end
+
+  def create_metrics_server(id, params) do
+    GenServer.call(@name, {:create_metrics_server, id, params})
+  end
+
+  def update_metrics_server(id, params) do
+    GenServer.call(@name, {:update_metrics_server, id, params})
+  end
+
+  def delete_metrics_server(id) do
+    GenServer.call(@name, {:delete_metrics_server, id})
   end
 
   # Version and capability operations
@@ -1650,6 +1877,15 @@ defmodule MockPveApi.State do
 
   # Cluster management callbacks
   def handle_call(:get_cluster_status, _from, state) do
+    cluster_entry = %{
+      type: "cluster",
+      name: Map.get(state.cluster_config, :name, "pvecluster"),
+      id: "cluster",
+      nodes: map_size(state.nodes),
+      quorate: 1,
+      version: 2
+    }
+
     cluster_nodes =
       state.nodes
       |> Enum.map(fn {node_name, node_data} ->
@@ -1657,13 +1893,14 @@ defmodule MockPveApi.State do
 
         Map.merge(node_data, %{
           type: "node",
+          name: node_name,
           level: "",
           nodeid: Map.get(cluster_node, :nodeid, 1),
           local: node_name == "pve-node1"
         })
       end)
 
-    {:reply, cluster_nodes, state}
+    {:reply, [cluster_entry | cluster_nodes], state}
   end
 
   def handle_call({:join_cluster, hostname, nodeid, votes}, _from, state) do
@@ -1955,6 +2192,64 @@ defmodule MockPveApi.State do
       _rule ->
         new_rules = Map.delete(state.ha_affinity_rules, rule)
         {:reply, :ok, %{state | ha_affinity_rules: new_rules}}
+    end
+  end
+
+  # HA rules callbacks (PVE 9.0+)
+  def handle_call(:list_ha_rules, _from, state) do
+    {:reply, Map.values(state.ha_rules), state}
+  end
+
+  def handle_call({:get_ha_rule, rule}, _from, state) do
+    {:reply, Map.get(state.ha_rules, rule), state}
+  end
+
+  def handle_call({:create_ha_rule, rule, params}, _from, state) do
+    if Map.has_key?(state.ha_rules, rule) do
+      {:reply, {:error, "HA rule '#{rule}' already exists"}, state}
+    else
+      ha_rule = %{
+        id: rule,
+        type: Map.get(params, "type", "affinity"),
+        resources: Map.get(params, "resources", ""),
+        comment: Map.get(params, "comment", ""),
+        enabled: Map.get(params, "enabled", 1),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_rules = Map.put(state.ha_rules, rule, ha_rule)
+      {:reply, {:ok, ha_rule}, %{state | ha_rules: new_rules}}
+    end
+  end
+
+  def handle_call({:update_ha_rule, rule, params}, _from, state) do
+    case Map.get(state.ha_rules, rule) do
+      nil ->
+        {:reply, {:error, "HA rule '#{rule}' not found"}, state}
+
+      ha_rule ->
+        updated =
+          Enum.reduce(params, ha_rule, fn
+            {"type", v}, acc -> Map.put(acc, :type, v)
+            {"resources", v}, acc -> Map.put(acc, :resources, v)
+            {"comment", v}, acc -> Map.put(acc, :comment, v)
+            {"enabled", v}, acc -> Map.put(acc, :enabled, v)
+            _, acc -> acc
+          end)
+
+        new_rules = Map.put(state.ha_rules, rule, updated)
+        {:reply, {:ok, updated}, %{state | ha_rules: new_rules}}
+    end
+  end
+
+  def handle_call({:delete_ha_rule, rule}, _from, state) do
+    case Map.get(state.ha_rules, rule) do
+      nil ->
+        {:reply, {:error, "HA rule '#{rule}' not found"}, state}
+
+      _rule ->
+        new_rules = Map.delete(state.ha_rules, rule)
+        {:reply, :ok, %{state | ha_rules: new_rules}}
     end
   end
 
@@ -2510,10 +2805,381 @@ defmodule MockPveApi.State do
     end
   end
 
+  # SDN DNS handle_calls
+
+  def handle_call(:list_sdn_dns, _from, state) do
+    {:reply, Map.values(state.sdn_dns), state}
+  end
+
+  def handle_call({:get_sdn_dns, dns}, _from, state) do
+    {:reply, Map.get(state.sdn_dns, dns), state}
+  end
+
+  def handle_call({:create_sdn_dns, dns, params}, _from, state) do
+    if Map.has_key?(state.sdn_dns, dns) do
+      {:reply, {:error, "SDN DNS plugin '#{dns}' already exists"}, state}
+    else
+      sdn_dns = %{
+        dns: dns,
+        type: Map.get(params, "type", "powerdns"),
+        url: Map.get(params, "url", ""),
+        key: Map.get(params, "key"),
+        reversev6mask: Map.get(params, "reversev6mask"),
+        ttl: Map.get(params, "ttl"),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_dns = Map.put(state.sdn_dns, dns, sdn_dns)
+      {:reply, {:ok, sdn_dns}, %{state | sdn_dns: new_dns}}
+    end
+  end
+
+  def handle_call({:update_sdn_dns, dns, params}, _from, state) do
+    case Map.get(state.sdn_dns, dns) do
+      nil ->
+        {:reply, {:error, "SDN DNS plugin '#{dns}' not found"}, state}
+
+      sdn_dns ->
+        updated =
+          Enum.reduce(params, sdn_dns, fn
+            {"type", v}, acc -> Map.put(acc, :type, v)
+            {"url", v}, acc -> Map.put(acc, :url, v)
+            {"key", v}, acc -> Map.put(acc, :key, v)
+            {"reversev6mask", v}, acc -> Map.put(acc, :reversev6mask, v)
+            {"ttl", v}, acc -> Map.put(acc, :ttl, v)
+            _, acc -> acc
+          end)
+
+        new_dns = Map.put(state.sdn_dns, dns, updated)
+        {:reply, {:ok, updated}, %{state | sdn_dns: new_dns}}
+    end
+  end
+
+  def handle_call({:delete_sdn_dns, dns}, _from, state) do
+    case Map.get(state.sdn_dns, dns) do
+      nil ->
+        {:reply, {:error, "SDN DNS plugin '#{dns}' not found"}, state}
+
+      _dns ->
+        new_dns = Map.delete(state.sdn_dns, dns)
+        {:reply, :ok, %{state | sdn_dns: new_dns}}
+    end
+  end
+
+  # SDN IPAM handle_calls
+
+  def handle_call(:list_sdn_ipams, _from, state) do
+    {:reply, Map.values(state.sdn_ipams), state}
+  end
+
+  def handle_call({:get_sdn_ipam, ipam}, _from, state) do
+    {:reply, Map.get(state.sdn_ipams, ipam), state}
+  end
+
+  def handle_call({:create_sdn_ipam, ipam, params}, _from, state) do
+    if Map.has_key?(state.sdn_ipams, ipam) do
+      {:reply, {:error, "SDN IPAM '#{ipam}' already exists"}, state}
+    else
+      sdn_ipam = %{
+        ipam: ipam,
+        type: Map.get(params, "type", "pve"),
+        url: Map.get(params, "url"),
+        token: Map.get(params, "token"),
+        section: Map.get(params, "section"),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new_ipams = Map.put(state.sdn_ipams, ipam, sdn_ipam)
+      {:reply, {:ok, sdn_ipam}, %{state | sdn_ipams: new_ipams}}
+    end
+  end
+
+  def handle_call({:update_sdn_ipam, ipam, params}, _from, state) do
+    case Map.get(state.sdn_ipams, ipam) do
+      nil ->
+        {:reply, {:error, "SDN IPAM '#{ipam}' not found"}, state}
+
+      sdn_ipam ->
+        updated =
+          Enum.reduce(params, sdn_ipam, fn
+            {"type", v}, acc -> Map.put(acc, :type, v)
+            {"url", v}, acc -> Map.put(acc, :url, v)
+            {"token", v}, acc -> Map.put(acc, :token, v)
+            {"section", v}, acc -> Map.put(acc, :section, v)
+            _, acc -> acc
+          end)
+
+        new_ipams = Map.put(state.sdn_ipams, ipam, updated)
+        {:reply, {:ok, updated}, %{state | sdn_ipams: new_ipams}}
+    end
+  end
+
+  def handle_call({:delete_sdn_ipam, ipam}, _from, state) do
+    case Map.get(state.sdn_ipams, ipam) do
+      nil ->
+        {:reply, {:error, "SDN IPAM '#{ipam}' not found"}, state}
+
+      _ipam ->
+        new_ipams = Map.delete(state.sdn_ipams, ipam)
+        {:reply, :ok, %{state | sdn_ipams: new_ipams}}
+    end
+  end
+
+  # PCI mapping handle_calls
+
+  def handle_call(:list_pci_mappings, _from, state) do
+    {:reply, Map.values(state.pci_mappings), state}
+  end
+
+  def handle_call({:get_pci_mapping, id}, _from, state) do
+    {:reply, Map.get(state.pci_mappings, id), state}
+  end
+
+  def handle_call({:create_pci_mapping, id, params}, _from, state) do
+    if Map.has_key?(state.pci_mappings, id) do
+      {:reply, {:error, "PCI mapping '#{id}' already exists"}, state}
+    else
+      mapping = %{
+        id: id,
+        description: Map.get(params, "description", ""),
+        map: Map.get(params, "map", []),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new = Map.put(state.pci_mappings, id, mapping)
+      {:reply, {:ok, mapping}, %{state | pci_mappings: new}}
+    end
+  end
+
+  def handle_call({:update_pci_mapping, id, params}, _from, state) do
+    case Map.get(state.pci_mappings, id) do
+      nil ->
+        {:reply, {:error, "PCI mapping '#{id}' not found"}, state}
+
+      mapping ->
+        updated =
+          Enum.reduce(params, mapping, fn
+            {"description", v}, acc -> Map.put(acc, :description, v)
+            {"map", v}, acc -> Map.put(acc, :map, v)
+            _, acc -> acc
+          end)
+
+        new = Map.put(state.pci_mappings, id, updated)
+        {:reply, {:ok, updated}, %{state | pci_mappings: new}}
+    end
+  end
+
+  def handle_call({:delete_pci_mapping, id}, _from, state) do
+    case Map.get(state.pci_mappings, id) do
+      nil ->
+        {:reply, {:error, "PCI mapping '#{id}' not found"}, state}
+
+      _ ->
+        new = Map.delete(state.pci_mappings, id)
+        {:reply, :ok, %{state | pci_mappings: new}}
+    end
+  end
+
+  # USB mapping handle_calls
+
+  def handle_call(:list_usb_mappings, _from, state) do
+    {:reply, Map.values(state.usb_mappings), state}
+  end
+
+  def handle_call({:get_usb_mapping, id}, _from, state) do
+    {:reply, Map.get(state.usb_mappings, id), state}
+  end
+
+  def handle_call({:create_usb_mapping, id, params}, _from, state) do
+    if Map.has_key?(state.usb_mappings, id) do
+      {:reply, {:error, "USB mapping '#{id}' already exists"}, state}
+    else
+      mapping = %{
+        id: id,
+        description: Map.get(params, "description", ""),
+        map: Map.get(params, "map", []),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new = Map.put(state.usb_mappings, id, mapping)
+      {:reply, {:ok, mapping}, %{state | usb_mappings: new}}
+    end
+  end
+
+  def handle_call({:update_usb_mapping, id, params}, _from, state) do
+    case Map.get(state.usb_mappings, id) do
+      nil ->
+        {:reply, {:error, "USB mapping '#{id}' not found"}, state}
+
+      mapping ->
+        updated =
+          Enum.reduce(params, mapping, fn
+            {"description", v}, acc -> Map.put(acc, :description, v)
+            {"map", v}, acc -> Map.put(acc, :map, v)
+            _, acc -> acc
+          end)
+
+        new = Map.put(state.usb_mappings, id, updated)
+        {:reply, {:ok, updated}, %{state | usb_mappings: new}}
+    end
+  end
+
+  def handle_call({:delete_usb_mapping, id}, _from, state) do
+    case Map.get(state.usb_mappings, id) do
+      nil ->
+        {:reply, {:error, "USB mapping '#{id}' not found"}, state}
+
+      _ ->
+        new = Map.delete(state.usb_mappings, id)
+        {:reply, :ok, %{state | usb_mappings: new}}
+    end
+  end
+
+  # Dir mapping handle_calls
+
+  def handle_call(:list_dir_mappings, _from, state) do
+    {:reply, Map.values(state.dir_mappings), state}
+  end
+
+  def handle_call({:get_dir_mapping, id}, _from, state) do
+    {:reply, Map.get(state.dir_mappings, id), state}
+  end
+
+  def handle_call({:create_dir_mapping, id, params}, _from, state) do
+    if Map.has_key?(state.dir_mappings, id) do
+      {:reply, {:error, "Dir mapping '#{id}' already exists"}, state}
+    else
+      mapping = %{
+        id: id,
+        path: Map.get(params, "path", "/"),
+        nodes: Map.get(params, "nodes", []),
+        description: Map.get(params, "description", ""),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new = Map.put(state.dir_mappings, id, mapping)
+      {:reply, {:ok, mapping}, %{state | dir_mappings: new}}
+    end
+  end
+
+  def handle_call({:update_dir_mapping, id, params}, _from, state) do
+    case Map.get(state.dir_mappings, id) do
+      nil ->
+        {:reply, {:error, "Dir mapping '#{id}' not found"}, state}
+
+      mapping ->
+        updated =
+          Enum.reduce(params, mapping, fn
+            {"path", v}, acc -> Map.put(acc, :path, v)
+            {"nodes", v}, acc -> Map.put(acc, :nodes, v)
+            {"description", v}, acc -> Map.put(acc, :description, v)
+            _, acc -> acc
+          end)
+
+        new = Map.put(state.dir_mappings, id, updated)
+        {:reply, {:ok, updated}, %{state | dir_mappings: new}}
+    end
+  end
+
+  def handle_call({:delete_dir_mapping, id}, _from, state) do
+    case Map.get(state.dir_mappings, id) do
+      nil ->
+        {:reply, {:error, "Dir mapping '#{id}' not found"}, state}
+
+      _ ->
+        new = Map.delete(state.dir_mappings, id)
+        {:reply, :ok, %{state | dir_mappings: new}}
+    end
+  end
+
+  # Realm sync job handle_calls
+
+  def handle_call(:list_realm_sync_jobs, _from, state) do
+    {:reply, Map.values(state.realm_sync_jobs), state}
+  end
+
+  def handle_call({:get_realm_sync_job, id}, _from, state) do
+    {:reply, Map.get(state.realm_sync_jobs, id), state}
+  end
+
+  def handle_call({:create_realm_sync_job, id, params}, _from, state) do
+    if Map.has_key?(state.realm_sync_jobs, id) do
+      {:reply, {:error, "Realm sync job '#{id}' already exists"}, state}
+    else
+      job = %{
+        id: id,
+        realm: Map.get(params, "realm", ""),
+        schedule: Map.get(params, "schedule", ""),
+        remove_vanished: Map.get(params, "remove-vanished", ""),
+        enabled: Map.get(params, "enabled", 1),
+        digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
+      }
+
+      new = Map.put(state.realm_sync_jobs, id, job)
+      {:reply, {:ok, job}, %{state | realm_sync_jobs: new}}
+    end
+  end
+
+  def handle_call({:update_realm_sync_job, id, params}, _from, state) do
+    case Map.get(state.realm_sync_jobs, id) do
+      nil ->
+        {:reply, {:error, "Realm sync job '#{id}' not found"}, state}
+
+      job ->
+        updated =
+          Enum.reduce(params, job, fn
+            {"realm", v}, acc -> Map.put(acc, :realm, v)
+            {"schedule", v}, acc -> Map.put(acc, :schedule, v)
+            {"remove-vanished", v}, acc -> Map.put(acc, :remove_vanished, v)
+            {"enabled", v}, acc -> Map.put(acc, :enabled, v)
+            _, acc -> acc
+          end)
+
+        new = Map.put(state.realm_sync_jobs, id, updated)
+        {:reply, {:ok, updated}, %{state | realm_sync_jobs: new}}
+    end
+  end
+
+  def handle_call({:delete_realm_sync_job, id}, _from, state) do
+    case Map.get(state.realm_sync_jobs, id) do
+      nil ->
+        {:reply, {:error, "Realm sync job '#{id}' not found"}, state}
+
+      _ ->
+        new = Map.delete(state.realm_sync_jobs, id)
+        {:reply, :ok, %{state | realm_sync_jobs: new}}
+    end
+  end
+
   # Storage CRUD handle_calls
 
   def handle_call({:get_storage_by_id, storage_id}, _from, state) do
     {:reply, Map.get(state.storage, storage_id), state}
+  end
+
+  def handle_call({:get_storage_status, storage_id}, _from, state) do
+    case Map.get(state.storage, storage_id) do
+      nil ->
+        {:reply, nil, state}
+
+      storage ->
+        status = %{
+          storage: storage_id,
+          type: storage.type,
+          content: storage.content,
+          enabled: Map.get(storage, :enabled, 1),
+          active: 1,
+          shared: 0,
+          # 100 GiB synthetic
+          total: 107_374_182_400,
+          # 50 GiB synthetic
+          used: 53_687_091_200,
+          # 50 GiB synthetic
+          avail: 53_687_091_200
+        }
+
+        {:reply, status, state}
+    end
   end
 
   def handle_call({:create_storage, storage_id, params}, _from, state) do
@@ -2797,6 +3463,209 @@ defmodule MockPveApi.State do
     end
   end
 
+  def handle_call({:update_replication_job, id, params}, _from, state) do
+    case Map.get(state.replication_jobs, id) do
+      nil ->
+        {:reply, {:error, "Replication job '#{id}' not found"}, state}
+
+      job ->
+        updated = Map.merge(job, params)
+        new_jobs = Map.put(state.replication_jobs, id, updated)
+        {:reply, {:ok, updated}, %{state | replication_jobs: new_jobs}}
+    end
+  end
+
+  def handle_call({:delete_replication_job, id}, _from, state) do
+    if Map.has_key?(state.replication_jobs, id) do
+      new_jobs = Map.delete(state.replication_jobs, id)
+      {:reply, :ok, %{state | replication_jobs: new_jobs}}
+    else
+      {:reply, {:error, "Replication job '#{id}' not found"}, state}
+    end
+  end
+
+  # ACME account handle_calls
+
+  def handle_call(:list_acme_accounts, _from, state) do
+    {:reply, Map.values(state.acme_accounts), state}
+  end
+
+  def handle_call({:get_acme_account, name}, _from, state) do
+    {:reply, Map.get(state.acme_accounts, name), state}
+  end
+
+  def handle_call({:create_acme_account, name, params}, _from, state) do
+    if Map.has_key?(state.acme_accounts, name) do
+      {:reply, {:error, :already_exists}, state}
+    else
+      account =
+        Map.merge(
+          %{
+            name: name,
+            contact: "",
+            directory: "https://acme-v02.api.letsencrypt.org/directory",
+            tos: ""
+          },
+          params
+        )
+
+      new_accounts = Map.put(state.acme_accounts, name, account)
+      {:reply, {:ok, account}, %{state | acme_accounts: new_accounts}}
+    end
+  end
+
+  def handle_call({:update_acme_account, name, params}, _from, state) do
+    case Map.get(state.acme_accounts, name) do
+      nil ->
+        {:reply, {:error, "ACME account '#{name}' not found"}, state}
+
+      account ->
+        updated = Map.merge(account, params)
+        new_accounts = Map.put(state.acme_accounts, name, updated)
+        {:reply, {:ok, updated}, %{state | acme_accounts: new_accounts}}
+    end
+  end
+
+  def handle_call({:delete_acme_account, name}, _from, state) do
+    if Map.has_key?(state.acme_accounts, name) do
+      {:reply, :ok, %{state | acme_accounts: Map.delete(state.acme_accounts, name)}}
+    else
+      {:reply, {:error, "ACME account '#{name}' not found"}, state}
+    end
+  end
+
+  # ACME plugin handle_calls
+
+  def handle_call(:list_acme_plugins, _from, state) do
+    {:reply, Map.values(state.acme_plugins), state}
+  end
+
+  def handle_call({:get_acme_plugin, id}, _from, state) do
+    {:reply, Map.get(state.acme_plugins, id), state}
+  end
+
+  def handle_call({:create_acme_plugin, id, params}, _from, state) do
+    if Map.has_key?(state.acme_plugins, id) do
+      {:reply, {:error, :already_exists}, state}
+    else
+      plugin = Map.merge(%{plugin: id, type: "standalone", api: nil}, params)
+      new_plugins = Map.put(state.acme_plugins, id, plugin)
+      {:reply, {:ok, plugin}, %{state | acme_plugins: new_plugins}}
+    end
+  end
+
+  def handle_call({:update_acme_plugin, id, params}, _from, state) do
+    case Map.get(state.acme_plugins, id) do
+      nil ->
+        {:reply, {:error, "ACME plugin '#{id}' not found"}, state}
+
+      plugin ->
+        updated = Map.merge(plugin, params)
+        new_plugins = Map.put(state.acme_plugins, id, updated)
+        {:reply, {:ok, updated}, %{state | acme_plugins: new_plugins}}
+    end
+  end
+
+  def handle_call({:delete_acme_plugin, id}, _from, state) do
+    if Map.has_key?(state.acme_plugins, id) do
+      {:reply, :ok, %{state | acme_plugins: Map.delete(state.acme_plugins, id)}}
+    else
+      {:reply, {:error, "ACME plugin '#{id}' not found"}, state}
+    end
+  end
+
+  # Notification handle_calls
+
+  def handle_call({:list_notification_endpoints, type}, _from, state) do
+    key = notification_key(type)
+    {:reply, Map.values(Map.get(state, key, %{})), state}
+  end
+
+  def handle_call({:get_notification_endpoint, type, name}, _from, state) do
+    key = notification_key(type)
+    {:reply, Map.get(Map.get(state, key, %{}), name), state}
+  end
+
+  def handle_call({:create_notification_endpoint, type, name, params}, _from, state) do
+    key = notification_key(type)
+    store = Map.get(state, key, %{})
+
+    if Map.has_key?(store, name) do
+      {:reply, {:error, :already_exists}, state}
+    else
+      endpoint = Map.merge(%{name: name, type: to_string(type)}, params)
+      new_store = Map.put(store, name, endpoint)
+      {:reply, {:ok, endpoint}, Map.put(state, key, new_store)}
+    end
+  end
+
+  def handle_call({:update_notification_endpoint, type, name, params}, _from, state) do
+    key = notification_key(type)
+    store = Map.get(state, key, %{})
+
+    case Map.get(store, name) do
+      nil ->
+        {:reply, {:error, "Notification endpoint '#{name}' not found"}, state}
+
+      endpoint ->
+        updated = Map.merge(endpoint, params)
+        new_store = Map.put(store, name, updated)
+        {:reply, {:ok, updated}, Map.put(state, key, new_store)}
+    end
+  end
+
+  def handle_call({:delete_notification_endpoint, type, name}, _from, state) do
+    key = notification_key(type)
+    store = Map.get(state, key, %{})
+
+    if Map.has_key?(store, name) do
+      {:reply, :ok, Map.put(state, key, Map.delete(store, name))}
+    else
+      {:reply, {:error, "Notification endpoint '#{name}' not found"}, state}
+    end
+  end
+
+  def handle_call(:list_notification_matchers, _from, state) do
+    {:reply, Map.values(state.notification_matchers), state}
+  end
+
+  def handle_call({:get_notification_matcher, name}, _from, state) do
+    {:reply, Map.get(state.notification_matchers, name), state}
+  end
+
+  def handle_call({:create_notification_matcher, name, params}, _from, state) do
+    if Map.has_key?(state.notification_matchers, name) do
+      {:reply, {:error, :already_exists}, state}
+    else
+      matcher =
+        Map.merge(%{name: name, match_severity: nil, match_field: nil, target: nil}, params)
+
+      new_matchers = Map.put(state.notification_matchers, name, matcher)
+      {:reply, {:ok, matcher}, %{state | notification_matchers: new_matchers}}
+    end
+  end
+
+  def handle_call({:update_notification_matcher, name, params}, _from, state) do
+    case Map.get(state.notification_matchers, name) do
+      nil ->
+        {:reply, {:error, "Notification matcher '#{name}' not found"}, state}
+
+      matcher ->
+        updated = Map.merge(matcher, params)
+        new_matchers = Map.put(state.notification_matchers, name, updated)
+        {:reply, {:ok, updated}, %{state | notification_matchers: new_matchers}}
+    end
+  end
+
+  def handle_call({:delete_notification_matcher, name}, _from, state) do
+    if Map.has_key?(state.notification_matchers, name) do
+      {:reply, :ok,
+       %{state | notification_matchers: Map.delete(state.notification_matchers, name)}}
+    else
+      {:reply, {:error, "Notification matcher '#{name}' not found"}, state}
+    end
+  end
+
   # Firewall handle_calls
 
   def handle_call({:get_firewall, :cluster}, _from, state) do
@@ -2830,6 +3699,73 @@ defmodule MockPveApi.State do
     new_nodes = Map.put(state.firewall.nodes, node, updated)
     new_fw = %{state.firewall | nodes: new_nodes}
     {:reply, :ok, %{state | firewall: new_fw}}
+  end
+
+  def handle_call({:get_firewall, {:vm, vmid}}, _from, state) do
+    vm_fw = Map.get(state.firewall.vms, vmid, default_vm_ct_firewall())
+    {:reply, vm_fw, state}
+  end
+
+  def handle_call({:get_firewall, {:container, vmid}}, _from, state) do
+    ct_fw = Map.get(state.firewall.containers, vmid, default_vm_ct_firewall())
+    {:reply, ct_fw, state}
+  end
+
+  def handle_call({:update_firewall, {:vm, vmid}, updates}, _from, state) do
+    current = Map.get(state.firewall.vms, vmid, default_vm_ct_firewall())
+    updated = Map.merge(current, updates)
+    new_vms = Map.put(state.firewall.vms, vmid, updated)
+    new_fw = %{state.firewall | vms: new_vms}
+    {:reply, :ok, %{state | firewall: new_fw}}
+  end
+
+  def handle_call({:update_firewall, {:container, vmid}, updates}, _from, state) do
+    current = Map.get(state.firewall.containers, vmid, default_vm_ct_firewall())
+    updated = Map.merge(current, updates)
+    new_cts = Map.put(state.firewall.containers, vmid, updated)
+    new_fw = %{state.firewall | containers: new_cts}
+    {:reply, :ok, %{state | firewall: new_fw}}
+  end
+
+  # Metrics server handle_calls
+
+  def handle_call(:get_metrics_servers, _from, state) do
+    servers = state.metrics_servers |> Map.values()
+    {:reply, servers, state}
+  end
+
+  def handle_call({:get_metrics_server, id}, _from, state) do
+    {:reply, Map.get(state.metrics_servers, id), state}
+  end
+
+  def handle_call({:create_metrics_server, id, params}, _from, state) do
+    if Map.has_key?(state.metrics_servers, id) do
+      {:reply, {:error, "Metrics server '#{id}' already exists"}, state}
+    else
+      server = Map.merge(%{id: id, type: "influxdb", port: 8089, enable: 1}, params)
+      new_servers = Map.put(state.metrics_servers, id, server)
+      {:reply, {:ok, server}, %{state | metrics_servers: new_servers}}
+    end
+  end
+
+  def handle_call({:update_metrics_server, id, params}, _from, state) do
+    case Map.get(state.metrics_servers, id) do
+      nil ->
+        {:reply, {:error, "Metrics server '#{id}' not found"}, state}
+
+      server ->
+        updated = Map.merge(server, params)
+        new_servers = Map.put(state.metrics_servers, id, updated)
+        {:reply, {:ok, updated}, %{state | metrics_servers: new_servers}}
+    end
+  end
+
+  def handle_call({:delete_metrics_server, id}, _from, state) do
+    if Map.has_key?(state.metrics_servers, id) do
+      {:reply, :ok, %{state | metrics_servers: Map.delete(state.metrics_servers, id)}}
+    else
+      {:reply, {:error, "Metrics server '#{id}' not found"}, state}
+    end
   end
 
   @impl true
@@ -2908,5 +3844,34 @@ defmodule MockPveApi.State do
       ["ct", _] -> "ct"
       _ -> "vm"
     end
+  end
+
+  defp notification_key(:gotify), do: :notification_gotify
+  defp notification_key(:sendmail), do: :notification_sendmail
+  defp notification_key(:smtp), do: :notification_smtp
+  defp notification_key(:webhook), do: :notification_webhook
+  defp notification_key("gotify"), do: :notification_gotify
+  defp notification_key("sendmail"), do: :notification_sendmail
+  defp notification_key("smtp"), do: :notification_smtp
+  defp notification_key("webhook"), do: :notification_webhook
+
+  defp default_vm_ct_firewall do
+    %{
+      options: %{
+        enable: 0,
+        dhcp: 0,
+        ipfilter: 0,
+        log_level_in: "nolog",
+        log_level_out: "nolog",
+        macfilter: 1,
+        ndp: 1,
+        policy_in: "DROP",
+        policy_out: "ACCEPT",
+        radv: 0
+      },
+      rules: [],
+      aliases: %{},
+      ipsets: %{}
+    }
   end
 end

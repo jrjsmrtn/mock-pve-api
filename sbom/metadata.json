@@ -5,7 +5,7 @@
     "description": "Mock Proxmox VE API Server for testing and development",
     "license": "MIT",
     "repository": "https://github.com/jrjsmrtn/mock-pve-api",
-    "registry": "docker.io/jrjsmrtn/mock-pve-api"
+    "registry": "ghcr.io/jrjsmrtn/mock-pve-api"
   },
   "sbom": {
     "generated_at": "2025-09-10T22:11:40Z",

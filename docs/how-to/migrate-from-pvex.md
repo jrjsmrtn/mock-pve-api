@@ -52,7 +52,7 @@ defmodule MyTest do
     end)
     
     # Option 2: Use Docker container (CI/CD)
-    # podman run -d -p 18006:8006 -e MOCK_PVE_VERSION=8.0 docker.io/jrjsmrtn/mock-pve-api:latest
+    # podman run -d -p 18006:8006 -e MOCK_PVE_VERSION=8.0 ghcr.io/jrjsmrtn/mock-pve-api:latest
     
     config = %Pvex.Config{
       host: "localhost",
@@ -151,7 +151,7 @@ jobs:
     
     services:
       mock-pve:
-        image: docker.io/jrjsmrtn/mock-pve-api:latest
+        image: ghcr.io/jrjsmrtn/mock-pve-api:latest
         ports:
           - 18006:8006
         env:
@@ -382,14 +382,14 @@ version: '3.8'
 
 services:
   mock-pve-7:
-    image: docker.io/jrjsmrtn/mock-pve-api:latest
+    image: ghcr.io/jrjsmrtn/mock-pve-api:latest
     ports:
       - "18074:8006"
     environment:
       - MOCK_PVE_VERSION=7.4
 
   mock-pve-8:
-    image: docker.io/jrjsmrtn/mock-pve-api:latest
+    image: ghcr.io/jrjsmrtn/mock-pve-api:latest
     ports:
       - "18080:8006"
     environment:
@@ -418,7 +418,7 @@ test-with-mock:
 	podman run -d --name mock-pve-test \
 		-p 18006:8006 \
 		-e MOCK_PVE_VERSION=8.0 \
-		docker.io/jrjsmrtn/mock-pve-api:latest
+		ghcr.io/jrjsmrtn/mock-pve-api:latest
 	@echo "Waiting for server to be ready..."
 	@for i in $$(seq 1 30); do \
 		if curl -s -f http://localhost:18006/api2/json/version > /dev/null; then \
