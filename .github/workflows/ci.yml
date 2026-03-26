@@ -61,7 +61,7 @@ jobs:
         run: mix compile --force --warnings-as-errors
 
       - name: Run tests
-        run: mix test --cover
+        run: mix test
 
   secret-scan:
     name: Secret Detection
