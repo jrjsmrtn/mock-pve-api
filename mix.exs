@@ -11,6 +11,13 @@ defmodule MockPveApi.MixProject do
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      test_coverage: [
+        ignore_modules: [
+          Mix.Tasks.MockPve.Gen.EndpointMatrix,
+          Mix.Tasks.Pve.CoverageDiff,
+          MockPveApi.Certs
+        ]
+      ],
       description: "Mock Proxmox VE API Server for testing and development",
       package: package(),
       docs: docs(),
