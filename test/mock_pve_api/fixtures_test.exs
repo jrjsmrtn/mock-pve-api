@@ -7,11 +7,11 @@ defmodule MockPveApi.FixturesTest do
   alias MockPveApi.{Fixtures, State}
 
   setup do
+    original_version = Application.get_env(:mock_pve_api, :pve_version, "8.0")
     State.reset()
 
     on_exit(fn ->
-      # Restore default version after any version-changing tests
-      Application.put_env(:mock_pve_api, :pve_version, "8.3")
+      Application.put_env(:mock_pve_api, :pve_version, original_version)
       State.reset()
     end)
 

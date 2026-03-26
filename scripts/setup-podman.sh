@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 SCRIPT_VERSION="0.1.0"
-MOCK_PVE_IMAGE="docker.io/jrjsmrtn/mock-pve-api:latest"
+MOCK_PVE_IMAGE="ghcr.io/jrjsmrtn/mock-pve-api:latest"
 DEFAULT_PORT=8006
 SETUP_MODE="interactive"
 

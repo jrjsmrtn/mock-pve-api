@@ -18,7 +18,7 @@ defmodule MockPveApi.Coverage.Pools do
     %{
       "/api2/json/pools" => %{
         path: "/api2/json/pools",
-        methods: [:get, :post],
+        methods: [:get, :post, :put, :delete],
         status: :implemented,
         priority: :medium,
         since: "6.0",

@@ -45,7 +45,7 @@ defmodule MockPveApi.Coverage.Containers do
       },
       "/api2/json/nodes/{node}/lxc/{vmid}" => %{
         path: "/api2/json/nodes/{node}/lxc/{vmid}",
-        methods: [:get, :put, :delete],
+        methods: [:get, :delete],
         status: :implemented,
         priority: :critical,
         since: "6.0",
@@ -105,6 +105,20 @@ defmodule MockPveApi.Coverage.Containers do
         handler_module: MockPveApi.Handlers.Nodes,
         notes: nil
       },
+      "/api2/json/nodes/{node}/lxc/{vmid}/status" =>
+        implemented(:get, :medium, "4.0", "Container status index"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/start" =>
+        implemented(:post, :high, "4.0", "Start container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/stop" =>
+        implemented(:post, :high, "4.0", "Stop container (immediate)"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/reboot" =>
+        implemented(:post, :medium, "4.0", "Reboot container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/shutdown" =>
+        implemented(:post, :medium, "4.0", "Shutdown container (graceful)"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/resume" =>
+        implemented(:post, :medium, "4.0", "Resume suspended container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/status/suspend" =>
+        implemented(:post, :medium, "4.0", "Suspend container"),
       "/api2/json/nodes/{node}/lxc/{vmid}/status/current" => %{
         path: "/api2/json/nodes/{node}/lxc/{vmid}/status/current",
         methods: [:get],
@@ -216,10 +230,10 @@ defmodule MockPveApi.Coverage.Containers do
       },
       "/api2/json/nodes/{node}/lxc/{vmid}/migrate" => %{
         path: "/api2/json/nodes/{node}/lxc/{vmid}/migrate",
-        methods: [:post],
+        methods: [:get, :post],
         status: :implemented,
         priority: :high,
-        since: "6.0",
+        since: "9.0",
         description: "Migrate container to another node",
         parameters: [
           %{
@@ -454,36 +468,49 @@ defmodule MockPveApi.Coverage.Containers do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Nodes,
         notes: nil
-      }
+      },
+      "/api2/json/nodes/{node}/lxc/{vmid}/feature" =>
+        implemented(:get, :low, "6.0", "Check container feature availability"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/template" =>
+        implemented(:post, :low, "6.0", "Convert container to template"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/move_volume" =>
+        implemented(:post, :medium, "6.0", "Move container volume to different storage"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/vncproxy" =>
+        implemented(:post, :low, "4.0", "Create VNC proxy for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/termproxy" =>
+        implemented(:post, :low, "4.0", "Create terminal proxy for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/spiceproxy" =>
+        implemented(:post, :low, "4.0", "Create SPICE proxy for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/vncwebsocket" =>
+        implemented(:get, :low, "4.0", "VNC WebSocket endpoint for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/mtunnel" =>
+        implemented(:post, :low, "7.0", "Create migration tunnel for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/mtunnelwebsocket" =>
+        implemented(:get, :low, "7.0", "Migration tunnel WebSocket for container"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/remote_migrate" =>
+        implemented(:post, :medium, "7.0", "Migrate container to remote cluster"),
+      "/api2/json/nodes/{node}/lxc/{vmid}/interfaces" =>
+        implemented(:get, :low, "4.0", "Get container network interfaces")
     }
   end
 
   defp planned_endpoints do
-    %{
-      "/api2/json/nodes/{node}/lxc/{vmid}/feature" =>
-        planned(:get, :low, "6.0", "Check container feature availability"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/template" =>
-        planned(:post, :low, "6.0", "Convert container to template"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/move_volume" =>
-        planned(:post, :medium, "6.0", "Move container volume to different storage"),
-      "/api2/json/nodes/{node}/lxc/{vmid}/firewall" =>
-        planned(:get, :low, "6.0", "Container firewall index")
-    }
+    %{}
   end
 
-  defp planned(methods_atom, priority, since, description) do
+  defp implemented(methods_atom, priority, since, description) do
     %{
       path: "",
       methods: methods_for(methods_atom),
-      status: :planned,
+      status: :implemented,
       priority: priority,
       since: since,
       description: description,
       parameters: [],
       response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
+      capabilities_required: [:containers],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Nodes,
       notes: nil
     }
   end

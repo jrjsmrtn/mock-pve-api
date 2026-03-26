@@ -9,6 +9,10 @@ config :mock_pve_api,
   port: System.get_env("MOCK_PVE_PORT", "8006") |> String.to_integer(),
   host: System.get_env("MOCK_PVE_HOST", "0.0.0.0"),
 
+  # Minimum supported PVE version — endpoints available since before this version
+  # are treated as available from this version in the coverage catalog.
+  min_pve_version: "7.0",
+
   # PVE version simulation (7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 9.0)
   pve_version: System.get_env("MOCK_PVE_VERSION", "8.3"),
 

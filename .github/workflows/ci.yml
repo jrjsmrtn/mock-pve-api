@@ -183,6 +183,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write  # needed for cosign signing
 
     steps:
       - name: Checkout code
@@ -190,6 +191,10 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v3
 
       - name: Log in to GHCR
         if: github.event_name != 'pull_request'
@@ -211,9 +216,9 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=raw,value=latest,enable={{is_default_branch}}
-      
+
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         id: build
         with:
           context: .
@@ -222,8 +227,16 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: true
+          sbom: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Sign container image
+        if: github.event_name != 'pull_request'
+        run: cosign sign --yes "${IMAGE_NAME}@${DIGEST}"
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
       
       - name: Install Syft for container SBOM
         if: github.event_name != 'pull_request'
@@ -272,11 +285,12 @@ jobs:
         env:
           MOCK_PVE_VERSION: "7.4"
         options: >-
-          --health-cmd "curl -f http://localhost:8006/api2/json/version || exit 1"
+          --health-cmd "curl -fk https://localhost:8006/api2/json/version || exit 1"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      
+          --health-start-period 10s
+
       mock-pve-8:
         image: ghcr.io/jrjsmrtn/mock-pve-api:latest
         ports:
@@ -284,11 +298,12 @@ jobs:
         env:
           MOCK_PVE_VERSION: "8.3"
         options: >-
-          --health-cmd "curl -f http://localhost:8006/api2/json/version || exit 1"
+          --health-cmd "curl -fk https://localhost:8006/api2/json/version || exit 1"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      
+          --health-start-period 10s
+
       mock-pve-9:
         image: ghcr.io/jrjsmrtn/mock-pve-api:latest
         ports:
@@ -296,26 +311,27 @@ jobs:
         env:
           MOCK_PVE_VERSION: "9.0"
         options: >-
-          --health-cmd "curl -f http://localhost:8006/api2/json/version || exit 1"
+          --health-cmd "curl -fk https://localhost:8006/api2/json/version || exit 1"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+          --health-start-period 10s
+
     steps:
       - name: Test PVE 7.4 API
         run: |
-          curl -f http://localhost:8007/api2/json/version
-          curl -f http://localhost:8007/api2/json/nodes
-          curl -f http://localhost:8007/api2/json/cluster/status
-      
+          curl -fk https://localhost:8007/api2/json/version
+          curl -fk https://localhost:8007/api2/json/nodes
+          curl -fk https://localhost:8007/api2/json/cluster/status
+
       - name: Test PVE 8.3 API
         run: |
-          curl -f http://localhost:8008/api2/json/version
-          curl -f http://localhost:8008/api2/json/nodes
-          curl -f http://localhost:8008/api2/json/cluster/sdn/zones
-      
+          curl -fk https://localhost:8008/api2/json/version
+          curl -fk https://localhost:8008/api2/json/nodes
+          curl -fk https://localhost:8008/api2/json/cluster/sdn/zones
+
       - name: Test PVE 9.0 API
         run: |
-          curl -f http://localhost:8009/api2/json/version
-          curl -f http://localhost:8009/api2/json/nodes
-          curl -f http://localhost:8009/api2/json/cluster/status
+          curl -fk https://localhost:8009/api2/json/version
+          curl -fk https://localhost:8009/api2/json/nodes
+          curl -fk https://localhost:8009/api2/json/cluster/status

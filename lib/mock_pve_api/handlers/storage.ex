@@ -101,6 +101,45 @@ defmodule MockPveApi.Handlers.Storage do
   end
 
   @doc """
+  GET /api2/json/nodes/:node/storage/:storage/status
+  Gets storage status (capacity) for a specific storage on a node.
+  """
+  def get_storage_status(conn) do
+    node_name = conn.path_params["node"]
+    storage_id = conn.path_params["storage"]
+
+    case State.get_node(node_name) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{
+            errors: %{message: "Node '#{node_name}' not found"}
+          })
+        )
+
+      _node ->
+        case State.get_storage_status(storage_id) do
+          nil ->
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(
+              404,
+              Jason.encode!(%{
+                errors: %{message: "Storage '#{storage_id}' not found"}
+              })
+            )
+
+          status ->
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(200, Jason.encode!(%{data: status}))
+        end
+    end
+  end
+
+  @doc """
   POST /api2/json/storage
   Creates a new storage definition.
   """
@@ -271,6 +310,90 @@ defmodule MockPveApi.Handlers.Storage do
         |> put_resp_content_type("application/json")
         |> send_resp(200, Jason.encode!(%{data: upid}))
     end
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/storage/:storage/file-restore/list
+  Lists files in a backup for single-file restore.
+  """
+  def list_file_restore(conn) do
+    data = [
+      %{filepath: "/", type: "d", text: "/", leaf: 0},
+      %{filepath: "/etc", type: "d", text: "etc", leaf: 0},
+      %{filepath: "/var", type: "d", text: "var", leaf: 0}
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/storage/:storage/file-restore/download
+  Downloads files from a backup for single-file restore.
+  """
+  def download_file_restore(conn) do
+    conn
+    |> put_resp_content_type("application/octet-stream")
+    |> send_resp(200, "mock-file-content")
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/storage/:storage/prunebackups
+  Get prune information for backups.
+  """
+  def list_prunebackups(conn) do
+    data = [
+      %{
+        volid: "local:backup/vzdump-qemu-100-2024_01_01-00_00_00.vma.zst",
+        ctime: 1_704_067_200,
+        mark: "keep",
+        type: "qemu"
+      }
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc """
+  DELETE /api2/json/nodes/:node/storage/:storage/prunebackups
+  Prune old backups. Returns a task UPID.
+  """
+  def delete_prunebackups(conn) do
+    node_name = conn.path_params["node"]
+    storage_id = conn.path_params["storage"]
+    upid = "UPID:#{node_name}:00000001:00000000:00000000:prunebackups:#{storage_id}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc """
+  POST /api2/json/nodes/:node/storage/:storage/content/:volume
+  Copy/restore a storage volume. Returns a task UPID.
+  """
+  def copy_storage_volume(conn) do
+    node_name = conn.path_params["node"]
+    volume = conn.path_params["volume"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node_name}:00001234:000000:#{now}:copy:#{volume}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/storage/:storage/content/:volume
+  Update storage volume attributes (notes, protected flag, etc).
+  """
+  def update_storage_volume(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
   end
 
   # Helper function to determine format from filename

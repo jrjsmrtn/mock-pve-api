@@ -5,9 +5,12 @@ defmodule MockPveApi do
   @moduledoc """
   Mock Proxmox VE API Server for testing purposes.
 
-  This module provides a lightweight HTTP server that simulates PVE API responses
-  for both version 7.x and 8.x, enabling comprehensive testing without requiring
-  a real Proxmox VE environment.
+  This module provides an HTTPS server that simulates PVE API responses
+  across versions 7.x, 8.x, and 9.x, enabling comprehensive testing without
+  requiring a real Proxmox VE environment.
+
+  Like the real PVE API, HTTPS is the default. Self-signed certificates are
+  auto-generated if none exist. Set `MOCK_PVE_SSL_ENABLED=false` for HTTP.
   """
 
   use Application
@@ -18,14 +21,16 @@ defmodule MockPveApi do
   def start(_type, _args) do
     port = Application.get_env(:mock_pve_api, :port, @default_port)
     host = Application.get_env(:mock_pve_api, :host, @default_host)
-    ssl_enabled = Application.get_env(:mock_pve_api, :ssl_enabled, false)
+    ssl_enabled = Application.get_env(:mock_pve_api, :ssl_enabled, true)
 
     # Configure server scheme and options
     {scheme, server_opts} =
       if ssl_enabled do
-        # Convert relative paths to absolute paths
-        keyfile = Application.get_env(:mock_pve_api, :ssl_keyfile) |> Path.expand()
-        certfile = Application.get_env(:mock_pve_api, :ssl_certfile) |> Path.expand()
+        keyfile = Application.get_env(:mock_pve_api, :ssl_keyfile, "certs/server.key")
+        certfile = Application.get_env(:mock_pve_api, :ssl_certfile, "certs/server.crt")
+
+        # Auto-generate self-signed certs if they don't exist
+        {keyfile, certfile} = MockPveApi.Certs.ensure_certs(keyfile, certfile)
 
         ssl_opts = [
           port: port,

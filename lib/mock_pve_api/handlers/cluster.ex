@@ -113,6 +113,49 @@ defmodule MockPveApi.Handlers.Cluster do
   end
 
   @doc """
+  GET /api2/json/cluster/config/join
+  Returns information needed to join an existing cluster.
+  """
+  def get_config_join(conn) do
+    join_info = %{
+      totem: %{
+        version: 2,
+        cluster_name: "pve-cluster",
+        interface: [%{linknumber: 0}]
+      },
+      nodelist: [
+        %{
+          name: "pve-node1",
+          nodeid: 1,
+          quorum_votes: 1,
+          ring0_addr: "192.168.1.10",
+          pve_addr: "192.168.1.10",
+          pve_fp: "AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD"
+        }
+      ],
+      preferred_node: "pve-node1",
+      config_digest: "mock_digest_0"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: join_info}))
+  end
+
+  @doc """
+  POST /api2/json/cluster/config/nodes/:node
+  Adds a node to the cluster (mock: returns UPID).
+  """
+  def add_cluster_node(conn) do
+    node_name = conn.path_params["node"]
+    upid = "UPID:pve-node1:00001234:000000:00000000:addnode:#{node_name}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc """
   GET /api2/json/cluster/config/nodes
   Lists cluster nodes configuration.
   """
@@ -592,6 +635,418 @@ defmodule MockPveApi.Handlers.Cluster do
     |> send_resp(200, Jason.encode!(%{data: jobs}))
   end
 
+  @doc "GET /api2/json/cluster/replication/:id"
+  def get_replication_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.get_replication_job(id) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "Replication job '#{id}' not found"}})
+        )
+
+      job ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: job}))
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/replication/:id"
+  def update_replication_job(conn) do
+    id = conn.path_params["id"]
+    params = conn.body_params
+
+    atom_params =
+      params
+      |> Enum.reduce(%{}, fn
+        {"id", _}, acc -> acc
+        {k, v}, acc -> Map.put(acc, String.to_atom(k), v)
+      end)
+
+    case State.update_replication_job(id, atom_params) do
+      {:ok, _job} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/replication/:id"
+  def delete_replication_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.delete_replication_job(id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  # Ceph endpoints
+
+  @doc "GET /api2/json/cluster/ceph/flags"
+  def get_ceph_flags(conn) do
+    flags = %{
+      nobackfill: false,
+      nodeep_scrub: false,
+      nodown: false,
+      noin: false,
+      noout: false,
+      norebalance: false,
+      norecover: false,
+      noscrub: false,
+      notieragent: false,
+      noup: false,
+      pause: false
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: flags}))
+  end
+
+  @doc "PUT /api2/json/cluster/ceph/flags"
+  def set_ceph_flags(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  @doc "GET /api2/json/cluster/ceph/metadata"
+  def get_ceph_metadata(conn) do
+    metadata = %{
+      mgr: %{},
+      mon: %{},
+      mds: %{},
+      osd: %{},
+      node: %{}
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: metadata}))
+  end
+
+  @doc "GET /api2/json/cluster/ceph/status"
+  def get_ceph_status(conn) do
+    status = %{
+      health: %{status: "HEALTH_OK", checks: %{}},
+      pgmap: %{pgs_by_state: [], num_pgs: 0},
+      osdmap: %{num_osds: 0, num_up_osds: 0, num_in_osds: 0}
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: status}))
+  end
+
+  # ACME endpoints
+
+  @doc "GET /api2/json/cluster/acme/account"
+  def list_acme_accounts(conn) do
+    accounts = State.list_acme_accounts()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: accounts}))
+  end
+
+  @doc "POST /api2/json/cluster/acme/account"
+  def create_acme_account(conn) do
+    params = conn.body_params
+    name = Map.get(params, "name", "default")
+
+    atom_params =
+      params
+      |> Enum.reduce(%{}, fn
+        {"name", _}, acc -> acc
+        {k, v}, acc -> Map.put(acc, String.to_atom(k), v)
+      end)
+
+    case State.create_acme_account(name, atom_params) do
+      {:ok, _account} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: name}))
+
+      {:error, :already_exists} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          400,
+          Jason.encode!(%{errors: %{name: "ACME account '#{name}' already exists"}})
+        )
+    end
+  end
+
+  @doc "GET /api2/json/cluster/acme/plugins"
+  def list_acme_plugins(conn) do
+    plugins = State.list_acme_plugins()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: plugins}))
+  end
+
+  @doc "POST /api2/json/cluster/acme/plugins"
+  def create_acme_plugin(conn) do
+    params = conn.body_params
+    id = Map.get(params, "id")
+
+    if is_nil(id) or id == "" do
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(400, Jason.encode!(%{errors: %{id: "ACME plugin ID is required"}}))
+    else
+      atom_params =
+        params
+        |> Enum.reduce(%{}, fn
+          {"id", _}, acc -> acc
+          {k, v}, acc -> Map.put(acc, String.to_atom(k), v)
+        end)
+
+      case State.create_acme_plugin(id, atom_params) do
+        {:ok, _plugin} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: nil}))
+
+        {:error, :already_exists} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{id: "ACME plugin '#{id}' already exists"}}))
+      end
+    end
+  end
+
+  # Navigation index stubs
+
+  @doc "GET /api2/json/cluster"
+  def get_cluster_index(conn) do
+    subdirs = ~w(replication tasks resources log options status ha sdn firewall
+                 backup acme ceph config jobs notifications metrics mapping nextid)
+
+    json_ok(conn, Enum.map(subdirs, &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/acme"
+  def get_acme_index(conn) do
+    json_ok(
+      conn,
+      Enum.map(~w(account plugins directories tos challenge-schema meta), &%{subdir: &1})
+    )
+  end
+
+  @doc "GET /api2/json/cluster/ceph"
+  def get_ceph_index(conn) do
+    json_ok(conn, Enum.map(~w(flags metadata status), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/firewall"
+  def get_firewall_index(conn) do
+    json_ok(conn, Enum.map(~w(options rules groups aliases ipset refs), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/ha"
+  def get_ha_index(conn) do
+    json_ok(conn, Enum.map(~w(resources groups affinity status rules), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/ha/status"
+  def get_ha_status_index(conn) do
+    json_ok(conn, Enum.map(~w(current manager_status), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/jobs"
+  def get_jobs_index(conn) do
+    json_ok(conn, Enum.map(~w(realm-sync schedule-analyze), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/log"
+  def get_log_index(conn) do
+    json_ok(conn, [])
+  end
+
+  @doc "GET /api2/json/cluster/mapping"
+  def get_mapping_index(conn) do
+    json_ok(conn, Enum.map(~w(pci usb dir), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/backup-info"
+  def get_backup_info_index(conn) do
+    json_ok(conn, Enum.map(~w(not-backed-up providers), &%{subdir: &1}))
+  end
+
+  @doc "GET /api2/json/cluster/bulk-action"
+  def get_bulk_action_index(conn) do
+    json_ok(conn, [%{subdir: "guest"}])
+  end
+
+  # ACME individual resource CRUD
+
+  @doc "GET /api2/json/cluster/acme/account/:name"
+  def get_acme_account(conn) do
+    name = conn.path_params["name"]
+
+    case State.get_acme_account(name) do
+      nil -> json_error(conn, 404, "ACME account '#{name}' not found")
+      account -> json_ok(conn, account)
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/acme/account/:name"
+  def update_acme_account(conn) do
+    name = conn.path_params["name"]
+    params = atomize_params(conn.body_params)
+
+    case State.update_acme_account(name, params) do
+      {:ok, _} -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/acme/account/:name"
+  def delete_acme_account(conn) do
+    name = conn.path_params["name"]
+
+    case State.delete_acme_account(name) do
+      :ok -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  @doc "GET /api2/json/cluster/acme/plugins/:id"
+  def get_acme_plugin_by_id(conn) do
+    id = conn.path_params["id"]
+
+    case State.get_acme_plugin(id) do
+      nil -> json_error(conn, 404, "ACME plugin '#{id}' not found")
+      plugin -> json_ok(conn, plugin)
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/acme/plugins/:id"
+  def update_acme_plugin_by_id(conn) do
+    id = conn.path_params["id"]
+    params = atomize_params(conn.body_params)
+
+    case State.update_acme_plugin(id, params) do
+      {:ok, _} -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/acme/plugins/:id"
+  def delete_acme_plugin_by_id(conn) do
+    id = conn.path_params["id"]
+
+    case State.delete_acme_plugin(id) do
+      :ok -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  # Static ACME read-only stubs
+
+  @doc "GET /api2/json/cluster/acme/challenge-schema"
+  def get_acme_challenge_schema(conn), do: json_ok(conn, [])
+
+  @doc "GET /api2/json/cluster/acme/directories"
+  def get_acme_directories(conn) do
+    json_ok(conn, [
+      %{name: "Let's Encrypt", url: "https://acme-v02.api.letsencrypt.org/directory"}
+    ])
+  end
+
+  @doc "GET /api2/json/cluster/acme/tos"
+  def get_acme_tos(conn), do: json_ok(conn, "")
+
+  @doc "GET /api2/json/cluster/acme/meta"
+  def get_acme_meta(conn), do: json_ok(conn, %{termsOfService: ""})
+
+  # Jobs: schedule-analyze and realm-sync CRUD
+
+  @doc "GET /api2/json/cluster/jobs/schedule-analyze"
+  def get_schedule_analyze(conn), do: json_ok(conn, [])
+
+  @doc "GET /api2/json/cluster/jobs/realm-sync"
+  def list_realm_sync_jobs(conn), do: json_ok(conn, State.list_realm_sync_jobs())
+
+  @doc "GET /api2/json/cluster/jobs/realm-sync/:id"
+  def get_realm_sync_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.get_realm_sync_job(id) do
+      nil -> json_error(conn, 404, "Realm sync job '#{id}' not found")
+      job -> json_ok(conn, job)
+    end
+  end
+
+  @doc "POST /api2/json/cluster/jobs/realm-sync/:id"
+  def create_realm_sync_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.create_realm_sync_job(id, conn.body_params) do
+      {:ok, job} -> json_ok(conn, job)
+      {:error, msg} -> json_error(conn, 400, msg)
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/jobs/realm-sync/:id"
+  def update_realm_sync_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.update_realm_sync_job(id, conn.body_params) do
+      {:ok, _} -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/jobs/realm-sync/:id"
+  def delete_realm_sync_job(conn) do
+    id = conn.path_params["id"]
+
+    case State.delete_realm_sync_job(id) do
+      :ok -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  # Private helpers
+
+  defp json_ok(conn, data) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  defp json_error(conn, status, message) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(status, Jason.encode!(%{errors: %{message: message}}))
+  end
+
+  defp atomize_params(params) do
+    Enum.reduce(params, %{}, fn {k, v}, acc ->
+      Map.put(acc, String.to_atom(k), v)
+    end)
+  end
+
   @doc "POST /api2/json/cluster/replication"
   def create_replication_job(conn) do
     params = conn.body_params
@@ -625,4 +1080,170 @@ defmodule MockPveApi.Handlers.Cluster do
       end
     end
   end
+
+  # Cluster tasks
+
+  @doc "GET /api2/json/cluster/tasks"
+  def get_cluster_tasks(conn), do: json_ok(conn, [])
+
+  # HA manager status
+
+  @doc "GET /api2/json/cluster/ha/status/manager_status"
+  def get_ha_manager_status(conn) do
+    json_ok(conn, %{
+      manager_status: "active",
+      quorum: %{quorate: 1, total_votes: 2, expected_votes: 2}
+    })
+  end
+
+  # HA resources migrate/relocate
+
+  @doc "POST /api2/json/cluster/ha/resources/:sid/migrate"
+  def ha_resource_migrate(conn), do: json_ok(conn, nil)
+
+  @doc "POST /api2/json/cluster/ha/resources/:sid/relocate"
+  def ha_resource_relocate(conn), do: json_ok(conn, nil)
+
+  # Cluster metrics export
+
+  @doc "GET /api2/json/cluster/metrics/export"
+  def get_metrics_export(conn), do: json_ok(conn, [])
+
+  # SDN vnet IPs
+
+  @doc "POST/PUT/DELETE /api2/json/cluster/sdn/vnets/:vnet/ips"
+  def sdn_vnet_ips(conn), do: json_ok(conn, nil)
+
+  # Bulk-action guest
+
+  @doc "GET /api2/json/cluster/bulk-action/guest"
+  def get_bulk_action_guest(conn) do
+    json_ok(conn, Enum.map(~w(migrate shutdown start suspend), &%{subdir: &1}))
+  end
+
+  @doc "POST /api2/json/cluster/bulk-action/guest/:action"
+  def bulk_action_guest(conn), do: json_ok(conn, nil)
+
+  # Cluster config detail stubs
+
+  @doc "GET /api2/json/cluster/config/apiversion"
+  def get_cluster_config_apiversion(conn), do: json_ok(conn, 10)
+
+  @doc "GET /api2/json/cluster/config/qdevice"
+  def get_cluster_config_qdevice(conn), do: json_ok(conn, %{})
+
+  @doc "GET /api2/json/cluster/config/totem"
+  def get_cluster_config_totem(conn), do: json_ok(conn, %{})
+
+  # Ceph per-flag stubs
+
+  @doc "GET /api2/json/cluster/ceph/flags/:flag"
+  def get_ceph_flag(conn) do
+    flag = conn.path_params["flag"]
+    json_ok(conn, %{name: flag, value: false})
+  end
+
+  @doc "PUT /api2/json/cluster/ceph/flags/:flag"
+  def set_ceph_flag(conn), do: json_ok(conn, nil)
+
+  # HA rules CRUD (PVE 9.0+)
+
+  @doc "GET /api2/json/cluster/ha/rules"
+  def list_ha_rules(conn), do: json_ok(conn, State.list_ha_rules())
+
+  @doc "POST /api2/json/cluster/ha/rules"
+  def create_ha_rule(conn) do
+    params = conn.body_params
+    rule = Map.get(params, "id", "rule-#{:rand.uniform(9999)}")
+
+    case State.create_ha_rule(rule, params) do
+      {:ok, _} -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 400, msg)
+    end
+  end
+
+  @doc "GET /api2/json/cluster/ha/rules/:rule"
+  def get_ha_rule(conn) do
+    rule = conn.path_params["rule"]
+
+    case State.get_ha_rule(rule) do
+      nil -> json_error(conn, 404, "HA rule '#{rule}' not found")
+      r -> json_ok(conn, r)
+    end
+  end
+
+  @doc "PUT /api2/json/cluster/ha/rules/:rule"
+  def update_ha_rule(conn) do
+    rule = conn.path_params["rule"]
+
+    case State.update_ha_rule(rule, conn.body_params) do
+      {:ok, _} -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  @doc "DELETE /api2/json/cluster/ha/rules/:rule"
+  def delete_ha_rule(conn) do
+    rule = conn.path_params["rule"]
+
+    case State.delete_ha_rule(rule) do
+      :ok -> json_ok(conn, nil)
+      {:error, msg} -> json_error(conn, 404, msg)
+    end
+  end
+
+  # SDN fabrics stubs (PVE 9.0+)
+
+  @doc "GET /api2/json/cluster/sdn/fabrics"
+  def list_sdn_fabrics(conn), do: json_ok(conn, [])
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/all"
+  def get_sdn_fabrics_all(conn), do: json_ok(conn, [])
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/fabric"
+  def list_sdn_fabric_type(conn), do: json_ok(conn, [])
+
+  @doc "POST /api2/json/cluster/sdn/fabrics/fabric"
+  def create_sdn_fabric(conn), do: json_ok(conn, nil)
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/fabric/:id"
+  def get_sdn_fabric(conn), do: json_ok(conn, %{})
+
+  @doc "PUT /api2/json/cluster/sdn/fabrics/fabric/:id"
+  def update_sdn_fabric(conn), do: json_ok(conn, nil)
+
+  @doc "DELETE /api2/json/cluster/sdn/fabrics/fabric/:id"
+  def delete_sdn_fabric(conn), do: json_ok(conn, nil)
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/node"
+  def list_sdn_fabric_nodes(conn), do: json_ok(conn, [])
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/node/:fabric_id"
+  def list_sdn_fabric_node_members(conn), do: json_ok(conn, [])
+
+  @doc "POST /api2/json/cluster/sdn/fabrics/node/:fabric_id"
+  def add_sdn_fabric_node(conn), do: json_ok(conn, nil)
+
+  @doc "GET /api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id"
+  def get_sdn_fabric_node(conn), do: json_ok(conn, %{})
+
+  @doc "PUT /api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id"
+  def update_sdn_fabric_node(conn), do: json_ok(conn, nil)
+
+  @doc "DELETE /api2/json/cluster/sdn/fabrics/node/:fabric_id/:node_id"
+  def delete_sdn_fabric_node(conn), do: json_ok(conn, nil)
+
+  # SDN lock, rollback, ipam status stubs
+
+  @doc "POST /api2/json/cluster/sdn/lock"
+  def lock_sdn(conn), do: json_ok(conn, nil)
+
+  @doc "DELETE /api2/json/cluster/sdn/lock"
+  def unlock_sdn(conn), do: json_ok(conn, nil)
+
+  @doc "POST /api2/json/cluster/sdn/rollback"
+  def rollback_sdn(conn), do: json_ok(conn, nil)
+
+  @doc "GET /api2/json/cluster/sdn/ipams/:ipam/status"
+  def get_sdn_ipam_status(conn), do: json_ok(conn, %{})
 end

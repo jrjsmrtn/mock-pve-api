@@ -207,10 +207,10 @@ defmodule MockPveApi.RouterTest do
       assert conn.status == 200
     end
 
-    test "PUT /nodes/:node/qemu/:vmid updates VM" do
+    test "PUT /nodes/:node/qemu/:vmid returns 405 (not supported by PVE API)" do
       State.create_vm("pve-node1", 100, %{})
       conn = authed_conn(:put, "/api2/json/nodes/pve-node1/qemu/100", %{memory: 4096}) |> call()
-      assert conn.status == 200
+      assert conn.status == 405
     end
 
     test "DELETE /nodes/:node/qemu/:vmid deletes VM" do
@@ -302,10 +302,10 @@ defmodule MockPveApi.RouterTest do
       assert conn.status == 200
     end
 
-    test "PUT /nodes/:node/lxc/:vmid updates container" do
+    test "PUT /nodes/:node/lxc/:vmid returns 405 (not supported by PVE API)" do
       State.create_container("pve-node1", 200, %{})
       conn = authed_conn(:put, "/api2/json/nodes/pve-node1/lxc/200", %{memory: 2048}) |> call()
-      assert conn.status == 200
+      assert conn.status == 405
     end
 
     test "DELETE /nodes/:node/lxc/:vmid deletes container" do
@@ -484,8 +484,8 @@ defmodule MockPveApi.RouterTest do
       assert conn.status == 200
     end
 
-    test "PUT /cluster/config updates config" do
-      conn = authed_conn(:put, "/api2/json/cluster/config", %{name: "test-cluster"}) |> call()
+    test "POST /cluster/config updates config" do
+      conn = authed_conn(:post, "/api2/json/cluster/config", %{name: "test-cluster"}) |> call()
       assert conn.status == 200
     end
 

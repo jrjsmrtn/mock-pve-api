@@ -16,43 +16,58 @@ defmodule MockPveApi.Coverage.Hardware do
 
   @impl true
   def endpoints do
-    planned_endpoints()
+    implemented_endpoints()
+    |> Map.merge(planned_endpoints())
   end
 
-  defp planned_endpoints do
+  defp implemented_endpoints do
     %{
-      # Node hardware detection
+      "/api2/json/nodes/{node}/hardware" =>
+        implemented(:get, :low, "6.0", "Node hardware detection index"),
       "/api2/json/nodes/{node}/hardware/pci" =>
-        planned(:get, :medium, "6.0", "List PCI devices on node"),
+        implemented(:get, :medium, "6.0", "List PCI devices on node"),
       "/api2/json/nodes/{node}/hardware/pci/{pciid}" =>
-        planned(:get, :low, "6.0", "Get PCI device details"),
+        implemented(:get, :low, "6.0", "Get PCI device details"),
+      "/api2/json/nodes/{node}/hardware/pci/{pciid}/mdev" =>
+        implemented(:get, :low, "6.0", "List mediated device types for PCI device"),
+      "/api2/json/nodes/{node}/hardware/pci/{pci-id-or-mapping}" =>
+        implemented(:get, :low, "6.0", "Get PCI device or mapping details"),
+      "/api2/json/nodes/{node}/hardware/pci/{pci-id-or-mapping}/mdev" =>
+        implemented(:get, :low, "6.0", "List mediated device types for PCI device or mapping"),
       "/api2/json/nodes/{node}/hardware/usb" =>
-        planned(:get, :medium, "6.0", "List USB devices on node"),
-      # Resource mappings (PVE 8.0+)
+        implemented(:get, :medium, "6.0", "List USB devices on node"),
       "/api2/json/cluster/mapping/pci" =>
-        planned(:get_post, :low, "8.0", "PCI resource mapping management"),
+        implemented(:get_post, :low, "8.0", "PCI resource mapping management"),
       "/api2/json/cluster/mapping/pci/{id}" =>
-        planned(:get_put_delete, :low, "8.0", "Individual PCI mapping CRUD"),
+        implemented(:get_put_delete, :low, "8.0", "Individual PCI mapping CRUD"),
       "/api2/json/cluster/mapping/usb" =>
-        planned(:get_post, :low, "8.0", "USB resource mapping management"),
+        implemented(:get_post, :low, "8.0", "USB resource mapping management"),
       "/api2/json/cluster/mapping/usb/{id}" =>
-        planned(:get_put_delete, :low, "8.0", "Individual USB mapping CRUD")
+        implemented(:get_put_delete, :low, "8.0", "Individual USB mapping CRUD"),
+      "/api2/json/cluster/mapping/dir" =>
+        implemented(:get_post, :medium, "8.0", "Directory mapping list and create"),
+      "/api2/json/cluster/mapping/dir/{id}" =>
+        implemented(:get_put_delete, :medium, "8.0", "Directory mapping CRUD")
     }
   end
 
-  defp planned(methods_atom, priority, since, description) do
+  defp planned_endpoints do
+    %{}
+  end
+
+  defp implemented(methods_atom, priority, since, description) do
     %{
       path: "",
       methods: methods_for(methods_atom),
-      status: :planned,
+      status: :implemented,
       priority: priority,
       since: since,
       description: description,
       parameters: [],
       response_schema: %{data: :object},
       capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Hardware,
       notes: nil
     }
   end

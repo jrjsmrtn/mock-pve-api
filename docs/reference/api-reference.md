@@ -45,19 +45,20 @@ with systematic tracking across all supported versions (7.0 - 9.0).
 | Category | Total | Implemented | Coverage |
 |----------|-------|-------------|----------|
 | Version | 1 | 1 | 100.0% |
-| Cluster | 36 | 20 | 55.6% |
-| Nodes | 28 | 18 | 64.3% |
-| Virtual Machines | 21 | 13 | 61.9% |
-| LXC Containers | 17 | 13 | 76.5% |
-| Storage | 20 | 9 | 45.0% |
-| Access Control | 17 | 15 | 88.2% |
+| Cluster | 68 | 68 | 100.0% |
+| Nodes | 126 | 126 | 100.0% |
+| Virtual Machines | 63 | 63 | 100.0% |
+| LXC Containers | 31 | 31 | 100.0% |
+| Storage | 16 | 16 | 100.0% |
+| Access Control | 25 | 25 | 100.0% |
 | Resource Pools | 2 | 2 | 100.0% |
-| SDN | 13 | 9 | 69.2% |
-| Monitoring | 16 | 9 | 56.3% |
+| SDN | 27 | 27 | 100.0% |
+| Monitoring | 16 | 16 | 100.0% |
 | Backup | 9 | 9 | 100.0% |
-| Hardware | 7 | 0 | 0.0% |
-| Firewall | 41 | 14 | 34.1% |
-| **TOTAL** | **228** | **132** | **57.9%** |
+| Hardware | 13 | 13 | 100.0% |
+| Firewall | 41 | 41 | 100.0% |
+| Notifications | 16 | 16 | 100.0% |
+| **TOTAL** | **454** | **454** | **100.0%** |
 
 
 ## Status Legend
@@ -111,7 +112,43 @@ Get PVE version information and server details
 
 ## Cluster Management
 
-### `/cluster/acme/account` 📋
+### `/cluster` ✅
+
+Top-level cluster index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme` ✅
+
+ACME module index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/account` ✅
 
 ACME account management
 
@@ -129,7 +166,85 @@ ACME account management
 ```
 
 
-### `/cluster/acme/plugins` 📋
+### `/cluster/acme/account/{name}` ✅
+
+Get, update, or delete a specific ACME account
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Account name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/challenge-schema` ✅
+
+ACME challenge schema types
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/directories` ✅
+
+Known ACME directory endpoints
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/meta` ✅ 🔴
+
+ACME directory metadata
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/plugins` ✅
 
 ACME plugin management
 
@@ -138,6 +253,66 @@ ACME plugin management
 | **Methods** | GET, POST |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/plugins/{id}` ✅
+
+Get, update, or delete a specific ACME plugin
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `id` | string | Yes | Plugin ID | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/acme/tos` ✅
+
+ACME terms of service URL
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/backup-info` ✅
+
+Backup info index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -193,7 +368,133 @@ List backup providers (alternate path)
 **Notes**: Inline handler in router; alternate path for backup provider listing
 
 
-### `/cluster/ceph/flags` 📋
+### `/cluster/bulk-action` ✅ 🟠
+
+Bulk action index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/bulk-action/guest` ✅ 🟠
+
+Bulk action guest overview
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/bulk-action/guest/migrate` ✅ 🟠
+
+Bulk migrate guests
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/bulk-action/guest/shutdown` ✅ 🟠
+
+Bulk shutdown guests
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/bulk-action/guest/start` ✅ 🟠
+
+Bulk start guests
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/bulk-action/guest/suspend` ✅ 🟠
+
+Bulk suspend guests
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/ceph` ✅
+
+Ceph module index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/ceph/flags` ✅
 
 Ceph global flags
 
@@ -211,7 +512,25 @@ Ceph global flags
 ```
 
 
-### `/cluster/ceph/metadata` 📋
+### `/cluster/ceph/flags/{flag}` ✅
+
+Get or set individual Ceph flag
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/ceph/metadata` ✅
 
 Ceph cluster metadata
 
@@ -229,7 +548,7 @@ Ceph cluster metadata
 ```
 
 
-### `/cluster/ceph/status` 📋
+### `/cluster/ceph/status` ✅
 
 Ceph cluster status
 
@@ -253,7 +572,7 @@ Cluster configuration management
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, PUT |
+| **Methods** | GET, POST |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -270,13 +589,31 @@ Cluster configuration management
 **Notes**: Cluster configuration implemented
 
 
+### `/cluster/config/apiversion` ✅
+
+Cluster config API version
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/config/join` ✅
 
 Join node to existing cluster
 
 | Property | Value |
 |----------|-------|
-| **Methods** | POST |
+| **Methods** | GET, POST |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -330,7 +667,7 @@ Remove node from cluster
 
 | Property | Value |
 |----------|-------|
-| **Methods** | DELETE |
+| **Methods** | POST, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -348,6 +685,78 @@ Remove node from cluster
 ```
 
 **Notes**: Node removal from cluster implemented
+
+
+### `/cluster/config/qdevice` ✅
+
+Get corosync QDevice status
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/config/totem` ✅
+
+Get corosync totem protocol settings
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/firewall` ✅
+
+Cluster firewall index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/ha` ✅
+
+HA module index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
 
 
 ### `/cluster/ha/affinity` ✅ 🟠
@@ -444,6 +853,24 @@ Individual HA group operations
 ```
 
 
+### `/cluster/ha/manager_status` ✅
+
+HA manager status
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/ha/resources` ✅
 
 HA resource management
@@ -486,6 +913,96 @@ Individual HA resource operations
 ```
 
 
+### `/cluster/ha/resources/{sid}/migrate` ✅
+
+Migrate HA resource to different node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/ha/resources/{sid}/relocate` ✅
+
+Relocate HA resource to different node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/ha/rules` ✅ 🟠
+
+List and create HA rules
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/ha/rules/{rule}` ✅ 🟠
+
+HA rule CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/ha/status` ✅
+
+HA status index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/ha/status/current` ✅
 
 Current HA manager and resource status
@@ -504,14 +1021,140 @@ Current HA manager and resource status
 ```
 
 
-### `/cluster/mapping/pci` 📋 🔴
+### `/cluster/ha/status/manager_status` ✅
 
-PCI device resource mappings
+HA manager status (canonical path)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Medium |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/jobs` ✅
+
+Scheduled jobs index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/jobs/realm-sync` ✅
+
+List realm sync jobs
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/jobs/realm-sync/{id}` ✅
+
+Realm sync job CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/jobs/schedule-analyze` ✅
+
+Analyze scheduled job timing
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/log` ✅
+
+Recent cluster log entries
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping` ✅
+
+Hardware mapping index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/dir` ✅ 🔴
+
+Directory mapping list and create
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, POST |
-| **Priority** | Low |
+| **Priority** | Medium |
 | **Since** | PVE 8.0 |
 
 **Example Response**:
@@ -522,14 +1165,14 @@ PCI device resource mappings
 ```
 
 
-### `/cluster/mapping/pci/{id}` 📋 🔴
+### `/cluster/mapping/dir/{id}` ✅ 🔴
 
-Individual PCI mapping operations
+Directory mapping CRUD
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
-| **Priority** | Low |
+| **Priority** | Medium |
 | **Since** | PVE 8.0 |
 
 **Example Response**:
@@ -540,15 +1183,15 @@ Individual PCI mapping operations
 ```
 
 
-### `/cluster/mapping/usb` 📋 🔴
+### `/cluster/mapping/pci` ✅
 
-USB device resource mappings
+PCI hardware mapping list and create
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 8.0 |
+| **Priority** | Medium |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -558,15 +1201,69 @@ USB device resource mappings
 ```
 
 
-### `/cluster/mapping/usb/{id}` 📋 🔴
+### `/cluster/mapping/pci/{id}` ✅
 
-Individual USB mapping operations
+PCI hardware mapping CRUD
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/usb` ✅
+
+USB hardware mapping list and create
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/usb/{id}` ✅
+
+USB hardware mapping CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/metrics/export` ✅
+
+Export cluster metrics
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -585,154 +1282,6 @@ Get next free VMID
 | **Methods** | GET |
 | **Priority** | High |
 | **Since** | PVE 6.0 |
-
-
-### `/cluster/notifications/endpoints` ✅ 🔴
-
-List notification endpoints
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": []
-}
-```
-
-**Notes**: Inline handler in router; notification system introduced in PVE 8.1
-
-
-### `/cluster/notifications/endpoints/gotify` 📋 🔴
-
-Gotify notification endpoints
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/notifications/endpoints/gotify/{name}` 📋 🔴
-
-Individual gotify endpoint operations
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, PUT, DELETE |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/notifications/endpoints/sendmail` 📋 🔴
-
-Sendmail notification endpoints
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/notifications/endpoints/sendmail/{name}` 📋 🔴
-
-Individual sendmail endpoint operations
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, PUT, DELETE |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/notifications/filters` ✅ 🔴
-
-List notification filters
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": []
-}
-```
-
-**Notes**: Inline handler in router; notification system introduced in PVE 8.1
-
-
-### `/cluster/notifications/matchers` 📋 🔴
-
-Notification matchers management
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/cluster/notifications/matchers/{name}` 📋 🔴
-
-Individual notification matcher operations
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, PUT, DELETE |
-| **Priority** | Low |
-| **Since** | PVE 8.1 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
 
 
 ### `/cluster/options` ✅
@@ -771,7 +1320,7 @@ Replication job management
 ```
 
 
-### `/cluster/replication/{id}` 📋
+### `/cluster/replication/{id}` ✅
 
 Individual replication job operations
 
@@ -832,6 +1381,24 @@ Get cluster resource overview (VMs, containers, storage)
 ```
 
 
+### `/cluster/sdn/vnets/{vnet}/ips` ✅ 🔴
+
+Create, update and delete vnet IPs
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/cluster/status` ✅
 
 Get cluster status and node information
@@ -859,6 +1426,24 @@ Get cluster status and node information
       "type": "node"
     }
   ]
+}
+```
+
+
+### `/cluster/tasks` ✅
+
+List cluster-wide tasks
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
 }
 ```
 
@@ -920,6 +1505,78 @@ Node index — lists available sub-resources
 ```
 
 
+### `/nodes/{node}/aplinfo` ✅
+
+APL appliance template info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/apt` ✅
+
+Node APT index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/apt/changelog` ✅
+
+Get APT package changelog
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/apt/repositories` ✅
+
+APT repository configuration
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST, PUT |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/apt/update` ✅
 
 APT package update management
@@ -968,7 +1625,849 @@ Get package version information
 ```
 
 
-### `/nodes/{node}/certificates/acme/certificate` 📋
+### `/nodes/{node}/capabilities` ✅
+
+Node capabilities index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/capabilities/qemu` ✅
+
+QEMU capabilities
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "cpu": 0.25,
+      "name": "test-vm",
+      "status": "running",
+      "mem": 1073741824,
+      "maxcpu": 2,
+      "maxmem": 2147483648,
+      "vmid": 100
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/capabilities/qemu/cpu` ✅
+
+QEMU CPU capabilities
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "cpu": 0.25,
+      "name": "test-vm",
+      "status": "running",
+      "mem": 1073741824,
+      "maxcpu": 2,
+      "maxmem": 2147483648,
+      "vmid": 100
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/capabilities/qemu/cpu-flags` ✅ 🟠
+
+QEMU CPU flag capabilities
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "cpu": 0.25,
+      "name": "test-vm",
+      "status": "running",
+      "mem": 1073741824,
+      "maxcpu": 2,
+      "maxmem": 2147483648,
+      "vmid": 100
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/capabilities/qemu/machines` ✅
+
+QEMU machine type capabilities
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "cpu": 0.25,
+      "name": "test-vm",
+      "status": "running",
+      "mem": 1073741824,
+      "maxcpu": 2,
+      "maxmem": 2147483648,
+      "vmid": 100
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/capabilities/qemu/migration` ✅ 🟠
+
+QEMU migration capabilities
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "cpu": 0.25,
+      "name": "test-vm",
+      "status": "running",
+      "mem": 1073741824,
+      "maxcpu": 2,
+      "maxmem": 2147483648,
+      "vmid": 100
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/ceph` ✅
+
+Node Ceph management index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/cfg` ✅
+
+Get Ceph config path index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/cfg/db` ✅
+
+Get Ceph monitor database config
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/cfg/raw` ✅
+
+Get raw Ceph config file
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/cfg/value` ✅
+
+Get a specific Ceph config value
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/cmd-safety` ✅
+
+Check Ceph command safety
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/config` ✅
+
+Get Ceph config
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/configdb` ✅
+
+Get Ceph config database
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/crush` ✅
+
+Get CRUSH map
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/fs` ✅
+
+List Ceph filesystems
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/fs/{name}` ✅
+
+Create Ceph filesystem
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/init` ✅
+
+Create initial Ceph config
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/log` ✅
+
+Get recent Ceph log entries
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mds` ✅
+
+List Ceph MDS daemons
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mds/{name}` ✅
+
+Create or destroy Ceph MDS daemon
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mgr` ✅
+
+List Ceph MGR daemons
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mgr/{id}` ✅
+
+Create or destroy Ceph MGR daemon
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mon` ✅
+
+List Ceph monitor daemons
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/mon/{monid}` ✅
+
+Create or destroy Ceph monitor
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd` ✅
+
+Ceph OSD management
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}` ✅
+
+Get or destroy OSD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}/in` ✅
+
+Mark OSD as in-cluster
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}/lv-info` ✅
+
+Get OSD LV info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}/metadata` ✅
+
+Get OSD metadata
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}/out` ✅
+
+Mark OSD as out-of-cluster
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/osd/{osdid}/scrub` ✅
+
+Scrub OSD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/pool` ✅
+
+List and create Ceph pools (singular)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/pool/{name}` ✅
+
+Ceph pool CRUD (singular)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/pool/{name}/status` ✅
+
+Get Ceph pool status
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/pools` ✅
+
+Ceph pool management
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/pools/{name}` ✅
+
+Ceph pool CRUD (legacy plural)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/restart` ✅
+
+Restart all Ceph services on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/rules` ✅
+
+List CRUSH rules
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/start` ✅
+
+Start all Ceph services on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/status` ✅
+
+Ceph status on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/ceph/stop` ✅
+
+Stop all Ceph services on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/certificates` ✅
+
+Node certificates index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/certificates/acme` ✅
+
+ACME certificate index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/certificates/acme/certificate` ✅
 
 ACME certificate management
 
@@ -986,7 +2485,25 @@ ACME certificate management
 ```
 
 
-### `/nodes/{node}/certificates/info` 📋
+### `/nodes/{node}/certificates/custom` ✅
+
+Upload or remove custom certificate
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/certificates/info` ✅
 
 Get node TLS certificate info
 
@@ -1028,7 +2545,61 @@ Node configuration options
 ```
 
 
-### `/nodes/{node}/disks/initgpt` 📋
+### `/nodes/{node}/disks` ✅
+
+Node disks index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/directory` ✅
+
+Directory storage management
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/directory/{name}` ✅
+
+Remove directory storage
+
+| Property | Value |
+|----------|-------|
+| **Methods** | DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.1 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/initgpt` ✅
 
 Initialize disk with GPT
 
@@ -1070,13 +2641,139 @@ List local disks
 ```
 
 
-### `/nodes/{node}/disks/smart` 📋
+### `/nodes/{node}/disks/lvm` ✅
+
+LVM management on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/lvm/{name}` ✅
+
+Remove LVM volume group
+
+| Property | Value |
+|----------|-------|
+| **Methods** | DELETE |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/lvmthin` ✅
+
+LVM thin pool management on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/lvmthin/{name}` ✅
+
+Remove LVM thin pool
+
+| Property | Value |
+|----------|-------|
+| **Methods** | DELETE |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/smart` ✅
 
 Get SMART health data for disks
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/wipedisk` ✅
+
+Wipe a disk
+
+| Property | Value |
+|----------|-------|
+| **Methods** | PUT |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/zfs` ✅
+
+ZFS pool management on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/disks/zfs/{name}` ✅
+
+Get or delete ZFS pool
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -1136,7 +2833,7 @@ Execute a command on a node (API call, not shell)
 ```
 
 
-### `/nodes/{node}/hosts` 📋
+### `/nodes/{node}/hosts` ✅
 
 Node /etc/hosts management
 
@@ -1154,7 +2851,7 @@ Node /etc/hosts management
 ```
 
 
-### `/nodes/{node}/journal` 📋
+### `/nodes/{node}/journal` ✅
 
 Read systemd journal
 
@@ -1172,7 +2869,7 @@ Read systemd journal
 ```
 
 
-### `/nodes/{node}/migrateall` 📋
+### `/nodes/{node}/migrateall` ✅
 
 Migrate all VMs and containers to another node
 
@@ -1196,7 +2893,7 @@ List available network interfaces
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -1239,7 +2936,635 @@ Individual network interface management
 ```
 
 
-### `/nodes/{node}/startall` 📋
+### `/nodes/{node}/query-oci-repo-tags` ✅ 🟠
+
+Query OCI repository tags
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/query-url-metadata` ✅
+
+Query URL metadata
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/replication` ✅
+
+List replication jobs for node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 5.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/replication/{id}` ✅
+
+Get replication job status on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 5.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/replication/{id}/log` ✅
+
+Get replication job log on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 5.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/replication/{id}/schedule_now` ✅
+
+Schedule replication job immediately
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 5.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/replication/{id}/status` ✅
+
+Get replication job detailed status on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 5.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan` ✅
+
+List available scan types
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/cifs` ✅
+
+Scan for CIFS shares
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/glusterfs` ✅
+
+Scan for GlusterFS volumes
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/iscsi` ✅
+
+Scan for iSCSI targets
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/lvm` ✅
+
+Scan for LVM volumes
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/lvmthin` ✅
+
+Scan for LVM thin pools
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/nfs` ✅
+
+Scan for NFS shares
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/pbs` ✅
+
+Scan for Proxmox Backup Servers
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/zfs` ✅
+
+Scan for ZFS pools
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/scan/{type}` ✅
+
+Scan for resources of a specific type
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn` ✅ 🔴
+
+Node SDN index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/fabrics/{fabric}` ✅ 🟠
+
+Get local fabric info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/fabrics/{fabric}/interfaces` ✅ 🟠
+
+List fabric interfaces on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/fabrics/{fabric}/neighbors` ✅ 🟠
+
+List fabric neighbors on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/fabrics/{fabric}/routes` ✅ 🟠
+
+List fabric routes on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/vnets/{vnet}` ✅ 🔴
+
+Get local vnet info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/vnets/{vnet}/mac-vrf` ✅ 🟠
+
+Get vnet MAC-VRF info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/zones` ✅ 🔴
+
+List local SDN zones
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/sdn/zones/{zone}` ✅ 🔴
+
+Get local zone info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "type": "simple",
+    "nodes": "pve-node-1,pve-node-2",
+    "zone": "localnetwork"
+  }
+}
+```
+
+
+### `/nodes/{node}/sdn/zones/{zone}/bridges` ✅ 🔴
+
+List zone bridges on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "type": "simple",
+    "nodes": "pve-node-1,pve-node-2",
+    "zone": "localnetwork"
+  }
+}
+```
+
+
+### `/nodes/{node}/sdn/zones/{zone}/content` ✅ 🔴
+
+List zone content on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "type": "simple",
+    "nodes": "pve-node-1,pve-node-2",
+    "zone": "localnetwork"
+  }
+}
+```
+
+
+### `/nodes/{node}/sdn/zones/{zone}/ip-vrf` ✅ 🟠
+
+Get zone IP-VRF info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "type": "simple",
+    "nodes": "pve-node-1,pve-node-2",
+    "zone": "localnetwork"
+  }
+}
+```
+
+
+### `/nodes/{node}/services/{service}/reload` ✅
+
+Reload a system service
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/services/{service}/restart` ✅
+
+Restart a system service
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/services/{service}/start` ✅
+
+Start a system service
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/services/{service}/stop` ✅
+
+Stop a system service
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/spiceshell` ✅
+
+Create node SPICE shell
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/startall` ✅
 
 Start all VMs and containers on node
 
@@ -1282,7 +3607,7 @@ Node status and control operations
 ```
 
 
-### `/nodes/{node}/stopall` 📋
+### `/nodes/{node}/stopall` ✅
 
 Stop all VMs and containers on node
 
@@ -1300,15 +3625,33 @@ Stop all VMs and containers on node
 ```
 
 
-### `/nodes/{node}/subscription` 📋
+### `/nodes/{node}/subscription` ✅
 
 Node subscription information
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, POST |
+| **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/suspendall` ✅ 🔴
+
+Suspend all VMs on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 8.1 |
 
 **Example Response**:
 ```json
@@ -1372,7 +3715,7 @@ Stop a running task
 
 | Property | Value |
 |----------|-------|
-| **Methods** | DELETE |
+| **Methods** | GET, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -1441,6 +3784,24 @@ Get task status by UPID
 ```
 
 
+### `/nodes/{node}/termproxy` ✅
+
+Create node terminal proxy
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/nodes/{node}/time` ✅
 
 Node time configuration
@@ -1486,6 +3847,60 @@ Node-specific version information
 | Name | Type | Required | Description | Values |
 |------|------|----------|-------------|--------|
 | `node` | string | Yes | Node name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/vncshell` ✅
+
+Create VNC shell on node
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/vncwebsocket` ✅
+
+Node VNC websocket
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/wakeonlan` ✅
+
+Wake node via WoL
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -1541,7 +3956,7 @@ Individual VM configuration and management
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, PUT, DELETE |
+| **Methods** | GET, DELETE |
 | **Priority** | Critical |
 | **Since** | PVE 6.0 |
 
@@ -1571,15 +3986,690 @@ Individual VM configuration and management
 **Notes**: Complete VM configuration and management with comprehensive status info
 
 
-### `/nodes/{node}/qemu/{vmid}/agent` 📋
+### `/nodes/{node}/qemu/{vmid}/agent` ✅
 
-Execute QEMU guest agent commands
+QEMU guest agent info and commands
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/exec` ✅
+
+Execute command in guest
 
 | Property | Value |
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 6.0 |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/exec-status` ✅
+
+Get agent exec command exit code and output
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/file-read` ✅
+
+Read file from guest via agent
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/file-write` ✅
+
+Write file to guest via agent
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/fsfreeze-freeze` ✅
+
+Freeze guest filesystems
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/fsfreeze-status` ✅
+
+Get filesystem freeze status
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/fsfreeze-thaw` ✅
+
+Thaw guest filesystems
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/fstrim` ✅
+
+Trim guest filesystems
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-fsinfo` ✅
+
+Get guest filesystem info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-host-name` ✅
+
+Get guest hostname
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-memory-block-info` ✅
+
+Get guest memory block info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-memory-blocks` ✅
+
+Get guest memory blocks
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-osinfo` ✅
+
+Get guest OS information
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-time` ✅
+
+Get guest time
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-timezone` ✅
+
+Get guest timezone
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-users` ✅
+
+List logged-in guest users
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/get-vcpus` ✅
+
+Get guest vCPU info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/info` ✅
+
+Get QEMU guest agent info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/network-get-interfaces` ✅
+
+Get guest network interfaces
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/ping` ✅
+
+Ping QEMU guest agent
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/set-user-password` ✅
+
+Set guest user password
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/shutdown` ✅
+
+Shutdown guest via agent
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/suspend-disk` ✅
+
+Suspend guest to disk
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/suspend-hybrid` ✅
+
+Hybrid guest suspend
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/agent/suspend-ram` ✅
+
+Suspend guest to RAM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -1626,15 +4716,42 @@ Clone virtual machine
 **Notes**: VM cloning operations implemented
 
 
-### `/nodes/{node}/qemu/{vmid}/cloudinit/dump` 📋
+### `/nodes/{node}/qemu/{vmid}/cloudinit` ✅
 
-Get cloud-init generated config
+Cloud-init configuration get/update
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/cloudinit/dump` ✅
+
+Get cloud-init configuration dump
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -1659,7 +4776,7 @@ VM configuration (get current or update)
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, PUT |
+| **Methods** | GET, PUT, POST |
 | **Priority** | High |
 | **Since** | PVE 6.0 |
 
@@ -1687,15 +4804,15 @@ VM configuration (get current or update)
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/feature` 📋
+### `/nodes/{node}/qemu/{vmid}/dbus-vmstate` ✅ 🔴
 
-Check VM feature availability
+Add dbus-vmstate object
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 6.0 |
+| **Since** | PVE 8.0 |
 
 **Example Response**:
 ```json
@@ -1714,9 +4831,9 @@ Check VM feature availability
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall` 📋
+### `/nodes/{node}/qemu/{vmid}/feature` ✅
 
-VM firewall index
+Check VM feature availability
 
 | Property | Value |
 |----------|-------|
@@ -1747,7 +4864,7 @@ Migrate VM to another node
 
 | Property | Value |
 |----------|-------|
-| **Methods** | POST |
+| **Methods** | GET, POST |
 | **Priority** | High |
 | **Since** | PVE 6.0 |
 
@@ -1775,7 +4892,34 @@ Migrate VM to another node
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/move_disk` 📋
+### `/nodes/{node}/qemu/{vmid}/monitor` ✅
+
+Send QEMU monitor command
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/move_disk` ✅
 
 Move VM disk to different storage
 
@@ -1784,6 +4928,60 @@ Move VM disk to different storage
 | **Methods** | POST |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/mtunnel` ✅
+
+Create migration tunnel for VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/mtunnelwebsocket` ✅
+
+Migration tunnel WebSocket for VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -1836,6 +5034,33 @@ Get pending VM configuration changes
 ```
 
 
+### `/nodes/{node}/qemu/{vmid}/remote_migrate` ✅
+
+Migrate VM to remote cluster
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
 ### `/nodes/{node}/qemu/{vmid}/resize` ✅
 
 Resize VM disk
@@ -1870,7 +5095,7 @@ Resize VM disk
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/sendkey` 📋
+### `/nodes/{node}/qemu/{vmid}/sendkey` ✅
 
 Send key event to VM
 
@@ -2038,6 +5263,60 @@ Rollback VM to snapshot
 ```
 
 
+### `/nodes/{node}/qemu/{vmid}/spiceproxy` ✅
+
+Create SPICE proxy for VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status` ✅
+
+VM status index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
 ### `/nodes/{node}/qemu/{vmid}/status/current` ✅
 
 Current VM status and statistics
@@ -2054,6 +5333,195 @@ Current VM status and statistics
 |------|------|----------|-------------|--------|
 | `node` | string | Yes | Node name | - |
 | `vmid` | integer | Yes | VM ID | - |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/reboot` ✅
+
+Reboot VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/reset` ✅
+
+Reset VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/resume` ✅
+
+Resume suspended VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/shutdown` ✅
+
+Shutdown VM (graceful)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/start` ✅
+
+Start VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | High |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/stop` ✅
+
+Stop VM (immediate)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | High |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/status/suspend` ✅
+
+Suspend VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -2100,7 +5568,7 @@ VM control operations (start, stop, reset, etc.)
 **Notes**: VM lifecycle operations fully supported
 
 
-### `/nodes/{node}/qemu/{vmid}/template` 📋
+### `/nodes/{node}/qemu/{vmid}/template` ✅
 
 Convert VM to template
 
@@ -2127,13 +5595,94 @@ Convert VM to template
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/unlink` 📋
+### `/nodes/{node}/qemu/{vmid}/termproxy` ✅
+
+Create terminal proxy for VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/unlink` ✅
 
 Unlink/delete disk images
 
 | Property | Value |
 |----------|-------|
 | **Methods** | PUT |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/vncproxy` ✅
+
+Create VNC proxy for VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.25,
+    "name": "test-vm",
+    "status": "running",
+    "mem": 1073741824,
+    "uptime": 3600,
+    "maxmem": 2147483648,
+    "vmid": 100,
+    "cpus": 2
+  }
+}
+```
+
+
+### `/nodes/{node}/qemu/{vmid}/vncwebsocket` ✅
+
+VNC WebSocket endpoint for VM
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -2199,7 +5748,7 @@ Individual LXC container configuration
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, PUT, DELETE |
+| **Methods** | GET, DELETE |
 | **Priority** | Critical |
 | **Since** | PVE 6.0 |
 
@@ -2289,7 +5838,7 @@ Container configuration (get current or update)
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/feature` 📋
+### `/nodes/{node}/lxc/{vmid}/feature` ✅
 
 Check container feature availability
 
@@ -2315,15 +5864,15 @@ Check container feature availability
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall` 📋
+### `/nodes/{node}/lxc/{vmid}/interfaces` ✅
 
-Container firewall index
+Get container network interfaces
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 6.0 |
+| **Since** | PVE 4.0 |
 
 **Example Response**:
 ```json
@@ -2341,15 +5890,15 @@ Container firewall index
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/migrate` ✅
+### `/nodes/{node}/lxc/{vmid}/migrate` ✅ 🟠
 
 Migrate container to another node
 
 | Property | Value |
 |----------|-------|
-| **Methods** | POST |
+| **Methods** | GET, POST |
 | **Priority** | High |
-| **Since** | PVE 6.0 |
+| **Since** | PVE 9.0 |
 
 **Parameters**:
 
@@ -2374,7 +5923,7 @@ Migrate container to another node
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/move_volume` 📋
+### `/nodes/{node}/lxc/{vmid}/move_volume` ✅
 
 Move container volume to different storage
 
@@ -2383,6 +5932,58 @@ Move container volume to different storage
 | **Methods** | POST |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/mtunnel` ✅
+
+Create migration tunnel for container
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/mtunnelwebsocket` ✅
+
+Migration tunnel WebSocket for container
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -2416,6 +6017,32 @@ Get pending container configuration changes
 |------|------|----------|-------------|--------|
 | `node` | string | Yes | Node name | - |
 | `vmid` | integer | Yes | Container ID | - |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/remote_migrate` ✅
+
+Migrate container to remote cluster
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -2603,6 +6230,58 @@ Rollback container to snapshot
 ```
 
 
+### `/nodes/{node}/lxc/{vmid}/spiceproxy` ✅
+
+Create SPICE proxy for container
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status` ✅
+
+Container status index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
 ### `/nodes/{node}/lxc/{vmid}/status/current` ✅
 
 Current container status and statistics
@@ -2619,6 +6298,162 @@ Current container status and statistics
 |------|------|----------|-------------|--------|
 | `node` | string | Yes | Node name | - |
 | `vmid` | integer | Yes | Container ID | - |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/reboot` ✅
+
+Reboot container
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/resume` ✅
+
+Resume suspended container
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/shutdown` ✅
+
+Shutdown container (graceful)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/start` ✅
+
+Start container
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | High |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/stop` ✅
+
+Stop container (immediate)
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | High |
+| **Since** | PVE 4.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
+}
+```
+
+
+### `/nodes/{node}/lxc/{vmid}/status/suspend` ✅
+
+Suspend container
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Medium |
+| **Since** | PVE 4.0 |
 
 **Example Response**:
 ```json
@@ -2672,7 +6507,7 @@ Container control operations (start, stop, shutdown, etc.)
 **Notes**: Container lifecycle operations
 
 
-### `/nodes/{node}/lxc/{vmid}/template` 📋
+### `/nodes/{node}/lxc/{vmid}/template` ✅
 
 Convert container to template
 
@@ -2698,118 +6533,88 @@ Convert container to template
 ```
 
 
----
+### `/nodes/{node}/lxc/{vmid}/termproxy` ✅
 
-
-## Storage Management
-
-### `/nodes/{node}/ceph/osd` 📋
-
-Ceph OSD management
+Create terminal proxy for container
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, POST |
+| **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 4.0 |
 
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
 }
 ```
 
 
-### `/nodes/{node}/ceph/pools` 📋
+### `/nodes/{node}/lxc/{vmid}/vncproxy` ✅
 
-Ceph pool management
+Create VNC proxy for container
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, POST |
+| **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 4.0 |
 
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
 }
 ```
 
 
-### `/nodes/{node}/ceph/status` 📋
+### `/nodes/{node}/lxc/{vmid}/vncwebsocket` ✅
 
-Ceph status on node
+VNC WebSocket endpoint for container
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 4.0 |
 
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": {
+    "cpu": 0.1,
+    "name": "test-container",
+    "status": "running",
+    "mem": 536870912,
+    "maxmem": 1073741824,
+    "vmid": 200,
+    "cpus": 1
+  }
 }
 ```
 
 
-### `/nodes/{node}/disks/lvm` 📋
-
-LVM management on node
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
+---
 
 
-### `/nodes/{node}/disks/lvmthin` 📋
-
-LVM thin pool management on node
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
-
-### `/nodes/{node}/disks/zfs` 📋
-
-ZFS pool management on node
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET, POST |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": {}
-}
-```
-
+## Storage Management
 
 ### `/nodes/{node}/storage` ✅
 
@@ -2827,6 +6632,33 @@ List storage configured for node
 |------|------|----------|-------------|--------|
 | `node` | string | Yes | Node name | - |
 | `content` | string | No | Filter by content type | `images`, `backup`, `vztmpl` |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "active": 1,
+      "enabled": 1,
+      "total": 107374182400,
+      "type": "dir",
+      "used": 21474836480,
+      "storage": "local"
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/storage/{storage}` ✅
+
+Node storage index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
 
 **Example Response**:
 ```json
@@ -2919,7 +6751,7 @@ Individual storage volume operations
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, DELETE |
+| **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -2946,7 +6778,34 @@ Individual storage volume operations
 ```
 
 
-### `/nodes/{node}/storage/{storage}/file-restore/download` 📋
+### `/nodes/{node}/storage/{storage}/download-url` ✅
+
+Download content from URL to storage
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "active": 1,
+      "enabled": 1,
+      "total": 107374182400,
+      "type": "dir",
+      "used": 21474836480,
+      "storage": "local"
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/storage/{storage}/file-restore/download` ✅
 
 Download files from a backup
 
@@ -2973,7 +6832,7 @@ Download files from a backup
 ```
 
 
-### `/nodes/{node}/storage/{storage}/file-restore/list` 📋
+### `/nodes/{node}/storage/{storage}/file-restore/list` ✅
 
 List files in a backup for single-file restore
 
@@ -3036,67 +6895,67 @@ Import content into storage (e.g., VMware import)
 **Notes**: Inline handler in router; VMware import introduced in PVE 8.2
 
 
-### `/nodes/{node}/storage/{storage}/prunebackups` 📋
+### `/nodes/{node}/storage/{storage}/import-metadata` ✅ 🔴
+
+Get import metadata for disk image
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.2 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "active": 1,
+      "enabled": 1,
+      "total": 107374182400,
+      "type": "dir",
+      "used": 21474836480,
+      "storage": "local"
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/storage/{storage}/oci-registry-pull` ✅ 🟠
+
+Pull OCI image from registry to storage
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": [
+    {
+      "active": 1,
+      "enabled": 1,
+      "total": 107374182400,
+      "type": "dir",
+      "used": 21474836480,
+      "storage": "local"
+    }
+  ]
+}
+```
+
+
+### `/nodes/{node}/storage/{storage}/prunebackups` ✅
 
 Prune old backups
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, DELETE |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": [
-    {
-      "active": 1,
-      "enabled": 1,
-      "total": 107374182400,
-      "type": "dir",
-      "used": 21474836480,
-      "storage": "local"
-    }
-  ]
-}
-```
-
-
-### `/nodes/{node}/storage/{storage}/rrd` 📋
-
-Storage RRD statistics
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
-| **Priority** | Low |
-| **Since** | PVE 6.0 |
-
-**Example Response**:
-```json
-{
-  "data": [
-    {
-      "active": 1,
-      "enabled": 1,
-      "total": 107374182400,
-      "type": "dir",
-      "used": 21474836480,
-      "storage": "local"
-    }
-  ]
-}
-```
-
-
-### `/nodes/{node}/storage/{storage}/rrddata` 📋
-
-Storage RRD data
-
-| Property | Value |
-|----------|-------|
-| **Methods** | GET |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -3247,6 +7106,24 @@ Individual storage definition CRUD
 
 ## Access Control & User Management
 
+### `/access` ✅
+
+Access control index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ### `/access/acl` ✅
 
 Access control list management
@@ -3313,7 +7190,7 @@ Individual realm/domain CRUD
 ```
 
 
-### `/access/domains/{realm}/sync` ✅ 🔴
+### `/access/domains/{realm}/sync` ✅
 
 Sync realm/domain from external source
 
@@ -3321,7 +7198,7 @@ Sync realm/domain from external source
 |----------|-------|
 | **Methods** | POST |
 | **Priority** | Low |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3394,6 +7271,60 @@ Individual group operations
 ```
 
 **Notes**: Individual group CRUD operations implemented
+
+
+### `/access/openid` ✅
+
+OpenID index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/access/openid/auth-url` ✅
+
+Get OpenID auth URL
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/access/openid/login` ✅
+
+OpenID login callback
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
 
 
 ### `/access/password` ✅
@@ -3481,15 +7412,39 @@ Individual role CRUD
 ```
 
 
-### `/access/tfa` 📋
+### `/access/tfa` ✅
 
 Two-factor authentication management
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST, PUT |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/access/tfa/{userid}` ✅
+
+User TFA configuration
 
 | Property | Value |
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
 | **Since** | PVE 7.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `userid` | string | Yes | User ID | - |
 
 **Example Response**:
 ```json
@@ -3499,15 +7454,15 @@ Two-factor authentication management
 ```
 
 
-### `/access/tfa/{userid}` 📋
+### `/access/tfa/{userid}/{id}` ✅
 
-User TFA configuration
+TFA entry CRUD
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | GET, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 7.0 |
+| **Since** | PVE 7.1 |
 
 **Example Response**:
 ```json
@@ -3523,7 +7478,7 @@ Authentication ticket creation
 
 | Property | Value |
 |----------|-------|
-| **Methods** | POST |
+| **Methods** | GET, POST |
 | **Priority** | High |
 | **Since** | PVE 6.0 |
 
@@ -3610,6 +7565,31 @@ Individual user account operations
 **Notes**: Individual user CRUD operations implemented
 
 
+### `/access/users/{userid}/tfa` ✅
+
+List available TFA methods for user
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "enable": 1,
+    "groups": [
+      "developers"
+    ],
+    "userid": "testuser@pve",
+    "email": "test@example.com"
+  }
+}
+```
+
+
 ### `/access/users/{userid}/token` ✅
 
 List API tokens for user
@@ -3671,6 +7651,49 @@ Individual API token operations
 **Notes**: API token CRUD operations implemented
 
 
+### `/access/users/{userid}/unlock-tfa` ✅ 🔴
+
+Unlock locked TFA for user
+
+| Property | Value |
+|----------|-------|
+| **Methods** | PUT |
+| **Priority** | Low |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {
+    "enable": 1,
+    "groups": [
+      "developers"
+    ],
+    "userid": "testuser@pve",
+    "email": "test@example.com"
+  }
+}
+```
+
+
+### `/access/vncticket` ✅
+
+Create VNC ticket for noVNC
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
 ---
 
 
@@ -3682,7 +7705,7 @@ Resource pool management
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, POST |
+| **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -3740,15 +7763,15 @@ Individual pool operations
 
 ## Software-Defined Networking (SDN)
 
-### `/cluster/sdn` ✅ 🔴
+### `/cluster/sdn` ✅
 
 SDN index
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | GET, PUT |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -3758,7 +7781,7 @@ SDN index
 ```
 
 
-### `/cluster/sdn/controllers` ✅ 🔴
+### `/cluster/sdn/controllers` ✅
 
 SDN controller management
 
@@ -3766,7 +7789,7 @@ SDN controller management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -3776,7 +7799,7 @@ SDN controller management
 ```
 
 
-### `/cluster/sdn/controllers/{controller}` ✅ 🔴
+### `/cluster/sdn/controllers/{controller}` ✅
 
 Individual SDN controller operations
 
@@ -3784,7 +7807,7 @@ Individual SDN controller operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3800,7 +7823,7 @@ Individual SDN controller operations
 ```
 
 
-### `/cluster/sdn/dns` 📋 🔴
+### `/cluster/sdn/dns` ✅
 
 SDN DNS plugin management
 
@@ -3808,17 +7831,17 @@ SDN DNS plugin management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
 
-### `/cluster/sdn/dns/{dns}` 📋 🔴
+### `/cluster/sdn/dns/{dns}` ✅
 
 Individual SDN DNS plugin operations
 
@@ -3826,7 +7849,13 @@ Individual SDN DNS plugin operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Low |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `dns` | string | Yes | DNS plugin identifier | - |
 
 **Example Response**:
 ```json
@@ -3836,7 +7865,133 @@ Individual SDN DNS plugin operations
 ```
 
 
-### `/cluster/sdn/ipams` 📋 🔴
+### `/cluster/sdn/fabrics` ✅ 🟠
+
+List all SDN fabrics
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/all` ✅ 🟠
+
+Get all SDN fabric info
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/fabric` ✅ 🟠
+
+List and create SDN fabrics
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/fabric/{id}` ✅ 🟠
+
+SDN fabric CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/node` ✅ 🟠
+
+List SDN fabric nodes
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/node/{fabric_id}` ✅ 🟠
+
+List and add nodes to fabric
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/fabrics/node/{fabric_id}/{node_id}` ✅ 🟠
+
+SDN fabric node CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/ipams` ✅
 
 SDN IPAM plugin management
 
@@ -3844,7 +7999,31 @@ SDN IPAM plugin management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Low |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/sdn/ipams/{ipam}` ✅
+
+Individual SDN IPAM plugin operations
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 7.0 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `ipam` | string | Yes | IPAM identifier | - |
 
 **Example Response**:
 ```json
@@ -3854,13 +8033,13 @@ SDN IPAM plugin management
 ```
 
 
-### `/cluster/sdn/ipams/{ipam}` 📋 🔴
+### `/cluster/sdn/ipams/{ipam}/status` ✅ 🔴
 
-Individual SDN IPAM plugin operations
+Get IPAM plugin status
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, PUT, DELETE |
+| **Methods** | GET |
 | **Priority** | Low |
 | **Since** | PVE 8.0 |
 
@@ -3872,7 +8051,43 @@ Individual SDN IPAM plugin operations
 ```
 
 
-### `/cluster/sdn/vnets` ✅ 🔴
+### `/cluster/sdn/lock` ✅ 🟠
+
+Lock or unlock SDN config
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/rollback` ✅ 🟠
+
+Rollback uncommitted SDN changes
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 9.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/vnets` ✅
 
 Virtual network management
 
@@ -3880,7 +8095,7 @@ Virtual network management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -3896,7 +8111,7 @@ Virtual network management
 ```
 
 
-### `/cluster/sdn/vnets/{vnet}` ✅ 🔴
+### `/cluster/sdn/vnets/{vnet}` ✅
 
 Individual virtual network operations
 
@@ -3904,7 +8119,7 @@ Individual virtual network operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3920,7 +8135,79 @@ Individual virtual network operations
 ```
 
 
-### `/cluster/sdn/vnets/{vnet}/subnets` ✅ 🔴
+### `/cluster/sdn/vnets/{vnet}/firewall` ✅ 🔴
+
+SDN vnet firewall index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.3 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/sdn/vnets/{vnet}/firewall/options` ✅ 🔴
+
+SDN vnet firewall options
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT |
+| **Priority** | Low |
+| **Since** | PVE 8.3 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/vnets/{vnet}/firewall/rules` ✅ 🔴
+
+SDN vnet firewall rules list and create
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Low |
+| **Since** | PVE 8.3 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/sdn/vnets/{vnet}/firewall/rules/{pos}` ✅ 🔴
+
+SDN vnet firewall rule CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Low |
+| **Since** | PVE 8.3 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/sdn/vnets/{vnet}/subnets` ✅
 
 Subnet management for a virtual network
 
@@ -3928,7 +8215,7 @@ Subnet management for a virtual network
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3944,7 +8231,7 @@ Subnet management for a virtual network
 ```
 
 
-### `/cluster/sdn/vnets/{vnet}/subnets/{subnet}` ✅ 🔴
+### `/cluster/sdn/vnets/{vnet}/subnets/{subnet}` ✅
 
 Individual subnet operations
 
@@ -3952,7 +8239,7 @@ Individual subnet operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -3969,7 +8256,7 @@ Individual subnet operations
 ```
 
 
-### `/cluster/sdn/zones` ✅ 🔴
+### `/cluster/sdn/zones` ✅
 
 Software Defined Networking zone management
 
@@ -3977,7 +8264,7 @@ Software Defined Networking zone management
 |----------|-------|
 | **Methods** | GET, POST |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Example Response**:
 ```json
@@ -3993,7 +8280,7 @@ Software Defined Networking zone management
 ```
 
 
-### `/cluster/sdn/zones/{zone}` ✅ 🔴
+### `/cluster/sdn/zones/{zone}` ✅
 
 Individual SDN zone operations
 
@@ -4001,7 +8288,7 @@ Individual SDN zone operations
 |----------|-------|
 | **Methods** | GET, PUT, DELETE |
 | **Priority** | Medium |
-| **Since** | PVE 8.0 |
+| **Since** | PVE 7.0 |
 
 **Parameters**:
 
@@ -4026,7 +8313,7 @@ Individual SDN zone operations
 
 ## Monitoring & Metrics
 
-### `/cluster/metrics` 📋
+### `/cluster/metrics` ✅
 
 Cluster metrics index
 
@@ -4044,7 +8331,7 @@ Cluster metrics index
 ```
 
 
-### `/cluster/metrics/server` 📋
+### `/cluster/metrics/server` ✅
 
 List configured external metric servers
 
@@ -4068,7 +8355,7 @@ Get external metric server configuration
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET |
+| **Methods** | GET, POST, PUT, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 7.0 |
 
@@ -4319,7 +8606,7 @@ Read node RRD statistics (returns JSON data)
 ```
 
 
-### `/nodes/{node}/services` 📋
+### `/nodes/{node}/services` ✅
 
 List system services on node
 
@@ -4337,7 +8624,7 @@ List system services on node
 ```
 
 
-### `/nodes/{node}/services/{service}` 📋
+### `/nodes/{node}/services/{service}` ✅
 
 Get service status
 
@@ -4355,13 +8642,13 @@ Get service status
 ```
 
 
-### `/nodes/{node}/services/{service}/state` 📋
+### `/nodes/{node}/services/{service}/state` ✅
 
 Control service (start/stop/restart)
 
 | Property | Value |
 |----------|-------|
-| **Methods** | PUT |
+| **Methods** | GET |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -4373,7 +8660,7 @@ Control service (start/stop/restart)
 ```
 
 
-### `/nodes/{node}/storage/{storage}/rrd` 📋
+### `/nodes/{node}/storage/{storage}/rrd` ✅
 
 Storage RRD statistics (graph)
 
@@ -4400,7 +8687,7 @@ Storage RRD statistics (graph)
 ```
 
 
-### `/nodes/{node}/storage/{storage}/rrddata` 📋
+### `/nodes/{node}/storage/{storage}/rrddata` ✅
 
 Storage RRD statistics (data)
 
@@ -4646,7 +8933,43 @@ Restore container from backup
 
 ## Hardware Detection & Passthrough
 
-### `/cluster/mapping/pci` 📋 🔴
+### `/cluster/mapping/dir` ✅ 🔴
+
+Directory mapping list and create
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/dir/{id}` ✅ 🔴
+
+Directory mapping CRUD
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/mapping/pci` ✅ 🔴
 
 PCI resource mapping management
 
@@ -4664,7 +8987,7 @@ PCI resource mapping management
 ```
 
 
-### `/cluster/mapping/pci/{id}` 📋 🔴
+### `/cluster/mapping/pci/{id}` ✅ 🔴
 
 Individual PCI mapping CRUD
 
@@ -4682,7 +9005,7 @@ Individual PCI mapping CRUD
 ```
 
 
-### `/cluster/mapping/usb` 📋 🔴
+### `/cluster/mapping/usb` ✅ 🔴
 
 USB resource mapping management
 
@@ -4700,7 +9023,7 @@ USB resource mapping management
 ```
 
 
-### `/cluster/mapping/usb/{id}` 📋 🔴
+### `/cluster/mapping/usb/{id}` ✅ 🔴
 
 Individual USB mapping CRUD
 
@@ -4718,7 +9041,25 @@ Individual USB mapping CRUD
 ```
 
 
-### `/nodes/{node}/hardware/pci` 📋
+### `/nodes/{node}/hardware` ✅
+
+Node hardware detection index
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/hardware/pci` ✅
 
 List PCI devices on node
 
@@ -4736,7 +9077,43 @@ List PCI devices on node
 ```
 
 
-### `/nodes/{node}/hardware/pci/{pciid}` 📋
+### `/nodes/{node}/hardware/pci/{pci-id-or-mapping}` ✅
+
+Get PCI device or mapping details
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/hardware/pci/{pci-id-or-mapping}/mdev` ✅
+
+List mediated device types for PCI device or mapping
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/hardware/pci/{pciid}` ✅
 
 Get PCI device details
 
@@ -4754,7 +9131,25 @@ Get PCI device details
 ```
 
 
-### `/nodes/{node}/hardware/usb` 📋
+### `/nodes/{node}/hardware/pci/{pciid}/mdev` ✅
+
+List mediated device types for PCI device
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 6.0 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/nodes/{node}/hardware/usb` ✅
 
 List USB devices on node
 
@@ -4833,11 +9228,11 @@ List/create security groups
 
 ### `/cluster/firewall/groups/{group}` ✅
 
-Get rules / delete security group
+Get rules / create rule / delete security group
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, DELETE |
+| **Methods** | GET, POST, DELETE |
 | **Priority** | Medium |
 | **Since** | PVE 6.0 |
 
@@ -4921,7 +9316,7 @@ IP set entry CRUD
 ```
 
 
-### `/cluster/firewall/log` 📋
+### `/cluster/firewall/log` ✅
 
 Read cluster firewall log
 
@@ -4939,7 +9334,7 @@ Read cluster firewall log
 ```
 
 
-### `/cluster/firewall/macros` 📋
+### `/cluster/firewall/macros` ✅
 
 List available firewall macros
 
@@ -4975,7 +9370,7 @@ Cluster firewall options
 ```
 
 
-### `/cluster/firewall/refs` 📋
+### `/cluster/firewall/refs` ✅
 
 List available firewall references
 
@@ -5029,7 +9424,7 @@ Individual cluster rule CRUD
 ```
 
 
-### `/nodes/{node}/firewall` 📋
+### `/nodes/{node}/firewall` ✅
 
 Node firewall index
 
@@ -5047,7 +9442,7 @@ Node firewall index
 ```
 
 
-### `/nodes/{node}/firewall/log` 📋
+### `/nodes/{node}/firewall/log` ✅
 
 Read node firewall log
 
@@ -5119,7 +9514,7 @@ Individual node rule CRUD
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall` ✅
 
 Container firewall index
 
@@ -5145,7 +9540,7 @@ Container firewall index
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/aliases` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/aliases` ✅
 
 Container-level IP aliases
 
@@ -5171,7 +9566,7 @@ Container-level IP aliases
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/aliases/{name}` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/aliases/{name}` ✅
 
 Container alias CRUD
 
@@ -5197,7 +9592,7 @@ Container alias CRUD
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/ipset` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/ipset` ✅
 
 Container-level IP sets
 
@@ -5223,13 +9618,13 @@ Container-level IP sets
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}` ✅
 
-Container IP set entries / delete
+Container IP set entries / add / delete
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, DELETE |
+| **Methods** | GET, POST, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -5249,7 +9644,7 @@ Container IP set entries / delete
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}/{cidr}` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/ipset/{name}/{cidr}` ✅
 
 Container IP set entry CRUD
 
@@ -5275,7 +9670,7 @@ Container IP set entry CRUD
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/log` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/log` ✅
 
 Read container firewall log
 
@@ -5301,7 +9696,7 @@ Read container firewall log
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/options` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/options` ✅
 
 Container firewall options
 
@@ -5327,7 +9722,7 @@ Container firewall options
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/refs` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/refs` ✅
 
 Container firewall references
 
@@ -5353,7 +9748,7 @@ Container firewall references
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/rules` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/rules` ✅
 
 List/create container firewall rules
 
@@ -5379,7 +9774,7 @@ List/create container firewall rules
 ```
 
 
-### `/nodes/{node}/lxc/{vmid}/firewall/rules/{pos}` 📋
+### `/nodes/{node}/lxc/{vmid}/firewall/rules/{pos}` ✅
 
 Individual container rule CRUD
 
@@ -5405,7 +9800,7 @@ Individual container rule CRUD
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall` ✅
 
 VM firewall index
 
@@ -5432,7 +9827,7 @@ VM firewall index
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/aliases` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/aliases` ✅
 
 VM-level IP aliases
 
@@ -5459,7 +9854,7 @@ VM-level IP aliases
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/aliases/{name}` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/aliases/{name}` ✅
 
 VM alias CRUD
 
@@ -5486,7 +9881,7 @@ VM alias CRUD
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/ipset` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/ipset` ✅
 
 VM-level IP sets
 
@@ -5513,13 +9908,13 @@ VM-level IP sets
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}` ✅
 
-VM IP set entries / delete
+VM IP set entries / add / delete
 
 | Property | Value |
 |----------|-------|
-| **Methods** | GET, DELETE |
+| **Methods** | GET, POST, DELETE |
 | **Priority** | Low |
 | **Since** | PVE 6.0 |
 
@@ -5540,7 +9935,7 @@ VM IP set entries / delete
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}/{cidr}` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/ipset/{name}/{cidr}` ✅
 
 VM IP set entry CRUD
 
@@ -5567,7 +9962,7 @@ VM IP set entry CRUD
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/log` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/log` ✅
 
 Read VM firewall log
 
@@ -5594,7 +9989,7 @@ Read VM firewall log
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/options` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/options` ✅
 
 VM firewall options
 
@@ -5621,7 +10016,7 @@ VM firewall options
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/refs` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/refs` ✅
 
 VM firewall references
 
@@ -5648,7 +10043,7 @@ VM firewall references
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/rules` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/rules` ✅
 
 List/create VM firewall rules
 
@@ -5675,7 +10070,7 @@ List/create VM firewall rules
 ```
 
 
-### `/nodes/{node}/qemu/{vmid}/firewall/rules/{pos}` 📋
+### `/nodes/{node}/qemu/{vmid}/firewall/rules/{pos}` ✅
 
 Individual VM rule CRUD
 
@@ -5700,6 +10095,328 @@ Individual VM rule CRUD
   }
 }
 ```
+
+
+---
+
+
+## Notifications
+
+### `/cluster/notifications` ✅ 🔴
+
+Notification system index — lists child resource names
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints` ✅ 🔴
+
+List available notification endpoint types
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints/gotify` ✅ 🔴
+
+List or create Gotify notification endpoints
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints/gotify/{name}` ✅ 🔴
+
+Get, update, or delete a specific Gotify notification endpoint
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Endpoint name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/endpoints/sendmail` ✅ 🔴
+
+List or create sendmail notification endpoints
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints/sendmail/{name}` ✅ 🔴
+
+Get, update, or delete a specific sendmail notification endpoint
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Endpoint name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/endpoints/smtp` ✅ 🔴
+
+List or create SMTP notification endpoints
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints/smtp/{name}` ✅ 🔴
+
+Get, update, or delete a specific SMTP notification endpoint
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Endpoint name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/endpoints/webhook` ✅ 🔴
+
+List or create webhook notification endpoints
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.2 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/endpoints/webhook/{name}` ✅ 🔴
+
+Get, update, or delete a specific webhook notification endpoint
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.2 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Endpoint name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/matcher-field-values` ✅ 🔴
+
+List possible values for matcher fields
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.2 |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/matcher-fields` ✅ 🔴
+
+List available matcher fields
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Low |
+| **Since** | PVE 8.2 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/matchers` ✅ 🔴
+
+List or create notification matchers
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, POST |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/matchers/{name}` ✅ 🔴
+
+Get, update, or delete a specific notification matcher
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET, PUT, DELETE |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Matcher name | - |
+
+**Example Response**:
+```json
+{
+  "data": {}
+}
+```
+
+
+### `/cluster/notifications/targets` ✅ 🔴
+
+List all notification targets across all endpoint types
+
+| Property | Value |
+|----------|-------|
+| **Methods** | GET |
+| **Priority** | Medium |
+| **Since** | PVE 8.1 |
+
+**Example Response**:
+```json
+{
+  "data": []
+}
+```
+
+
+### `/cluster/notifications/targets/{name}/test` ✅ 🔴
+
+Send a test notification to a target
+
+| Property | Value |
+|----------|-------|
+| **Methods** | POST |
+| **Priority** | Low |
+| **Since** | PVE 8.1 |
+
+**Parameters**:
+
+| Name | Type | Required | Description | Values |
+|------|------|----------|-------------|--------|
+| `name` | string | Yes | Target name | - |
 
 
 ---

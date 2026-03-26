@@ -11,6 +11,22 @@ defmodule MockPveApi.Handlers.Access do
   alias MockPveApi.State
 
   @doc """
+  GET /api2/json/access/ticket
+  Returns current authentication ticket info (mock: returns a static ticket).
+  """
+  def get_ticket(conn) do
+    ticket_info = %{
+      ticket: "PVE:root@pam:MOCK_TICKET",
+      CSRFPreventionToken: "MOCK_CSRF_TOKEN",
+      username: "root@pam"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ticket_info}))
+  end
+
+  @doc """
   POST /api2/json/access/ticket
   Creates authentication ticket for username/password authentication.
   """
@@ -689,5 +705,153 @@ defmodule MockPveApi.Handlers.Access do
         |> put_resp_content_type("application/json")
         |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
     end
+  end
+
+  # --- TFA ---
+
+  @doc """
+  PUT /api2/json/access/tfa
+  Update TFA settings (mock: no-op, returns nil).
+  """
+  def update_tfa(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  @doc """
+  GET /api2/json/access/tfa
+  Lists TFA configurations for all users.
+  """
+  def list_tfa(conn) do
+    users = State.get_state().users
+
+    tfa_entries =
+      Enum.map(users, fn {userid, _user} ->
+        %{userid: userid, entries: []}
+      end)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: tfa_entries}))
+  end
+
+  @doc """
+  POST /api2/json/access/tfa
+  Add TFA entry for the current user (mock: returns success with a recovery key).
+  """
+  def add_tfa(conn) do
+    result = %{
+      recovery:
+        Enum.map(1..8, fn _ ->
+          :crypto.strong_rand_bytes(4) |> Base.encode16(case: :lower)
+        end)
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: result}))
+  end
+
+  @doc """
+  POST /api2/json/access/tfa/:userid
+  Add a TFA entry for a user (mock: returns a static recovery key set).
+  """
+  def create_tfa_entry(conn) do
+    userid = conn.path_params["userid"]
+
+    result = %{
+      id: "totp/#{userid}",
+      type: "totp",
+      description: "Mock TFA entry"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: result}))
+  end
+
+  @doc """
+  GET /api2/json/access/tfa/:userid
+  Get TFA configuration for a specific user.
+  """
+  def get_user_tfa(conn) do
+    userid = conn.path_params["userid"]
+
+    tfa_data = %{
+      userid: userid,
+      entries: []
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: tfa_data}))
+  end
+
+  def get_tfa_entry(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def update_tfa_entry(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def delete_tfa_entry(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def get_user_tfa_methods(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def unlock_user_tfa(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # Access index and OpenID stubs
+
+  @doc "GET /api2/json/access"
+  def get_access_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  @doc "GET /api2/json/access/openid"
+  def get_openid_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  @doc "POST /api2/json/access/openid/auth-url"
+  def openid_auth_url(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  @doc "POST /api2/json/access/openid/login"
+  def openid_login(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  @doc "POST /api2/json/access/vncticket"
+  def create_vncticket(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
   end
 end

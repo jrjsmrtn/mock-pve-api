@@ -280,7 +280,7 @@ generate_metadata() {
     "description": "Mock Proxmox VE API Server for testing and development",
     "license": "MIT",
     "repository": "https://github.com/jrjsmrtn/mock-pve-api",
-    "registry": "docker.io/jrjsmrtn/mock-pve-api"
+    "registry": "ghcr.io/jrjsmrtn/mock-pve-api"
   },
   "sbom": {
     "generated_at": "$TIMESTAMP",

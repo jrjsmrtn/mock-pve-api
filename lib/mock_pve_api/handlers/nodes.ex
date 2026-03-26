@@ -1374,6 +1374,165 @@ defmodule MockPveApi.Handlers.Nodes do
     |> send_resp(200, Jason.encode!(%{data: disks}))
   end
 
+  # Disk management endpoints
+
+  @doc "GET /api2/json/nodes/:node/disks/lvm"
+  def list_disks_lvm(conn) do
+    data = [
+      %{name: "pve", size: 500_107_862_016, free: 100_000_000_000, pvs: "/dev/sda3"}
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/disks/lvm"
+  def create_disk_lvm(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:lvmcreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "GET /api2/json/nodes/:node/disks/lvmthin"
+  def list_disks_lvmthin(conn) do
+    data = [
+      %{lv: "data", vg: "pve", lv_size: 400_000_000_000, metadata_size: 1_073_741_824, used: 0.25}
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/disks/lvmthin"
+  def create_disk_lvmthin(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:lvmthincreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "GET /api2/json/nodes/:node/disks/zfs"
+  def list_disks_zfs(conn) do
+    data = [
+      %{
+        name: "rpool",
+        size: 500_107_862_016,
+        alloc: 50_000_000_000,
+        free: 450_000_000_000,
+        health: "ONLINE"
+      }
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/disks/zfs"
+  def create_disk_zfs(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:zfscreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/disks/initgpt"
+  def init_disk_gpt(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:initgpt::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node Ceph endpoints
+
+  @doc "GET /api2/json/nodes/:node/ceph/status"
+  def get_node_ceph_status(conn) do
+    status = %{
+      health: %{status: "HEALTH_OK"},
+      pgmap: %{pgs_by_state: [], num_pgs: 0},
+      osdmap: %{num_osds: 0, num_up_osds: 0, num_in_osds: 0}
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: status}))
+  end
+
+  @doc "GET /api2/json/nodes/:node/ceph/osd"
+  def list_node_ceph_osd(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{root: %{children: []}}}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/ceph/osd"
+  def create_node_ceph_osd(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:osdcreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "GET /api2/json/nodes/:node/ceph/pools"
+  def list_node_ceph_pools(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  @doc "POST /api2/json/nodes/:node/ceph/pools"
+  def create_node_ceph_pool(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephcreatepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # ACME certificate endpoints
+
+  @doc "POST /api2/json/nodes/:node/certificates/acme/certificate"
+  def acme_certificate_new(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:acmenewcert::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "PUT /api2/json/nodes/:node/certificates/acme/certificate"
+  def acme_certificate_renew(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:acmerenew::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  @doc "DELETE /api2/json/nodes/:node/certificates/acme/certificate"
+  def acme_certificate_delete(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
   # Task delete
 
   @doc """
@@ -1633,5 +1792,1283 @@ defmodule MockPveApi.Handlers.Nodes do
         |> put_resp_content_type("application/json")
         |> send_resp(404, Jason.encode!(%{errors: %{vmid: "Container '#{vmid}' not found"}}))
     end
+  end
+
+  # --- Hosts ---
+
+  def get_hosts(conn) do
+    data = %{
+      digest: :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower),
+      data: "127.0.0.1 localhost\n::1 localhost ip6-localhost ip6-loopback\n"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  def set_hosts(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Subscription ---
+
+  def get_subscription(conn) do
+    now = System.system_time(:second)
+
+    data = %{
+      status: "notfound",
+      message: "There is no subscription key",
+      serverid: "MOCK000000000000",
+      checktime: now,
+      key: ""
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  def set_subscription(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Bulk Operations ---
+
+  def startall(conn) do
+    node = conn.path_params["node"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:0000AAAA:00000001:#{now}:startall:#{node}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def stopall(conn) do
+    node = conn.path_params["node"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:0000BBBB:00000001:#{now}:stopall:#{node}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def migrateall(conn) do
+    node = conn.path_params["node"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:0000CCCC:00000001:#{now}:migrateall:#{node}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # --- Journal ---
+
+  def get_journal(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  # --- Certificates ---
+
+  def get_certificates_info(conn) do
+    now = System.system_time(:second)
+
+    data = [
+      %{
+        filename: "/etc/pve/local/pve-ssl.pem",
+        fingerprint: "AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD",
+        issuer: "CN=Proxmox Virtual Environment, O=PVE",
+        notafter: now + 365 * 24 * 3600,
+        notbefore: now - 365 * 24 * 3600,
+        subject: "CN=mock-pve-node, O=PVE",
+        "public-key-type": "rsaEncryption",
+        "public-key-bits": 2048
+      }
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- Disks SMART ---
+
+  def get_disks_smart(conn) do
+    data = %{
+      health: "PASSED",
+      type: "text",
+      text:
+        "=== START OF INFORMATION SECTION ===\nModel Family:     Mock SSD\nSerial Number:    MOCK1234567890\n"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM Feature Check ---
+
+  def get_vm_feature(conn) do
+    data = %{hasFeature: true}
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM Template ---
+
+  def convert_vm_to_template(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- VM Agent ---
+
+  def vm_agent(conn) do
+    data = %{result: ""}
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  def vm_agent_subcommand(conn) do
+    data =
+      case conn.method do
+        "POST" -> nil
+        _ -> %{result: ""}
+      end
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM Sendkey ---
+
+  @doc "PUT /api2/json/nodes/:node/qemu/:vmid/sendkey"
+  def vm_sendkey(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- VM Cloud-Init ---
+
+  def get_vm_cloudinit_dump(conn) do
+    data = "# cloud-init config\nnetwork:\n  version: 2\n"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM Unlink ---
+
+  def vm_unlink(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- VM Move Disk ---
+
+  def vm_move_disk(conn) do
+    node = conn.path_params["node"]
+    vmid = conn.path_params["vmid"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:0000DDDD:00000001:#{now}:move_disk:#{vmid}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # --- Container Feature Check ---
+
+  def get_ct_feature(conn) do
+    data = %{hasFeature: true}
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- Container Template ---
+
+  def convert_ct_to_template(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Container Move Volume ---
+
+  def ct_move_volume(conn) do
+    node = conn.path_params["node"]
+    vmid = conn.path_params["vmid"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:0000EEEE:00000001:#{now}:move_volume:#{vmid}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # --- VM Migrate Preconditions ---
+
+  @doc """
+  GET /api2/json/nodes/:node/qemu/:vmid/migrate
+  Returns VM migration preconditions (running status, local disks, local resources).
+  """
+  def get_vm_migrate_preconditions(conn) do
+    data = %{
+      running: false,
+      local_disks: [],
+      local_resources: [],
+      allowed_nodes: []
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM Async Config Update ---
+
+  @doc """
+  POST /api2/json/nodes/:node/qemu/:vmid/config
+  Asynchronous VM configuration update — returns a UPID task string.
+  """
+  def async_update_vm_config(conn) do
+    node = conn.path_params["node"]
+    vmid = conn.path_params["vmid"]
+    now = System.system_time(:second)
+    upid = "UPID:#{node}:00001234:000000:#{now}:qmconfig:#{vmid}:root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # --- VM Agent Info ---
+
+  @doc """
+  GET /api2/json/nodes/:node/qemu/:vmid/agent
+  Returns QEMU guest agent availability info.
+  """
+  def get_vm_agent(conn) do
+    data = %{supported: false}
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- Container Migrate Preconditions ---
+
+  @doc """
+  GET /api2/json/nodes/:node/lxc/:vmid/migrate
+  Returns container migration preconditions.
+  """
+  def get_ct_migrate_preconditions(conn) do
+    data = %{
+      running: false,
+      local_volumes: [],
+      allowed_nodes: []
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- Node Network Create/Reload/Delete Pending ---
+
+  @doc """
+  POST /api2/json/nodes/:node/network
+  Creates a new network interface configuration.
+  """
+  def create_node_network_iface(conn) do
+    node_name = conn.path_params["node"]
+    params = conn.body_params
+    iface = Map.get(params, "iface")
+
+    if iface do
+      iface_config = Map.put(params, "iface", iface)
+      State.update_node_network_iface(node_name, iface, iface_config)
+
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(200, Jason.encode!(%{data: nil}))
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(
+        400,
+        Jason.encode!(%{errors: %{iface: "property is missing and it is not optional"}})
+      )
+    end
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/network
+  Reloads network configuration (apply pending changes).
+  """
+  def reload_node_network(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  @doc """
+  DELETE /api2/json/nodes/:node/network
+  Reverts pending network configuration changes.
+  """
+  def delete_pending_node_network(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Subscription Update/Delete ---
+
+  @doc """
+  PUT /api2/json/nodes/:node/subscription
+  Updates the subscription key.
+  """
+  def update_subscription(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  @doc """
+  DELETE /api2/json/nodes/:node/subscription
+  Deletes the subscription.
+  """
+  def delete_subscription(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Task Summary ---
+
+  @doc """
+  GET /api2/json/nodes/:node/tasks/:upid
+  Returns task summary (distinct from /status and /log).
+  """
+  def get_task(conn) do
+    upid = conn.path_params["upid"]
+
+    summary = %{
+      upid: upid,
+      type: "unknown",
+      id: "",
+      user: "root@pam",
+      status: "stopped",
+      exitstatus: "OK",
+      starttime: System.system_time(:second),
+      endtime: System.system_time(:second)
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: summary}))
+  end
+
+  # --- VM status index ---
+
+  def get_vm_status_index(conn) do
+    data = Enum.map(~w(current start stop reset shutdown suspend resume reboot), &%{subdir: &1})
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- LXC status index ---
+
+  def get_container_status_index(conn) do
+    data = Enum.map(~w(current start stop shutdown suspend resume reboot), &%{subdir: &1})
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  # --- VM/LXC console stubs ---
+
+  def vm_vncproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900, ticket: "stub-ticket", cert: ""}}))
+  end
+
+  def vm_termproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900, ticket: "stub-ticket", user: "root"}}))
+  end
+
+  def vm_spiceproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{type: "spice", host: "localhost", port: 61000}}))
+  end
+
+  def vm_vncwebsocket(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900}}))
+  end
+
+  def vm_mtunnel(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def vm_mtunnelwebsocket(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def vm_remote_migrate(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def vm_monitor(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ""}))
+  end
+
+  # --- VM cloudinit ---
+
+  def get_vm_cloudinit(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def update_vm_cloudinit(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- LXC console stubs ---
+
+  def container_vncproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900, ticket: "stub-ticket", cert: ""}}))
+  end
+
+  def container_termproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900, ticket: "stub-ticket", user: "root"}}))
+  end
+
+  def container_spiceproxy(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{type: "spice", host: "localhost", port: 61001}}))
+  end
+
+  def container_vncwebsocket(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{port: 5900}}))
+  end
+
+  def container_mtunnel(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def container_mtunnelwebsocket(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def container_remote_migrate(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def container_interfaces(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  # --- Node scan stubs ---
+
+  def get_scan_index(conn) do
+    subdirs = ~w(cifs glusterfs iscsi lvm lvmthin nfs pbs zfs)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: Enum.map(subdirs, &%{method: &1})}))
+  end
+
+  def scan_stub(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  # --- Node services actions ---
+
+  def node_service_action(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # --- Node replication stubs ---
+
+  def list_node_replication(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_replication_job(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_replication_log(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def node_replication_schedule_now(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def get_node_replication_status(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  # --- Sprint 4.9.12: Node apt, capabilities, certs, disks, console, misc ---
+
+  def get_apt_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_apt_changelog(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ""}))
+  end
+
+  def get_apt_repositories(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{repositories: [], errors: [], infos: []}}))
+  end
+
+  def update_apt_repositories(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def post_apt_repositories(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def get_capabilities_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_qemu_capabilities(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_qemu_cpu_capabilities(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_qemu_machine_capabilities(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_qemu_cpu_flags(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_qemu_migration_capabilities(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_certificates_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_acme_cert_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def manage_custom_certificate(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def get_disks_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_disks_directory(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def create_disks_directory(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def delete_disks_directory(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def delete_disks_lvm(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def delete_disks_lvmthin(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def delete_disks_zfs(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def wipe_disk(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def node_console_stub(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_vncwebsocket(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def node_wakeonlan(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  def node_suspendall(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
+  end
+
+  # Node aplinfo
+
+  def get_node_aplinfo(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def post_node_aplinfo(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:apldownload::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node vncshell
+
+  def node_vncshell(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  # Node query stubs
+
+  def get_query_url_metadata(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_query_oci_repo_tags(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  # Node qemu dbus-vmstate stub
+
+  def node_qemu_dbus_vmstate(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:dbusstate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node disks index and remaining stubs
+
+  def get_node_disks_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def delete_node_disks_lvm(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:lvmremove::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def delete_node_disks_lvmthin(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:lvmthinremove::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def wipe_node_disk(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:wipedisk::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def delete_node_disks_zfs(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:zfsdestroy::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_disks_zfs_detail(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  # Node storage sub-item stubs
+
+  def get_node_storage(conn) do
+    node_name = conn.path_params["node"]
+    storage = State.get_storage()
+
+    # Filter storage and add node context (matching real PVE behaviour)
+    node_storage =
+      Enum.map(storage, fn s ->
+        Map.merge(s, %{node: node_name, active: 1, enabled: 1})
+      end)
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: node_storage}))
+  end
+
+  def node_storage_download_url(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:download::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_storage_import_metadata(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def node_storage_oci_pull(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:ocipull::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node SDN local stubs
+
+  def get_node_sdn_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_fabric(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_sdn_fabric_interfaces(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_fabric_neighbors(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_fabric_routes(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_vnet(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_sdn_vnet_mac_vrf(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_zones(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_zone(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_sdn_zone_bridges(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_zone_content(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_sdn_zone_ip_vrf(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  # Node ceph sub-endpoint stubs
+
+  def get_node_ceph_index(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_ceph_cfg(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_ceph_cfg_db(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_ceph_cfg_raw(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ""}))
+  end
+
+  def get_node_ceph_cfg_value(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_ceph_cmd_safety(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_ceph_config(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ""}))
+  end
+
+  def get_node_ceph_configdb(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_ceph_crush(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: ""}))
+  end
+
+  def get_node_ceph_fs(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def create_node_ceph_fs(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephcreatefscreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def init_node_ceph(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephinit::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_log(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def get_node_ceph_mds(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def delete_node_ceph_mds(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmdsdelete::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def create_node_ceph_mds(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmdscreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_mgr(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def delete_node_ceph_mgr(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmgrremove::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def create_node_ceph_mgr(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmgrcreate::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_mon(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def delete_node_ceph_mon(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmonremove::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def create_node_ceph_mon(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephmonstart::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def delete_node_ceph_osd(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephosdremove::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_osd_detail(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def node_ceph_osd_in(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephosdin::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_osd_lv_info(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def get_node_ceph_osd_metadata(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def node_ceph_osd_out(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephosdout::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def node_ceph_osd_scrub(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephosdscrub::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node ceph pool (singular) stubs - alias for pools (newer PVE API path)
+
+  def get_node_ceph_pool_list(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def create_node_ceph_pool_v2(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephcreatepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def delete_node_ceph_pool_by_name(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephdeletepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_pool_by_name(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def update_node_ceph_pool(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephupdatepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def get_node_ceph_pool_status(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  # Node ceph pools/{name} sub-item stubs (legacy path, exists alongside pool/)
+
+  def get_node_ceph_pools_by_name(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: %{}}))
+  end
+
+  def update_node_ceph_pools(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephupdatepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def delete_node_ceph_pools_by_name(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephdeletepool::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  # Node ceph lifecycle stubs
+
+  def get_node_ceph_rules(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: []}))
+  end
+
+  def restart_node_ceph(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephrestart::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def start_node_ceph(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephstart::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
+  end
+
+  def stop_node_ceph(conn) do
+    node = conn.path_params["node"]
+    upid = "UPID:#{node}:00000001:00000000:00000000:cephstop::root@pam:"
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: upid}))
   end
 end

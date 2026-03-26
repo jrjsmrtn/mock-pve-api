@@ -214,7 +214,7 @@ defmodule MockPveApi.Coverage.Storage do
       },
       "/api2/json/nodes/{node}/storage/{storage}/content/{volume}" => %{
         path: "/api2/json/nodes/{node}/storage/{storage}/content/{volume}",
-        methods: [:get, :delete],
+        methods: [:get, :post, :put, :delete],
         status: :implemented,
         priority: :medium,
         since: "6.0",
@@ -251,6 +251,20 @@ defmodule MockPveApi.Coverage.Storage do
         handler_module: MockPveApi.Handlers.Storage,
         notes: nil
       },
+      "/api2/json/nodes/{node}/storage/{storage}/prunebackups" =>
+        implemented(:get_delete, :low, "6.0", "Prune old backups"),
+      "/api2/json/nodes/{node}/storage/{storage}/file-restore/list" =>
+        implemented(:get, :low, "7.0", "List files in a backup for single-file restore"),
+      "/api2/json/nodes/{node}/storage/{storage}/file-restore/download" =>
+        implemented(:get, :low, "7.0", "Download files from a backup"),
+      "/api2/json/nodes/{node}/storage/{storage}" =>
+        implemented(:get, :low, "6.0", "Node storage index"),
+      "/api2/json/nodes/{node}/storage/{storage}/download-url" =>
+        implemented(:post, :low, "7.0", "Download content from URL to storage"),
+      "/api2/json/nodes/{node}/storage/{storage}/import-metadata" =>
+        implemented(:get, :low, "8.2", "Get import metadata for disk image"),
+      "/api2/json/nodes/{node}/storage/{storage}/oci-registry-pull" =>
+        implemented(:post, :low, "9.0", "Pull OCI image from registry to storage"),
       "/api2/json/nodes/{node}/storage/{storage}/upload" => %{
         path: "/api2/json/nodes/{node}/storage/{storage}/upload",
         methods: [:post],
@@ -286,45 +300,22 @@ defmodule MockPveApi.Coverage.Storage do
   end
 
   defp planned_endpoints do
-    %{
-      "/api2/json/nodes/{node}/storage/{storage}/prunebackups" =>
-        planned(:get_delete, :low, "6.0", "Prune old backups"),
-      "/api2/json/nodes/{node}/storage/{storage}/rrd" =>
-        planned(:get, :low, "6.0", "Storage RRD statistics"),
-      "/api2/json/nodes/{node}/storage/{storage}/rrddata" =>
-        planned(:get, :low, "6.0", "Storage RRD data"),
-      "/api2/json/nodes/{node}/storage/{storage}/file-restore/list" =>
-        planned(:get, :low, "7.0", "List files in a backup for single-file restore"),
-      "/api2/json/nodes/{node}/storage/{storage}/file-restore/download" =>
-        planned(:get, :low, "7.0", "Download files from a backup"),
-      # Ceph (node-level)
-      "/api2/json/nodes/{node}/ceph/status" => planned(:get, :low, "7.0", "Ceph status on node"),
-      "/api2/json/nodes/{node}/ceph/osd" =>
-        planned(:get_post, :low, "7.0", "Ceph OSD management"),
-      "/api2/json/nodes/{node}/ceph/pools" =>
-        planned(:get_post, :low, "7.0", "Ceph pool management"),
-      "/api2/json/nodes/{node}/disks/zfs" =>
-        planned(:get_post, :low, "6.0", "ZFS pool management on node"),
-      "/api2/json/nodes/{node}/disks/lvm" =>
-        planned(:get_post, :low, "6.0", "LVM management on node"),
-      "/api2/json/nodes/{node}/disks/lvmthin" =>
-        planned(:get_post, :low, "6.0", "LVM thin pool management on node")
-    }
+    %{}
   end
 
-  defp planned(methods_atom, priority, since, description) do
+  defp implemented(methods_atom, priority, since, description) do
     %{
       path: "",
       methods: methods_for(methods_atom),
-      status: :planned,
+      status: :implemented,
       priority: priority,
       since: since,
       description: description,
       parameters: [],
       response_schema: %{data: :object},
-      capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
+      capabilities_required: [:storage_basic],
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Storage,
       notes: nil
     }
   end
@@ -334,4 +325,5 @@ defmodule MockPveApi.Coverage.Storage do
   defp methods_for(:get_post), do: [:get, :post]
   defp methods_for(:get_delete), do: [:get, :delete]
   defp methods_for(:get_put_delete), do: [:get, :put, :delete]
+  defp methods_for(:get_post_put_delete), do: [:get, :post, :put, :delete]
 end

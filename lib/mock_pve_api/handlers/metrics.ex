@@ -155,6 +155,54 @@ defmodule MockPveApi.Handlers.Metrics do
   end
 
   @doc """
+  GET /api2/json/nodes/:node/storage/:storage/rrd
+  Gets storage RRD statistics (graph image data).
+  """
+  def get_storage_rrd(conn) do
+    _node_name = conn.path_params["node"]
+    storage_id = conn.path_params["storage"]
+    query_params = conn.query_params
+    timeframe = Map.get(query_params, "timeframe", "hour")
+    cf = Map.get(query_params, "cf", "AVERAGE")
+
+    data = %{
+      filename: "storage_#{storage_id}_#{timeframe}_#{String.downcase(cf)}.png",
+      image: "FAKE_PNG_DATA"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: data}))
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/storage/:storage/rrddata
+  Gets storage RRD statistics in structured data format.
+  """
+  def get_storage_rrd_data(conn) do
+    _node_name = conn.path_params["node"]
+    _storage_id = conn.path_params["storage"]
+    query_params = conn.query_params
+    timeframe = Map.get(query_params, "timeframe", "hour")
+
+    now = System.os_time(:second)
+    interval = if timeframe == "hour", do: 60, else: 3600
+
+    points =
+      for i <- 0..9 do
+        %{
+          time: now - (9 - i) * interval,
+          used: 10_737_418_240 + :rand.uniform(1_073_741_824),
+          total: 53_687_091_200
+        }
+      end
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: points}))
+  end
+
+  @doc """
   GET /api2/json/cluster/metrics/server/:id
   Gets cluster-wide metrics for a specific server.
   """
@@ -505,5 +553,192 @@ defmodule MockPveApi.Handlers.Metrics do
         errors: %{message: "#{resource_type} '#{identifier}' not found"}
       })
     )
+  end
+
+  # --- Cluster Metrics ---
+
+  @doc """
+  GET /api2/json/cluster/metrics
+  Returns cluster metrics index (available sub-resources).
+  """
+  def get_metrics_index(conn) do
+    index = [
+      %{subdir: "server"}
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: index}))
+  end
+
+  @doc """
+  POST /api2/json/cluster/metrics/server/:id
+  Creates an external metric server configuration.
+  """
+  def create_metrics_server(conn) do
+    server_id = conn.path_params["id"]
+    params = conn.body_params
+
+    case State.create_metrics_server(server_id, params) do
+      {:ok, _server} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  PUT /api2/json/cluster/metrics/server/:id
+  Updates an external metric server configuration.
+  """
+  def update_metrics_server(conn) do
+    server_id = conn.path_params["id"]
+    params = conn.body_params
+
+    case State.update_metrics_server(server_id, params) do
+      {:ok, _server} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  DELETE /api2/json/cluster/metrics/server/:id
+  Deletes an external metric server configuration.
+  """
+  def delete_metrics_server(conn) do
+    server_id = conn.path_params["id"]
+
+    case State.delete_metrics_server(server_id) do
+      :ok ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  @doc """
+  GET /api2/json/cluster/metrics/server
+  Lists configured external metric servers.
+  """
+  def list_metrics_servers(conn) do
+    servers = State.get_metrics_servers()
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: servers}))
+  end
+
+  # --- Node Services ---
+
+  @doc """
+  GET /api2/json/nodes/:node/services
+  Lists system services on node.
+  """
+  def list_services(conn) do
+    services = [
+      %{service: "chrony", name: "chrony", desc: "chrony NTP daemon", state: "running"},
+      %{service: "corosync", name: "corosync", desc: "Corosync Cluster Engine", state: "running"},
+      %{
+        service: "cron",
+        name: "cron",
+        desc: "Regular background program processing daemon",
+        state: "running"
+      },
+      %{
+        service: "ksmtuned",
+        name: "ksmtuned",
+        desc: "Kernel Samepage Merging tuning",
+        state: "stopped"
+      },
+      %{
+        service: "postfix",
+        name: "postfix",
+        desc: "Postfix Mail Transport Agent",
+        state: "running"
+      },
+      %{
+        service: "pve-cluster",
+        name: "pve-cluster",
+        desc: "The Proxmox VE cluster file system",
+        state: "running"
+      },
+      %{
+        service: "pve-firewall",
+        name: "pve-firewall",
+        desc: "Proxmox VE firewall",
+        state: "running"
+      },
+      %{
+        service: "pve-ha-crm",
+        name: "pve-ha-crm",
+        desc: "PVE HA Cluster Resource Manager",
+        state: "running"
+      },
+      %{
+        service: "pve-ha-lrm",
+        name: "pve-ha-lrm",
+        desc: "PVE HA Local Resource Manager",
+        state: "running"
+      },
+      %{service: "pvedaemon", name: "pvedaemon", desc: "PVE API Daemon", state: "running"},
+      %{service: "pveproxy", name: "pveproxy", desc: "PVE API Proxy Server", state: "running"},
+      %{service: "pvestatd", name: "pvestatd", desc: "PVE Status Daemon", state: "running"},
+      %{service: "spiceproxy", name: "spiceproxy", desc: "SPICE Proxy Server", state: "running"},
+      %{service: "sshd", name: "sshd", desc: "OpenBSD Secure Shell server", state: "running"},
+      %{service: "syslog", name: "syslog", desc: "System Logging Service", state: "running"}
+    ]
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: services}))
+  end
+
+  @doc """
+  GET /api2/json/nodes/:node/services/:service
+  Gets individual service status.
+  """
+  def get_service(conn) do
+    service_name = conn.path_params["service"]
+
+    status = %{
+      service: service_name,
+      name: service_name,
+      desc: "#{service_name} service",
+      state: "running",
+      "active-state": "active",
+      "sub-state": "running",
+      "unit-file-state": "enabled"
+    }
+
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: status}))
+  end
+
+  @doc """
+  PUT /api2/json/nodes/:node/services/:service/state
+  Controls service state (start/stop/restart).
+  """
+  def set_service_state(conn) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(200, Jason.encode!(%{data: nil}))
   end
 end

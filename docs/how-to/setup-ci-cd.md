@@ -25,7 +25,7 @@ jobs:
     
     services:
       mock-pve:
-        image: docker.io/jrjsmrtn/mock-pve-api:latest
+        image: ghcr.io/jrjsmrtn/mock-pve-api:latest
         ports:
           - 8006:8006
         env:
@@ -106,7 +106,7 @@ jobs:
     
     services:
       mock-pve:
-        image: docker.io/jrjsmrtn/mock-pve-api:latest
+        image: ghcr.io/jrjsmrtn/mock-pve-api:latest
         ports:
           - 8006:8006
         env:
@@ -838,7 +838,7 @@ version: '3.8'
 services:
   # Mock PVE API servers for different versions
   mock-pve-74:
-    image: docker.io/jrjsmrtn/mock-pve-api:latest
+    image: ghcr.io/jrjsmrtn/mock-pve-api:latest
     ports:
       - "18074:8006"
     environment:
@@ -852,7 +852,7 @@ services:
       start_period: 5s
 
   mock-pve-80:
-    image: docker.io/jrjsmrtn/mock-pve-api:latest
+    image: ghcr.io/jrjsmrtn/mock-pve-api:latest
     ports:
       - "18080:8006"
     environment:
@@ -866,7 +866,7 @@ services:
       start_period: 5s
 
   mock-pve-83:
-    image: docker.io/jrjsmrtn/mock-pve-api:latest
+    image: ghcr.io/jrjsmrtn/mock-pve-api:latest
     ports:
       - "18083:8006"
     environment:

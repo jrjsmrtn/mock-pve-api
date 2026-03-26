@@ -32,7 +32,7 @@ defmodule MockPveApi.CoverageTest do
       assert %{path: "/api2/json/nodes/{node}/storage/{storage}/content"} = info
 
       info = Coverage.get_endpoint_info("/api2/json/nodes/pve1/qemu/100/status/start")
-      assert %{path: "/api2/json/nodes/{node}/qemu/{vmid}/status/{command}"} = info
+      assert %{path: "/api2/json/nodes/{node}/qemu/{vmid}/status/start"} = info
     end
   end
 
@@ -311,7 +311,118 @@ defmodule MockPveApi.CoverageTest do
         # Storage import - POST only
         "/api2/json/nodes/{node}/storage/{storage}/import",
         # Storage upload - POST only (returns UPID)
-        "/api2/json/nodes/{node}/storage/{storage}/upload"
+        "/api2/json/nodes/{node}/storage/{storage}/upload",
+        # Bulk node operations - POST only (returns UPID)
+        "/api2/json/nodes/{node}/startall",
+        "/api2/json/nodes/{node}/stopall",
+        "/api2/json/nodes/{node}/migrateall",
+        # VM/CT template conversion - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/template",
+        "/api2/json/nodes/{node}/lxc/{vmid}/template",
+        # VM agent - POST only (base and all sub-commands)
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/exec",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/file-write",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-freeze",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-status",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/fsfreeze-thaw",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/fstrim",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/ping",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/set-user-password",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/shutdown",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-disk",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-hybrid",
+        "/api2/json/nodes/{node}/qemu/{vmid}/agent/suspend-ram",
+        # VM/CT move operations - POST only (returns UPID)
+        "/api2/json/nodes/{node}/qemu/{vmid}/move_disk",
+        "/api2/json/nodes/{node}/lxc/{vmid}/move_volume",
+        # Notification target test - POST only (send test notification)
+        "/api2/json/cluster/notifications/targets/{name}/test",
+        # ACME certificate - POST=order, PUT=renew, DELETE=revoke (no GET)
+        "/api2/json/nodes/{node}/certificates/acme/certificate",
+        # Disk initialization - POST only
+        "/api2/json/nodes/{node}/disks/initgpt",
+        # VM console/remote stubs - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/vncproxy",
+        "/api2/json/nodes/{node}/qemu/{vmid}/termproxy",
+        "/api2/json/nodes/{node}/qemu/{vmid}/spiceproxy",
+        "/api2/json/nodes/{node}/qemu/{vmid}/mtunnel",
+        "/api2/json/nodes/{node}/qemu/{vmid}/remote_migrate",
+        "/api2/json/nodes/{node}/qemu/{vmid}/monitor",
+        # Container console/remote stubs - POST only
+        "/api2/json/nodes/{node}/lxc/{vmid}/vncproxy",
+        "/api2/json/nodes/{node}/lxc/{vmid}/termproxy",
+        "/api2/json/nodes/{node}/lxc/{vmid}/spiceproxy",
+        "/api2/json/nodes/{node}/lxc/{vmid}/mtunnel",
+        "/api2/json/nodes/{node}/lxc/{vmid}/remote_migrate",
+        # HA resource actions - POST only
+        "/api2/json/cluster/ha/resources/{sid}/migrate",
+        "/api2/json/cluster/ha/resources/{sid}/relocate",
+        # Cluster bulk-action guest - POST only
+        "/api2/json/cluster/bulk-action/guest/start",
+        "/api2/json/cluster/bulk-action/guest/shutdown",
+        "/api2/json/cluster/bulk-action/guest/suspend",
+        "/api2/json/cluster/bulk-action/guest/migrate",
+        # Node replication schedule - POST only
+        "/api2/json/nodes/{node}/replication/{id}/schedule_now",
+        # Node service actions - POST only
+        "/api2/json/nodes/{node}/services/{service}/reload",
+        "/api2/json/nodes/{node}/services/{service}/restart",
+        "/api2/json/nodes/{node}/services/{service}/start",
+        "/api2/json/nodes/{node}/services/{service}/stop",
+        # SDN vnet IPs - POST/PUT/DELETE only (no GET)
+        "/api2/json/cluster/sdn/vnets/{vnet}/ips",
+        # VM status actions - POST only (specific command entries)
+        "/api2/json/nodes/{node}/qemu/{vmid}/status/start",
+        "/api2/json/nodes/{node}/qemu/{vmid}/status/stop",
+        "/api2/json/nodes/{node}/qemu/{vmid}/status/reset",
+        "/api2/json/nodes/{node}/qemu/{vmid}/status/reboot",
+        "/api2/json/nodes/{node}/qemu/{vmid}/status/shutdown",
+        "/api2/json/nodes/{node}/qemu/{vmid}/status/resume",
+        "/api2/json/nodes/{node}/qemu/{vmid}/status/suspend",
+        # LXC status actions - POST only (specific command entries)
+        "/api2/json/nodes/{node}/lxc/{vmid}/status/start",
+        "/api2/json/nodes/{node}/lxc/{vmid}/status/stop",
+        "/api2/json/nodes/{node}/lxc/{vmid}/status/reboot",
+        "/api2/json/nodes/{node}/lxc/{vmid}/status/shutdown",
+        "/api2/json/nodes/{node}/lxc/{vmid}/status/resume",
+        "/api2/json/nodes/{node}/lxc/{vmid}/status/suspend",
+        # Node console and power management - POST only
+        "/api2/json/nodes/{node}/termproxy",
+        "/api2/json/nodes/{node}/spiceshell",
+        "/api2/json/nodes/{node}/wakeonlan",
+        "/api2/json/nodes/{node}/suspendall",
+        # Certificates/custom - POST+DELETE only (no GET)
+        "/api2/json/nodes/{node}/certificates/custom",
+        # OpenID auth actions - POST only
+        "/api2/json/access/openid/auth-url",
+        "/api2/json/access/openid/login",
+        # VNC ticket - POST only
+        "/api2/json/access/vncticket",
+        # Ceph service actions - POST only (no '}' suffix)
+        "/api2/json/nodes/{node}/ceph/init",
+        "/api2/json/nodes/{node}/ceph/restart",
+        "/api2/json/nodes/{node}/ceph/start",
+        "/api2/json/nodes/{node}/ceph/stop",
+        # Ceph OSD actions - POST only
+        "/api2/json/nodes/{node}/ceph/osd/{osdid}/in",
+        "/api2/json/nodes/{node}/ceph/osd/{osdid}/out",
+        "/api2/json/nodes/{node}/ceph/osd/{osdid}/scrub",
+        # VM dbus-vmstate - POST only
+        "/api2/json/nodes/{node}/qemu/{vmid}/dbus-vmstate",
+        # Node VNC shell - POST only
+        "/api2/json/nodes/{node}/vncshell",
+        # Storage actions - POST only
+        "/api2/json/nodes/{node}/storage/{storage}/download-url",
+        "/api2/json/nodes/{node}/storage/{storage}/oci-registry-pull",
+        # SDN lock/rollback - POST only (or POST+DELETE with no GET)
+        "/api2/json/cluster/sdn/lock",
+        "/api2/json/cluster/sdn/rollback",
+        # Ceph MDS/MGR/MON - POST only base creation endpoints
+        "/api2/json/nodes/{node}/ceph/fs/{name}",
+        # APL info - POST only (though also GET; covered)
+        # Realm sync jobs - POST creates via ID in path
+        "/api2/json/cluster/jobs/realm-sync/{id}"
       ]
 
       # Only validate method combinations on implemented endpoints —
@@ -335,7 +446,17 @@ defmodule MockPveApi.CoverageTest do
           "/api2/json/access/acl",
           "/api2/json/access/password",
           "/api2/json/nodes/{node}/qemu/{vmid}/resize",
-          "/api2/json/nodes/{node}/lxc/{vmid}/resize"
+          "/api2/json/nodes/{node}/lxc/{vmid}/resize",
+          "/api2/json/nodes/{node}/qemu/{vmid}/unlink",
+          "/api2/json/nodes/{node}/services/{service}/state",
+          "/api2/json/nodes/{node}/certificates/acme/certificate",
+          "/api2/json/nodes/{node}/qemu/{vmid}/sendkey",
+          # SDN vnet IPs - POST/PUT/DELETE only (no GET)
+          "/api2/json/cluster/sdn/vnets/{vnet}/ips",
+          # Unlock TFA - PUT only (action, no GET)
+          "/api2/json/access/users/{userid}/unlock-tfa",
+          # Wipe disk - PUT only (action, no GET)
+          "/api2/json/nodes/{node}/disks/wipedisk"
         ]
 
         if :put in methods and endpoint.path not in put_only_actions do
@@ -373,7 +494,7 @@ defmodule MockPveApi.CoverageTest do
     test "matches VM status command path" do
       info = Coverage.get_endpoint_info("/api2/json/nodes/pve1/qemu/100/status/start")
       assert info != nil
-      assert info.path == "/api2/json/nodes/{node}/qemu/{vmid}/status/{command}"
+      assert info.path == "/api2/json/nodes/{node}/qemu/{vmid}/status/start"
     end
   end
 
@@ -406,13 +527,13 @@ defmodule MockPveApi.CoverageTest do
     test "coverage percentage reflects planned endpoint catalog" do
       stats = Coverage.get_coverage_stats()
 
-      # With ~300 total endpoints and ~68 implemented, coverage is ~22-35%
+      # With all planned endpoints implemented, coverage should be ~99-100%
       assert stats.coverage_percentage > 15.0,
              "Coverage percentage unexpectedly low: #{stats.coverage_percentage}%"
 
-      assert stats.coverage_percentage < 65.0,
-             "Coverage percentage unexpectedly high: #{stats.coverage_percentage}% — " <>
-               "if many planned endpoints were implemented, update this assertion"
+      assert stats.coverage_percentage >= 98.0,
+             "Coverage percentage unexpectedly low: #{stats.coverage_percentage}% — " <>
+               "expected ~100% after completing all planned endpoints"
 
       # Should have some critical endpoints implemented
       critical_endpoints = Coverage.get_endpoints_by_priority(:critical)

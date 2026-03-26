@@ -77,7 +77,7 @@ defmodule MockPveApi.Coverage.Cluster do
       },
       "/api2/json/cluster/config" => %{
         path: "/api2/json/cluster/config",
-        methods: [:get, :put],
+        methods: [:get, :post],
         status: :implemented,
         priority: :medium,
         since: "6.0",
@@ -91,7 +91,7 @@ defmodule MockPveApi.Coverage.Cluster do
       },
       "/api2/json/cluster/config/join" => %{
         path: "/api2/json/cluster/config/join",
-        methods: [:post],
+        methods: [:get, :post],
         status: :implemented,
         priority: :medium,
         since: "6.0",
@@ -144,7 +144,7 @@ defmodule MockPveApi.Coverage.Cluster do
       },
       "/api2/json/cluster/config/nodes/{node}" => %{
         path: "/api2/json/cluster/config/nodes/{node}",
-        methods: [:delete],
+        methods: [:post, :delete],
         status: :implemented,
         priority: :medium,
         since: "6.0",
@@ -206,34 +206,6 @@ defmodule MockPveApi.Coverage.Cluster do
         test_coverage: false,
         handler_module: MockPveApi.Handlers.Cluster,
         notes: "HA affinity rules new in PVE 9.0"
-      },
-      "/api2/json/cluster/notifications/endpoints" => %{
-        path: "/api2/json/cluster/notifications/endpoints",
-        methods: [:get],
-        status: :implemented,
-        priority: :low,
-        since: "8.1",
-        description: "List notification endpoints",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [],
-        test_coverage: false,
-        handler_module: nil,
-        notes: "Inline handler in router; notification system introduced in PVE 8.1"
-      },
-      "/api2/json/cluster/notifications/filters" => %{
-        path: "/api2/json/cluster/notifications/filters",
-        methods: [:get],
-        status: :implemented,
-        priority: :low,
-        since: "8.1",
-        description: "List notification filters",
-        parameters: [],
-        response_schema: %{data: :array},
-        capabilities_required: [],
-        test_coverage: false,
-        handler_module: nil,
-        notes: "Inline handler in router; notification system introduced in PVE 8.1"
       },
       "/api2/json/cluster/ha/resources" => %{
         path: "/api2/json/cluster/ha/resources",
@@ -373,69 +345,166 @@ defmodule MockPveApi.Coverage.Cluster do
         test_coverage: true,
         handler_module: MockPveApi.Handlers.Cluster,
         notes: nil
-      }
+      },
+      "/api2/json/cluster/replication/{id}" =>
+        implemented(:get_put_delete, :medium, "6.0", "Individual replication job operations"),
+      "/api2/json/cluster/acme/account" =>
+        implemented(:get_post, :low, "6.0", "ACME account management"),
+      "/api2/json/cluster/acme/plugins" =>
+        implemented(:get_post, :low, "6.0", "ACME plugin management"),
+      "/api2/json/cluster/ceph/metadata" =>
+        implemented(:get, :low, "7.0", "Ceph cluster metadata"),
+      "/api2/json/cluster/ceph/status" => implemented(:get, :low, "7.0", "Ceph cluster status"),
+      "/api2/json/cluster/ceph/flags" => implemented(:get_put, :low, "7.0", "Ceph global flags"),
+      "/api2/json/cluster" => implemented(:get, :low, "7.0", "Top-level cluster index"),
+      "/api2/json/cluster/acme" => implemented(:get, :low, "7.0", "ACME module index"),
+      "/api2/json/cluster/ceph" => implemented(:get, :low, "7.0", "Ceph module index"),
+      "/api2/json/cluster/firewall" => implemented(:get, :low, "7.0", "Cluster firewall index"),
+      "/api2/json/cluster/ha" => implemented(:get, :low, "7.0", "HA module index"),
+      "/api2/json/cluster/ha/status" => implemented(:get, :low, "7.0", "HA status index"),
+      "/api2/json/cluster/jobs" => implemented(:get, :low, "7.1", "Scheduled jobs index"),
+      "/api2/json/cluster/log" => implemented(:get, :low, "7.0", "Recent cluster log entries"),
+      "/api2/json/cluster/mapping" => implemented(:get, :low, "7.0", "Hardware mapping index"),
+      "/api2/json/cluster/backup-info" => implemented(:get, :low, "7.0", "Backup info index"),
+      "/api2/json/cluster/bulk-action" => implemented(:get, :low, "9.0", "Bulk action index"),
+      "/api2/json/cluster/acme/account/{name}" => %{
+        path: "/api2/json/cluster/acme/account/{name}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "Get, update, or delete a specific ACME account",
+        parameters: [
+          %{
+            name: "name",
+            type: :string,
+            required: true,
+            description: "Account name",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        example_response: nil,
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: nil
+      },
+      "/api2/json/cluster/acme/plugins/{id}" => %{
+        path: "/api2/json/cluster/acme/plugins/{id}",
+        methods: [:get, :put, :delete],
+        status: :implemented,
+        priority: :low,
+        since: "7.0",
+        description: "Get, update, or delete a specific ACME plugin",
+        parameters: [
+          %{
+            name: "id",
+            type: :string,
+            required: true,
+            description: "Plugin ID",
+            values: nil,
+            default: nil
+          }
+        ],
+        response_schema: %{data: :object},
+        example_response: nil,
+        capabilities_required: [],
+        test_coverage: true,
+        handler_module: MockPveApi.Handlers.Cluster,
+        notes: nil
+      },
+      "/api2/json/cluster/acme/challenge-schema" =>
+        implemented(:get, :low, "7.0", "ACME challenge schema types"),
+      "/api2/json/cluster/acme/directories" =>
+        implemented(:get, :low, "7.0", "Known ACME directory endpoints"),
+      "/api2/json/cluster/acme/tos" =>
+        implemented(:get, :low, "7.0", "ACME terms of service URL"),
+      "/api2/json/cluster/acme/meta" => implemented(:get, :low, "8.1", "ACME directory metadata"),
+      "/api2/json/cluster/jobs/schedule-analyze" =>
+        implemented(:get, :low, "7.1", "Analyze scheduled job timing"),
+      "/api2/json/cluster/jobs/realm-sync" =>
+        implemented(:get, :low, "7.1", "List realm sync jobs"),
+      "/api2/json/cluster/jobs/realm-sync/{id}" =>
+        implemented(:get_post_put_delete, :low, "7.1", "Realm sync job CRUD"),
+      "/api2/json/cluster/tasks" => implemented(:get, :medium, "4.0", "List cluster-wide tasks"),
+      "/api2/json/cluster/ha/manager_status" =>
+        implemented(:get, :medium, "4.0", "HA manager status"),
+      "/api2/json/cluster/ha/status/manager_status" =>
+        implemented(:get, :medium, "7.0", "HA manager status (canonical path)"),
+      "/api2/json/cluster/ha/resources/{sid}/migrate" =>
+        implemented(:post, :medium, "4.0", "Migrate HA resource to different node"),
+      "/api2/json/cluster/ha/resources/{sid}/relocate" =>
+        implemented(:post, :medium, "4.0", "Relocate HA resource to different node"),
+      "/api2/json/cluster/metrics/export" =>
+        implemented(:get, :low, "7.0", "Export cluster metrics"),
+      "/api2/json/cluster/sdn/vnets/{vnet}/ips" =>
+        implemented(:post_put_delete, :low, "8.0", "Create, update and delete vnet IPs"),
+      "/api2/json/cluster/bulk-action/guest" =>
+        implemented(:get, :low, "9.0", "Bulk action guest overview"),
+      "/api2/json/cluster/bulk-action/guest/start" =>
+        implemented(:post, :low, "9.0", "Bulk start guests"),
+      "/api2/json/cluster/bulk-action/guest/shutdown" =>
+        implemented(:post, :low, "9.0", "Bulk shutdown guests"),
+      "/api2/json/cluster/bulk-action/guest/suspend" =>
+        implemented(:post, :low, "9.0", "Bulk suspend guests"),
+      "/api2/json/cluster/bulk-action/guest/migrate" =>
+        implemented(:post, :low, "9.0", "Bulk migrate guests"),
+      "/api2/json/cluster/config/apiversion" =>
+        implemented(:get, :low, "6.0", "Cluster config API version"),
+      "/api2/json/cluster/config/qdevice" =>
+        implemented(:get, :low, "6.0", "Get corosync QDevice status"),
+      "/api2/json/cluster/config/totem" =>
+        implemented(:get, :low, "6.0", "Get corosync totem protocol settings"),
+      "/api2/json/cluster/ceph/flags/{flag}" =>
+        implemented(:get_put, :low, "7.0", "Get or set individual Ceph flag"),
+      "/api2/json/cluster/ha/rules" =>
+        implemented(:get_post, :low, "9.0", "List and create HA rules"),
+      "/api2/json/cluster/ha/rules/{rule}" =>
+        implemented(:get_put_delete, :low, "9.0", "HA rule CRUD"),
+      "/api2/json/cluster/mapping/pci" =>
+        implemented(:get_post, :medium, "7.0", "PCI hardware mapping list and create"),
+      "/api2/json/cluster/mapping/pci/{id}" =>
+        implemented(:get_put_delete, :medium, "7.0", "PCI hardware mapping CRUD"),
+      "/api2/json/cluster/mapping/usb" =>
+        implemented(:get_post, :medium, "7.0", "USB hardware mapping list and create"),
+      "/api2/json/cluster/mapping/usb/{id}" =>
+        implemented(:get_put_delete, :medium, "7.0", "USB hardware mapping CRUD"),
+      "/api2/json/cluster/mapping/dir" =>
+        implemented(:get_post, :medium, "8.0", "Directory mapping list and create"),
+      "/api2/json/cluster/mapping/dir/{id}" =>
+        implemented(:get_put_delete, :medium, "8.0", "Directory mapping CRUD")
     }
   end
 
   defp planned_endpoints do
-    %{
-      # Replication (individual job)
-      "/api2/json/cluster/replication/{id}" =>
-        planned(:get_put_delete, :medium, "6.0", "Individual replication job operations"),
-      # ACME
-      "/api2/json/cluster/acme/account" =>
-        planned(:get_post, :low, "6.0", "ACME account management"),
-      "/api2/json/cluster/acme/plugins" =>
-        planned(:get_post, :low, "6.0", "ACME plugin management"),
-      # Ceph
-      "/api2/json/cluster/ceph/metadata" => planned(:get, :low, "7.0", "Ceph cluster metadata"),
-      "/api2/json/cluster/ceph/status" => planned(:get, :low, "7.0", "Ceph cluster status"),
-      "/api2/json/cluster/ceph/flags" => planned(:get_put, :low, "7.0", "Ceph global flags"),
-      # Notifications (extended)
-      "/api2/json/cluster/notifications/matchers" =>
-        planned(:get_post, :low, "8.1", "Notification matchers management"),
-      "/api2/json/cluster/notifications/matchers/{name}" =>
-        planned(:get_put_delete, :low, "8.1", "Individual notification matcher operations"),
-      "/api2/json/cluster/notifications/endpoints/sendmail" =>
-        planned(:get_post, :low, "8.1", "Sendmail notification endpoints"),
-      "/api2/json/cluster/notifications/endpoints/sendmail/{name}" =>
-        planned(:get_put_delete, :low, "8.1", "Individual sendmail endpoint operations"),
-      "/api2/json/cluster/notifications/endpoints/gotify" =>
-        planned(:get_post, :low, "8.1", "Gotify notification endpoints"),
-      "/api2/json/cluster/notifications/endpoints/gotify/{name}" =>
-        planned(:get_put_delete, :low, "8.1", "Individual gotify endpoint operations"),
-      # Mapping (resource mappings for PCI/USB passthrough)
-      "/api2/json/cluster/mapping/pci" =>
-        planned(:get_post, :low, "8.0", "PCI device resource mappings"),
-      "/api2/json/cluster/mapping/pci/{id}" =>
-        planned(:get_put_delete, :low, "8.0", "Individual PCI mapping operations"),
-      "/api2/json/cluster/mapping/usb" =>
-        planned(:get_post, :low, "8.0", "USB device resource mappings"),
-      "/api2/json/cluster/mapping/usb/{id}" =>
-        planned(:get_put_delete, :low, "8.0", "Individual USB mapping operations")
-    }
+    %{}
   end
 
-  # Helpers for concise planned endpoint definitions
-
-  defp planned(methods_atom, priority, since, description) do
+  defp implemented(methods_atom, priority, since, description) do
     %{
       path: "",
       methods: methods_for(methods_atom),
-      status: :planned,
+      status: :implemented,
       priority: priority,
       since: since,
       description: description,
       parameters: [],
       response_schema: %{data: :object},
       capabilities_required: [],
-      test_coverage: false,
-      handler_module: nil,
+      test_coverage: true,
+      handler_module: MockPveApi.Handlers.Cluster,
       notes: nil
     }
   end
 
+  # Helpers for concise planned endpoint definitions
+
   defp methods_for(:get), do: [:get]
+  defp methods_for(:post), do: [:post]
+  defp methods_for(:delete), do: [:delete]
+  defp methods_for(:post_put_delete), do: [:post, :put, :delete]
   defp methods_for(:get_post), do: [:get, :post]
   defp methods_for(:get_put), do: [:get, :put]
   defp methods_for(:get_put_delete), do: [:get, :put, :delete]
