@@ -76,7 +76,7 @@ The architecture is based on several key decisions documented in our ADRs:
 - **Version-specific behaviors**: Different responses based on configured version
 
 ### 4. Developer Experience
-- **Single command startup**: `podman run -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest`
+- **Single command startup**: `podman run -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest`
 - **Multiple language examples**: Python, JavaScript, Elixir client examples
 - **Comprehensive documentation**: Usage guides, API references, troubleshooting
 - **CI/CD integration**: Native support for all major CI platforms

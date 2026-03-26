@@ -234,7 +234,7 @@ for version in 7.4 8.0 8.3 9.0; do
   podman run -d --name mock-pve-$version \
     -p $((8000 + ${version%%.*})):8006 \
     -e MOCK_PVE_VERSION=$version \
-    docker.io/jrjsmrtn/mock-pve-api:latest
+    ghcr.io/jrjsmrtn/mock-pve-api:latest
 done
 ```
 

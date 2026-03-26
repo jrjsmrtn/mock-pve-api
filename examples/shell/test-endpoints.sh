@@ -12,7 +12,7 @@
 #
 # Usage:
 #   # Start mock server first
-#   podman run -d -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+#   podman run -d -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
 #   
 #   # Run this script
 #   ./test-endpoints.sh
@@ -403,7 +403,7 @@ test_connection() {
         log_error "Could not connect to Mock PVE API Server"
         echo ""
         echo "Make sure the server is running:"
-        echo "  podman run -d -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest"
+        echo "  podman run -d -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest"
         echo ""
         echo "Or check if it's running on a different port:"
         echo "  podman ps | grep mock-pve-api"

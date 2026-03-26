@@ -15,7 +15,7 @@ The easiest way to start the Mock PVE API Server:
 
 ```bash
 # Start the server (will pull image if not present)
-podman run -d -p 8006:8006 docker.io/docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -d -p 8006:8006 docker.io/ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Verify it's working
 curl http://localhost:8006/api2/json/version
@@ -56,19 +56,19 @@ Configure the mock server behavior using environment variables:
 # Run PVE 7.4 simulation
 podman run -d -p 8006:8006 \
   -e MOCK_PVE_VERSION=7.4 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Enable debug logging
 podman run -d -p 8006:8006 \
   -e MOCK_PVE_VERSION=8.3 \
   -e MOCK_PVE_LOG_LEVEL=debug \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Add response delays for testing
 podman run -d -p 8006:8006 \
   -e MOCK_PVE_DELAY=100 \
   -e MOCK_PVE_JITTER=50 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 ### Common Configuration
@@ -101,14 +101,14 @@ The Mock PVE API Server supports the following Proxmox VE versions:
 # Test SDN features (available in 8.0+)
 podman run -d -p 8006:8006 \
   -e MOCK_PVE_VERSION=8.0 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 curl http://localhost:8006/api2/json/cluster/sdn/zones
 
 # Test on PVE 7.4 (should return 501 Not Implemented)
 podman run -d -p 8007:8006 \
   -e MOCK_PVE_VERSION=7.4 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 curl http://localhost:8007/api2/json/cluster/sdn/zones
 ```
@@ -124,7 +124,7 @@ version: '3.8'
 services:
   # Latest PVE for main testing
   mock-pve-latest:
-    image: docker.io/jrjsmrtn/mock-pve-api:latest
+    image: ghcr.io/jrjsmrtn/mock-pve-api:latest
     ports:
       - "8006:8006"
     environment:
@@ -133,7 +133,7 @@ services:
   
   # PVE 7.4 for compatibility testing  
   mock-pve-7:
-    image: docker.io/jrjsmrtn/mock-pve-api:pve7
+    image: ghcr.io/jrjsmrtn/mock-pve-api:pve7
     ports:
       - "8007:8006"
     environment:
@@ -142,7 +142,7 @@ services:
   
   # Development/debug instance
   mock-pve-debug:
-    image: docker.io/jrjsmrtn/mock-pve-api:latest
+    image: ghcr.io/jrjsmrtn/mock-pve-api:latest
     ports:
       - "8008:8006"
     environment:
@@ -179,7 +179,7 @@ jobs:
     
     services:
       mock-pve:
-        image: docker.io/jrjsmrtn/mock-pve-api:latest
+        image: ghcr.io/jrjsmrtn/mock-pve-api:latest
         ports:
           - 8006:8006
         env:
@@ -214,7 +214,7 @@ Add to your `.gitlab-ci.yml`:
 test:
   image: python:3.11
   services:
-    - name: docker.io/jrjsmrtn/mock-pve-api:latest
+    - name: ghcr.io/jrjsmrtn/mock-pve-api:latest
       alias: mock-pve
       variables:
         MOCK_PVE_VERSION: "8.3"
@@ -347,14 +347,14 @@ MockPveApi.State.inspect_state()       # Inspect current state
 sudo netstat -tulpn | grep :8006
 
 # Use different port
-podman run -d -p 8007:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -d -p 8007:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 #### Version Not Recognized
 
 ```bash
 # Check supported versions
-podman run --rm docker.io/jrjsmrtn/mock-pve-api:latest mix run -e "
+podman run --rm ghcr.io/jrjsmrtn/mock-pve-api:latest mix run -e "
   IO.inspect(MockPveApi.Capabilities.supported_versions())
 "
 ```
@@ -367,7 +367,7 @@ This is normal behavior when requesting version-specific features:
 # SDN not available in PVE 7.x
 podman run -d -p 8006:8006 \
   -e MOCK_PVE_VERSION=7.4 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 curl http://localhost:8006/api2/json/cluster/sdn/zones
 # Returns: {"errors": ["SDN features not available in PVE 7.4. Requires PVE 8.0+"]}
@@ -395,7 +395,7 @@ Enable debug logging for troubleshooting:
 podman run -d -p 8006:8006 \
   -e MOCK_PVE_VERSION=8.3 \
   -e MOCK_PVE_LOG_LEVEL=debug \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # View logs
 docker logs <container_id>

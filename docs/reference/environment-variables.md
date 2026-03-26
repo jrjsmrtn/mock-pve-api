@@ -375,7 +375,7 @@ podman run -d --name mock-pve-api \
   -e MOCK_PVE_VERSION=8.3 \
   -e MOCK_PVE_LOG_LEVEL=debug \
   -e MOCK_PVE_DELAY=50 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 ### Docker Compose
@@ -383,7 +383,7 @@ podman run -d --name mock-pve-api \
 version: '3.8'
 services:
   mock-pve-api:
-    image: docker.io/jrjsmrtn/mock-pve-api:latest
+    image: ghcr.io/jrjsmrtn/mock-pve-api:latest
     ports:
       - "8006:8006"
     environment:

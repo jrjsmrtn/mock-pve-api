@@ -496,13 +496,16 @@ Closed highest-impact coverage gaps based on pvex usage patterns. Achieved 220/2
 - [x] Node firewall: options, rules
 - [x] VM/container firewall: options, rules, aliases, ipsets (beyond original plan)
 
-### **Phase 5: Container Distribution (v0.5.0)**
-- [ ] Automated multi-arch builds (amd64, arm64)
-- [ ] Semantic versioning tags synchronized with git releases
-- [ ] Container security scanning and vulnerability assessment
-- [ ] Signed container image provenance
-- [ ] Release v0.4.8 as stable production image
-- [ ] Update container registry documentation
+### **Phase 5: Container Distribution (v0.5.0)** ✅
+- [x] **Multi-arch builds**: CI builds `linux/amd64` + `linux/arm64` via Docker Buildx
+- [x] **Semantic version tags**: `docker/metadata-action` generates semver, major, major.minor, and `latest` tags
+- [x] **Container security scanning**: Syft SBOM generation + Grype vulnerability scanning in CI
+- [x] **Signed image provenance**: cosign keyless signing + BuildKit SLSA provenance/SBOM attestations
+- [x] **HTTPS default in container**: matches real PVE API; auto-generated self-signed certs
+- [x] **Registry consolidation**: all references migrated from `docker.io` to `ghcr.io/jrjsmrtn/mock-pve-api`
+- [x] **Dockerfile modernized**: Alpine 3.22, Elixir 1.17, non-root user, HTTPS healthcheck
+- [x] **Makefile fixed**: correct build paths (`docker/Dockerfile`), `ghcr.io` registry, runtime detection, port collision fix
+- [x] **Compose updated**: HTTPS healthchecks, correct Dockerfile paths
 
 ### **Phase 5.1: Simulation Features (v0.4.20)** ✅
 - [x] **Implement feature toggle env vars**: Wire `MOCK_PVE_ENABLE_SDN`, `MOCK_PVE_ENABLE_FIREWALL`, `MOCK_PVE_ENABLE_BACKUP_PROVIDERS` to router/handlers so they actually enable/disable endpoint groups at runtime

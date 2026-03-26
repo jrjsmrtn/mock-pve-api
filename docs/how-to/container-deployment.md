@@ -76,7 +76,7 @@ sudo pacman -S podman
 ### Basic Usage
 ```bash
 # Pull and run Mock PVE API (latest PVE 8.3)
-podman run -d --name mock-pve -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -d --name mock-pve -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Check container status
 podman ps
@@ -95,7 +95,7 @@ podman rm mock-pve
 podman run -d --name mock-pve-rootless \
   --userns=keep-id \
   -p 8006:8006 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Verify it's running rootless
 podman inspect mock-pve-rootless | jq '.[].HostConfig.UsernsMode'
@@ -108,7 +108,7 @@ podman run -d --name mock-pve-80 \
   -p 8007:8006 \
   -e MOCK_PVE_VERSION=8.0 \
   -e MOCK_PVE_LOG_LEVEL=debug \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Run with custom configuration
 podman run -d --name mock-pve-custom \
@@ -116,7 +116,7 @@ podman run -d --name mock-pve-custom \
   -e MOCK_PVE_VERSION=8.3 \
   -e MOCK_PVE_DELAY=100 \
   -e MOCK_PVE_ERROR_RATE=5 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 ## Advanced Usage
@@ -128,7 +128,7 @@ cat > podman-compose.yml << 'EOF'
 version: '3.8'
 services:
   mock-pve-api:
-    image: docker.io/jrjsmrtn/mock-pve-api:latest
+    image: ghcr.io/jrjsmrtn/mock-pve-api:latest
     ports:
       - "8006:8006"
     environment:
@@ -157,7 +157,7 @@ for version in "${versions[@]}"; do
   podman run -d --name "mock-pve-${version}" \
     -p "${port}:8006" \
     -e "MOCK_PVE_VERSION=${version}" \
-    docker.io/jrjsmrtn/mock-pve-api:latest
+    ghcr.io/jrjsmrtn/mock-pve-api:latest
   echo "Started PVE ${version} on port ${port}"
 done
 
@@ -183,7 +183,7 @@ podman run -d --name mock-pve-dev \
   -v "${PWD}:/app:Z" \
   -e MIX_ENV=dev \
   -e MOCK_PVE_LOG_LEVEL=debug \
-  docker.io/jrjsmrtn/mock-pve-api:dev
+  ghcr.io/jrjsmrtn/mock-pve-api:dev
 
 # Interactive development shell
 podman exec -it mock-pve-dev /bin/bash
@@ -226,13 +226,13 @@ sudo systemctl start container-mock-pve.service
 ### Basic Port Mapping
 ```bash
 # Map container port 8006 to host port 8006
-podman run -p 8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -p 8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Map to different host port
-podman run -p 9006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -p 9006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Bind to specific interface
-podman run -p 127.0.0.1:8006:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -p 127.0.0.1:8006:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 ### Custom Networks
@@ -243,12 +243,12 @@ podman network create mock-pve-network
 # Run containers on custom network
 podman run -d --name mock-pve-1 \
   --network mock-pve-network \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 podman run -d --name mock-pve-2 \
   --network mock-pve-network \
   -e MOCK_PVE_VERSION=8.0 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Containers can communicate by name
 podman exec mock-pve-1 curl http://mock-pve-2:8006/api2/json/version
@@ -263,7 +263,7 @@ podman run -d --name mock-pve-limited \
   --memory=128m \
   --cpus=0.5 \
   -p 8006:8006 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Monitor resource usage
 podman stats mock-pve-limited
@@ -276,7 +276,7 @@ podman volume create mock-pve-data
 podman run -d --name mock-pve-persistent \
   -v mock-pve-data:/app/data \
   -p 8006:8006 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Backup volume data
 podman run --rm -v mock-pve-data:/data:ro \
@@ -297,7 +297,7 @@ jobs:
     
     services:
       mock-pve:
-        image: docker.io/jrjsmrtn/mock-pve-api:latest
+        image: ghcr.io/jrjsmrtn/mock-pve-api:latest
         ports:
           - 8006:8006
         options: >-
@@ -323,7 +323,7 @@ jobs:
 test:
   image: docker.io/alpine/curl
   services:
-    - name: docker.io/jrjsmrtn/mock-pve-api:latest
+    - name: ghcr.io/jrjsmrtn/mock-pve-api:latest
       alias: mock-pve
   script:
     - curl -f http://mock-pve:8006/api2/json/version
@@ -334,7 +334,7 @@ test:
 ### Rootless Containers
 ```bash
 # Always prefer rootless when possible
-podman run --userns=keep-id docker.io/jrjsmrtn/mock-pve-api:latest
+podman run --userns=keep-id ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Check if running rootless
 podman info | grep rootless
@@ -343,14 +343,14 @@ podman info | grep rootless
 ### SELinux Context (Linux)
 ```bash
 # Set proper SELinux context for volumes
-podman run -v ./data:/app/data:Z docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -v ./data:/app/data:Z ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 ### Read-only Root Filesystem
 ```bash
 # Run with read-only filesystem for security
 podman run --read-only --tmpfs /tmp \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 ## Troubleshooting
@@ -362,14 +362,14 @@ podman run --read-only --tmpfs /tmp \
 # Error: permission denied
 # Solution: Use rootless or check file permissions
 podman run --userns=keep-id -v "${PWD}:/app:Z" \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 #### 2. Port Already in Use
 ```bash
 # Error: port 8006 already in use
 # Solution: Use different port or stop conflicting service
-podman run -p 8007:8006 docker.io/jrjsmrtn/mock-pve-api:latest
+podman run -p 8007:8006 ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Find what's using the port
 sudo lsof -i :8006
@@ -379,7 +379,7 @@ sudo lsof -i :8006
 ```bash
 # Error: unable to pull image
 # Solution: Check registry connectivity and authentication
-podman pull docker.io/jrjsmrtn/mock-pve-api:latest
+podman pull ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Use mirror registry if needed
 podman pull quay.io/jrjsmrtn/mock-pve-api:latest
@@ -394,7 +394,7 @@ podman logs mock-pve
 podman inspect mock-pve
 
 # Run interactively for debugging
-podman run -it --rm docker.io/jrjsmrtn/mock-pve-api:latest /bin/bash
+podman run -it --rm ghcr.io/jrjsmrtn/mock-pve-api:latest /bin/bash
 ```
 
 ### Debugging Commands
@@ -454,17 +454,17 @@ docker() {
 ### Optimization Tips
 ```bash
 # Use specific tags instead of 'latest'
-podman run docker.io/jrjsmrtn/mock-pve-api:0.1.0
+podman run ghcr.io/jrjsmrtn/mock-pve-api:0.1.0
 
 # Reduce startup time with image cache
-podman pull docker.io/jrjsmrtn/mock-pve-api:latest
+podman pull ghcr.io/jrjsmrtn/mock-pve-api:latest
 
 # Use multi-stage builds for smaller images
 # (Already implemented in mock-pve-api)
 
 # Optimize resource allocation
 podman run --memory=64m --cpus=0.25 \
-  docker.io/jrjsmrtn/mock-pve-api:latest
+  ghcr.io/jrjsmrtn/mock-pve-api:latest
 ```
 
 ## Additional Resources

@@ -11,7 +11,7 @@
 ELIXIR_VERSION ?= 1.15
 OTP_VERSION ?= 26
 IMAGE_NAME ?= mock-pve-api
-CONTAINER_REGISTRY ?= docker.io
+CONTAINER_REGISTRY ?= ghcr.io
 NAMESPACE ?= jrjsmrtn
 
 # Container runtime detection (prefer Podman)
@@ -150,12 +150,12 @@ server: ## Start development server
 ## Container Commands (Podman/Docker)
 container-build: ## Build container image using detected runtime
 	@echo "$(BLUE)Building container image with $(CONTAINER_RUNTIME)...$(RESET)"
-	$(CONTAINER_RUNTIME) build -f containers/Containerfile -t $(IMAGE_NAME):latest .
+	$(CONTAINER_RUNTIME) build -f docker/Dockerfile -t $(IMAGE_NAME):latest .
 	@echo "$(GREEN)Image built: $(IMAGE_NAME):latest$(RESET)"
 
 container-build-dev: ## Build development container image
 	@echo "$(BLUE)Building development container image with $(CONTAINER_RUNTIME)...$(RESET)"
-	$(CONTAINER_RUNTIME) build -f containers/Containerfile.dev -t $(IMAGE_NAME):dev .
+	$(CONTAINER_RUNTIME) build -f docker/Dockerfile.dev -t $(IMAGE_NAME):dev .
 	@echo "$(GREEN)Development image built: $(IMAGE_NAME):dev$(RESET)"
 
 container-run: ## Run container locally
@@ -184,37 +184,48 @@ docker-run-versions: container-run-versions ## Alias for container-run-versions 
 
 container-run-versions: ## Run multiple PVE versions simultaneously
 	@echo "$(BLUE)Starting multiple PVE versions with $(CONTAINER_RUNTIME)...$(RESET)"
-	@for version in 7.4 8.0 8.3 9.0; do \
-		port=$$((8000 + $${version%%.*})); \
-		echo "$(GREEN)Starting PVE $$version on port $$port$(RESET)"; \
-		$(CONTAINER_RUNTIME) run -d --name mock-pve-$$version \
-			-p $$port:8006 \
-			-e MOCK_PVE_VERSION=$$version \
-			$(CONTAINER_REGISTRY)/$(NAMESPACE)/$(IMAGE_NAME):latest; \
-	done
+	@$(CONTAINER_RUNTIME) run -d --name mock-pve-7.4 -p 8074:8006 -e MOCK_PVE_VERSION=7.4 $(CONTAINER_REGISTRY)/$(NAMESPACE)/$(IMAGE_NAME):latest
+	@$(CONTAINER_RUNTIME) run -d --name mock-pve-8.0 -p 8080:8006 -e MOCK_PVE_VERSION=8.0 $(CONTAINER_REGISTRY)/$(NAMESPACE)/$(IMAGE_NAME):latest
+	@$(CONTAINER_RUNTIME) run -d --name mock-pve-8.3 -p 8083:8006 -e MOCK_PVE_VERSION=8.3 $(CONTAINER_REGISTRY)/$(NAMESPACE)/$(IMAGE_NAME):latest
+	@$(CONTAINER_RUNTIME) run -d --name mock-pve-9.0 -p 8090:8006 -e MOCK_PVE_VERSION=9.0 $(CONTAINER_REGISTRY)/$(NAMESPACE)/$(IMAGE_NAME):latest
 	@echo "$(GREEN)All versions started:$(RESET)"
-	@echo "  PVE 7.4: http://localhost:8007"
-	@echo "  PVE 8.0: http://localhost:8008"  
-	@echo "  PVE 8.3: http://localhost:8008"
-	@echo "  PVE 9.0: http://localhost:8009"
+	@echo "  PVE 7.4: https://localhost:8074"
+	@echo "  PVE 8.0: https://localhost:8080"
+	@echo "  PVE 8.3: https://localhost:8083"
+	@echo "  PVE 9.0: https://localhost:8090"
 
-docker-stop-versions: ## Stop all version containers
+container-stop-versions: ## Stop all version containers
 	@echo "$(BLUE)Stopping all version containers...$(RESET)"
 	@for version in 7.4 8.0 8.3 9.0; do \
-		docker stop mock-pve-$$version 2>/dev/null || true; \
-		docker rm mock-pve-$$version 2>/dev/null || true; \
+		$(CONTAINER_RUNTIME) stop mock-pve-$$version 2>/dev/null || true; \
+		$(CONTAINER_RUNTIME) rm mock-pve-$$version 2>/dev/null || true; \
 	done
 	@echo "$(GREEN)All version containers stopped$(RESET)"
 
-docker-compose-up: ## Start services with docker-compose
-	@echo "$(BLUE)Starting services with docker-compose...$(RESET)"
-	docker-compose up -d
-	@echo "$(GREEN)Services started. Check docker-compose ps for details$(RESET)"
+# Legacy aliases
+docker-stop-versions: container-stop-versions ## Alias for container-stop-versions (legacy)
 
-docker-compose-down: ## Stop docker-compose services  
-	@echo "$(BLUE)Stopping docker-compose services...$(RESET)"
-	docker-compose down
+compose-up: ## Start services with podman-compose/docker-compose
+	@echo "$(BLUE)Starting services...$(RESET)"
+	@if command -v podman-compose >/dev/null 2>&1; then \
+		podman-compose up -d; \
+	else \
+		docker-compose up -d; \
+	fi
+	@echo "$(GREEN)Services started$(RESET)"
+
+compose-down: ## Stop compose services
+	@echo "$(BLUE)Stopping services...$(RESET)"
+	@if command -v podman-compose >/dev/null 2>&1; then \
+		podman-compose down; \
+	else \
+		docker-compose down; \
+	fi
 	@echo "$(GREEN)Services stopped$(RESET)"
+
+# Legacy aliases
+docker-compose-up: compose-up ## Alias for compose-up (legacy)
+docker-compose-down: compose-down ## Alias for compose-down (legacy)
 
 ## Architecture Commands
 arch-validate: ## Validate C4 architecture model

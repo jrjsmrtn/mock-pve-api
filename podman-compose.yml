@@ -13,11 +13,11 @@ services:
       - MOCK_PVE_PORT=8006
       - MOCK_PVE_HOST=0.0.0.0
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8006/api2/json/version"]
+      test: ["CMD", "curl", "-fk", "https://localhost:8006/api2/json/version"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 10s
 
   # PVE 7.4 for compatibility testing
   mock-pve-7:
