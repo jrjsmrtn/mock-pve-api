@@ -317,21 +317,24 @@ jobs:
           --health-retries 5
           --health-start-period 10s
 
+    env:
+      AUTH: "Authorization: PVEAPIToken=root@pam!test=secret"
+
     steps:
       - name: Test PVE 7.4 API
         run: |
           curl -fk https://localhost:8007/api2/json/version
-          curl -fk https://localhost:8007/api2/json/nodes
-          curl -fk https://localhost:8007/api2/json/cluster/status
+          curl -fk -H "$AUTH" https://localhost:8007/api2/json/nodes
+          curl -fk -H "$AUTH" https://localhost:8007/api2/json/cluster/status
 
       - name: Test PVE 8.3 API
         run: |
           curl -fk https://localhost:8008/api2/json/version
-          curl -fk https://localhost:8008/api2/json/nodes
-          curl -fk https://localhost:8008/api2/json/cluster/sdn/zones
+          curl -fk -H "$AUTH" https://localhost:8008/api2/json/nodes
+          curl -fk -H "$AUTH" https://localhost:8008/api2/json/cluster/sdn/zones
 
       - name: Test PVE 9.0 API
         run: |
           curl -fk https://localhost:8009/api2/json/version
-          curl -fk https://localhost:8009/api2/json/nodes
-          curl -fk https://localhost:8009/api2/json/cluster/status
+          curl -fk -H "$AUTH" https://localhost:8009/api2/json/nodes
+          curl -fk -H "$AUTH" https://localhost:8009/api2/json/cluster/status
