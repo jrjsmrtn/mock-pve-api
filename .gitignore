@@ -56,6 +56,9 @@ lefthook-local.yml
 # Local binaries (lefthook, etc.)
 /bin/
 
+# Claude Code local instructions
+CLAUDE.local.md
+
 # SBOM and Security
 sbom/vulnerabilities.json
 sbom/vulnerabilities.txt
