@@ -151,10 +151,9 @@ defmodule Mix.Tasks.Docs.Coverage do
     category_rows =
       category_stats
       |> Enum.sort_by(fn {cat, _} -> category_order(cat) end)
-      |> Enum.map(fn {category, cat_stats} ->
+      |> Enum.map_join("\n", fn {category, cat_stats} ->
         "| #{format_category_name(category)} | #{cat_stats.total} | #{cat_stats.implemented} | #{cat_stats.coverage_percentage}% |"
       end)
-      |> Enum.join("\n")
 
     """
     ## Coverage Overview
@@ -202,8 +201,7 @@ defmodule Mix.Tasks.Docs.Coverage do
       endpoint_docs =
         endpoints
         |> Enum.sort_by(& &1.path)
-        |> Enum.map(&generate_endpoint_doc/1)
-        |> Enum.join("\n")
+        |> Enum.map_join("\n", &generate_endpoint_doc/1)
 
       """
       ## #{format_category_title(category)}
@@ -218,7 +216,7 @@ defmodule Mix.Tasks.Docs.Coverage do
   defp generate_endpoint_doc(endpoint) do
     status_icon = status_to_icon(endpoint.status)
     version_badge = version_badge(endpoint)
-    methods = endpoint.methods |> Enum.map(&String.upcase(to_string(&1))) |> Enum.join(", ")
+    methods = Enum.map_join(endpoint.methods, ", ", &String.upcase(to_string(&1)))
 
     params_section = generate_params_section(endpoint.parameters)
     example_section = generate_example_section(endpoint)
@@ -246,13 +244,11 @@ defmodule Mix.Tasks.Docs.Coverage do
 
   defp generate_params_section(params) do
     param_rows =
-      params
-      |> Enum.map(fn p ->
+      Enum.map_join(params, "\n", fn p ->
         req = if p.required, do: "Yes", else: "No"
         values = if p.values, do: "`#{Enum.join(p.values, "`, `")}`", else: "-"
         "| `#{p.name}` | #{p.type} | #{req} | #{p.description} | #{values} |"
       end)
-      |> Enum.join("\n")
 
     """
 
@@ -289,60 +285,165 @@ defmodule Mix.Tasks.Docs.Coverage do
   end
 
   defp generate_example_for_endpoint(endpoint) do
-    # Generate realistic examples based on endpoint path and schema
     path = endpoint.path
 
+    example_for_exact_path(path) ||
+      example_for_path_pattern(path) ||
+      example_from_schema(endpoint.response_schema)
+  end
+
+  # Exact path matches for example generation
+  @example_paths %{
+    "/api2/json/version" => %{
+      data: %{version: "8.3", release: "8.3-1", repoid: "abcd1234", keyboard: "en-us"}
+    },
+    "/api2/json/cluster/status" => %{
+      data: [
+        %{type: "cluster", name: "mock-cluster", nodes: 3, quorate: 1},
+        %{type: "node", id: "node/pve-node-1", name: "pve-node-1", status: "online"}
+      ]
+    },
+    "/api2/json/cluster/resources" => %{
+      data: [
+        %{
+          id: "node/pve-node-1",
+          type: "node",
+          node: "pve-node-1",
+          status: "online",
+          cpu: 0.15,
+          maxcpu: 8,
+          mem: 2_147_483_648,
+          maxmem: 8_589_934_592
+        },
+        %{
+          id: "qemu/100",
+          type: "qemu",
+          vmid: 100,
+          name: "test-vm",
+          node: "pve-node-1",
+          status: "running"
+        }
+      ]
+    },
+    "/api2/json/nodes" => %{
+      data: [
+        %{
+          node: "pve-node-1",
+          status: "online",
+          cpu: 0.15,
+          maxcpu: 8,
+          mem: 2_147_483_648,
+          maxmem: 8_589_934_592,
+          uptime: 86_400
+        }
+      ]
+    },
+    "/api2/json/cluster/sdn/zones" => %{
+      data: [%{zone: "localnetwork", type: "simple", nodes: "pve-node-1,pve-node-2"}]
+    },
+    "/api2/json/cluster/sdn/vnets" => %{
+      data: [%{vnet: "vnet100", zone: "localnetwork", tag: 100}]
+    },
+    "/api2/json/cluster/backup-info/providers" => %{
+      data: [%{provider: "pbs", name: "Proxmox Backup Server", enabled: 1}]
+    },
+    "/api2/json/cluster/ha/affinity" => %{
+      data: [%{name: "affinity-rule-1", nodes: "pve-node-1,pve-node-2", type: "group"}]
+    },
+    "/api2/json/pools" => %{data: [%{poolid: "production", comment: "Production environment"}]},
+    "/api2/json/access/users" => %{
+      data: [
+        %{userid: "root@pam", comment: "Built-in Superuser", enable: 1},
+        %{userid: "testuser@pve", email: "test@example.com", enable: 1}
+      ]
+    },
+    "/api2/json/access/groups" => %{data: [%{groupid: "developers", comment: "Development team"}]},
+    "/api2/json/access/ticket" => %{
+      data: %{ticket: "PVE:root@pam:12345678::...", CSRFPreventionToken: "12345678:..."}
+    },
+    "/api2/json/access/domains" => %{
+      data: [%{realm: "pam", type: "pam", comment: "Linux PAM standard authentication"}]
+    },
+    "/api2/json/cluster/config" => %{data: %{cluster_name: "mock-cluster", version: 1}},
+    "/api2/json/cluster/config/join" => %{
+      data: "UPID:pve-node-1:00012348:00000000:clusterjoin::user@pam:"
+    }
+  }
+
+  defp example_for_exact_path(path), do: Map.get(@example_paths, path)
+
+  # Pattern-based path matches (order matters — more specific patterns first)
+  @path_patterns [
+    {"/qemu/{vmid}/status/{command}",
+     %{data: "UPID:pve-node-1:00012345:00000000:qmstart:100:user@pam:"}},
+    {"/qemu/{vmid}/clone", %{data: "UPID:pve-node-1:00012346:00000000:qmclone:100:user@pam:"}},
+    {"/lxc/{vmid}/clone", %{data: "UPID:pve-node-1:00012347:00000000:vzclone:200:user@pam:"}},
+    {"/access/users/{userid}/token",
+     %{data: %{tokenid: "automation", privsep: 1, expire: 0, comment: "Automation token"}}},
+    {"/access/users/{userid}",
+     %{
+       data: %{
+         userid: "testuser@pve",
+         email: "test@example.com",
+         enable: 1,
+         groups: ["developers"]
+       }
+     }},
+    {"/access/groups/{groupid}",
+     %{
+       data: %{
+         groupid: "developers",
+         comment: "Development team",
+         members: ["testuser@pve"]
+       }
+     }},
+    {"/sdn/zones/{zone}",
+     %{data: %{zone: "localnetwork", type: "simple", nodes: "pve-node-1,pve-node-2"}}},
+    {"/pools/{poolid}",
+     %{
+       data: %{
+         poolid: "production",
+         comment: "Production environment",
+         members: [%{type: "qemu", vmid: 100, node: "pve-node-1"}]
+       }
+     }},
+    {"/cluster/config/nodes/{node}", %{data: nil}},
+    {"/storage/{storage}/content",
+     %{
+       data: [
+         %{volid: "local:iso/debian-12.iso", content: "iso", format: "iso", size: 658_505_728}
+       ]
+     }},
+    {"/storage/{storage}/status",
+     %{
+       data: %{
+         storage: "local",
+         type: "dir",
+         active: 1,
+         used: 21_474_836_480,
+         total: 107_374_182_400
+       }
+     }},
+    {"/time", %{data: %{timezone: "UTC", localtime: 1_702_828_800, time: "2024-12-17T12:00:00Z"}}}
+  ]
+
+  defp example_for_path_pattern(path) do
+    result =
+      Enum.find_value(@path_patterns, fn {pattern, example} ->
+        if String.contains?(path, pattern), do: example
+      end)
+
+    result || example_for_resource_type(path)
+  end
+
+  defp example_for_resource_type(path) do
+    example_for_qemu(path) ||
+      example_for_lxc(path) ||
+      example_for_other_resource(path)
+  end
+
+  defp example_for_qemu(path) do
     cond do
-      path == "/api2/json/version" ->
-        %{data: %{version: "8.3", release: "8.3-1", repoid: "abcd1234", keyboard: "en-us"}}
-
-      path == "/api2/json/cluster/status" ->
-        %{
-          data: [
-            %{type: "cluster", name: "mock-cluster", nodes: 3, quorate: 1},
-            %{type: "node", id: "node/pve-node-1", name: "pve-node-1", status: "online"}
-          ]
-        }
-
-      path == "/api2/json/cluster/resources" ->
-        %{
-          data: [
-            %{
-              id: "node/pve-node-1",
-              type: "node",
-              node: "pve-node-1",
-              status: "online",
-              cpu: 0.15,
-              maxcpu: 8,
-              mem: 2_147_483_648,
-              maxmem: 8_589_934_592
-            },
-            %{
-              id: "qemu/100",
-              type: "qemu",
-              vmid: 100,
-              name: "test-vm",
-              node: "pve-node-1",
-              status: "running"
-            }
-          ]
-        }
-
-      path == "/api2/json/nodes" ->
-        %{
-          data: [
-            %{
-              node: "pve-node-1",
-              status: "online",
-              cpu: 0.15,
-              maxcpu: 8,
-              mem: 2_147_483_648,
-              maxmem: 8_589_934_592,
-              uptime: 86400
-            }
-          ]
-        }
-
       String.contains?(path, "/qemu") && !String.contains?(path, "{vmid}") ->
         %{
           data: [
@@ -358,12 +459,6 @@ defmodule Mix.Tasks.Docs.Coverage do
           ]
         }
 
-      String.contains?(path, "/qemu/{vmid}/status/{command}") ->
-        %{data: "UPID:pve-node-1:00012345:00000000:qmstart:100:user@pam:"}
-
-      String.contains?(path, "/qemu/{vmid}/clone") ->
-        %{data: "UPID:pve-node-1:00012346:00000000:qmclone:100:user@pam:"}
-
       String.contains?(path, "/qemu/{vmid}") ->
         %{
           data: %{
@@ -378,6 +473,13 @@ defmodule Mix.Tasks.Docs.Coverage do
           }
         }
 
+      true ->
+        nil
+    end
+  end
+
+  defp example_for_lxc(path) do
+    cond do
       String.contains?(path, "/lxc") && !String.contains?(path, "{vmid}") ->
         %{
           data: [
@@ -393,9 +495,6 @@ defmodule Mix.Tasks.Docs.Coverage do
           ]
         }
 
-      String.contains?(path, "/lxc/{vmid}/clone") ->
-        %{data: "UPID:pve-node-1:00012347:00000000:vzclone:200:user@pam:"}
-
       String.contains?(path, "/lxc/{vmid}") ->
         %{
           data: %{
@@ -409,29 +508,13 @@ defmodule Mix.Tasks.Docs.Coverage do
           }
         }
 
-      String.contains?(path, "/storage/{storage}/content") ->
-        %{
-          data: [
-            %{
-              volid: "local:iso/debian-12.iso",
-              content: "iso",
-              format: "iso",
-              size: 658_505_728
-            }
-          ]
-        }
+      true ->
+        nil
+    end
+  end
 
-      String.contains?(path, "/storage/{storage}/status") ->
-        %{
-          data: %{
-            storage: "local",
-            type: "dir",
-            active: 1,
-            used: 21_474_836_480,
-            total: 107_374_182_400
-          }
-        }
-
+  defp example_for_other_resource(path) do
+    cond do
       String.contains?(path, "/storage") ->
         %{
           data: [
@@ -446,89 +529,20 @@ defmodule Mix.Tasks.Docs.Coverage do
           ]
         }
 
-      path == "/api2/json/cluster/sdn/zones" ->
-        %{data: [%{zone: "localnetwork", type: "simple", nodes: "pve-node-1,pve-node-2"}]}
-
-      String.contains?(path, "/sdn/zones/{zone}") ->
-        %{data: %{zone: "localnetwork", type: "simple", nodes: "pve-node-1,pve-node-2"}}
-
-      path == "/api2/json/cluster/sdn/vnets" ->
-        %{data: [%{vnet: "vnet100", zone: "localnetwork", tag: 100}]}
-
-      path == "/api2/json/cluster/backup-info/providers" ->
-        %{data: [%{provider: "pbs", name: "Proxmox Backup Server", enabled: 1}]}
-
-      path == "/api2/json/cluster/ha/affinity" ->
-        %{data: [%{name: "affinity-rule-1", nodes: "pve-node-1,pve-node-2", type: "group"}]}
-
-      path == "/api2/json/pools" ->
-        %{data: [%{poolid: "production", comment: "Production environment"}]}
-
-      String.contains?(path, "/pools/{poolid}") ->
-        %{
-          data: %{
-            poolid: "production",
-            comment: "Production environment",
-            members: [%{type: "qemu", vmid: 100, node: "pve-node-1"}]
-          }
-        }
-
-      path == "/api2/json/access/users" ->
-        %{
-          data: [
-            %{userid: "root@pam", comment: "Built-in Superuser", enable: 1},
-            %{userid: "testuser@pve", email: "test@example.com", enable: 1}
-          ]
-        }
-
-      String.contains?(path, "/access/users/{userid}/token") ->
-        %{data: %{tokenid: "automation", privsep: 1, expire: 0, comment: "Automation token"}}
-
-      String.contains?(path, "/access/users/{userid}") ->
-        %{
-          data: %{
-            userid: "testuser@pve",
-            email: "test@example.com",
-            enable: 1,
-            groups: ["developers"]
-          }
-        }
-
-      path == "/api2/json/access/groups" ->
-        %{data: [%{groupid: "developers", comment: "Development team"}]}
-
-      String.contains?(path, "/access/groups/{groupid}") ->
-        %{data: %{groupid: "developers", comment: "Development team", members: ["testuser@pve"]}}
-
-      path == "/api2/json/access/ticket" ->
-        %{data: %{ticket: "PVE:root@pam:12345678::...", CSRFPreventionToken: "12345678:..."}}
-
-      path == "/api2/json/access/domains" ->
-        %{data: [%{realm: "pam", type: "pam", comment: "Linux PAM standard authentication"}]}
-
-      String.contains?(path, "/time") ->
-        %{data: %{timezone: "UTC", localtime: 1_702_828_800, time: "2024-12-17T12:00:00Z"}}
-
       String.contains?(path, "/cluster/config/nodes") && !String.contains?(path, "{node}") ->
         %{data: [%{name: "pve-node-1", nodeid: 1, votes: 1}]}
 
-      String.contains?(path, "/cluster/config/nodes/{node}") ->
-        %{data: nil}
-
-      path == "/api2/json/cluster/config" ->
-        %{data: %{cluster_name: "mock-cluster", version: 1}}
-
-      path == "/api2/json/cluster/config/join" ->
-        %{data: "UPID:pve-node-1:00012348:00000000:clusterjoin::user@pam:"}
-
       true ->
-        # Default based on response schema
-        case endpoint.response_schema do
-          %{data: :array} -> %{data: []}
-          %{data: :object} -> %{data: %{}}
-          %{data: :string} -> %{data: "OK"}
-          _ -> nil
-        end
+        nil
+    end
+  end
+
+  defp example_from_schema(response_schema) do
+    case response_schema do
+      %{data: :array} -> %{data: []}
+      %{data: :object} -> %{data: %{}}
+      %{data: :string} -> %{data: "OK"}
+      _ -> nil
     end
   end
 

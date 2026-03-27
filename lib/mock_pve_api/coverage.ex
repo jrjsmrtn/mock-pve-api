@@ -245,7 +245,7 @@ defmodule MockPveApi.Coverage do
 
     all_issues = issues ++ no_tests ++ missing_critical ++ no_handlers
 
-    if length(all_issues) == 0 do
+    if all_issues == [] do
       {:ok, ["Coverage validation passed"]}
     else
       {:error, all_issues}

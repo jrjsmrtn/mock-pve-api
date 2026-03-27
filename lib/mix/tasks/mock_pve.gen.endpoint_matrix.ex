@@ -46,7 +46,7 @@ defmodule Mix.Tasks.MockPve.Gen.EndpointMatrix do
     end
 
     pve_openapi_version = pve_openapi_version()
-    versions = apply(PveOpenapi, :versions, [])
+    versions = PveOpenapi.versions()
 
     if Enum.empty?(versions) do
       Mix.raise("No PVE versions found. Run `make setup` in pve-openapi first.")
@@ -79,7 +79,7 @@ defmodule Mix.Tasks.MockPve.Gen.EndpointMatrix do
     matrix =
       for version <- versions, into: %{} do
         endpoints =
-          apply(PveOpenapi.VersionMatrix, :endpoints_for_version, [version])
+          PveOpenapi.VersionMatrix.endpoints_for_version(version)
           |> MapSet.new(fn {path, method} -> {@api_prefix <> path, method} end)
 
         {version, endpoints}
@@ -155,11 +155,11 @@ defmodule Mix.Tasks.MockPve.Gen.EndpointMatrix do
 
       @doc "The pve-openapi version used to generate this matrix."
       @spec pve_openapi_version() :: String.t()
-      def pve_openapi_version(), do: @pve_openapi_version
+      def pve_openapi_version, do: @pve_openapi_version
 
       @doc "All PVE versions in the matrix."
       @spec versions() :: [String.t()]
-      def versions(), do: @versions
+      def versions, do: @versions
 
       @doc "Check if an endpoint is available in a specific PVE version."
       @spec available?(String.t(), atom(), String.t()) :: boolean()
@@ -195,7 +195,7 @@ defmodule Mix.Tasks.MockPve.Gen.EndpointMatrix do
     """
   end
 
-  defp pve_openapi_version() do
+  defp pve_openapi_version do
     case :application.get_key(:pve_openapi, :vsn) do
       {:ok, vsn} -> List.to_string(vsn)
       :undefined -> "unknown"

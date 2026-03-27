@@ -43,7 +43,7 @@ defmodule MockPveApi.CoverageTest do
       assert hd(version_endpoints).path == "/api2/json/version"
 
       cluster_endpoints = Coverage.get_category_endpoints(:cluster)
-      assert length(cluster_endpoints) > 0
+      assert cluster_endpoints != []
       assert Enum.any?(cluster_endpoints, &(&1.path == "/api2/json/cluster/status"))
     end
 
@@ -112,7 +112,7 @@ defmodule MockPveApi.CoverageTest do
     test "gets implemented endpoints" do
       implemented = Coverage.get_endpoints_by_status(:implemented)
 
-      assert length(implemented) > 0
+      assert implemented != []
       assert Enum.all?(implemented, &(&1.status == :implemented))
 
       # Version endpoint should always be implemented
@@ -124,7 +124,7 @@ defmodule MockPveApi.CoverageTest do
 
       assert Enum.all?(planned, &(&1.status == :planned))
       # All endpoints are implemented - no planned endpoints remaining
-      assert length(planned) >= 0
+      assert is_list(planned)
     end
 
     test "gets partial endpoints" do
@@ -138,7 +138,7 @@ defmodule MockPveApi.CoverageTest do
     test "gets critical priority endpoints" do
       critical = Coverage.get_endpoints_by_priority(:critical)
 
-      assert length(critical) > 0
+      assert critical != []
       assert Enum.all?(critical, &(&1.priority == :critical))
 
       # Version endpoint should be critical
@@ -161,7 +161,7 @@ defmodule MockPveApi.CoverageTest do
       case Coverage.validate_coverage() do
         {:ok, messages} ->
           assert is_list(messages)
-          assert length(messages) > 0
+          assert messages != []
 
         {:error, issues} ->
           assert is_list(issues)
@@ -204,7 +204,7 @@ defmodule MockPveApi.CoverageTest do
       for endpoint <- all_endpoints do
         assert is_binary(endpoint.path), "Missing path for endpoint"
 
-        assert is_list(endpoint.methods) and length(endpoint.methods) > 0,
+        assert is_list(endpoint.methods) and endpoint.methods != [],
                "Missing methods for #{endpoint.path}"
 
         assert endpoint.status in [
@@ -539,7 +539,7 @@ defmodule MockPveApi.CoverageTest do
       critical_endpoints = Coverage.get_endpoints_by_priority(:critical)
       implemented_critical = Enum.filter(critical_endpoints, &(&1.status == :implemented))
 
-      assert length(implemented_critical) > 0, "No critical endpoints implemented"
+      assert implemented_critical != [], "No critical endpoints implemented"
 
       # Should have both implemented and planned endpoints
       assert stats.implemented > 0, "No implemented endpoints"

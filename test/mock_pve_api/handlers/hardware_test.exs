@@ -43,7 +43,7 @@ defmodule MockPveApi.Handlers.HardwareTest do
     test "GET returns list of PCI devices" do
       resp = request(:get, "/api2/json/nodes/pve-node1/hardware/pci") |> json(200)
       assert is_list(resp["data"])
-      assert length(resp["data"]) > 0
+      assert resp["data"] != []
       device = hd(resp["data"])
       assert Map.has_key?(device, "id")
       assert Map.has_key?(device, "vendor_name")
@@ -65,7 +65,7 @@ defmodule MockPveApi.Handlers.HardwareTest do
     test "GET returns list of USB devices" do
       resp = request(:get, "/api2/json/nodes/pve-node1/hardware/usb") |> json(200)
       assert is_list(resp["data"])
-      assert length(resp["data"]) > 0
+      assert resp["data"] != []
       device = hd(resp["data"])
       assert Map.has_key?(device, "busnum")
       assert Map.has_key?(device, "product")

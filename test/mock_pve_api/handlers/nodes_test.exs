@@ -116,7 +116,7 @@ defmodule MockPveApi.Handlers.NodesTest do
       assert conn.status == 200
       body = Jason.decode!(conn.resp_body)
       assert is_list(body["data"])
-      assert length(body["data"]) > 0
+      assert body["data"] != []
     end
 
     test "returns 404 for unknown node" do
@@ -974,7 +974,7 @@ defmodule MockPveApi.Handlers.NodesTest do
       assert conn.status == 200
       body = Jason.decode!(conn.resp_body)
       assert is_list(body["data"])
-      assert length(body["data"]) > 0
+      assert body["data"] != []
     end
 
     test "returns 404 for nonexistent task" do
@@ -1394,7 +1394,7 @@ defmodule MockPveApi.Handlers.NodesTest do
       conn = request(:get, "/api2/json/nodes/pve-node1/apt/update")
       data = json(conn, 200)["data"]
       assert is_list(data)
-      assert length(data) > 0
+      assert data != []
     end
 
     test "post apt update returns UPID" do
@@ -1407,7 +1407,7 @@ defmodule MockPveApi.Handlers.NodesTest do
       conn = request(:get, "/api2/json/nodes/pve-node1/apt/versions")
       data = json(conn, 200)["data"]
       assert is_list(data)
-      assert length(data) > 0
+      assert data != []
     end
   end
 
@@ -1455,7 +1455,7 @@ defmodule MockPveApi.Handlers.NodesTest do
       conn = request(:get, "/api2/json/nodes/pve-node1/disks/list")
       data = json(conn, 200)["data"]
       assert is_list(data)
-      assert length(data) > 0
+      assert data != []
       disk = hd(data)
       assert Map.has_key?(disk, "devpath")
       assert Map.has_key?(disk, "size")
@@ -1648,7 +1648,7 @@ defmodule MockPveApi.Handlers.NodesTest do
       conn = request(:get, "/api2/json/nodes/pve-node1/qemu/504/rrddata")
       data = json(conn, 200)["data"]
       assert is_list(data)
-      assert length(data) > 0
+      assert data != []
       first = List.first(data)
       assert Map.has_key?(first, "time")
       assert Map.has_key?(first, "cpu")
@@ -1667,7 +1667,7 @@ defmodule MockPveApi.Handlers.NodesTest do
       conn = request(:get, "/api2/json/nodes/pve-node1/lxc/505/rrddata")
       data = json(conn, 200)["data"]
       assert is_list(data)
-      assert length(data) > 0
+      assert data != []
       first = List.first(data)
       assert Map.has_key?(first, "time")
       assert Map.has_key?(first, "cpu")

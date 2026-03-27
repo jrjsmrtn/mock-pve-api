@@ -49,9 +49,9 @@ defmodule MockPveApi.TestHelperModuleTest do
     end
 
     test "accepts custom options" do
-      config = TestHelper.create_test_config(port: 18006, host: "localhost")
+      config = TestHelper.create_test_config(port: 18_006, host: "localhost")
       assert config.host == "localhost"
-      assert config.port == 18006
+      assert config.port == 18_006
     end
 
     test "accepts scheme option" do
@@ -115,7 +115,7 @@ defmodule MockPveApi.TestHelperModuleTest do
       MockPveApi.State.create_pool("temp", %{})
       TestHelper.setup_test_data(reset: false)
       pools = MockPveApi.State.get_pools()
-      assert length(pools) >= 1
+      assert pools != []
     end
   end
 
@@ -161,7 +161,7 @@ defmodule MockPveApi.TestHelperModuleTest do
 
     test "returns error for unreachable host" do
       # Use a port that nothing is listening on
-      result = TestHelper.wait_for_server("127.0.0.1", 19999, timeout: 500, interval: 100)
+      result = TestHelper.wait_for_server("127.0.0.1", 19_999, timeout: 500, interval: 100)
       assert {:error, _} = result
     end
   end

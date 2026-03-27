@@ -251,7 +251,7 @@ defmodule MockPveApi.Handlers.SdnTest do
         request(:post, "/api2/json/cluster/sdn/controllers", %{
           "controller" => "ctrl1",
           "type" => "evpn",
-          "asn" => 65000
+          "asn" => 65_000
         })
 
       assert conn.status == 200

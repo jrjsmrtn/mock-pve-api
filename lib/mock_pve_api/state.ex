@@ -39,7 +39,7 @@ defmodule MockPveApi.State do
           disk: 50_000_000_000,
           # 100GB
           maxdisk: 100_000_000_000,
-          uptime: 86400,
+          uptime: 86_400,
           version: pve_version,
           kernel: "6.2.16-15-pve"
         },
@@ -1330,15 +1330,7 @@ defmodule MockPveApi.State do
         new_snapshots =
           state.snapshots
           |> Map.delete(key)
-          |> Enum.map(fn {k, snap} ->
-            {vid, _sn} = k
-
-            if vid == vmid && snap.parent == snapname do
-              {k, %{snap | parent: deleted_snap.parent}}
-            else
-              {k, snap}
-            end
-          end)
+          |> Enum.map(&reparent_snapshot(&1, vmid, snapname, deleted_snap.parent))
           |> Map.new()
 
         {:reply, :ok, %{state | snapshots: new_snapshots}}
@@ -2357,29 +2349,7 @@ defmodule MockPveApi.State do
         {:reply, {:error, "Backup job '#{id}' not found"}, state}
 
       job ->
-        volumes =
-          if job.all == 1 do
-            all_vmids = Map.keys(state.vms) ++ Map.keys(state.containers)
-            Enum.map(all_vmids, fn vmid -> %{vmid: vmid, included: true, reason: "all"} end)
-          else
-            case job.vmid do
-              nil ->
-                []
-
-              vmid_str when is_binary(vmid_str) ->
-                vmid_str
-                |> String.split(",")
-                |> Enum.map(&String.trim/1)
-                |> Enum.map(fn vmid_s ->
-                  vmid = String.to_integer(vmid_s)
-                  %{vmid: vmid, included: true, reason: "explicit"}
-                end)
-
-              _ ->
-                []
-            end
-          end
-
+        volumes = compute_backup_job_volumes(job, state)
         {:reply, {:ok, volumes}, state}
     end
   end
@@ -3837,6 +3807,39 @@ defmodule MockPveApi.State do
   end
 
   # Private helpers
+
+  defp compute_backup_job_volumes(job, state) do
+    if job.all == 1 do
+      all_vmids = Map.keys(state.vms) ++ Map.keys(state.containers)
+      Enum.map(all_vmids, fn vmid -> %{vmid: vmid, included: true, reason: "all"} end)
+    else
+      parse_explicit_vmids(job.vmid)
+    end
+  end
+
+  defp parse_explicit_vmids(nil), do: []
+
+  defp parse_explicit_vmids(vmid_str) when is_binary(vmid_str) do
+    vmid_str
+    |> String.split(",")
+    |> Enum.map(&String.trim/1)
+    |> Enum.map(fn vmid_s ->
+      vmid = String.to_integer(vmid_s)
+      %{vmid: vmid, included: true, reason: "explicit"}
+    end)
+  end
+
+  defp parse_explicit_vmids(_), do: []
+
+  defp reparent_snapshot({k, snap}, vmid, snapname, new_parent) do
+    {vid, _sn} = k
+
+    if vid == vmid && snap.parent == snapname do
+      {k, %{snap | parent: new_parent}}
+    else
+      {k, snap}
+    end
+  end
 
   defp ha_resource_type(sid) do
     case String.split(sid, ":", parts: 2) do

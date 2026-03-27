@@ -144,24 +144,7 @@ defmodule MockPveApi.Handlers.Pools do
       Map.get(conn.body_params, "poolid") || Map.get(conn.query_params, "poolid")
 
     if poolid do
-      pools = State.get_pools()
-
-      case Enum.find(pools, fn pool -> pool.poolid == poolid end) do
-        nil ->
-          conn
-          |> put_resp_content_type("application/json")
-          |> send_resp(
-            404,
-            Jason.encode!(%{errors: %{message: "Pool '#{poolid}' not found"}})
-          )
-
-        _pool ->
-          State.delete_pool(poolid)
-
-          conn
-          |> put_resp_content_type("application/json")
-          |> send_resp(200, Jason.encode!(%{data: nil}))
-      end
+      do_delete_pool(conn, poolid)
     else
       conn
       |> put_resp_content_type("application/json")
@@ -169,6 +152,27 @@ defmodule MockPveApi.Handlers.Pools do
         400,
         Jason.encode!(%{errors: %{poolid: "property is missing and it is not optional"}})
       )
+    end
+  end
+
+  defp do_delete_pool(conn, poolid) do
+    pools = State.get_pools()
+
+    case Enum.find(pools, fn pool -> pool.poolid == poolid end) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "Pool '#{poolid}' not found"}})
+        )
+
+      _pool ->
+        State.delete_pool(poolid)
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
     end
   end
 

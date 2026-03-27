@@ -40,7 +40,8 @@ defmodule MockPveApi.MixProject do
       {:jason, "~> 1.4"},
       {:finch, "~> 0.18"},
       {:ex_doc, "~> 0.30", only: :dev, runtime: false},
-      {:pve_openapi, github: "jrjsmrtn/pve-openapi", only: [:dev], runtime: false}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:pve_openapi, path: "../pve-openapi", only: [:dev], runtime: false}
     ]
   end
 

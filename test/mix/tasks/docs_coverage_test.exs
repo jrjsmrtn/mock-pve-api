@@ -4,6 +4,8 @@
 defmodule Mix.Tasks.Docs.CoverageTest do
   use ExUnit.Case, async: false
 
+  alias Mix.Tasks.Docs.Coverage
+
   @output_path "docs/reference/api-reference.md"
 
   setup do
@@ -26,7 +28,7 @@ defmodule Mix.Tasks.Docs.CoverageTest do
 
   describe "run/1" do
     test "generates API reference documentation" do
-      Mix.Tasks.Docs.Coverage.run([])
+      Coverage.run([])
 
       assert File.exists?(@output_path)
       content = File.read!(@output_path)
@@ -44,7 +46,7 @@ defmodule Mix.Tasks.Docs.CoverageTest do
     end
 
     test "generates markdown with endpoint documentation" do
-      Mix.Tasks.Docs.Coverage.run([])
+      Coverage.run([])
 
       content = File.read!(@output_path)
 
@@ -58,7 +60,7 @@ defmodule Mix.Tasks.Docs.CoverageTest do
     end
 
     test "generates category sections with tables" do
-      Mix.Tasks.Docs.Coverage.run([])
+      Coverage.run([])
 
       content = File.read!(@output_path)
 
@@ -68,7 +70,7 @@ defmodule Mix.Tasks.Docs.CoverageTest do
     end
 
     test "includes version badges and status icons" do
-      Mix.Tasks.Docs.Coverage.run([])
+      Coverage.run([])
 
       content = File.read!(@output_path)
 
@@ -77,7 +79,7 @@ defmodule Mix.Tasks.Docs.CoverageTest do
     end
 
     test "includes parameter documentation for endpoints with params" do
-      Mix.Tasks.Docs.Coverage.run([])
+      Coverage.run([])
 
       content = File.read!(@output_path)
 
@@ -86,7 +88,7 @@ defmodule Mix.Tasks.Docs.CoverageTest do
     end
 
     test "includes example responses" do
-      Mix.Tasks.Docs.Coverage.run([])
+      Coverage.run([])
 
       content = File.read!(@output_path)
 
@@ -97,10 +99,10 @@ defmodule Mix.Tasks.Docs.CoverageTest do
 
     test "--check passes when docs are up-to-date" do
       # Generate docs first
-      Mix.Tasks.Docs.Coverage.run([])
+      Coverage.run([])
 
       # Check should pass
-      assert Mix.Tasks.Docs.Coverage.run(["--check"]) == :ok
+      assert Coverage.run(["--check"]) == :ok
     end
 
     test "--check fails when docs are outdated" do
@@ -108,14 +110,14 @@ defmodule Mix.Tasks.Docs.CoverageTest do
       File.mkdir_p!(Path.dirname(@output_path))
       File.write!(@output_path, "outdated content")
 
-      assert catch_exit(Mix.Tasks.Docs.Coverage.run(["--check"])) == {:shutdown, 1}
+      assert catch_exit(Coverage.run(["--check"])) == {:shutdown, 1}
     end
 
     test "--check fails when docs file is missing" do
       # Remove docs file
       File.rm(@output_path)
 
-      assert catch_exit(Mix.Tasks.Docs.Coverage.run(["--check"])) == {:shutdown, 1}
+      assert catch_exit(Coverage.run(["--check"])) == {:shutdown, 1}
     end
   end
 end

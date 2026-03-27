@@ -441,16 +441,20 @@ defmodule MockPveApi.TestHelper do
         :ok
 
       _ ->
-        if System.monotonic_time(:millisecond) >= deadline do
-          if description do
-            Logger.error("Timeout waiting for condition: #{description}")
-          end
+        maybe_retry_or_timeout(fun, deadline, interval, description)
+    end
+  end
 
-          {:error, :timeout}
-        else
-          Process.sleep(interval)
-          do_wait_for_condition(fun, deadline, interval, description)
-        end
+  defp maybe_retry_or_timeout(fun, deadline, interval, description) do
+    if System.monotonic_time(:millisecond) >= deadline do
+      if description do
+        Logger.error("Timeout waiting for condition: #{description}")
+      end
+
+      {:error, :timeout}
+    else
+      Process.sleep(interval)
+      do_wait_for_condition(fun, deadline, interval, description)
     end
   end
 end

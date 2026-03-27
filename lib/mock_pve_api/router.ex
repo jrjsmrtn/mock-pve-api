@@ -13,21 +13,21 @@ defmodule MockPveApi.Router do
   require Logger
 
   alias MockPveApi.Handlers.{
-    Version,
     Access,
-    Nodes,
     Cluster,
-    Pools,
-    Storage,
-    Metrics,
-    Sdn,
-    Snapshots,
     Firewall,
     Hardware,
-    Notifications
+    Metrics,
+    Nodes,
+    Notifications,
+    Pools,
+    Sdn,
+    Snapshots,
+    Storage,
+    Version
   }
 
-  alias MockPveApi.{State, Coverage}
+  alias MockPveApi.{Coverage, State}
   # alias MockPveApi.Capabilities  # Currently unused
 
   plug(Plug.Logger)
@@ -2771,20 +2771,22 @@ defmodule MockPveApi.Router do
         {:ok, :api_token, token}
 
       [] ->
-        # Check cookies if no Authorization header
-        case get_req_header(conn, "cookie") do
-          [cookie_header] ->
-            # Parse cookies to find PVEAuthCookie
-            case parse_cookies(cookie_header) do
-              %{"PVEAuthCookie" => ticket} -> {:ok, :ticket, ticket}
-              _ -> {:error, :missing}
-            end
-
-          [] ->
-            {:error, :missing}
-        end
+        get_auth_from_cookies(conn)
 
       _ ->
+        {:error, :missing}
+    end
+  end
+
+  defp get_auth_from_cookies(conn) do
+    case get_req_header(conn, "cookie") do
+      [cookie_header] ->
+        case parse_cookies(cookie_header) do
+          %{"PVEAuthCookie" => ticket} -> {:ok, :ticket, ticket}
+          _ -> {:error, :missing}
+        end
+
+      [] ->
         {:error, :missing}
     end
   end
@@ -2852,7 +2854,6 @@ defmodule MockPveApi.Router do
 
       endpoint_info ->
         Logger.debug("API call: #{method} #{endpoint_path} (status: #{endpoint_info.status})")
-        # TODO: Add metrics collection here
         conn
     end
   end

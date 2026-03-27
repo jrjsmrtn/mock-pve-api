@@ -66,7 +66,7 @@ defmodule MockPveApi.Handlers.MetricsTest do
       assert conn.status == 200
       body = Jason.decode!(conn.resp_body)
       assert is_list(body["data"])
-      assert length(body["data"]) > 0
+      assert body["data"] != []
 
       point = hd(body["data"])
       assert Map.has_key?(point, "time")
@@ -282,7 +282,7 @@ defmodule MockPveApi.Handlers.MetricsTest do
       conn = Metrics.get_node_rrd(conn)
       assert conn.status == 200
       body = Jason.decode!(conn.resp_body)
-      assert body["data"]["resolution"] == 86400
+      assert body["data"]["resolution"] == 86_400
     end
 
     test "unknown timeframe defaults to hour resolution" do

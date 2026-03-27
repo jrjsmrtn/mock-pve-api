@@ -602,29 +602,32 @@ defmodule MockPveApi.Handlers.Firewall do
 
     if cidr do
       fw = State.get_firewall(scope)
-
-      case Map.get(fw.ipsets, name) do
-        nil ->
-          json_error(conn, 404, "no such IP set '#{name}'")
-
-        ipset ->
-          if Enum.any?(ipset.entries, &(&1.cidr == cidr)) do
-            json_error(conn, 400, "entry '#{cidr}' already exists in IP set '#{name}'")
-          else
-            entry = %{
-              cidr: cidr,
-              comment: Map.get(params, "comment", ""),
-              nomatch: Map.get(params, "nomatch", false)
-            }
-
-            new_ipset = %{ipset | entries: ipset.entries ++ [entry]}
-            new_ipsets = Map.put(fw.ipsets, name, new_ipset)
-            State.update_firewall(scope, %{ipsets: new_ipsets})
-            json_resp(conn, 200, nil)
-          end
-      end
+      add_ipset_entry(conn, fw, name, cidr, params, scope)
     else
       json_error(conn, 400, "property 'cidr' is missing and it is not optional")
+    end
+  end
+
+  defp add_ipset_entry(conn, fw, name, cidr, params, scope) do
+    case Map.get(fw.ipsets, name) do
+      nil ->
+        json_error(conn, 404, "no such IP set '#{name}'")
+
+      ipset ->
+        if Enum.any?(ipset.entries, &(&1.cidr == cidr)) do
+          json_error(conn, 400, "entry '#{cidr}' already exists in IP set '#{name}'")
+        else
+          entry = %{
+            cidr: cidr,
+            comment: Map.get(params, "comment", ""),
+            nomatch: Map.get(params, "nomatch", false)
+          }
+
+          new_ipset = %{ipset | entries: ipset.entries ++ [entry]}
+          new_ipsets = Map.put(fw.ipsets, name, new_ipset)
+          State.update_firewall(scope, %{ipsets: new_ipsets})
+          json_resp(conn, 200, nil)
+        end
     end
   end
 

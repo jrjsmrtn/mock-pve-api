@@ -264,7 +264,7 @@ defmodule MockPveApi.Handlers.Nodes do
         vm_info =
           Map.merge(vm, %{
             status: "running",
-            uptime: 86400,
+            uptime: 86_400,
             pid: 1234,
             cpu: 0.15,
             cpus: vm.cores || 2,
@@ -516,7 +516,7 @@ defmodule MockPveApi.Handlers.Nodes do
         container_info =
           Map.merge(container, %{
             status: "running",
-            uptime: 86400,
+            uptime: 86_400,
             cpu: 0.08,
             cpus: container.cores || 2,
             maxcpu: container.cores || 2,
@@ -819,26 +819,24 @@ defmodule MockPveApi.Handlers.Nodes do
     params = conn.body_params
     vmid_param = Map.get(params, "vmid")
 
-    cond do
-      vmid_param ->
-        vmid = String.to_integer(vmid_param)
+    if vmid_param do
+      vmid = String.to_integer(vmid_param)
 
-        case State.create_backup(node_name, vmid, params) do
-          {:ok, upid} ->
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(200, Jason.encode!(%{data: upid}))
+      case State.create_backup(node_name, vmid, params) do
+        {:ok, upid} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(200, Jason.encode!(%{data: upid}))
 
-          {:error, message} ->
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
-        end
-
-      true ->
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(400, Jason.encode!(%{errors: %{message: "Missing vmid parameter"}}))
+        {:error, message} ->
+          conn
+          |> put_resp_content_type("application/json")
+          |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+      end
+    else
+      conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(400, Jason.encode!(%{errors: %{message: "Missing vmid parameter"}}))
     end
   end
 
@@ -2226,7 +2224,7 @@ defmodule MockPveApi.Handlers.Nodes do
   def vm_spiceproxy(conn) do
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: %{type: "spice", host: "localhost", port: 61000}}))
+    |> send_resp(200, Jason.encode!(%{data: %{type: "spice", host: "localhost", port: 61_000}}))
   end
 
   def vm_vncwebsocket(conn) do
@@ -2290,7 +2288,7 @@ defmodule MockPveApi.Handlers.Nodes do
   def container_spiceproxy(conn) do
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(200, Jason.encode!(%{data: %{type: "spice", host: "localhost", port: 61001}}))
+    |> send_resp(200, Jason.encode!(%{data: %{type: "spice", host: "localhost", port: 61_001}}))
   end
 
   def container_vncwebsocket(conn) do

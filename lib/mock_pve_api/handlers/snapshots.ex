@@ -58,22 +58,7 @@ defmodule MockPveApi.Handlers.Snapshots do
         send_not_found(conn, type, vmid)
 
       _resource ->
-        case State.create_snapshot(vmid, snapname, params) do
-          {:ok, _snapshot} ->
-            task_type = if type == :vm, do: "qmsnapshot", else: "pctsnapshot"
-
-            {:ok, upid} =
-              State.create_task(node_name, task_type, %{vmid: vmid, snapname: snapname})
-
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(200, Jason.encode!(%{data: upid}))
-
-          {:error, message} ->
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
-        end
+        do_create_snapshot(conn, node_name, vmid, snapname, type, params)
     end
   end
 
@@ -93,20 +78,7 @@ defmodule MockPveApi.Handlers.Snapshots do
         send_not_found(conn, type, vmid)
 
       _resource ->
-        case State.get_snapshot(vmid, snapname) do
-          nil ->
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(
-              404,
-              Jason.encode!(%{errors: %{message: "Snapshot '#{snapname}' not found"}})
-            )
-
-          snapshot ->
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(200, Jason.encode!(%{data: snapshot}))
-        end
+        do_get_snapshot(conn, vmid, snapname)
     end
   end
 
@@ -126,22 +98,7 @@ defmodule MockPveApi.Handlers.Snapshots do
         send_not_found(conn, type, vmid)
 
       _resource ->
-        case State.delete_snapshot(vmid, snapname) do
-          :ok ->
-            task_type = if type == :vm, do: "qmdelsnapshot", else: "pctdelsnapshot"
-
-            {:ok, upid} =
-              State.create_task(node_name, task_type, %{vmid: vmid, snapname: snapname})
-
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(200, Jason.encode!(%{data: upid}))
-
-          {:error, message} ->
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
-        end
+        do_delete_snapshot(conn, node_name, vmid, snapname, type)
     end
   end
 
@@ -161,17 +118,7 @@ defmodule MockPveApi.Handlers.Snapshots do
         send_not_found(conn, type, vmid)
 
       _resource ->
-        case State.get_snapshot_config(vmid, snapname) do
-          {:ok, config} ->
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(200, Jason.encode!(%{data: config}))
-
-          {:error, message} ->
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
-        end
+        do_get_snapshot_config(conn, vmid, snapname)
     end
   end
 
@@ -192,17 +139,7 @@ defmodule MockPveApi.Handlers.Snapshots do
         send_not_found(conn, type, vmid)
 
       _resource ->
-        case State.update_snapshot_config(vmid, snapname, params) do
-          {:ok, _updated} ->
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(200, Jason.encode!(%{data: nil}))
-
-          {:error, message} ->
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
-        end
+        do_update_snapshot_config(conn, vmid, snapname, params)
     end
   end
 
@@ -222,22 +159,111 @@ defmodule MockPveApi.Handlers.Snapshots do
         send_not_found(conn, type, vmid)
 
       _resource ->
-        case State.rollback_snapshot(vmid, snapname) do
-          :ok ->
-            task_type = if type == :vm, do: "qmrollback", else: "pctrollback"
+        do_rollback_snapshot(conn, node_name, vmid, snapname, type)
+    end
+  end
 
-            {:ok, upid} =
-              State.create_task(node_name, task_type, %{vmid: vmid, snapname: snapname})
+  # Private snapshot operation helpers
 
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(200, Jason.encode!(%{data: upid}))
+  defp do_create_snapshot(conn, node_name, vmid, snapname, type, params) do
+    case State.create_snapshot(vmid, snapname, params) do
+      {:ok, _snapshot} ->
+        task_type = if type == :vm, do: "qmsnapshot", else: "pctsnapshot"
 
-          {:error, message} ->
-            conn
-            |> put_resp_content_type("application/json")
-            |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
-        end
+        {:ok, upid} =
+          State.create_task(node_name, task_type, %{vmid: vmid, snapname: snapname})
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: upid}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(400, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  defp do_get_snapshot(conn, vmid, snapname) do
+    case State.get_snapshot(vmid, snapname) do
+      nil ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(
+          404,
+          Jason.encode!(%{errors: %{message: "Snapshot '#{snapname}' not found"}})
+        )
+
+      snapshot ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: snapshot}))
+    end
+  end
+
+  defp do_delete_snapshot(conn, node_name, vmid, snapname, type) do
+    case State.delete_snapshot(vmid, snapname) do
+      :ok ->
+        task_type = if type == :vm, do: "qmdelsnapshot", else: "pctdelsnapshot"
+
+        {:ok, upid} =
+          State.create_task(node_name, task_type, %{vmid: vmid, snapname: snapname})
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: upid}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  defp do_get_snapshot_config(conn, vmid, snapname) do
+    case State.get_snapshot_config(vmid, snapname) do
+      {:ok, config} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: config}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  defp do_update_snapshot_config(conn, vmid, snapname, params) do
+    case State.update_snapshot_config(vmid, snapname, params) do
+      {:ok, _updated} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: nil}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
+    end
+  end
+
+  defp do_rollback_snapshot(conn, node_name, vmid, snapname, type) do
+    case State.rollback_snapshot(vmid, snapname) do
+      :ok ->
+        task_type = if type == :vm, do: "qmrollback", else: "pctrollback"
+
+        {:ok, upid} =
+          State.create_task(node_name, task_type, %{vmid: vmid, snapname: snapname})
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{data: upid}))
+
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{errors: %{message: message}}))
     end
   end
 

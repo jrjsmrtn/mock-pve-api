@@ -6908,11 +6908,11 @@ defmodule MockPveApi.EndpointMatrix do
 
   @doc "The pve-openapi version used to generate this matrix."
   @spec pve_openapi_version() :: String.t()
-  def pve_openapi_version(), do: @pve_openapi_version
+  def pve_openapi_version, do: @pve_openapi_version
 
   @doc "All PVE versions in the matrix."
   @spec versions() :: [String.t()]
-  def versions(), do: @versions
+  def versions, do: @versions
 
   @doc "Check if an endpoint is available in a specific PVE version."
   @spec available?(String.t(), atom(), String.t()) :: boolean()

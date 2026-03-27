@@ -8,7 +8,7 @@ defmodule MockPveApi.Handlers.Cluster do
 
   import Plug.Conn
   require Logger
-  alias MockPveApi.{State, Fixtures}
+  alias MockPveApi.{Fixtures, State}
 
   @doc """
   GET /api2/json/cluster/resources

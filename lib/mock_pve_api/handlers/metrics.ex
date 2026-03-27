@@ -478,14 +478,14 @@ defmodule MockPveApi.Handlers.Metrics do
 
   # 1 minute
   defp get_resolution("hour"), do: 60
-  # 5 minutes  
+  # 5 minutes
   defp get_resolution("day"), do: 300
   # 30 minutes
   defp get_resolution("week"), do: 1800
   # 2 hours
   defp get_resolution("month"), do: 7200
   # 1 day
-  defp get_resolution("year"), do: 86400
+  defp get_resolution("year"), do: 86_400
   defp get_resolution(_), do: 60
 
   # 1 minute
@@ -497,7 +497,7 @@ defmodule MockPveApi.Handlers.Metrics do
   # 2 hours
   defp get_interval("month"), do: 7200
   # 1 day
-  defp get_interval("year"), do: 86400
+  defp get_interval("year"), do: 86_400
   defp get_interval(_), do: 60
 
   # 60 points
@@ -520,11 +520,9 @@ defmodule MockPveApi.Handlers.Metrics do
         "- No VMs configured"
 
       vms ->
-        vms
-        |> Enum.map(fn vm ->
+        Enum.map_join(vms, "\n", fn vm ->
           "- VM #{vm.vmid} (#{vm.name}): #{vm.status}, #{vm.memory}MB RAM, #{vm.cores} cores"
         end)
-        |> Enum.join("\n")
     end
   end
 
@@ -536,11 +534,9 @@ defmodule MockPveApi.Handlers.Metrics do
         "- No containers configured"
 
       containers ->
-        containers
-        |> Enum.map(fn ct ->
+        Enum.map_join(containers, "\n", fn ct ->
           "- CT #{ct.vmid} (#{ct.hostname}): #{ct.status}, #{ct.memory}MB RAM, #{ct.cores} cores"
         end)
-        |> Enum.join("\n")
     end
   end
 

@@ -37,7 +37,7 @@ defmodule MockPveApi.FixturesTest do
       if String.starts_with?(version, "8.") do
         resources = Fixtures.cluster_resources()
         sdn_resources = Enum.filter(resources, &(&1.type == "sdn"))
-        assert length(sdn_resources) >= 1
+        assert sdn_resources != []
       end
     end
   end

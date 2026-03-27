@@ -61,7 +61,7 @@ defmodule MockPveApi.Handlers.AccessTest do
 
       assert conn.status == 200
       body = Jason.decode!(conn.resp_body)
-      assert length(body["data"]) >= 1
+      assert body["data"] != []
     end
   end
 
@@ -172,7 +172,7 @@ defmodule MockPveApi.Handlers.AccessTest do
 
       assert conn.status == 200
       body = Jason.decode!(conn.resp_body)
-      assert length(body["data"]) >= 1
+      assert body["data"] != []
     end
   end
 
@@ -471,7 +471,7 @@ defmodule MockPveApi.Handlers.AccessTest do
 
       assert conn.status == 200
       body = Jason.decode!(conn.resp_body)
-      assert length(body["data"]) >= 1
+      assert body["data"] != []
 
       admin_role = Enum.find(body["data"], &(&1["roleid"] == "Administrator"))
       assert admin_role != nil
@@ -671,7 +671,7 @@ defmodule MockPveApi.Handlers.AccessTest do
       acl = json(conn, 200)["data"]
       assert is_list(acl)
       # Default state has root@pam with Administrator role on /
-      assert length(acl) >= 1
+      assert acl != []
       entry = hd(acl)
       assert entry["path"] == "/"
       assert entry["ugid"] == "root@pam"

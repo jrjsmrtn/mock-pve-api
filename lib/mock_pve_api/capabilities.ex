@@ -8,14 +8,20 @@ defmodule MockPveApi.Capabilities do
   This module defines which features are available in different PVE versions,
   enabling realistic testing of version-specific functionality and graceful
   degradation when features are not available.
+
+  Spec-derived features are provided by `MockPveApi.FeatureMatrix` (generated
+  from pve-openapi). Mock-specific capability atoms (Ceph generations, cgroup
+  versions, etc.) are maintained here as overlays.
   """
 
   @type version() :: String.t()
   @type capability() :: atom()
 
-  # Version capability matrix - defines which features are available in each version
-  @capabilities %{
-    # PVE 7.x series capabilities
+  # Mock-specific capability atoms that have no pve-openapi equivalent.
+  # These are the FULL list per version (not accumulated) — they represent
+  # behavioral features like Ceph generations, cgroup versions, etc.
+  # Some atoms are removed across versions (e.g. :cgroup_v1 in 7.4, :cgroup_v2 in 8.0).
+  @mock_only_capabilities %{
     "7.0" => [
       :basic_virtualization,
       :containers,
@@ -67,8 +73,6 @@ defmodule MockPveApi.Capabilities do
       :cgroup_v1,
       :pre_upgrade_validation
     ],
-
-    # PVE 8.x series capabilities
     "8.0" => [
       :basic_virtualization,
       :containers,
@@ -78,8 +82,6 @@ defmodule MockPveApi.Capabilities do
       :backup_basic,
       :ceph_quincy,
       :sdn_tech_preview,
-      :realm_sync_jobs,
-      :resource_mappings,
       :acl_improvements,
       :tui_installer,
       :cgroup_v2
@@ -93,12 +95,9 @@ defmodule MockPveApi.Capabilities do
       :backup_basic,
       :ceph_quincy,
       :sdn_stable,
-      :realm_sync_jobs,
-      :resource_mappings,
       :acl_improvements,
       :tui_installer,
       :cgroup_v2,
-      :notification_endpoints,
       :notification_filters
     ],
     "8.2" => [
@@ -111,12 +110,9 @@ defmodule MockPveApi.Capabilities do
       :ceph_quincy,
       :ceph_reef,
       :sdn_stable,
-      :realm_sync_jobs,
-      :resource_mappings,
       :acl_improvements,
       :tui_installer,
       :cgroup_v2,
-      :notification_endpoints,
       :notification_filters,
       :vmware_import_wizard,
       :auto_install_assistant,
@@ -132,12 +128,9 @@ defmodule MockPveApi.Capabilities do
       :ceph_quincy,
       :ceph_reef,
       :sdn_stable,
-      :realm_sync_jobs,
-      :resource_mappings,
       :acl_improvements,
       :tui_installer,
       :cgroup_v2,
-      :notification_endpoints,
       :notification_filters,
       :vmware_import_wizard,
       :auto_install_assistant,
@@ -145,8 +138,6 @@ defmodule MockPveApi.Capabilities do
       :ova_import_improvements,
       :kernel_6_11_opt_in
     ],
-
-    # PVE 9.x series capabilities
     "9.0" => [
       :basic_virtualization,
       :containers,
@@ -157,13 +148,9 @@ defmodule MockPveApi.Capabilities do
       :ceph_reef,
       :ceph_squid,
       :sdn_stable,
-      :sdn_fabrics,
-      :realm_sync_jobs,
-      :resource_mappings,
       :acl_improvements,
       :tui_installer,
       :cgroup_v2,
-      :notification_endpoints,
       :notification_filters,
       :vmware_import_wizard,
       :auto_install_assistant,
@@ -180,6 +167,15 @@ defmodule MockPveApi.Capabilities do
     ]
   }
 
+  # Build the combined capability matrix at compile time.
+  # For each version, merge FeatureMatrix (spec-derived) + mock-only atoms.
+  @capabilities (for version <- MockPveApi.FeatureMatrix.versions(), into: %{} do
+                   spec_features = MockPveApi.FeatureMatrix.features_for_version(version)
+                   mock_features = Map.get(@mock_only_capabilities, version, [])
+                   combined = (spec_features ++ mock_features) |> Enum.uniq() |> Enum.sort()
+                   {version, combined}
+                 end)
+
   @doc """
   Checks if a capability is available in the given PVE version.
 
@@ -187,8 +183,8 @@ defmodule MockPveApi.Capabilities do
 
       iex> MockPveApi.Capabilities.has_capability?("8.0", :sdn_tech_preview)
       true
-      
-      iex> MockPveApi.Capabilities.has_capability?("7.4", :sdn_tech_preview)  
+
+      iex> MockPveApi.Capabilities.has_capability?("7.4", :sdn_tech_preview)
       false
   """
   @spec has_capability?(version(), capability()) :: boolean()
@@ -257,21 +253,8 @@ defmodule MockPveApi.Capabilities do
     case parse_version(version) do
       {:ok, target_version} ->
         @capabilities
-        |> Enum.filter(fn {v, _caps} ->
-          case parse_version(v) do
-            {:ok, parsed_v} -> version_lte(parsed_v, target_version)
-            _ -> false
-          end
-        end)
-        |> Enum.max_by(
-          fn {v, _caps} ->
-            case parse_version(v) do
-              {:ok, parsed_v} -> parsed_v
-              _ -> {0, 0}
-            end
-          end,
-          fn -> {"7.0", @capabilities["7.0"]} end
-        )
+        |> Enum.filter(&version_lte_target?(&1, target_version))
+        |> Enum.max_by(&parsed_version_tuple/1, fn -> {"7.0", @capabilities["7.0"]} end)
         |> elem(1)
 
       _ ->
@@ -280,20 +263,32 @@ defmodule MockPveApi.Capabilities do
     end
   end
 
+  defp version_lte_target?({v, _caps}, target_version) do
+    case parse_version(v) do
+      {:ok, parsed_v} -> version_lte(parsed_v, target_version)
+      _ -> false
+    end
+  end
+
+  defp parsed_version_tuple({v, _caps}) do
+    case parse_version(v) do
+      {:ok, parsed_v} -> parsed_v
+      _ -> {0, 0}
+    end
+  end
+
   # Parse version string to tuple for comparison
   defp parse_version(version) do
-    try do
-      # Clean pre-release suffixes like "8.0-rc1" -> "8.0"
-      clean_version = version |> String.split("-") |> hd()
+    # Clean pre-release suffixes like "8.0-rc1" -> "8.0"
+    clean_version = version |> String.split("-") |> hd()
 
-      case String.split(clean_version, ".") |> Enum.map(&String.to_integer/1) do
-        [major, minor] -> {:ok, {major, minor}}
-        [major, minor | _] -> {:ok, {major, minor}}
-        _ -> :error
-      end
-    rescue
+    case String.split(clean_version, ".") |> Enum.map(&String.to_integer/1) do
+      [major, minor] -> {:ok, {major, minor}}
+      [major, minor | _] -> {:ok, {major, minor}}
       _ -> :error
     end
+  rescue
+    _ -> :error
   end
 
   # Check if version1 <= version2

@@ -8103,8 +8103,8 @@ Virtual network management
   "data": [
     {
       "tag": 100,
-      "zone": "localnetwork",
-      "vnet": "vnet100"
+      "vnet": "vnet100",
+      "zone": "localnetwork"
     }
   ]
 }

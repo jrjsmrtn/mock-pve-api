@@ -9,7 +9,7 @@ defmodule MockPveApi.Fixtures do
   enabling comprehensive testing of version-specific features and behaviors.
   """
 
-  alias MockPveApi.{State, Capabilities}
+  alias MockPveApi.{Capabilities, State}
 
   @doc """
   Gets version-specific cluster resources response.
@@ -32,7 +32,7 @@ defmodule MockPveApi.Fixtures do
         disk: 50_000_000_000,
         maxdisk: 100_000_000_000,
         level: "",
-        uptime: 86400
+        uptime: 86_400
       },
       %{
         id: "node/pve-node2",
@@ -95,7 +95,7 @@ defmodule MockPveApi.Fixtures do
         total: 100_000_000_000,
         free: 50_000_000_000
       },
-      uptime: 86400,
+      uptime: 86_400,
       loadavg: [0.12, 0.15, 0.18],
       kversion: get_kernel_version(pve_version),
       cpuinfo: %{

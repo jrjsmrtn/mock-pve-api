@@ -218,16 +218,19 @@ defmodule Mix.Tasks.Pve.CoverageDiff do
 
     for {section, entries} <- by_section do
       Mix.shell().info("  /#{section} (#{length(entries)} missing):")
-
-      for {path, method, since} <- Enum.sort(entries) do
-        method_str = method |> Atom.to_string() |> String.upcase() |> String.pad_trailing(7)
-        padded_path = String.pad_trailing(path, max_path_len)
-        since_str = if since, do: "since #{since}", else: "since ?"
-        Mix.shell().info("    #{method_str}#{padded_path}  #{since_str}")
-      end
+      print_section_entries(entries, max_path_len)
     end
 
     Mix.shell().info("")
+  end
+
+  defp print_section_entries(entries, max_path_len) do
+    for {path, method, since} <- Enum.sort(entries) do
+      method_str = method |> Atom.to_string() |> String.upcase() |> String.pad_trailing(7)
+      padded_path = String.pad_trailing(path, max_path_len)
+      since_str = if since, do: "since #{since}", else: "since ?"
+      Mix.shell().info("    #{method_str}#{padded_path}  #{since_str}")
+    end
   end
 
   defp print_method_mismatches([]), do: :ok
@@ -250,7 +253,7 @@ defmodule Mix.Tasks.Pve.CoverageDiff do
     Mix.shell().info("Since conflicts:")
 
     for {path, cov_since, mat_since} <- conflicts do
-      Mix.shell().info("  #{path}: coverage=\"#{cov_since}\" matrix=\"#{mat_since}\"")
+      Mix.shell().info(~s[  #{path}: coverage="#{cov_since}" matrix="#{mat_since}"])
     end
 
     Mix.shell().info("")

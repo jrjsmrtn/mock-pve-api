@@ -15,7 +15,7 @@ defmodule MockPveApi.VersionCompatibilityTest do
 
   use ExUnit.Case, async: false
 
-  alias MockPveApi.{TestHelper, Capabilities}
+  alias MockPveApi.{Capabilities, TestHelper}
 
   @moduletag :version_compatibility
 
