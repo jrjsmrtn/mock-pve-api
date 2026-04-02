@@ -521,6 +521,14 @@ Closed highest-impact coverage gaps based on pvex usage patterns. Achieved 220/2
 - [x] **Automated example testing**: `make test-examples` starts SSL-enabled dev server, runs shell + proxmoxer tests, reports results
 - [x] **Document compatibility**: Updated `docs/reference/client-examples.md` and `examples/README.md` with verified compatibility matrix (proxmoxer 2.3.0, curl)
 
+### **Phase 5.3: PVE 8.4 & 9.1 Version Support (planned)**
+EndpointMatrix already covers 8.4 and 9.1 (from pve-openapi specs), but Capabilities and version info fall back to 8.3/9.0. This sprint adds proper support.
+- [ ] **Capabilities entries**: Add 8.4 and 9.1 to `@capabilities` map with version-specific features
+- [ ] **Version info**: Add `get_version_info("8.4")` and `get_version_info("9.1")` with correct release strings, repoids, and kernel versions
+- [ ] **Fixtures**: Version-appropriate default responses for any 8.4/9.1-specific behaviour differences
+- [ ] **Tests**: Version-specific tests for 8.4 and 9.1 in VersionCompatibilityTest
+- [ ] **Docs**: Update supported versions in README, CLAUDE.md, and environment-variables.md (7.0-9.1)
+
 ### **Phase 6: Advanced Features (v0.6.0)**
 - [ ] WebSocket support for console/VNC simulation
 - [ ] Event streaming simulation

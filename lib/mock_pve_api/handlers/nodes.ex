@@ -240,10 +240,12 @@ defmodule MockPveApi.Handlers.Nodes do
 
       _node ->
         vms = State.get_vms(node_name)
+        # Transform to PVE API list format (string keys, PVE field names)
+        pve_vms = Enum.map(vms, &vm_to_list_entry/1)
 
         conn
         |> put_resp_content_type("application/json")
-        |> send_resp(200, Jason.encode!(%{data: vms}))
+        |> send_resp(200, Jason.encode!(%{data: pve_vms}))
     end
   end
 
@@ -321,9 +323,19 @@ defmodule MockPveApi.Handlers.Nodes do
         send_not_found(conn, "VM", vmid)
 
       vm ->
+        # Config endpoint returns config-format keys
+        config = %{
+          "name" => get_field(vm, [:name]),
+          "memory" => get_field(vm, [:memory]),
+          "cores" => get_field(vm, [:cores]) || 2,
+          "sockets" => get_field(vm, [:sockets]) || 1,
+          "ostype" => get_field(vm, [:ostype]) || "l26",
+          "bootdisk" => get_field(vm, [:bootdisk]) || "scsi0"
+        }
+
         conn
         |> put_resp_content_type("application/json")
-        |> send_resp(200, Jason.encode!(%{data: vm}))
+        |> send_resp(200, Jason.encode!(%{data: config}))
     end
   end
 
@@ -492,10 +504,12 @@ defmodule MockPveApi.Handlers.Nodes do
 
       _node ->
         containers = State.get_containers(node_name)
+        # Transform to PVE API list format (string keys, PVE field names)
+        pve_containers = Enum.map(containers, &ct_to_list_entry/1)
 
         conn
         |> put_resp_content_type("application/json")
-        |> send_resp(200, Jason.encode!(%{data: containers}))
+        |> send_resp(200, Jason.encode!(%{data: pve_containers}))
     end
   end
 
@@ -1157,6 +1171,52 @@ defmodule MockPveApi.Handlers.Nodes do
 
   defp maybe_put(map, _key, nil), do: map
   defp maybe_put(map, key, value), do: Map.put(map, key, value)
+
+  # Transform stored VM to PVE API list entry format.
+  # Real PVE GET /nodes/{node}/qemu returns "vmid", "name", "status",
+  # "cpus", "mem", "maxmem", "disk", "maxdisk", etc.
+  defp vm_to_list_entry(vm) do
+    %{
+      "vmid" => get_field(vm, [:vmid]),
+      "name" => get_field(vm, [:name]),
+      "status" => get_field(vm, [:status]) || "stopped",
+      "cpus" => get_field(vm, [:cores, :cpus]) || 2,
+      "maxcpu" => get_field(vm, [:cores, :cpus]) || 2,
+      "mem" => get_field(vm, [:memory, :mem]) || 0,
+      "maxmem" => get_field(vm, [:memory, :maxmem]) || 0,
+      "disk" => get_field(vm, [:disk]) || 0,
+      "maxdisk" => get_field(vm, [:maxdisk]) || 0,
+      "uptime" => get_field(vm, [:uptime]) || 0,
+      "pid" => get_field(vm, [:pid])
+    }
+  end
+
+  # Transform stored container to PVE API list entry format.
+  # Real PVE GET /nodes/{node}/lxc returns "vmid", "name", "status",
+  # "cpus", "mem", "maxmem", etc. Note: PVE uses "name" not "hostname" in list.
+  defp ct_to_list_entry(ct) do
+    %{
+      "vmid" => get_field(ct, [:vmid]),
+      "name" => get_field(ct, [:hostname, :name]),
+      "status" => get_field(ct, [:status]) || "stopped",
+      "type" => "lxc",
+      "cpus" => get_field(ct, [:cores, :cpus]) || 1,
+      "maxcpu" => get_field(ct, [:cores, :cpus]) || 1,
+      "mem" => get_field(ct, [:memory, :mem]) || 0,
+      "maxmem" => get_field(ct, [:memory, :maxmem]) || 0,
+      "disk" => get_field(ct, [:disk]) || 0,
+      "maxdisk" => get_field(ct, [:maxdisk]) || 0,
+      "uptime" => get_field(ct, [:uptime]) || 0,
+      "pid" => get_field(ct, [:pid])
+    }
+  end
+
+  # Get a field from a map, trying multiple key variants (atom and string).
+  defp get_field(map, keys) do
+    Enum.find_value(keys, fn key ->
+      Map.get(map, key) || Map.get(map, to_string(key))
+    end)
+  end
 
   # Node DNS endpoints
 
