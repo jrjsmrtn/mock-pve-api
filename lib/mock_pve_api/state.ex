@@ -1137,6 +1137,8 @@ defmodule MockPveApi.State do
     if Map.has_key?(state.vms, vmid) do
       {:reply, {:error, "VM #{vmid} already exists"}, state}
     else
+      config = atomize_keys(config)
+
       vm =
         Map.merge(
           %{
@@ -1166,7 +1168,7 @@ defmodule MockPveApi.State do
         {:reply, {:error, "VM #{vmid} not found"}, state}
 
       vm when vm.node == node ->
-        updated_vm = Map.merge(vm, config)
+        updated_vm = Map.merge(vm, atomize_keys(config))
         new_vms = Map.put(state.vms, vmid, updated_vm)
         new_state = %{state | vms: new_vms}
         {:reply, {:ok, updated_vm}, new_state}
@@ -1201,6 +1203,8 @@ defmodule MockPveApi.State do
     if Map.has_key?(state.containers, vmid) do
       {:reply, {:error, "Container #{vmid} already exists"}, state}
     else
+      config = atomize_keys(config)
+
       container =
         Map.merge(
           %{
@@ -3876,5 +3880,14 @@ defmodule MockPveApi.State do
       aliases: %{},
       ipsets: %{}
     }
+  end
+
+  # HTTP body params arrive with string keys; normalize to atom keys
+  # for consistent storage. PVE API keys are a bounded set so to_atom is safe.
+  defp atomize_keys(map) when is_map(map) do
+    Map.new(map, fn
+      {k, v} when is_binary(k) -> {String.to_atom(k), v}
+      {k, v} -> {k, v}
+    end)
   end
 end

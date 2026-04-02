@@ -380,13 +380,15 @@ defmodule MockPveApi.Handlers.Nodes do
         send_not_found(conn, "Node", node_name)
 
       _node ->
-        config = %{
-          name: Map.get(params, "name", "vm-#{vmid}"),
-          memory: get_int_param(params, "memory", 2048),
-          cores: get_int_param(params, "cores", 2),
-          sockets: get_int_param(params, "sockets", 1),
-          ostype: Map.get(params, "ostype", "l26")
-        }
+        config =
+          %{
+            name: Map.get(params, "name", "vm-#{vmid}"),
+            memory: get_int_param(params, "memory", 2048),
+            cores: get_int_param(params, "cores", 2),
+            sockets: get_int_param(params, "sockets", 1),
+            ostype: Map.get(params, "ostype", "l26")
+          }
+          |> maybe_put(:status, Map.get(params, "status"))
 
         case State.create_vm(node_name, vmid, config) do
           {:ok, _vm} ->
@@ -633,13 +635,15 @@ defmodule MockPveApi.Handlers.Nodes do
         send_not_found(conn, "Node", node_name)
 
       _node ->
-        config = %{
-          hostname: Map.get(params, "hostname", "ct-#{vmid}"),
-          memory: get_int_param(params, "memory", 1024),
-          cores: get_int_param(params, "cores", 1),
-          ostemplate: Map.get(params, "ostemplate"),
-          rootfs: Map.get(params, "rootfs", "local-lvm:8")
-        }
+        config =
+          %{
+            hostname: Map.get(params, "hostname", "ct-#{vmid}"),
+            memory: get_int_param(params, "memory", 1024),
+            cores: get_int_param(params, "cores", 1),
+            ostemplate: Map.get(params, "ostemplate"),
+            rootfs: Map.get(params, "rootfs", "local-lvm:8")
+          }
+          |> maybe_put(:status, Map.get(params, "status"))
 
         case State.create_container(node_name, vmid, config) do
           {:ok, _container} ->
